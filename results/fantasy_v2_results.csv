@@ -1,2 +1,7 @@
 Total picks,Top 5 picks,Top 5 hit rate,Top 10 picks,Top 10 hit rate,Average Actual Finish,Average Prediction Error,RaceName,Picks
-6,3,0.5,6,1.0,4.67,0.98,Italian Grand Prix,"NOR, PIA, LEC, VER, RUS, ALB"
+6,4,0.67,5,0.83,5.33,2.46,Qatar Grand Prix,"VER, RUS, LEC, GAS, ZHO, HAM"
+6,3,0.5,6,1.0,4.83,0.9,Italian Grand Prix,"NOR, PIA, LEC, VER, MAG, RUS"
+5,4,0.8,5,1.0,3.8,0.92,Monaco Grand Prix,"LEC, NOR, PIA, HAM, RUS"
+6,5,0.83,6,1.0,3.5,0.91,Canadian Grand Prix,"VER, NOR, RUS, HAM, ALO, PIA"
+6,4,0.67,6,1.0,3.83,1.22,Singapore Grand Prix,"VER, NOR, PIA, SAI, HAM, RUS"
+6,4,0.67,6,1.0,4.33,0.98,Dutch Grand Prix,"VER, NOR, PIA, HAM, SAI, PER"
