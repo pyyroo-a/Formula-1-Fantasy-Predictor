@@ -37,10 +37,10 @@ To reduce over-reliance on a single feature, we engineering new features:
 - **FormTrend**  
   Captures improvement or decline in recent performance
 
-- **AveragePositionChange**
+- **AveragePositionChange**  
   Measures how many positions a driver typically gains or loses
 
-- **Consistency**
+- **Consistency**  
   This represents stability in driver performance acrosses races
 
 ---
