@@ -59,6 +59,10 @@ def build_pantasy_team(
         fantasy_table["RaceName"] == race_name
     ].copy()
 
+    race_predictions["GridGap"] = (
+        race_predictions["GridPosition"] - race_predictions["Predicted"]
+    )
+
     safe_picks = get_safe_picks(race_predictions)
 
     midfield = get_midfield_drivers(race_predictions)
