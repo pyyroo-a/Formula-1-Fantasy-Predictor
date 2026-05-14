@@ -21,7 +21,7 @@ def get_midfield_drivers(
         race_predictions: pd.DataFrame,
         lower_bound: int = 5,
         upper_bound: int = 12,
-        confidence_threshold: float = 0.5
+        confidence_threshold: float = 3.0
 ) -> pd.DataFrame:
     midfield = race_predictions[
         (race_predictions["Predicted"] > lower_bound) &
@@ -51,7 +51,7 @@ def get_position_gain_picks(midfield: pd.DataFrame) -> pd.DataFrame:
 
     return pd.concat([stable_midfield, risky_pick])
 
-def build_pantasy_team(
+def build_fantasy_team(
         fantasy_table: pd.DataFrame,
         race_name: str
 ) -> pd.DataFrame:
