@@ -52,7 +52,9 @@ def add_grid_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df["GridvsForm"] = df["GridPosition"] - df["Position"]
 
-    df["FormTrend"] = df["Rolling3Average"] - df["PreviousPosition"] 
+    df["FormTrend"] = df["Rolling3Average"] - df["PreviousPosition"]
+
+    return df
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     df = add_rolling_features(df)

@@ -3,13 +3,15 @@ from sklearn.ensemble import RandomForestRegressor
 import numpy as np
 
 def prepare_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
-    features[
+
+
+    features =[
         "TeamName",
         "GridPosition",
         "PreviousPosition",
         "AveragePositionChange",
         "Consistency",
-        "GridVsForm",
+        "GridvsForm",
         "FormTrend",
         "Position"
     ]
