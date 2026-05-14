@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
 import numpy as np
 
 def prepare_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
@@ -44,7 +45,13 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestRegres
 def predict(model: RandomForestRegressor, X_test: pd.DataFrame) -> np.ndarray:
     return model.predict(X_test)
 
-def build_fantasy_team(test_df: pd.DataFrame, predictions: np.ndarray) -> pd.DataFrame:
+def evaluate_model(y_test: pd.Series, predictions: np.ndarray) -> float:
+    mean_error = mean_absolute_error(y_test, predictions)
+    print(f"Mean Absolute Error: {mean_error:.2f}")
+
+    return mean_error
+
+def build_fantasy_table(test_df: pd.DataFrame, predictions: np.ndarray) -> pd.DataFrame:
     fantasy_table = test_df.copy()
 
     fantasy_table["Predicted"] = predictions.round(2)

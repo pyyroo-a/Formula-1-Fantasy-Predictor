@@ -27,7 +27,7 @@ def add_position_change(df: pd.DataFrame) -> pd.DataFrame:
     df["PositionChange"] = df["GridPosition"] - df["Position"]
 
     df["AveragePositionChange"] = (
-        df.groupby("Abbreviation")["Position"]
+        df.groupby("Abbreviation")["PositionChange"]
         .transform(lambda x: x.rolling(window=3).mean())
     )
 
