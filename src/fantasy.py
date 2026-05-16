@@ -51,6 +51,18 @@ def get_position_gain_picks(midfield: pd.DataFrame) -> pd.DataFrame:
 
     return pd.concat([stable_midfield, risky_pick])
 
+def calculate_fantasy_score(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    df["FantasyValue"] = (
+        0.5 * df["PositionChange"] +
+        0.4 * df["Top10Finish"] +
+        0.3 * df["Top5Finish"] -
+        0.2 * df["DNF"]
+    )
+
+    return df
+
 def build_fantasy_team(
         fantasy_table: pd.DataFrame,
         race_name: str
@@ -58,6 +70,8 @@ def build_fantasy_team(
     race_predictions = fantasy_table[
         fantasy_table["RaceName"] == race_name
     ].copy()
+
+    race_predictions = calculate_fantasy_score(race_predictions)
 
     race_predictions["GridGap"] = (
         race_predictions["GridPosition"] - race_predictions["Predicted"]

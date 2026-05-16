@@ -56,10 +56,20 @@ def add_grid_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def add_results_flags(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    df["Top10Finish"] = (df["Position"] <= 10).astype(int)
+    df["Top5Finish"] = (df["Position"] <= 5).astype(int)
+    df["DNF"] = (df["Status"] != "Finished").astype(int)
+
+    return df
+
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     df = add_rolling_features(df)
     df = add_position_change(df)
     df = add_consistency(df)
     df = add_grid_features(df)
+    df = add_results_flags(df)
 
     return df
