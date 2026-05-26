@@ -73,8 +73,10 @@ def assign_pick_categories(df: pd.DataFrame) -> pd.DataFrame:
     def categorize(value):
         if value >= high:
             return "Value"
+        
         elif value <= low:
             return "Risk"
+        
         else:
             return "Avoid"
         
@@ -113,3 +115,29 @@ def build_fantasy_team(
     ]).drop_duplicates()
 
     return fantasy_team
+
+def generate_explanations(team: pd.DataFrame) -> pd.DataFrame:
+    team = team.copy()
+
+    def explain(row):
+        grid = int(row["GridPosition"])
+        predicted = round(row["Predicted"])
+        avg_change = round(row["AveragePositionChange"], 1)
+        gap = round(row["GridGap"], 1)
+
+        if row["PickCategory"] == "Safe":
+            return f"Safe Pick: starts P{grid}, predicted P{predicted}, consistent top finisher"
+        
+        elif row["PickCategory"] == "Value":
+            return f"Value Pick: starts P{grid}, predicted P{predicted}, averages {avg_change} position gains — strong upside"
+        
+        elif row["PickCategory"] == "Risk":
+            return f"Risk Pick: starts p{grid}, predicted P{predicted}, inconsistent but {gap} positions of potential upside"
+
+        else:
+            return f"Avoid: starts P{grid}, predicted P{predicted}, low position gain history averaging {avg_change}"
+        
+    team["Explanation"] = team.apply(explain, axis=1)
+
+    return team
+
