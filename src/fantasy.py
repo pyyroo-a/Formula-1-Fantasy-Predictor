@@ -63,6 +63,28 @@ def calculate_fantasy_score(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def assign_pick_categories(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    cutoffs = df["FantasyValue"].quantile([0.25,0.75])
+    low = cutoffs[0.25]
+    high = cutoffs[0.75]
+
+    def categorize(value):
+        if value >= high:
+            return "Value"
+        elif value <= low:
+            return "Risk"
+        else:
+            return "Avoid"
+        
+
+    df["PickCategory"] = df["FantasyValue"].apply(categorize) 
+    # Above code goes through every row in the DF and then passes it into categorize to assign a category value
+    # This is based on the drivers fantasy value and then compared with the position 
+
+    return df
+
 def build_fantasy_team(
         fantasy_table: pd.DataFrame,
         race_name: str
@@ -78,8 +100,10 @@ def build_fantasy_team(
     )
 
     safe_picks = get_safe_picks(race_predictions)
+    safe_picks["PickCategory"] = "Safe"
 
     midfield = get_midfield_drivers(race_predictions)
+    midfield = assign_pick_categories(midfield)
 
     position_gain_picks = get_position_gain_picks(midfield)
 
