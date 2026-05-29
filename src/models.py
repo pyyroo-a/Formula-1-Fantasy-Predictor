@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 import numpy as np
+from itertools import product
 
 def prepare_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
 
@@ -64,3 +65,58 @@ def build_fantasy_table(test_df: pd.DataFrame, predictions: np.ndarray) -> pd.Da
     ).round(2)
 
     return fantasy_table
+
+def tune_gainer_weights(fantasy_table: pd.DataFrame) -> dict:
+    positive_weights = np.arange(0.1, 1.1, 0.1)
+    negative_weights = np.arange(0.1, 0.6, 0.1)
+
+    best_weights = None
+    best_score = -np.inf
+
+    races = fantasy_table["RaceName"].unique()
+
+    for w1, w2, w3, w4 in product(positive_weights, negative_weights, negative_weights, positive_weights):
+        total_position_gain = 0
+        race_count = 0
+
+        for race in races:
+            race_df = fantasy_table[fantasy_table["RaceName"] == race].copy()
+
+            midfield = race_df[
+                (race_df["Predicted"] > 5) &
+                (race_df["Predicted"] <= 12) 
+            ].copy()
+
+            if midfield.empty:
+                continue
+
+            midfield["GridGap"] = midfield["GridPosition"] - midfield["Predicted"]
+
+            midfield["GainerScore"] = (
+                w1 * midfield["AveragePositionChange"] -
+                w2 * midfield["Predicted"] -
+                w3 * midfield["Confidence"] +
+                w4 * midfield["GridGap"]
+            )
+
+            top_picks = midfield.sort_values(by="GainerScore", ascending=False).head(3)
+            total_position_gain += top_picks["PositionChange"].mean()
+            race_count += 1
+
+            if race_count == 0:
+                continue
+
+            avg_gain = total_position_gain / race_count
+
+            if avg_gain > best_score:
+                best_score = avg_gain
+                best_weights = {
+                    "avg_position_change": round(w1, 1),
+                    "predicted": round(w2, 1),
+                    "confidence": round(w3, 1),
+                    "grid_gap": round(w4, 1),
+                    "avg_position_gain": round(avg_gain, 3)
+                }
+    
+    return best_weights
+
