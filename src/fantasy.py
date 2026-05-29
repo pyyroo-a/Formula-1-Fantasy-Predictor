@@ -1,15 +1,21 @@
 import pandas as pd
 
-def calculate_gainer_score(midfield: pd.DataFrame) -> pd.DataFrame:
+def calculate_gainer_score(
+    midfield: pd.DataFrame,
+    w_avg_position_change: float = 0.1,
+    w_predicted: float = 0.1,
+    w_confidence: float = 0.1,
+    w_grid_gap: float = 0.4
+) -> pd.DataFrame:
     midfield = midfield.copy()
 
     midfield["GridGap"] = midfield["GridPosition"] - midfield["Predicted"]
 
     midfield["GainerScore"] = (
-    0.6 *  midfield["AveragePositionChange"]
-    - 0.2 * midfield["Predicted"]
-    - 0.1 * midfield["Confidence"]
-    + 0.4 * midfield["GridGap"]
+        w_avg_position_change * midfield["AveragePositionChange"]
+        - w_predicted * midfield["Predicted"]
+        - w_confidence * midfield["Confidence"]
+        + w_grid_gap * midfield["GridGap"]
     )
 
     return midfield
@@ -21,14 +27,24 @@ def get_midfield_drivers(
         race_predictions: pd.DataFrame,
         lower_bound: int = 5,
         upper_bound: int = 12,
-        confidence_threshold: float = 3.0
+        confidence_threshold: float = 3.0,
+        w_avg_position_change: float = 0.1,
+        w_predicted: float = 0.1,
+        w_confidence: float = 0.1,
+        w_grid_gap: float = 0.4
 ) -> pd.DataFrame:
     midfield = race_predictions[
         (race_predictions["Predicted"] > lower_bound) &
         (race_predictions["Predicted"] <= upper_bound)
     ].copy()
 
-    midfield = calculate_gainer_score(midfield)
+    midfield = calculate_gainer_score(
+        midfield,
+        w_avg_position_change=w_avg_position_change,
+        w_predicted=w_predicted,
+        w_confidence=w_confidence,
+        w_grid_gap=w_grid_gap
+    )
 
     midfield = midfield[midfield["Confidence"] < confidence_threshold]
 
@@ -89,7 +105,11 @@ def assign_pick_categories(df: pd.DataFrame) -> pd.DataFrame:
 
 def build_fantasy_team(
         fantasy_table: pd.DataFrame,
-        race_name: str
+        race_name: str,
+        w_avg_position_change: float = 0.1,
+        w_predicted: float = 0.1,
+        w_confidence: float = 0.1,
+        w_grid_gap: float = 0.4
 ) -> pd.DataFrame:
     race_predictions = fantasy_table[
         fantasy_table["RaceName"] == race_name
@@ -104,7 +124,13 @@ def build_fantasy_team(
     safe_picks = get_safe_picks(race_predictions)
     safe_picks["PickCategory"] = "Safe"
 
-    midfield = get_midfield_drivers(race_predictions)
+    midfield = get_midfield_drivers(
+        race_predictions,
+        w_avg_position_change=w_avg_position_change,
+        w_predicted=w_predicted,
+        w_confidence=w_confidence,
+        w_grid_gap=w_grid_gap
+    )
     midfield = assign_pick_categories(midfield)
 
     position_gain_picks = get_position_gain_picks(midfield)
@@ -140,4 +166,45 @@ def generate_explanations(team: pd.DataFrame) -> pd.DataFrame:
     team["Explanation"] = team.apply(explain, axis=1)
 
     return team
+
+def evaluate_fantasy_picks(
+        fantasy_table: pd.DataFrame,
+        w_avg_position_change: float = 0.1,
+        w_predicted: float = 0.1,
+        w_confidence: float = 0.1,
+        w_grid_gap: float = 0.4
+) -> pd.DataFrame:
+    results = []
+    races = fantasy_table["RaceName"].unique()
+
+    for race in races:
+        team = build_fantasy_team(
+            fantasy_table,
+            race,
+            w_avg_position_change=w_avg_position_change,
+            w_predicted=w_predicted,
+            w_confidence=w_confidence,
+            w_grid_gap=w_grid_gap
+        )
+
+        total_picks = len(team)
+        top5_hits = (team["Position"] <= 5).sum()
+        top10_hits = (team["Position"] <= 10).sum()
+        avg_finish = team["Position"].mean()
+        avg_position_gain = team["PositionChange"].mean()
+        dnf_count = (team["Status"] != "Finished").sum() if "Status" in team.columns else 0
+
+        results.append({
+            "RaceName": race,
+            "Total Picks": total_picks,
+            "Top 5 Hits": int(top5_hits),
+            "Top 5 Hit Rate": round(top5_hits / total_picks, 2),
+            "Top 10 Hits": int(top10_hits),
+            "Top 10 Hit Rate": round(top10_hits / total_picks, 2),
+            "Avg Finish": round(avg_finish, 2),
+            "Avg Position Gain": round(avg_position_gain, 2),
+            "DNF Count": int(dnf_count)
+        })
+
+    return pd.DataFrame(results)
 
