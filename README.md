@@ -7,21 +7,27 @@ the unpredictability of F1.
 ## 🎯 Motivation
 F1 Fantasy is pretty difficult no matter what people think. The sport is very chaotic as anything can happen, 
 a consistent midfield driver could suddenly shine in certain circuits or perform atrociously. So using plain statistics is not enough to capture it, 
-thefore this project attempts to solve it.
+therefore this project attempts to solve it.
 
 ## 🔍 Project Overview
 - Trained on 2023 F1 race data, tested on 2024 season
-- Evolved through 3 model versions with increasing sophistication
+- Evolved through 4 model versions with increasing sophistication
 - Focus on both top driver prediction AND midfield chaos detection
+- Fantasy value layer on top of position prediction for practical recommendations
 
-## ⚙️ Features Engineering
+## ⚙️ Feature Engineering
 | Feature | Description |
 |---------|-------------|
 | Rolling3Avg | 3-race rolling average performance |
-| GainerScore | Heuristic scoring driver consistency and performance |
-| GridGap | Starting position minus finishing position — captures race chaos |
-
-There are more features built around Rolling3Avg to help with feature dominance.
+| PositionChange | Positions gained or lost per race |
+| AveragePositionChange | Rolling 3-race average of position gains |
+| Consistency | Standard deviation of position change over 3 races |
+| GridvsForm | Starting position vs recent average finish — detects overperformance potential |
+| FormTrend | Rolling average vs previous race — captures momentum |
+| GridGap | Starting position minus predicted finish — captures upside potential |
+| Top10Finish | Binary flag for points finish |
+| Top5Finish | Binary flag for strong finish |
+| FantasyValue | Weighted score combining position gain, top finish bonuses |
 
 ## 📈 Model Evolution (so far)
 **V1** → Basic driver ranking using 2023/2024 race data
@@ -33,23 +39,30 @@ midfield drivers alongside top performers
 circuit performance. Resulted in different midfield picks 
 for chaotic circuits like Italian GP and Qatar GP compared to V2
 
-*Will definitely try to improve the overall selection logic and have a better accuracy as well with more models if needed.*
+**V4** → Refactored entire codebase into reusable src modules, 
+defined proper FantasyValueScore, introduced formal pick categories 
+(Safe/Value/Risk/Avoid), auto-tuned GainerScore weights using 
+historical race data, and added explanation text per pick
 
 ## 📊 Results
-- Mean Absolute Error: 1.49
-- V2 vs V3 comparison shows meaningful difference in midfield 
-picks for unpredictable circuits while top 5 predictions 
-remained ~90% consistent
+- Mean Absolute Error: 1.01 (improved from 1.49 after refactoring)
+- Top 5 Hit Rate: 0.61 across 2024 season
+- Top 10 Hit Rate: 0.95 across 2024 season
+- Average Finish: 4.68
+- V4 vs V3 comparison shows marginal improvement in average finish 
+with meaningful differences in midfield picks for chaotic circuits
 
 ## 🛠️ Tech Stack
 - Python
 - Pandas, NumPy
-- Scikit-learn (Random Forest Classifier)
+- Scikit-learn (Random Forest Regressor)
 - Jupyter Notebook
 - Web dev soon!
 
 ## 🚀 Future Plans
-- [ ] Web interface for fantasy pick recommendations
+- [ ] V5 — Track and circuit profiling
+- [ ] V6 — Upgrade ML model (XGBoost, LightGBM)
+- [ ] V7 — Web interface for fantasy pick recommendations
 - [ ] Next race display and countdown
 - [ ] Weather integration per circuit
 - [ ] Season calendar and remaining races tracker
@@ -64,11 +77,13 @@ F1-Fantasy-Predictor/
 │   ├── 03-analyze-v2-v3.ipynb
 │   ├── model-v1-2023-2024.ipynb
     ├── model-v2-fantasy-logic.ipynb
-│   └── model-v3-smarter-features.ipynb
+    ├── model-v3-smarter-features.ipynb
+│   └── model-v4-fantasy-logic.ipynb
 ├── results/
 │   ├── fantasy_v1_results.csv
     ├── fantasy_v2_results.csv
-│   └── fantasy_v3_results.csv
+    ├── fantasy_v3_results.csv
+│   └── fantasy_v4_results.csv
 ├── src/
 │   ├── data_loader.py
     ├── features.py
