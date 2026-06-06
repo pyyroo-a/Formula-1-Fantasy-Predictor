@@ -10,10 +10,11 @@ a consistent midfield driver could suddenly shine in certain circuits or perform
 therefore this project attempts to solve it.
 
 ## 🔍 Project Overview
-- Trained on 2023 F1 race data, tested on 2024 season
-- Evolved through 4 model versions with increasing sophistication
+- Trained on 2023 + 2024 F1 race data, tested on 2025 season
+- Evolved through 5 model versions with increasing sophistication
 - Focus on both top driver prediction AND midfield chaos detection
 - Fantasy value layer on top of position prediction for practical recommendations
+- Full stack web application for race by race fantasy team recommendations
 
 ## ⚙️ Feature Engineering
 | Feature | Description |
@@ -29,7 +30,7 @@ therefore this project attempts to solve it.
 | Top5Finish | Binary flag for strong finish |
 | FantasyValue | Weighted score combining position gain, top finish bonuses |
 
-## 📈 Model Evolution (so far)
+## 📈 Model Evolution
 **V1** → Basic driver ranking using 2023/2024 race data
 
 **V2** → Introduced GainerScore to identify consistent 
@@ -44,33 +45,51 @@ defined proper FantasyValueScore, introduced formal pick categories
 (Safe/Value/Risk/Avoid), auto-tuned GainerScore weights using 
 historical race data, and added explanation text per pick
 
+**V5** → Added circuit profiling with manual labels (street/permanent/semi-permanent, DRS zones) 
+combined with data driven stats per circuit. Trained on 2023+2024 combined data 
+and tested on the live 2025 season.
+
+**V7 (Web App)** → Built a full stack web interface — FastAPI backend serving the ML pipeline 
+as an API, React + Tailwind frontend with race selector, driver cards, pick category badges, 
+and explanation text per pick.
+
 ## 📊 Results
-- Mean Absolute Error: 1.01 (improved from 1.49 after refactoring)
+- Mean Absolute Error: 0.59 on 2025 test data (trained on 2023+2024)
 - Top 5 Hit Rate: 0.61 across 2024 season
 - Top 10 Hit Rate: 0.95 across 2024 season
 - Average Finish: 4.68
-- V4 vs V3 comparison shows marginal improvement in average finish 
-with meaningful differences in midfield picks for chaotic circuits
+- Predictions validated against actual 2025 race results
 
 ## 🛠️ Tech Stack
-- Python
-- Pandas, NumPy
+
+**Machine Learning**
+- Python, Pandas, NumPy
 - Scikit-learn (Random Forest Regressor)
+- FastF1 for race data
 - Jupyter Notebook
-- Web dev soon!
+
+**Web Application**
+- FastAPI (backend API)
+- React + Vite (frontend)
+- Tailwind CSS (styling)
 
 ## 🚀 Future Plans
-- [ ] V5 — Track and circuit profiling
+- [ ] Constructor picks (2 constructors per fantasy team)
+- [ ] Budget cap constraints for realistic team building
+- [ ] Future race predictions using qualifying data
 - [ ] V6 — Upgrade ML model (XGBoost, LightGBM)
-- [ ] V7 — Web interface for fantasy pick recommendations
-- [ ] Next race display and countdown
 - [ ] Weather integration per circuit
-- [ ] Season calendar and remaining races tracker
+- [ ] Tyre degradation analysis using FastF1 lap data
+- [ ] Next race display and countdown
 - [ ] AI assistant for weekly fantasy decisions
+- [ ] Production deployment
 
 ## 📁 Repository Structure
 ```
 F1-Fantasy-Predictor/
+├── frontend/
+│   └── src/
+│       └── App.jsx
 ├── notebooks/
 │   ├── 01-data-exploration.ipynb
 │   ├── 02-2023-to-2024-analysis.ipynb
@@ -78,7 +97,8 @@ F1-Fantasy-Predictor/
 │   ├── model-v1-2023-2024.ipynb
     ├── model-v2-fantasy-logic.ipynb
     ├── model-v3-smarter-features.ipynb
-│   └── model-v4-fantasy-logic.ipynb
+│   ├── model-v4-fantasy-logic.ipynb
+│   └── model-v5-track-profiles.ipynb
 ├── results/
 │   ├── fantasy_v1_results.csv
     ├── fantasy_v2_results.csv
@@ -88,10 +108,26 @@ F1-Fantasy-Predictor/
 │   ├── data_loader.py
     ├── features.py
     ├── fantasy.py
-│   └── models.py
+│   ├── models.py
+│   ├── circuits.py
+│   └── pipeline.py
+├── main.py
 ├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
+## 🏃 Running the App
+
+**Backend**
+```bash
+uvicorn main:app --reload
+```
+
+**Frontend**
+```bash
+cd frontend
+npm run dev
+```
+
 Feel free to star the repo if you find it interesting!
 
