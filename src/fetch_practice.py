@@ -3,17 +3,28 @@ import pandas as pd
 
 fastf1.Cache.enable_cache("data/cache")
 
+# Remaining 2026 sprint weekends — FP1 is the only practice session
+SPRINT_WEEKENDS = {
+    "Dutch Grand Prix",
+    "Singapore Grand Prix",
+}
 
-def get_practice_grid(year: int, race_name: str, session: str = "FP2") -> pd.DataFrame:
+
+def is_sprint_weekend(race_name: str) -> bool:
+    return race_name in SPRINT_WEEKENDS
+
+
+def get_practice_grid(year: int, race_name: str, session: str = "FP3") -> pd.DataFrame:
     """
     Fetches practice session data and returns estimated grid positions
-    based on fastest lap times, formatted for predict_upcoming_race.
+    based on fastest lap times.
 
-    Args:
-        year: The season year (e.g. 2026)
-        race_name: FastF1 event name (e.g. "British Grand Prix")
-        session: Which practice session to use — FP2 or FP3 (FP3 preferred if available)
+    For sprint weekends, session is automatically set to FP1 regardless
+    of what was passed in, since FP2/FP3 do not exist.
     """
+    if is_sprint_weekend(race_name):
+        session = "FP1"
+
     event = fastf1.get_event(year, race_name)
     sess = event.get_session(session)
     sess.load(laps=True, telemetry=False, weather=False, messages=False)

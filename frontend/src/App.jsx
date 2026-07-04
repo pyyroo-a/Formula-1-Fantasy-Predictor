@@ -30,21 +30,6 @@ const BADGE_COLOR = {
   Avoid: "bg-red-500",
 };
 
-const UPCOMING_RACES = [
-  "British Grand Prix",
-  "Hungarian Grand Prix",
-  "Belgian Grand Prix",
-  "Dutch Grand Prix",
-  "Italian Grand Prix",
-  "Azerbaijan Grand Prix",
-  "Singapore Grand Prix",
-  "United States Grand Prix",
-  "Mexico City Grand Prix",
-  "São Paulo Grand Prix",
-  "Las Vegas Grand Prix",
-  "Qatar Grand Prix",
-  "Abu Dhabi Grand Prix",
-];
 
 function DriverCard({ driver }) {
   return (
@@ -74,18 +59,26 @@ function DriverCard({ driver }) {
 function App() {
   const [mode, setMode] = useState("completed"); // "completed" | "upcoming"
   const [races, setRaces] = useState([]);
+  const [upcomingRaces, setUpcomingRaces] = useState([]); // [{ race_name, is_sprint }]
   const [selectedRace, setSelectedRace] = useState("");
   const [selectedUpcoming, setSelectedUpcoming] = useState("");
-  const [session, setSession] = useState("FP2");
+  const [session, setSession] = useState("FP3");
   const [team, setTeam] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const selectedIsSprint = upcomingRaces.find(r => r.race_name === selectedUpcoming)?.is_sprint ?? false;
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/races")
       .then((res) => res.json())
       .then((data) => setRaces(data))
       .catch(() => setError("Could not load races from server."));
+
+    fetch("http://127.0.0.1:8000/upcoming-races")
+      .then((res) => res.json())
+      .then((data) => setUpcomingRaces(data))
+      .catch(() => {});
   }, []);
 
   const fetchCompleted = async () => {
@@ -175,28 +168,34 @@ function App() {
           </>
         ) : (
           <>
-            <p className="text-gray-400 text-sm mb-3">
-              Select the upcoming race and which practice session to base predictions on.
-              FP3 is more accurate but may not always be available.
-            </p>
             <select
               value={selectedUpcoming}
-              onChange={(e) => setSelectedUpcoming(e.target.value)}
+              onChange={(e) => { setSelectedUpcoming(e.target.value); setTeam([]); }}
               className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
             >
               <option value="">Select upcoming race</option>
-              {UPCOMING_RACES.map((race) => (
-                <option key={race} value={race}>{race}</option>
+              {upcomingRaces.map((r) => (
+                <option key={r.race_name} value={r.race_name}>
+                  {r.race_name}{r.is_sprint ? " 🏁 Sprint" : ""}
+                </option>
               ))}
             </select>
-            <select
-              value={session}
-              onChange={(e) => setSession(e.target.value)}
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
-            >
-              <option value="FP2">FP2</option>
-              <option value="FP3">FP3</option>
-            </select>
+
+            {selectedIsSprint ? (
+              <p className="text-yellow-400 text-sm mb-4 text-center">
+                Sprint weekend — prediction will use FP1 data (only practice session available)
+              </p>
+            ) : (
+              <select
+                value={session}
+                onChange={(e) => setSession(e.target.value)}
+                className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
+              >
+                <option value="FP3">FP3 (recommended)</option>
+                <option value="FP2">FP2</option>
+              </select>
+            )}
+
             <button
               onClick={fetchUpcoming}
               disabled={!selectedUpcoming || loading}

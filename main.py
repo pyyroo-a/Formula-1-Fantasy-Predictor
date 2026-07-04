@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.pipeline import run_pipeline, predict_upcoming_race
 from src.fantasy import build_fantasy_team, generate_explanations
-from src.fetch_practice import get_practice_grid
+from src.fetch_practice import get_practice_grid, is_sprint_weekend
 
 fantasy_table = None
 
@@ -81,3 +81,27 @@ def get_upcoming_team(request: UpcomingRaceRequest):
 @app.get("/races")
 def get_races():
     return sorted(fantasy_table["RaceName"].unique().tolist())
+
+
+@app.get("/upcoming-races")
+def get_upcoming_races():
+    completed = set(fantasy_table["RaceName"].unique())
+    all_2026 = [
+        "Hungarian Grand Prix",
+        "Belgian Grand Prix",
+        "Dutch Grand Prix",
+        "Italian Grand Prix",
+        "Azerbaijan Grand Prix",
+        "Singapore Grand Prix",
+        "United States Grand Prix",
+        "Mexico City Grand Prix",
+        "São Paulo Grand Prix",
+        "Las Vegas Grand Prix",
+        "Qatar Grand Prix",
+        "Abu Dhabi Grand Prix",
+    ]
+    return [
+        {"race_name": r, "is_sprint": is_sprint_weekend(r)}
+        for r in all_2026
+        if r not in completed
+    ]
