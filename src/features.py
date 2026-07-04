@@ -1,7 +1,7 @@
 import pandas as pd
 
 def add_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
-    df = df[df["Status"] == "Finished"].copy()
+    df = df[df["Status"].isin(["Finished", "Lapped"])].copy()
 
     df = df.sort_values(by=["Abbreviation", "Year", "RoundNumber"])
 
