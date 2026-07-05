@@ -1,4 +1,6 @@
 import pandas as pd
+from itertools import combinations
+import numpy as np
 
 def calculate_gainer_score(
     midfield: pd.DataFrame,
@@ -166,6 +168,104 @@ def generate_explanations(team: pd.DataFrame) -> pd.DataFrame:
     team["Explanation"] = team.apply(explain, axis=1)
 
     return team
+
+def build_budget_team(
+    fantasy_table: pd.DataFrame,
+    race_name: str,
+    prices: dict,
+    budget: float = 100.0,
+) -> dict:
+    """
+    Finds the optimal 5-driver + 2-constructor team within the $100M budget.
+
+    Scores every valid combination and returns the one with the highest
+    total FantasyValue. Constructor score is the average FantasyValue
+    of their drivers in that race.
+
+    Returns a dict with:
+        drivers      -> list of driver dicts
+        constructors -> list of constructor dicts
+        total_cost   -> float
+        budget_remaining -> float
+        total_score  -> float
+    """
+    race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
+    race_df = calculate_fantasy_score(race_df)
+
+    race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
+    race_df = race_df.reset_index(drop=True)
+
+    driver_prices = prices.get("drivers", {})
+    constructor_prices = prices.get("constructors", {})
+
+    race_df["Price"] = race_df["Abbreviation"].map(driver_prices)
+    race_df = race_df.dropna(subset=["Price"])
+
+    # Constructor score = average FantasyValue of their drivers this race
+    constructor_scores = (
+        race_df.groupby("TeamName")["FantasyValue"].mean().to_dict()
+    )
+
+    constructors = [
+        {
+            "name": team,
+            "price": price,
+            "score": round(constructor_scores.get(team, 0.0), 3),
+        }
+        for team, price in constructor_prices.items()
+    ]
+
+    drivers_list = race_df.to_dict("records")
+
+    best_score = -np.inf
+    best_team = None
+
+    for driver_combo in combinations(drivers_list, 5):
+        driver_cost = sum(d["Price"] for d in driver_combo)
+        if driver_cost > budget:
+            continue
+
+        for constructor_combo in combinations(constructors, 2):
+            constructor_cost = sum(c["price"] for c in constructor_combo)
+            total_cost = driver_cost + constructor_cost
+
+            if total_cost > budget:
+                continue
+
+            total_score = (
+                sum(d["FantasyValue"] for d in driver_combo)
+                + sum(c["score"] for c in constructor_combo)
+            )
+
+            if total_score > best_score:
+                best_score = total_score
+                best_team = {
+                    "drivers": [
+                        {
+                            "Abbreviation": d["Abbreviation"],
+                            "TeamName": d["TeamName"],
+                            "GridPosition": int(d["GridPosition"]),
+                            "Predicted": round(d["Predicted"], 1),
+                            "FantasyValue": round(d["FantasyValue"], 3),
+                            "Price": d["Price"],
+                        }
+                        for d in driver_combo
+                    ],
+                    "constructors": [
+                        {
+                            "name": c["name"],
+                            "price": c["price"],
+                            "score": c["score"],
+                        }
+                        for c in constructor_combo
+                    ],
+                    "total_cost": round(total_cost, 1),
+                    "budget_remaining": round(budget - total_cost, 1),
+                    "total_score": round(best_score, 3),
+                }
+
+    return best_team
+
 
 def evaluate_fantasy_picks(
         fantasy_table: pd.DataFrame,
