@@ -144,10 +144,55 @@ function BudgetBar({ used, total = 100 }) {
   );
 }
 
+function CountdownWidget({ nextRace }) {
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  useEffect(() => {
+    if (!nextRace?.race_date) return;
+
+    const tick = () => {
+      const diff = new Date(nextRace.race_date) - new Date();
+      if (diff <= 0) { setTimeLeft(null); return; }
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    };
+
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [nextRace]);
+
+  if (!nextRace) return null;
+
+  return (
+    <div className="max-w-2xl mx-auto mb-6 bg-gray-800 rounded-xl p-4 border border-gray-700">
+      <p className="text-xs text-gray-500 text-center mb-1 uppercase tracking-wider">Next Race</p>
+      <p className="text-center text-white font-bold text-lg mb-3">{nextRace.race_name}</p>
+      {timeLeft ? (
+        <div className="flex justify-center gap-6">
+          {[["Days", timeLeft.days], ["Hours", timeLeft.hours], ["Mins", timeLeft.minutes], ["Secs", timeLeft.seconds]].map(([label, val]) => (
+            <div key={label} className="text-center">
+              <p className="text-2xl font-mono font-bold text-red-500">{String(val).padStart(2, "0")}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-green-400 text-sm font-medium">Race weekend is here!</p>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [mode, setMode] = useState("completed"); // "completed" | "upcoming" | "budget"
   const [races, setRaces] = useState([]);
   const [upcomingRaces, setUpcomingRaces] = useState([]);
+  const [nextRace, setNextRace] = useState(null);
   const [selectedRace, setSelectedRace] = useState("");
   const [selectedUpcoming, setSelectedUpcoming] = useState("");
   const [selectedBudgetRace, setSelectedBudgetRace] = useState("");
@@ -168,6 +213,11 @@ function App() {
     fetch("http://127.0.0.1:8000/upcoming-races")
       .then((res) => res.json())
       .then((data) => setUpcomingRaces(data))
+      .catch(() => {});
+
+    fetch("http://127.0.0.1:8000/next-race")
+      .then((res) => res.json())
+      .then((data) => setNextRace(data))
       .catch(() => {});
   }, []);
 
@@ -239,7 +289,9 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <h1 className="text-4xl font-bold mb-2 text-center">F1 Fantasy Predictor</h1>
-      <p className="text-center text-gray-500 mb-8 text-sm">2026 Season</p>
+      <p className="text-center text-gray-500 mb-6 text-sm">2026 Season</p>
+
+      <CountdownWidget nextRace={nextRace} />
 
       {/* Mode tabs */}
       <div className="max-w-2xl mx-auto flex rounded-lg overflow-hidden border border-gray-700 mb-6">
