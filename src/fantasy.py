@@ -174,21 +174,8 @@ def build_budget_team(
     race_name: str,
     prices: dict,
     budget: float = 100.0,
+    min_safe: int = 1,
 ) -> dict:
-    """
-    Finds the optimal 5-driver + 2-constructor team within the $100M budget.
-
-    Scores every valid combination and returns the one with the highest
-    total FantasyValue. Constructor score is the average FantasyValue
-    of their drivers in that race.
-
-    Returns a dict with:
-        drivers      -> list of driver dicts
-        constructors -> list of constructor dicts
-        total_cost   -> float
-        budget_remaining -> float
-        total_score  -> float
-    """
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
     race_df = calculate_fantasy_score(race_df)
 
@@ -201,10 +188,29 @@ def build_budget_team(
     race_df["Price"] = race_df["Abbreviation"].map(driver_prices)
     race_df = race_df.dropna(subset=["Price"])
 
+    # Safe = top 3 predicted finishers (lowest Predicted value)
+    safe_abbrevs = set(race_df.nsmallest(3, "Predicted")["Abbreviation"].tolist())
+
+    # Assign pick category so we can tag results and filter avoid-tier
+    avoid_threshold = race_df["FantasyValue"].quantile(0.25)
+    value_threshold = race_df["FantasyValue"].quantile(0.75)
+
+    def _category(row):
+        if row["Abbreviation"] in safe_abbrevs:
+            return "Safe"
+        if row["FantasyValue"] >= value_threshold:
+            return "Value"
+        if row["FantasyValue"] <= avoid_threshold:
+            return "Avoid"
+        return "Risk"
+
+    race_df["PickCategory"] = race_df.apply(_category, axis=1)
+
+    # Remove avoid-tier drivers from the candidate pool
+    race_df = race_df[race_df["PickCategory"] != "Avoid"]
+
     # Constructor score = average FantasyValue of their drivers this race
-    constructor_scores = (
-        race_df.groupby("TeamName")["FantasyValue"].mean().to_dict()
-    )
+    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].mean().to_dict()
 
     constructors = [
         {
@@ -221,6 +227,11 @@ def build_budget_team(
     best_team = None
 
     for driver_combo in combinations(drivers_list, 5):
+        # Enforce at least min_safe safe drivers in every team
+        safe_count = sum(1 for d in driver_combo if d["Abbreviation"] in safe_abbrevs)
+        if safe_count < min_safe:
+            continue
+
         driver_cost = sum(d["Price"] for d in driver_combo)
         if driver_cost > budget:
             continue
@@ -248,6 +259,7 @@ def build_budget_team(
                             "Predicted": round(d["Predicted"], 1),
                             "FantasyValue": round(d["FantasyValue"], 3),
                             "Price": d["Price"],
+                            "PickCategory": d["PickCategory"],
                         }
                         for d in driver_combo
                     ],
