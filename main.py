@@ -3,11 +3,13 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
+import fastf1
 
 from src.pipeline import run_pipeline, predict_upcoming_race
 from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team
 from src.fetch_practice import get_practice_grid, is_sprint_weekend
 from src.fetch_prices import fetch_prices, save_prices
+from src.fetch_results import update_season_results
 
 fantasy_table = None
 current_prices = None
@@ -17,10 +19,14 @@ current_prices = None
 async def lifespan(app: FastAPI):
     global fantasy_table, current_prices
 
+    # Auto-fetch any completed 2026 races not yet in the CSV
+    added = update_season_results(2026, "data/processed/race_results_2026.csv")
+    if added:
+        print(f"Auto-loaded new races: {added}")
+
     fantasy_table = run_pipeline()
     print(f"Pipeline loaded with {len(fantasy_table)} rows")
 
-    # Derive the latest completed race_id from the 2026 data
     latest_round = int(fantasy_table["RoundNumber"].max())
     try:
         current_prices = fetch_prices(latest_round)
@@ -146,6 +152,28 @@ def get_upcoming_races():
         for r in all_2026
         if r not in completed
     ]
+
+
+@app.get("/next-race")
+def get_next_race():
+    try:
+        fastf1.Cache.enable_cache("data/cache")
+        schedule = fastf1.get_event_schedule(2026, include_testing=False)
+        now = pd.Timestamp.now(tz="UTC")
+
+        for _, event in schedule.sort_values("RoundNumber").iterrows():
+            race_date = event["Session5Date"]
+            if pd.isna(race_date):
+                continue
+            if pd.Timestamp(race_date) > now:
+                return {
+                    "race_name": event["EventName"],
+                    "round_number": int(event["RoundNumber"]),
+                    "race_date": pd.Timestamp(race_date).isoformat(),
+                }
+        return None
+    except Exception:
+        return None
 
 
 @app.get("/prices")
