@@ -50,7 +50,7 @@ def add_consistency(df: pd.DataFrame) -> pd.DataFrame:
 def add_grid_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
-    df["GridvsForm"] = df["GridPosition"] - df["Position"]
+    df["GridvsForm"] = df["GridPosition"] - df["Rolling3Average"]
 
     df["FormTrend"] = df["Rolling3Average"] - df["PreviousPosition"]
 
