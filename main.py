@@ -13,11 +13,12 @@ from src.fetch_results import update_season_results
 
 fantasy_table = None
 current_prices = None
+race_schedule = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global fantasy_table, current_prices
+    global fantasy_table, current_prices, race_schedule
 
     # Auto-fetch any completed 2026 races not yet in the CSV
     added = update_season_results(2026, "data/processed/race_results_2026.csv")
@@ -35,6 +36,14 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Warning: could not fetch prices — {e}")
         current_prices = {"drivers": {}, "constructors": {}}
+
+    try:
+        fastf1.Cache.enable_cache("data/cache")
+        race_schedule = fastf1.get_event_schedule(2026, include_testing=False)
+        print(f"Race schedule loaded: {len(race_schedule)} events")
+    except Exception as e:
+        print(f"Warning: could not load race schedule — {e}")
+        race_schedule = None
 
     yield
 
@@ -146,25 +155,59 @@ def get_races():
 @app.get("/upcoming-races")
 def get_upcoming_races():
     completed = set(fantasy_table["RaceName"].unique())
-    all_2026 = [
-        "Hungarian Grand Prix",
-        "Belgian Grand Prix",
-        "Dutch Grand Prix",
-        "Italian Grand Prix",
-        "Azerbaijan Grand Prix",
-        "Singapore Grand Prix",
-        "United States Grand Prix",
-        "Mexico City Grand Prix",
-        "São Paulo Grand Prix",
-        "Las Vegas Grand Prix",
-        "Qatar Grand Prix",
-        "Abu Dhabi Grand Prix",
+
+    if race_schedule is not None:
+        now = pd.Timestamp.now(tz="UTC")
+        result = []
+        for _, event in race_schedule.sort_values("RoundNumber").iterrows():
+            if event["EventName"] in completed:
+                continue
+            race_date = event["Session5Date"]
+            if pd.isna(race_date):
+                continue
+            # Skip races that finished more than 2 days ago (in case results haven't loaded yet)
+            if pd.Timestamp(race_date) < now - pd.Timedelta(days=2):
+                continue
+            is_sprint = "sprint" in str(event.get("EventFormat", "")).lower()
+            result.append({
+                "race_name": event["EventName"],
+                "is_sprint": is_sprint,
+            })
+        return result
+
+    # Fallback: hardcoded remainder of 2026 calendar
+    fallback = [
+        "Belgian Grand Prix", "Hungarian Grand Prix", "Dutch Grand Prix",
+        "Italian Grand Prix", "Azerbaijan Grand Prix", "Singapore Grand Prix",
+        "United States Grand Prix", "Mexico City Grand Prix", "São Paulo Grand Prix",
+        "Las Vegas Grand Prix", "Qatar Grand Prix", "Abu Dhabi Grand Prix",
     ]
     return [
         {"race_name": r, "is_sprint": is_sprint_weekend(r)}
-        for r in all_2026
+        for r in fallback
         if r not in completed
     ]
+
+
+@app.post("/upcoming-race-pool")
+def get_upcoming_race_pool(request: UpcomingRaceRequest):
+    if not current_prices or not current_prices.get("drivers"):
+        raise HTTPException(status_code=503, detail="Prices not available")
+
+    try:
+        practice_df = get_practice_grid(request.year, request.race_name, request.session)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not fetch practice data: {str(e)}")
+
+    upcoming_table = predict_upcoming_race(practice_df)
+
+    pool = get_race_pool(upcoming_table, request.race_name, current_prices)
+    if not pool["drivers"]:
+        raise HTTPException(status_code=400, detail="No priced drivers found for that race.")
+
+    optimal = build_budget_team(upcoming_table, request.race_name, current_prices, budget=100.0)
+
+    return {"pool": pool, "optimal": optimal}
 
 
 @app.get("/next-race")

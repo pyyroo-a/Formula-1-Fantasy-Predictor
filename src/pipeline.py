@@ -91,4 +91,10 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
 
     fantasy_table = build_fantasy_table(upcoming, predictions)
 
+    # Compute scoring columns from predicted positions (not dummy actuals)
+    fantasy_table["PositionChange"] = fantasy_table["GridPosition"] - fantasy_table["Predicted"]
+    fantasy_table["Top10Finish"] = (fantasy_table["Predicted"] <= 10).astype(int)
+    fantasy_table["Top5Finish"] = (fantasy_table["Predicted"] <= 5).astype(int)
+    fantasy_table["DNF"] = 0  # can't predict DNF; assume clean race
+
     return fantasy_table

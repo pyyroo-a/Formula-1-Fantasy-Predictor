@@ -258,8 +258,9 @@ function WeekendTeamWidget() {
 
 const BUDGET = 100.0;
 
-function ManualTeamBuilder({ races }) {
+function ManualTeamBuilder({ upcomingRaces }) {
   const [selectedRace, setSelectedRace] = useState("");
+  const [session, setSession] = useState("FP3");
   const [pool, setPool] = useState(null);
   const [optimalTeam, setOptimalTeam] = useState(null);
   const [selectedDrivers, setSelectedDrivers] = useState([]);
@@ -267,34 +268,30 @@ function ManualTeamBuilder({ races }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const loadRace = async (race) => {
-    setSelectedRace(race);
+  const selectedIsSprint = upcomingRaces.find(r => r.race_name === selectedRace)?.is_sprint ?? false;
+
+  const resetPool = () => {
     setPool(null);
     setOptimalTeam(null);
     setSelectedDrivers([]);
     setSelectedConstructors([]);
     setError(null);
-    if (!race) return;
+  };
 
+  const loadPool = async () => {
+    if (!selectedRace) return;
+    resetPool();
     setLoading(true);
     try {
-      const [poolRes, optRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/race-pool", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ race_name: race }),
-        }),
-        fetch("http://127.0.0.1:8000/predict-budget", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ race_name: race, budget: BUDGET }),
-        }),
-      ]);
-      const poolData = await poolRes.json();
-      const optData = await optRes.json();
-      if (poolData.detail) throw new Error(poolData.detail);
-      setPool(poolData);
-      if (!optData.detail) setOptimalTeam(optData);
+      const res = await fetch("http://127.0.0.1:8000/upcoming-race-pool", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year: 2026, race_name: selectedRace, session: selectedIsSprint ? "FP1" : session }),
+      });
+      const data = await res.json();
+      if (data.detail) throw new Error(data.detail);
+      setPool(data.pool);
+      if (data.optimal) setOptimalTeam(data.optimal);
     } catch (e) {
       setError(e.message || "Failed to load race data.");
     }
@@ -358,22 +355,56 @@ function ManualTeamBuilder({ races }) {
   return (
     <div>
       <p className="text-gray-400 text-sm text-center mb-4">
-        Pick 5 drivers + 2 constructors. See your team's predicted score vs the optimal team.
+        Pick 5 drivers + 2 constructors for an upcoming race based on practice data.
       </p>
 
       <select
         value={selectedRace}
-        onChange={(e) => loadRace(e.target.value)}
-        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
+        onChange={(e) => { setSelectedRace(e.target.value); resetPool(); }}
+        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
       >
-        <option value="">Select a race</option>
-        {races.map((race) => (
-          <option key={race} value={race}>{race}</option>
+        <option value="">Select an upcoming race</option>
+        {upcomingRaces.map((r) => (
+          <option key={r.race_name} value={r.race_name}>
+            {r.race_name}{r.is_sprint ? " 🏁 Sprint" : ""}
+          </option>
         ))}
       </select>
 
+      {selectedRace && (
+        selectedIsSprint ? (
+          <p className="text-yellow-400 text-sm mb-3 text-center">
+            Sprint weekend — will use FP1 data
+          </p>
+        ) : (
+          <select
+            value={session}
+            onChange={(e) => setSession(e.target.value)}
+            className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
+          >
+            <option value="FP3">FP3 (recommended)</option>
+            <option value="FP2">FP2</option>
+            <option value="FP1">FP1</option>
+          </select>
+        )
+      )}
+
+      {selectedRace && !pool && !loading && (
+        <button
+          onClick={loadPool}
+          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 transition font-medium mb-4"
+        >
+          Load Driver Pool
+        </button>
+      )}
+
       {error && <p className="text-red-400 text-sm text-center mb-4">{error}</p>}
-      {loading && <p className="text-gray-400 text-sm text-center mb-4">Loading race data...</p>}
+      {loading && (
+        <div className="text-center mb-4">
+          <p className="text-gray-400 text-sm">Fetching practice data and running predictions...</p>
+          <p className="text-gray-600 text-xs mt-1">This can take up to 30 seconds</p>
+        </div>
+      )}
 
       {pool && (
         <div className="space-y-6">
@@ -832,7 +863,7 @@ function App() {
 
         {/* Manual team builder */}
         {mode === "manual" && (
-          <ManualTeamBuilder races={races} />
+          <ManualTeamBuilder upcomingRaces={upcomingRaces} />
         )}
 
         {error && (
