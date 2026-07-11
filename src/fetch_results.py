@@ -5,10 +5,27 @@ import os
 fastf1.Cache.enable_cache("data/cache")
 
 
+def _normalize_status(status: str) -> str:
+    """Maps FastF1 raw status values to the three categories the pipeline expects."""
+    if status == "Finished":
+        return "Finished"
+    if str(status).startswith("+"):  # "+1 Lap", "+2 Laps", etc.
+        return "Lapped"
+    return "DNF"
+
+
 def fetch_race_results(year: int, event_name: str) -> pd.DataFrame:
     event = fastf1.get_event(year, event_name)
     session = event.get_session("Race")
     session.load(laps=False, telemetry=False, weather=False, messages=False)
+
+    # Guard against FastF1 returning stale cached data from the wrong year
+    session_year = session.date.year
+    if session_year != year:
+        raise ValueError(
+            f"FastF1 returned {session_year} data for '{event_name}', expected {year}. "
+            f"The cache may be stale — try again once FastF1 has updated."
+        )
 
     cols = ["Abbreviation", "FullName", "TeamName", "GridPosition", "Position", "Status"]
     results = session.results[cols].copy()
@@ -18,6 +35,7 @@ def fetch_race_results(year: int, event_name: str) -> pd.DataFrame:
 
     results["Position"] = pd.to_numeric(results["Position"], errors="coerce")
     results["GridPosition"] = pd.to_numeric(results["GridPosition"], errors="coerce")
+    results["Status"] = results["Status"].apply(_normalize_status)
 
     return results
 

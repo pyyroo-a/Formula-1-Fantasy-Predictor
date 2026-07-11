@@ -279,6 +279,64 @@ def build_budget_team(
     return best_team
 
 
+def get_race_pool(
+    fantasy_table: pd.DataFrame,
+    race_name: str,
+    prices: dict,
+) -> dict:
+    """Returns all drivers + constructors for a race with prices and categories — used by the manual team builder."""
+    race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
+    race_df = calculate_fantasy_score(race_df)
+    race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
+    race_df = race_df.reset_index(drop=True)
+
+    driver_prices = prices.get("drivers", {})
+    constructor_prices = prices.get("constructors", {})
+
+    race_df["Price"] = race_df["Abbreviation"].map(driver_prices)
+    race_df = race_df.dropna(subset=["Price"])
+
+    safe_abbrevs = set(race_df.nsmallest(3, "Predicted")["Abbreviation"].tolist())
+    avoid_threshold = race_df["FantasyValue"].quantile(0.25)
+    value_threshold = race_df["FantasyValue"].quantile(0.75)
+
+    def _category(row):
+        if row["Abbreviation"] in safe_abbrevs:
+            return "Safe"
+        if row["FantasyValue"] >= value_threshold:
+            return "Value"
+        if row["FantasyValue"] <= avoid_threshold:
+            return "Avoid"
+        return "Risk"
+
+    race_df["PickCategory"] = race_df.apply(_category, axis=1)
+
+    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].mean().to_dict()
+
+    drivers = [
+        {
+            "Abbreviation": d["Abbreviation"],
+            "TeamName": d["TeamName"],
+            "GridPosition": int(d["GridPosition"]),
+            "Predicted": round(d["Predicted"], 1),
+            "FantasyValue": round(d["FantasyValue"], 3),
+            "Price": d["Price"],
+            "PickCategory": d["PickCategory"],
+        }
+        for d in race_df.sort_values("Predicted").to_dict("records")
+    ]
+
+    constructors = sorted(
+        [
+            {"name": t, "price": p, "score": round(constructor_scores.get(t, 0.0), 3)}
+            for t, p in constructor_prices.items()
+        ],
+        key=lambda c: -c["score"],
+    )
+
+    return {"drivers": drivers, "constructors": constructors}
+
+
 def evaluate_fantasy_picks(
         fantasy_table: pd.DataFrame,
         w_avg_position_change: float = 0.1,

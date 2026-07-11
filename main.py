@@ -6,7 +6,7 @@ import pandas as pd
 import fastf1
 
 from src.pipeline import run_pipeline, predict_upcoming_race
-from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team
+from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, get_race_pool
 from src.fetch_practice import get_practice_grid, is_sprint_weekend
 from src.fetch_prices import fetch_prices, save_prices
 from src.fetch_results import update_season_results
@@ -121,6 +121,19 @@ def get_budget_team(request: BudgetRequest):
             status_code=400,
             detail="No valid team found within budget. Try increasing the budget."
         )
+
+    return result
+
+
+@app.post("/race-pool")
+def get_race_pool_endpoint(request: RaceRequest):
+    if not current_prices or not current_prices.get("drivers"):
+        raise HTTPException(status_code=503, detail="Prices not available")
+
+    result = get_race_pool(fantasy_table, request.race_name, current_prices)
+
+    if not result["drivers"]:
+        raise HTTPException(status_code=400, detail="No priced drivers found for that race.")
 
     return result
 

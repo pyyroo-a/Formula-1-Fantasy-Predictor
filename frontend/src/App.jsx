@@ -188,8 +188,369 @@ function CountdownWidget({ nextRace }) {
   );
 }
 
+const BUDGET = 100.0;
+
+function ManualTeamBuilder({ races }) {
+  const [selectedRace, setSelectedRace] = useState("");
+  const [pool, setPool] = useState(null);
+  const [optimalTeam, setOptimalTeam] = useState(null);
+  const [selectedDrivers, setSelectedDrivers] = useState([]);
+  const [selectedConstructors, setSelectedConstructors] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const loadRace = async (race) => {
+    setSelectedRace(race);
+    setPool(null);
+    setOptimalTeam(null);
+    setSelectedDrivers([]);
+    setSelectedConstructors([]);
+    setError(null);
+    if (!race) return;
+
+    setLoading(true);
+    try {
+      const [poolRes, optRes] = await Promise.all([
+        fetch("http://127.0.0.1:8000/race-pool", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ race_name: race }),
+        }),
+        fetch("http://127.0.0.1:8000/predict-budget", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ race_name: race, budget: BUDGET }),
+        }),
+      ]);
+      const poolData = await poolRes.json();
+      const optData = await optRes.json();
+      if (poolData.detail) throw new Error(poolData.detail);
+      setPool(poolData);
+      if (!optData.detail) setOptimalTeam(optData);
+    } catch (e) {
+      setError(e.message || "Failed to load race data.");
+    }
+    setLoading(false);
+  };
+
+  const toggleDriver = (driver) => {
+    const isSelected = selectedDrivers.some(d => d.Abbreviation === driver.Abbreviation);
+    if (isSelected) {
+      setSelectedDrivers(prev => prev.filter(d => d.Abbreviation !== driver.Abbreviation));
+    } else if (selectedDrivers.length < 5) {
+      setSelectedDrivers(prev => [...prev, driver]);
+    }
+  };
+
+  const toggleConstructor = (constructor) => {
+    const isSelected = selectedConstructors.some(c => c.name === constructor.name);
+    if (isSelected) {
+      setSelectedConstructors(prev => prev.filter(c => c.name !== constructor.name));
+    } else if (selectedConstructors.length < 2) {
+      setSelectedConstructors(prev => [...prev, constructor]);
+    }
+  };
+
+  const driverCost = selectedDrivers.reduce((s, d) => s + d.Price, 0);
+  const constructorCost = selectedConstructors.reduce((s, c) => s + c.price, 0);
+  const totalCost = driverCost + constructorCost;
+  const remaining = BUDGET - totalCost;
+  const overBudget = totalCost > BUDGET;
+  const teamComplete = selectedDrivers.length === 5 && selectedConstructors.length === 2;
+
+  const myScore = selectedDrivers.reduce((s, d) => s + d.FantasyValue, 0)
+    + selectedConstructors.reduce((s, c) => s + c.score, 0);
+
+  const categoryCounts = [...selectedDrivers, ...selectedConstructors.map(c => ({ PickCategory: c.score >= (pool?.drivers?.[0]?.FantasyValue ?? 0) ? "Value" : "Risk" }))].reduce((acc, item) => {
+    acc[item.PickCategory] = (acc[item.PickCategory] || 0) + 1;
+    return acc;
+  }, {});
+
+  const driverCategoryCounts = selectedDrivers.reduce((acc, d) => {
+    acc[d.PickCategory] = (acc[d.PickCategory] || 0) + 1;
+    return acc;
+  }, {});
+
+  const scoreVsOptimal = optimalTeam ? Math.round((myScore / optimalTeam.total_score) * 100) : null;
+
+  const qualityColor = !teamComplete ? "text-gray-400"
+    : scoreVsOptimal >= 90 ? "text-green-400"
+    : scoreVsOptimal >= 70 ? "text-yellow-400"
+    : "text-orange-400";
+
+  const qualityLabel = !teamComplete ? "—"
+    : scoreVsOptimal >= 90 ? "Excellent"
+    : scoreVsOptimal >= 70 ? "Good"
+    : scoreVsOptimal >= 50 ? "Average"
+    : "Weak";
+
+  const budgetPct = Math.min((totalCost / BUDGET) * 100, 100);
+  const barColor = overBudget ? "bg-red-500" : budgetPct > 90 ? "bg-yellow-500" : "bg-green-500";
+
+  return (
+    <div>
+      <p className="text-gray-400 text-sm text-center mb-4">
+        Pick 5 drivers + 2 constructors. See your team's predicted score vs the optimal team.
+      </p>
+
+      <select
+        value={selectedRace}
+        onChange={(e) => loadRace(e.target.value)}
+        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
+      >
+        <option value="">Select a race</option>
+        {races.map((race) => (
+          <option key={race} value={race}>{race}</option>
+        ))}
+      </select>
+
+      {error && <p className="text-red-400 text-sm text-center mb-4">{error}</p>}
+      {loading && <p className="text-gray-400 text-sm text-center mb-4">Loading race data...</p>}
+
+      {pool && (
+        <div className="space-y-6">
+          {/* Budget bar */}
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-gray-400">
+                Spent: <span className={`font-semibold ${overBudget ? "text-red-400" : "text-white"}`}>${totalCost.toFixed(1)}M</span>
+              </span>
+              <span className="text-gray-400">
+                Remaining: <span className={`font-semibold ${overBudget ? "text-red-400" : "text-green-400"}`}>
+                  {overBudget ? `-$${(totalCost - BUDGET).toFixed(1)}M` : `$${remaining.toFixed(1)}M`}
+                </span>
+              </span>
+            </div>
+            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${budgetPct}%` }} />
+            </div>
+            {overBudget && (
+              <p className="text-red-400 text-xs mt-2 text-center">Over budget — remove a pick to fix this</p>
+            )}
+          </div>
+
+          {/* Team quality panel */}
+          {teamComplete && (
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+              <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Team Summary</h3>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">My Score</p>
+                  <p className="text-white font-bold text-lg">{myScore.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">vs Optimal</p>
+                  <p className={`font-bold text-lg ${qualityColor}`}>{scoreVsOptimal}%</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Rating</p>
+                  <p className={`font-bold text-lg ${qualityColor}`}>{qualityLabel}</p>
+                </div>
+              </div>
+              {optimalTeam && (
+                <p className="text-xs text-gray-500 text-center mt-3">
+                  Optimal score: {optimalTeam.total_score?.toFixed(2)} (cost: ${optimalTeam.total_cost}M)
+                </p>
+              )}
+              <div className="flex justify-center gap-3 mt-3 flex-wrap">
+                {Object.entries(driverCategoryCounts).map(([cat, count]) => (
+                  <span key={cat} className={`text-white text-xs px-2 py-0.5 rounded-full ${BADGE_COLOR[cat]}`}>
+                    {count}× {cat}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Selected team slots */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+              Your Drivers ({selectedDrivers.length}/5)
+            </h3>
+            <div className="grid grid-cols-1 gap-2 mb-4">
+              {selectedDrivers.length === 0 ? (
+                <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">
+                  Click drivers below to add them
+                </p>
+              ) : (
+                selectedDrivers.map((d) => (
+                  <SelectedDriverSlot key={d.Abbreviation} driver={d} onRemove={() => toggleDriver(d)} />
+                ))
+              )}
+            </div>
+
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+              Your Constructors ({selectedConstructors.length}/2)
+            </h3>
+            <div className="grid grid-cols-1 gap-2 mb-6">
+              {selectedConstructors.length === 0 ? (
+                <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">
+                  Click constructors below to add them
+                </p>
+              ) : (
+                selectedConstructors.map((c) => (
+                  <SelectedConstructorSlot key={c.name} constructor={c} onRemove={() => toggleConstructor(c)} />
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Driver pool */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+              Available Drivers
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {pool.drivers.map((driver) => {
+                const isSelected = selectedDrivers.some(d => d.Abbreviation === driver.Abbreviation);
+                const canAdd = !isSelected && selectedDrivers.length < 5;
+                return (
+                  <PoolDriverCard
+                    key={driver.Abbreviation}
+                    driver={driver}
+                    isSelected={isSelected}
+                    canAdd={canAdd}
+                    onToggle={() => toggleDriver(driver)}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Constructor pool */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+              Available Constructors
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {pool.constructors.map((c) => {
+                const isSelected = selectedConstructors.some(sc => sc.name === c.name);
+                const canAdd = !isSelected && selectedConstructors.length < 2;
+                return (
+                  <PoolConstructorCard
+                    key={c.name}
+                    constructor={c}
+                    isSelected={isSelected}
+                    canAdd={canAdd}
+                    onToggle={() => toggleConstructor(c)}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SelectedDriverSlot({ driver, onRemove }) {
+  const accent = teamAccent(driver.TeamName);
+  return (
+    <div
+      className="bg-gray-800 rounded-lg p-3 border-l-4 flex justify-between items-center"
+      style={{ borderColor: accent }}
+    >
+      <div>
+        <span className="font-semibold text-sm">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</span>
+        <span className="text-gray-500 text-xs ml-2">${driver.Price?.toFixed(1)}M</span>
+        <span className={`ml-2 text-white text-xs px-2 py-0.5 rounded-full ${BADGE_COLOR[driver.PickCategory]}`}>
+          {driver.PickCategory}
+        </span>
+      </div>
+      <button onClick={onRemove} className="text-gray-500 hover:text-red-400 text-xs ml-2 transition">✕</button>
+    </div>
+  );
+}
+
+function SelectedConstructorSlot({ constructor: c, onRemove }) {
+  const accent = teamAccent(c.name);
+  return (
+    <div
+      className="bg-gray-800 rounded-lg p-3 border-l-4 flex justify-between items-center"
+      style={{ borderColor: accent }}
+    >
+      <div>
+        <span className="font-semibold text-sm">{c.name}</span>
+        <span className="text-gray-500 text-xs ml-2">${c.price?.toFixed(1)}M</span>
+      </div>
+      <button onClick={onRemove} className="text-gray-500 hover:text-red-400 text-xs ml-2 transition">✕</button>
+    </div>
+  );
+}
+
+function PoolDriverCard({ driver, isSelected, canAdd, onToggle }) {
+  const accent = teamAccent(driver.TeamName);
+  const dimmed = !isSelected && !canAdd;
+  return (
+    <button
+      onClick={onToggle}
+      disabled={dimmed}
+      className={`text-left w-full rounded-xl p-3 border-l-4 transition ${
+        isSelected
+          ? "bg-gray-700 ring-2 ring-white/20"
+          : dimmed
+          ? "bg-gray-800/50 opacity-40 cursor-not-allowed"
+          : "bg-gray-800 hover:bg-gray-750 cursor-pointer"
+      }`}
+      style={{ borderColor: accent }}
+    >
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="font-semibold text-sm leading-tight">
+            {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
+          </p>
+          <p className="text-gray-400 text-xs">{driver.TeamName}</p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <p className="text-white text-sm font-semibold">${driver.Price?.toFixed(1)}M</p>
+          <span className={`text-white text-xs px-2 py-0.5 rounded-full ${BADGE_COLOR[driver.PickCategory]}`}>
+            {driver.PickCategory}
+          </span>
+        </div>
+      </div>
+      <div className="flex justify-between text-xs text-gray-500 mt-2">
+        <span>Grid: P{Math.round(driver.GridPosition)}</span>
+        <span>Predicted: P{Math.round(driver.Predicted)}</span>
+        <span>Score: {driver.FantasyValue?.toFixed(2)}</span>
+      </div>
+      {isSelected && (
+        <p className="text-xs text-white/50 mt-1 text-right">Click to remove</p>
+      )}
+    </button>
+  );
+}
+
+function PoolConstructorCard({ constructor: c, isSelected, canAdd, onToggle }) {
+  const accent = teamAccent(c.name);
+  const dimmed = !isSelected && !canAdd;
+  return (
+    <button
+      onClick={onToggle}
+      disabled={dimmed}
+      className={`text-left w-full rounded-xl p-3 border-l-4 transition flex justify-between items-center ${
+        isSelected
+          ? "bg-gray-700 ring-2 ring-white/20"
+          : dimmed
+          ? "bg-gray-800/50 opacity-40 cursor-not-allowed"
+          : "bg-gray-800 hover:bg-gray-750 cursor-pointer"
+      }`}
+      style={{ borderColor: accent }}
+    >
+      <div>
+        <p className="font-semibold text-sm">{c.name}</p>
+        <p className="text-gray-500 text-xs">Score: {c.score?.toFixed(2)}</p>
+      </div>
+      <div className="text-right">
+        <p className="text-white font-semibold text-sm">${c.price?.toFixed(1)}M</p>
+        {isSelected && <p className="text-xs text-white/50 mt-1">Click to remove</p>}
+      </div>
+    </button>
+  );
+}
+
 function App() {
-  const [mode, setMode] = useState("completed"); // "completed" | "upcoming" | "budget"
+  const [mode, setMode] = useState("completed"); // "completed" | "upcoming" | "budget" | "manual"
   const [races, setRaces] = useState([]);
   const [upcomingRaces, setUpcomingRaces] = useState([]);
   const [nextRace, setNextRace] = useState(null);
@@ -284,6 +645,7 @@ function App() {
     { id: "completed", label: "Completed Races" },
     { id: "upcoming", label: "Upcoming Race" },
     { id: "budget", label: "Budget Team" },
+    { id: "manual", label: "Manual Team" },
   ];
 
   return (
@@ -299,7 +661,7 @@ function App() {
           <button
             key={tab.id}
             onClick={() => { setMode(tab.id); setTeam([]); setBudgetTeam(null); setError(null); }}
-            className={`flex-1 py-2 text-sm font-medium transition ${
+            className={`flex-1 py-2 text-xs font-medium transition ${
               mode === tab.id ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
             }`}
           >
@@ -397,6 +759,11 @@ function App() {
               {loading ? "Solving..." : "Build Optimal Team"}
             </button>
           </>
+        )}
+
+        {/* Manual team builder */}
+        {mode === "manual" && (
+          <ManualTeamBuilder races={races} />
         )}
 
         {error && (
