@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
 import numpy as np
 from itertools import product
@@ -36,14 +36,20 @@ def prepare_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
     # This is basically the logic we used in the notebooks which we are applying here
     return X_train, y_train, X_test, y_test
 
-def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestRegressor:
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
+def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> XGBRegressor:
+    model = XGBRegressor(
+        n_estimators=200,
+        learning_rate=0.05,
+        max_depth=4,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=42,
+        verbosity=0,
+    )
     model.fit(X_train, y_train)
-    # This function we just pass the train so we can test it into the model
-
     return model
 
-def predict(model: RandomForestRegressor, X_test: pd.DataFrame) -> np.ndarray:
+def predict(model: XGBRegressor, X_test: pd.DataFrame) -> np.ndarray:
     return model.predict(X_test)
 
 def evaluate_model(y_test: pd.Series, predictions: np.ndarray) -> float:
