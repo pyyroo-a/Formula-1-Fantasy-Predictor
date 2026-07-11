@@ -192,3 +192,85 @@ def get_next_race():
 @app.get("/prices")
 def get_prices():
     return current_prices
+
+
+@app.get("/weekend-team")
+def get_weekend_team():
+    """
+    Auto-detects the current race weekend and returns the optimal budget team
+    using the best available practice session (FP3 → FP2 → FP1).
+    Returns None if no race weekend is active.
+    """
+    if not current_prices or not current_prices.get("drivers"):
+        raise HTTPException(status_code=503, detail="Prices not available")
+
+    try:
+        fastf1.Cache.enable_cache("data/cache")
+        schedule = fastf1.get_event_schedule(2026, include_testing=False)
+        now = pd.Timestamp.now(tz="UTC")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Could not fetch schedule: {e}")
+
+    # Find the next upcoming race
+    upcoming = None
+    for _, event in schedule.sort_values("RoundNumber").iterrows():
+        race_date = event["Session5Date"]
+        if pd.isna(race_date):
+            continue
+        if pd.Timestamp(race_date) > now:
+            upcoming = event
+            break
+
+    if upcoming is None:
+        return {"active": False, "message": "Season complete"}
+
+    race_date = pd.Timestamp(upcoming["Session5Date"])
+    days_until_race = (race_date - now).total_seconds() / 86400
+
+    # Only active within 5 days before the race
+    if days_until_race > 5:
+        return {
+            "active": False,
+            "race_name": upcoming["EventName"],
+            "days_until": round(days_until_race, 1),
+            "message": f"Next race in {round(days_until_race)} days",
+        }
+
+    race_name = upcoming["EventName"]
+
+    # Try sessions from best to fallback
+    sessions_to_try = ["FP3", "FP2", "FP1"] if not is_sprint_weekend(race_name) else ["FP1"]
+    practice_df = None
+    session_used = None
+
+    for sess in sessions_to_try:
+        try:
+            practice_df = get_practice_grid(2026, race_name, sess)
+            session_used = sess
+            break
+        except Exception:
+            continue
+
+    if practice_df is None:
+        return {
+            "active": True,
+            "race_name": race_name,
+            "days_until": round(days_until_race, 1),
+            "message": "No practice data available yet",
+            "team": None,
+        }
+
+    try:
+        upcoming_table = predict_upcoming_race(practice_df)
+        result = build_budget_team(upcoming_table, race_name, current_prices, budget=100.0)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+
+    return {
+        "active": True,
+        "race_name": race_name,
+        "session_used": session_used,
+        "days_until": round(days_until_race, 1),
+        "race_date": race_date.isoformat(),
+        "team": result,
+    }
