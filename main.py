@@ -198,10 +198,28 @@ def get_upcoming_race_pool(request: UpcomingRaceRequest):
     if not current_prices or not current_prices.get("drivers"):
         raise HTTPException(status_code=503, detail="Prices not available")
 
-    try:
-        practice_df = get_practice_grid(request.year, request.race_name, request.session)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Could not fetch practice data: {str(e)}")
+    # Auto-fallback: try requested session, then work backwards
+    sessions_to_try = [request.session]
+    if request.session == "FP3":
+        sessions_to_try = ["FP3", "FP2", "FP1"]
+    elif request.session == "FP2":
+        sessions_to_try = ["FP2", "FP1"]
+
+    practice_df = None
+    session_used = None
+    last_error = None
+
+    for sess in sessions_to_try:
+        try:
+            practice_df = get_practice_grid(request.year, request.race_name, sess)
+            session_used = sess
+            break
+        except Exception as e:
+            last_error = str(e)
+            continue
+
+    if practice_df is None:
+        raise HTTPException(status_code=400, detail=f"No practice data available yet. {last_error}")
 
     upcoming_table = predict_upcoming_race(practice_df)
 
@@ -211,7 +229,53 @@ def get_upcoming_race_pool(request: UpcomingRaceRequest):
 
     optimal = build_budget_team(upcoming_table, request.race_name, current_prices, budget=100.0)
 
-    return {"pool": pool, "optimal": optimal}
+    return {"pool": pool, "optimal": optimal, "session_used": session_used}
+
+
+@app.post("/race-sessions")
+def get_race_sessions(request: RaceRequest):
+    """Returns session times for a given race so the frontend can show availability."""
+    if race_schedule is None:
+        raise HTTPException(status_code=503, detail="Schedule not available")
+
+    now = pd.Timestamp.now(tz="UTC")
+    event = race_schedule[race_schedule["EventName"] == request.race_name]
+    if event.empty:
+        raise HTTPException(status_code=404, detail="Race not found in schedule")
+
+    row = event.iloc[0]
+    is_sprint = "sprint" in str(row.get("EventFormat", "")).lower()
+
+    if is_sprint:
+        sessions = [
+            {"name": "FP1", "date": row.get("Session1Date")},
+            {"name": "Sprint Qualifying", "date": row.get("Session2Date")},
+            {"name": "Sprint", "date": row.get("Session3Date")},
+            {"name": "Qualifying", "date": row.get("Session4Date")},
+            {"name": "Race", "date": row.get("Session5Date")},
+        ]
+    else:
+        sessions = [
+            {"name": "FP1", "date": row.get("Session1Date")},
+            {"name": "FP2", "date": row.get("Session2Date")},
+            {"name": "FP3", "date": row.get("Session3Date")},
+            {"name": "Qualifying", "date": row.get("Session4Date")},
+            {"name": "Race", "date": row.get("Session5Date")},
+        ]
+
+    result = []
+    for s in sessions:
+        d = s["date"]
+        if pd.isna(d):
+            continue
+        ts = pd.Timestamp(d)
+        result.append({
+            "name": s["name"],
+            "date": ts.isoformat(),
+            "available": ts < now,
+        })
+
+    return {"sessions": result, "is_sprint": is_sprint}
 
 
 @app.get("/next-race")

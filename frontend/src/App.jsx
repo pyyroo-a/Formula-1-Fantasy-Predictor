@@ -367,24 +367,72 @@ function WeekendTeamWidget() {
 
 const BUDGET = 100.0;
 
+function SessionSchedule({ sessions }) {
+  if (!sessions?.length) return null;
+  const now = new Date();
+  const practiceSessions = sessions.filter(s => ["FP1","FP2","FP3"].includes(s.name));
+  if (!practiceSessions.length) return null;
+
+  return (
+    <div className="bg-gray-800/60 rounded-xl px-4 py-3 border border-gray-700 mb-3">
+      <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Practice Sessions</p>
+      <div className="space-y-1.5">
+        {practiceSessions.map((s) => {
+          const dt = new Date(s.date);
+          const available = s.available;
+          return (
+            <div key={s.name} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${available ? "bg-green-400" : "bg-gray-600"}`} />
+                <span className={`text-sm font-medium ${available ? "text-white" : "text-gray-500"}`}>{s.name}</span>
+              </div>
+              <div className="text-right">
+                <span className={`text-xs ${available ? "text-green-400" : "text-gray-500"}`}>
+                  {available ? "Data available" : dt.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function ManualTeamBuilder({ upcomingRaces }) {
   const [selectedRace, setSelectedRace] = useState("");
-  const [session, setSession] = useState("FP3");
+  const [sessions, setSessions] = useState(null);
   const [pool, setPool] = useState(null);
   const [optimalTeam, setOptimalTeam] = useState(null);
+  const [sessionUsed, setSessionUsed] = useState(null);
   const [selectedDrivers, setSelectedDrivers] = useState([]);
   const [selectedConstructors, setSelectedConstructors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const selectedIsSprint = upcomingRaces.find(r => r.race_name === selectedRace)?.is_sprint ?? false;
+  const anySessionAvailable = sessions?.some(s => ["FP1","FP2","FP3"].includes(s.name) && s.available);
 
   const resetPool = () => {
     setPool(null);
     setOptimalTeam(null);
+    setSessionUsed(null);
     setSelectedDrivers([]);
     setSelectedConstructors([]);
     setError(null);
+  };
+
+  const fetchSessions = async (raceName) => {
+    setSessions(null);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/race-sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ race_name: raceName }),
+      });
+      const data = await res.json();
+      if (!data.detail) setSessions(data.sessions);
+    } catch {}
   };
 
   const loadPool = async () => {
@@ -395,11 +443,12 @@ function ManualTeamBuilder({ upcomingRaces }) {
       const res = await fetch("http://127.0.0.1:8000/upcoming-race-pool", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year: 2026, race_name: selectedRace, session: selectedIsSprint ? "FP1" : session }),
+        body: JSON.stringify({ year: 2026, race_name: selectedRace, session: selectedIsSprint ? "FP1" : "FP3" }),
       });
       const data = await res.json();
       if (data.detail) throw new Error(data.detail);
       setPool(data.pool);
+      setSessionUsed(data.session_used);
       if (data.optimal) setOptimalTeam(data.optimal);
     } catch (e) {
       setError(e.message || "Failed to load race data.");
@@ -464,7 +513,13 @@ function ManualTeamBuilder({ upcomingRaces }) {
 
       <select
         value={selectedRace}
-        onChange={(e) => { setSelectedRace(e.target.value); resetPool(); }}
+        onChange={(e) => {
+          const race = e.target.value;
+          setSelectedRace(race);
+          resetPool();
+          if (race) fetchSessions(race);
+          else setSessions(null);
+        }}
         className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
       >
         <option value="">Select an upcoming race</option>
@@ -475,28 +530,19 @@ function ManualTeamBuilder({ upcomingRaces }) {
         ))}
       </select>
 
-      {selectedRace && (
-        selectedIsSprint ? (
-          <p className="text-yellow-400 text-sm mb-3 text-center">Sprint weekend — will use FP1 data</p>
-        ) : (
-          <select
-            value={session}
-            onChange={(e) => setSession(e.target.value)}
-            className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
-          >
-            <option value="FP3">FP3 (recommended)</option>
-            <option value="FP2">FP2</option>
-            <option value="FP1">FP1</option>
-          </select>
-        )
+      {selectedRace && selectedIsSprint && (
+        <p className="text-yellow-400 text-sm mb-3 text-center">Sprint weekend — will use FP1 data</p>
       )}
+
+      {selectedRace && sessions && <SessionSchedule sessions={sessions} />}
 
       {selectedRace && !pool && !loading && (
         <button
           onClick={loadPool}
-          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 transition font-medium mb-4"
+          disabled={sessions && !anySessionAvailable}
+          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition font-medium mb-4"
         >
-          Load Driver Pool
+          {sessions && !anySessionAvailable ? "No practice data yet — check back after FP1" : "Load Driver Pool"}
         </button>
       )}
 
@@ -505,6 +551,13 @@ function ManualTeamBuilder({ upcomingRaces }) {
         <div className="text-center mb-4">
           <p className="text-gray-400 text-sm">Fetching practice data and running predictions...</p>
           <p className="text-gray-600 text-xs mt-1">This can take up to 30 seconds</p>
+        </div>
+      )}
+
+      {pool && sessionUsed && (
+        <div className="flex items-center gap-2 mb-4 bg-gray-800/60 rounded-lg px-3 py-2 border border-gray-700">
+          <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+          <p className="text-sm text-gray-300">Predictions based on <span className="text-white font-semibold">{sessionUsed}</span> data</p>
         </div>
       )}
 
@@ -848,8 +901,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
-      <h1 className="text-4xl font-bold mb-2 text-center">F1 Fantasy Predictor</h1>
-      <p className="text-center text-gray-500 mb-6 text-sm">2026 Season</p>
+      <h1 className="text-4xl font-bold mb-2 text-center">PitWall</h1>
+      <p className="text-center text-gray-500 mb-6 text-sm">F1 Fantasy · 2026 Season</p>
 
       <CountdownWidget nextRace={nextRace} />
       <WeekendTeamWidget />
