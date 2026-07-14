@@ -241,6 +241,80 @@ def get_prices():
     return current_prices
 
 
+@app.post("/race-results")
+def get_race_results(request: RaceRequest):
+    try:
+        df = pd.read_csv("data/processed/race_results_2026.csv")
+    except Exception:
+        raise HTTPException(status_code=503, detail="Race data unavailable")
+
+    race_df = df[df["RaceName"] == request.race_name].copy()
+    if race_df.empty:
+        raise HTTPException(status_code=404, detail="Race not found")
+
+    race_df["Position"] = pd.to_numeric(race_df["Position"], errors="coerce")
+    race_df["GridPosition"] = pd.to_numeric(race_df["GridPosition"], errors="coerce")
+    race_df["PositionChange"] = race_df["GridPosition"] - race_df["Position"]
+
+    finishers = race_df[race_df["Status"] != "DNF"].sort_values("Position")
+    dnfs = race_df[race_df["Status"] == "DNF"]
+    ordered = pd.concat([finishers, dnfs], ignore_index=True)
+
+    result = []
+    for _, row in ordered.iterrows():
+        result.append({
+            "Abbreviation": row["Abbreviation"],
+            "FullName": row["FullName"],
+            "TeamName": row["TeamName"],
+            "GridPosition": None if pd.isna(row["GridPosition"]) else int(row["GridPosition"]),
+            "Position": None if pd.isna(row["Position"]) else int(row["Position"]),
+            "PositionChange": None if pd.isna(row.get("PositionChange")) else int(row["PositionChange"]),
+            "Status": row["Status"],
+        })
+    return result
+
+
+@app.post("/qualifying-results")
+def get_qualifying_results(request: RaceRequest):
+    try:
+        df = pd.read_csv("data/processed/race_results_2026.csv")
+        race_data = df[df["RaceName"] == request.race_name]
+        if race_data.empty:
+            raise HTTPException(status_code=404, detail="Race not found in 2026 data")
+        year = int(race_data["Year"].iloc[0])
+
+        fastf1.Cache.enable_cache("data/cache")
+        session = fastf1.get_session(year, request.race_name, "Q")
+        session.load(laps=False, telemetry=False, weather=False, messages=False)
+        results = session.results.copy()
+
+        def fmt_time(t):
+            if pd.isna(t):
+                return None
+            total_ms = int(t.total_seconds() * 1000)
+            mins = total_ms // 60000
+            secs = (total_ms % 60000) / 1000
+            return f"{mins}:{secs:06.3f}"
+
+        output = []
+        for _, row in results.sort_values("Position").iterrows():
+            pos = row.get("Position")
+            output.append({
+                "Position": None if pd.isna(pos) else int(pos),
+                "Abbreviation": row["Abbreviation"],
+                "FullName": row["FullName"],
+                "TeamName": row["TeamName"],
+                "Q1": fmt_time(row.get("Q1")),
+                "Q2": fmt_time(row.get("Q2")),
+                "Q3": fmt_time(row.get("Q3")),
+            })
+        return output
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not fetch qualifying: {str(e)}")
+
+
 @app.get("/weekend-team")
 def get_weekend_team():
     """
