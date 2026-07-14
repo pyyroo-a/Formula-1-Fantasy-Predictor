@@ -25,6 +25,9 @@ const DRIVER_NAMES = {
   HAD: "Isack Hadjar",
   COL: "Franco Colapinto",
   PER: "Sergio Pérez",
+  BOT: "Valtteri Bottas",
+  OCO: "Esteban Ocon",
+  LIN: "Arvid Lindblad",
 };
 
 const BADGE_COLOR = {
@@ -66,7 +69,7 @@ function DriverAvatar({ abbreviation, size = "md" }) {
   if (!failed) {
     return (
       <img
-        src={`/drivers/${abbreviation}.png`}
+        src={`/drivers/${abbreviation}.avif`}
         alt={abbreviation}
         className={`${cls} rounded-full object-cover object-top bg-gray-700 flex-shrink-0`}
         onError={() => setFailed(true)}
@@ -92,29 +95,39 @@ function PositionChange({ change, status }) {
 
 function RaceResultsTable({ results }) {
   return (
-    <div className="space-y-1">
-      {results.map((row, i) => {
+    <div className="space-y-1.5">
+      {results.map((row) => {
         const accent = teamAccent(row.TeamName);
         const isDNF = row.Status === "DNF";
         return (
           <div
             key={row.Abbreviation}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 border-l-4 ${isDNF ? "bg-gray-800/50 opacity-60" : "bg-gray-800"}`}
+            className={`flex items-center gap-3 rounded-lg px-3 py-3 border-l-4 ${isDNF ? "bg-gray-800/40 opacity-60" : "bg-gray-800"}`}
             style={{ borderColor: accent }}
           >
-            <span className="text-gray-500 text-xs w-6 text-right flex-shrink-0">
-              {isDNF ? "—" : `P${row.Position}`}
-            </span>
+            {/* Final position — large and prominent */}
+            <div className="w-10 text-center flex-shrink-0">
+              {isDNF
+                ? <span className="text-red-500 text-xs font-bold">DNF</span>
+                : <span className="text-white text-lg font-bold leading-none">P{row.Position}</span>
+              }
+            </div>
+
             <DriverAvatar abbreviation={row.Abbreviation} size="sm" />
+
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm leading-tight truncate">{row.FullName}</p>
               <p className="text-gray-500 text-xs truncate">{row.TeamName}</p>
             </div>
+
+            {/* Start → Finish + change */}
             <div className="text-right flex-shrink-0">
-              <PositionChange change={row.PositionChange} status={row.Status} />
-              {!isDNF && (
-                <p className="text-gray-600 text-xs mt-0.5">from P{row.GridPosition}</p>
+              {!isDNF && row.GridPosition != null && (
+                <p className="text-gray-400 text-xs font-mono mb-0.5">
+                  P{row.GridPosition} → P{row.Position}
+                </p>
               )}
+              <PositionChange change={row.PositionChange} status={row.Status} />
             </div>
           </div>
         );
