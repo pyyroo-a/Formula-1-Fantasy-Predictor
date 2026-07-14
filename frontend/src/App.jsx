@@ -369,28 +369,27 @@ const BUDGET = 100.0;
 
 function SessionSchedule({ sessions }) {
   if (!sessions?.length) return null;
-  const now = new Date();
   const practiceSessions = sessions.filter(s => ["FP1","FP2","FP3"].includes(s.name));
   if (!practiceSessions.length) return null;
 
   return (
-    <div className="bg-gray-800/60 rounded-xl px-4 py-3 border border-gray-700 mb-3">
-      <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Practice Sessions</p>
-      <div className="space-y-1.5">
+    <div className="bg-gray-800/60 rounded-xl px-4 py-4 border border-gray-700 mb-3">
+      <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Practice Sessions</p>
+      <div className="space-y-3">
         {practiceSessions.map((s) => {
           const dt = new Date(s.date);
           const available = s.available;
           return (
             <div key={s.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${available ? "bg-green-400" : "bg-gray-600"}`} />
-                <span className={`text-sm font-medium ${available ? "text-white" : "text-gray-500"}`}>{s.name}</span>
+              <div className="flex items-center gap-3">
+                <span className={`w-3 h-3 rounded-full flex-shrink-0 ${available ? "bg-green-400" : "bg-gray-600"}`} />
+                <span className={`text-base font-bold ${available ? "text-white" : "text-gray-400"}`}>{s.name}</span>
               </div>
-              <div className="text-right">
-                <span className={`text-xs ${available ? "text-green-400" : "text-gray-500"}`}>
-                  {available ? "Data available" : dt.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                </span>
-              </div>
+              <span className={`text-sm font-medium ${available ? "text-green-400" : "text-gray-400"}`}>
+                {available
+                  ? "Data available ✓"
+                  : dt.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+              </span>
             </div>
           );
         })}
@@ -423,7 +422,6 @@ function ManualTeamBuilder({ upcomingRaces }) {
   };
 
   const fetchSessions = async (raceName) => {
-    setSessions(null);
     try {
       const res = await fetch("http://127.0.0.1:8000/race-sessions", {
         method: "POST",
@@ -434,6 +432,13 @@ function ManualTeamBuilder({ upcomingRaces }) {
       if (!data.detail) setSessions(data.sessions);
     } catch {}
   };
+
+  // Auto-refresh session availability every 60 seconds so dots turn green when a session starts
+  useEffect(() => {
+    if (!selectedRace || pool) return;
+    const id = setInterval(() => fetchSessions(selectedRace), 60000);
+    return () => clearInterval(id);
+  }, [selectedRace, pool]);
 
   const loadPool = async () => {
     if (!selectedRace) return;
