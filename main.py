@@ -305,6 +305,123 @@ def get_prices():
     return current_prices
 
 
+HIGH_ATTRITION_CIRCUITS = {
+    "Azerbaijan Grand Prix", "Singapore Grand Prix", "Monaco Grand Prix",
+    "Las Vegas Grand Prix", "Saudi Arabian Grand Prix", "Miami Grand Prix",
+}
+
+
+class ChipAdvisorRequest(BaseModel):
+    race_name: str
+    my_drivers: list[str]
+    my_constructors: list[str]
+
+
+@app.post("/chip-advisor")
+def get_chip_advisor(request: ChipAdvisorRequest):
+    if not current_prices or not current_prices.get("drivers"):
+        raise HTTPException(status_code=503, detail="Prices not available")
+
+    sessions_to_try = ["FP3", "FP2", "FP1"]
+    practice_df = None
+    session_used = None
+    last_error = None
+
+    for sess in sessions_to_try:
+        try:
+            practice_df = get_practice_grid(2026, request.race_name, sess)
+            session_used = sess
+            break
+        except Exception as e:
+            last_error = str(e)
+            continue
+
+    if practice_df is None:
+        raise HTTPException(status_code=400, detail=f"No practice data available yet. {last_error}")
+
+    upcoming_table = predict_upcoming_race(practice_df)
+    pool = get_race_pool(upcoming_table, request.race_name, current_prices)
+
+    if not pool["drivers"]:
+        raise HTTPException(status_code=400, detail="No priced drivers found for this race.")
+
+    driver_map = {d["Abbreviation"]: d for d in pool["drivers"]}
+    constructor_map = {c["name"]: c for c in pool["constructors"]}
+
+    my_driver_score = sum(driver_map.get(a, {}).get("FantasyValue", 0) for a in request.my_drivers)
+    my_constructor_score = sum(constructor_map.get(n, {}).get("score", 0) for n in request.my_constructors)
+    my_team_score = my_driver_score + my_constructor_score
+
+    optimal = build_budget_team(upcoming_table, request.race_name, current_prices, budget=100.0)
+    optimal_score = optimal["total_score"] if optimal else my_team_score
+
+    limitless = build_budget_team(upcoming_table, request.race_name, current_prices, budget=999.0)
+    limitless_score = limitless["total_score"] if limitless else optimal_score
+
+    wildcard_gain = max(0.0, round(optimal_score - my_team_score, 1))
+    limitless_gain = max(0.0, round(limitless_score - my_team_score, 1))
+
+    sorted_drivers = sorted(pool["drivers"], key=lambda d: d["FantasyValue"], reverse=True)
+    triple_captain_target = sorted_drivers[0] if sorted_drivers else None
+    extra_drs_target = sorted_drivers[1] if len(sorted_drivers) > 1 else None
+
+    triple_captain_gain = round(triple_captain_target["FantasyValue"], 1) if triple_captain_target else 0.0
+    extra_drs_gain = round(extra_drs_target["FantasyValue"], 1) if extra_drs_target else 0.0
+
+    my_drivers_in_pool = [driver_map[a] for a in request.my_drivers if a in driver_map]
+    riskiest = min(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
+
+    is_high_attrition = request.race_name in HIGH_ATTRITION_CIRCUITS
+    dnf_risk_pct = 120 if is_high_attrition else 65
+
+    def grade(gain, thresholds):
+        play, consider = thresholds
+        if gain >= play:
+            return "PLAY"
+        if gain >= consider:
+            return "CONSIDER"
+        return "HOLD"
+
+    return {
+        "session_used": session_used,
+        "my_team_score": round(my_team_score, 2),
+        "chips": {
+            "limitless": {
+                "gain": limitless_gain,
+                "team": limitless,
+                "recommendation": grade(limitless_gain, (40, 20)),
+            },
+            "triple_captain": {
+                "gain": triple_captain_gain,
+                "target": triple_captain_target["Abbreviation"] if triple_captain_target else None,
+                "recommendation": grade(triple_captain_gain, (30, 15)),
+            },
+            "extra_drs": {
+                "gain": extra_drs_gain,
+                "target": extra_drs_target["Abbreviation"] if extra_drs_target else None,
+                "recommendation": grade(extra_drs_gain, (25, 12)),
+            },
+            "wildcard": {
+                "gain": wildcard_gain,
+                "optimal_team": optimal,
+                "recommendation": grade(wildcard_gain, (25, 12)),
+            },
+            "no_negative": {
+                "dnf_risk_pct": dnf_risk_pct,
+                "is_high_attrition": is_high_attrition,
+                "recommendation": "HEDGE" if is_high_attrition else "HOLD",
+            },
+            "final_fix": {
+                "riskiest_driver": riskiest["Abbreviation"] if riskiest else None,
+                "recommendation": "POST-QUALI",
+            },
+            "autopilot": {
+                "recommendation": "SAVE",
+            },
+        },
+    }
+
+
 @app.post("/race-results")
 def get_race_results(request: RaceRequest):
     try:

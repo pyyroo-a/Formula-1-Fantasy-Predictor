@@ -796,6 +796,368 @@ function PoolConstructorCard({ constructor: c, isSelected, canAdd, onToggle }) {
   );
 }
 
+const CHIP_META = {
+  limitless:      { label: "Limitless",       color: "#E8002D", desc: "No budget cap — pick any 5 drivers + 2 constructors for one race." },
+  triple_captain: { label: "Triple Captain",  color: "#FF8000", desc: "Your captain scores 3× instead of 2× this race." },
+  extra_drs:      { label: "Extra DRS",       color: "#27F4D2", desc: "A second driver scores 2× alongside your captain." },
+  wildcard:       { label: "Wildcard",        color: "#6692FF", desc: "Rebuild your entire squad for free — transfers reset after." },
+  no_negative:    { label: "No Negative",     color: "#52E252", desc: "Any negative score is floored at 0 — ideal for high-attrition circuits." },
+  final_fix:      { label: "Final Fix",       color: "#FFD700", desc: "One free swap after qualifying locks in." },
+  autopilot:      { label: "Autopilot",       color: "#6b7280", desc: "F1's auto-pick — PitWall already does this better. Save it." },
+};
+
+const REC_STYLE = {
+  PLAY:        "bg-green-500/20 text-green-400 border border-green-500/40",
+  CONSIDER:    "bg-yellow-500/20 text-yellow-400 border border-yellow-500/40",
+  HOLD:        "bg-gray-700 text-gray-400 border border-gray-600",
+  HEDGE:       "bg-orange-500/20 text-orange-400 border border-orange-500/40",
+  "POST-QUALI":"bg-blue-500/20 text-blue-400 border border-blue-500/40",
+  SAVE:        "bg-gray-700 text-gray-500 border border-gray-600",
+};
+
+function ChipCard({ chipKey, data, isBest }) {
+  const meta = CHIP_META[chipKey];
+  const rec = data.recommendation;
+  const recStyle = REC_STYLE[rec] || REC_STYLE.HOLD;
+
+  let metric = null;
+  if (chipKey === "limitless" || chipKey === "wildcard") {
+    metric = data.gain > 0 ? `+${data.gain} xP` : "≈ same";
+  } else if (chipKey === "triple_captain" || chipKey === "extra_drs") {
+    metric = data.gain > 0 ? `+${data.gain} xP bonus` : null;
+  } else if (chipKey === "no_negative") {
+    metric = `${data.dnf_risk_pct}% DNF risk`;
+  } else if (chipKey === "final_fix") {
+    metric = "after qualifying";
+  } else if (chipKey === "autopilot") {
+    metric = "save it";
+  }
+
+  return (
+    <div
+      className="rounded-xl px-4 py-4 bg-gray-800 border border-gray-700 border-l-[6px]"
+      style={{ borderLeftColor: meta.color }}
+    >
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-bold text-white text-base">{meta.label}</span>
+          {isBest && (
+            <span className="text-xs bg-red-600/30 text-red-400 border border-red-600/40 px-2 py-0.5 rounded-full font-medium">
+              Best this week
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {metric && <span className="text-gray-400 text-sm font-mono">{metric}</span>}
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${recStyle}`}>{rec}</span>
+        </div>
+      </div>
+      <p className="text-gray-400 text-sm leading-snug">{meta.desc}</p>
+      {(chipKey === "triple_captain" || chipKey === "extra_drs") && data.target && (
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-700">
+          <DriverAvatar abbreviation={data.target} size="sm" />
+          <p className="text-sm text-gray-300">
+            Best target: <span className="text-white font-semibold">{DRIVER_NAMES[data.target] || data.target}</span>
+          </p>
+        </div>
+      )}
+      {chipKey === "wildcard" && data.optimal_team && (
+        <p className="text-xs text-gray-500 mt-2">
+          Optimal team score: <span className="text-gray-300">{data.optimal_team.total_score?.toFixed(2)} xP</span>
+          {" · "}cost: <span className="text-gray-300">${data.optimal_team.total_cost}M</span>
+        </p>
+      )}
+      {chipKey === "final_fix" && data.riskiest_driver && (
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-700">
+          <DriverAvatar abbreviation={data.riskiest_driver} size="sm" />
+          <p className="text-sm text-gray-300">
+            Watch: <span className="text-white font-semibold">{DRIVER_NAMES[data.riskiest_driver] || data.riskiest_driver}</span>
+            <span className="text-gray-500"> — lowest projected scorer in your squad</span>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChipAdvisorResults({ data }) {
+  const { my_team_score, chips } = data;
+
+  const gainMap = {
+    limitless: chips.limitless.gain,
+    triple_captain: chips.triple_captain.gain,
+    extra_drs: chips.extra_drs.gain,
+    wildcard: chips.wildcard.gain,
+  };
+  const bestKey = Object.entries(gainMap).reduce(
+    (best, [k, v]) => (v > gainMap[best] ? k : best),
+    "limitless"
+  );
+
+  const ORDER = ["limitless", "triple_captain", "extra_drs", "wildcard", "no_negative", "final_fix", "autopilot"];
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Chip Advisor</h3>
+        <span className="text-xs text-gray-500">
+          My team score: <span className="text-white font-medium">{my_team_score} xP</span>
+        </span>
+      </div>
+      <div className="space-y-2">
+        {ORDER.map((key) => (
+          <ChipCard key={key} chipKey={key} data={chips[key]} isBest={key === bestKey} />
+        ))}
+      </div>
+      <p className="text-xs text-gray-600 text-center mt-4">
+        Each chip is once-a-season — hold unless a race really stands out.
+      </p>
+    </div>
+  );
+}
+
+function ChipAdvisor({ upcomingRaces }) {
+  const [selectedRace, setSelectedRace] = useState("");
+  const [sessions, setSessions] = useState(null);
+  const [pool, setPool] = useState(null);
+  const [sessionUsed, setSessionUsed] = useState(null);
+  const [poolLoading, setPoolLoading] = useState(false);
+  const [poolError, setPoolError] = useState(null);
+
+  const [myDrivers, setMyDrivers] = useState([]);
+  const [myConstructors, setMyConstructors] = useState([]);
+
+  const [chipResult, setChipResult] = useState(null);
+  const [chipLoading, setChipLoading] = useState(false);
+  const [chipError, setChipError] = useState(null);
+
+  const selectedIsSprint = upcomingRaces.find(r => r.race_name === selectedRace)?.is_sprint ?? false;
+  const anySessionAvailable = sessions?.some(s => ["FP1","FP2","FP3"].includes(s.name) && s.available);
+  const squadComplete = myDrivers.length === 5 && myConstructors.length === 2;
+
+  const resetAll = () => {
+    setPool(null); setSessionUsed(null);
+    setMyDrivers([]); setMyConstructors([]);
+    setChipResult(null); setPoolError(null); setChipError(null);
+  };
+
+  const fetchSessions = async (raceName) => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/race-sessions", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ race_name: raceName }),
+      });
+      const d = await res.json();
+      if (!d.detail) setSessions(d.sessions);
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (!selectedRace || pool) return;
+    const id = setInterval(() => fetchSessions(selectedRace), 60000);
+    return () => clearInterval(id);
+  }, [selectedRace, pool]);
+
+  const loadPool = async () => {
+    resetAll();
+    setPoolLoading(true);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/upcoming-race-pool", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year: 2026, race_name: selectedRace, session: selectedIsSprint ? "FP1" : "FP3" }),
+      });
+      const d = await res.json();
+      if (d.detail) throw new Error(d.detail);
+      setPool(d.pool);
+      setSessionUsed(d.session_used);
+    } catch (e) {
+      setPoolError(e.message || "Failed to load race data.");
+    }
+    setPoolLoading(false);
+  };
+
+  const analyzeChips = async () => {
+    if (!squadComplete) return;
+    setChipLoading(true);
+    setChipError(null);
+    setChipResult(null);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/chip-advisor", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ race_name: selectedRace, my_drivers: myDrivers, my_constructors: myConstructors }),
+      });
+      const d = await res.json();
+      if (d.detail) throw new Error(d.detail);
+      setChipResult(d);
+    } catch (e) {
+      setChipError(e.message || "Failed to analyze chips.");
+    }
+    setChipLoading(false);
+  };
+
+  const toggleDriver = (abbr) => {
+    if (myDrivers.includes(abbr)) {
+      setMyDrivers(p => p.filter(a => a !== abbr));
+      setChipResult(null);
+    } else if (myDrivers.length < 5) {
+      setMyDrivers(p => [...p, abbr]);
+      setChipResult(null);
+    }
+  };
+
+  const toggleConstructor = (name) => {
+    if (myConstructors.includes(name)) {
+      setMyConstructors(p => p.filter(n => n !== name));
+      setChipResult(null);
+    } else if (myConstructors.length < 2) {
+      setMyConstructors(p => [...p, name]);
+      setChipResult(null);
+    }
+  };
+
+  const driversNeeded = 5 - myDrivers.length;
+  const consNeeded = 2 - myConstructors.length;
+  const btnText = chipLoading ? "Analyzing..."
+    : squadComplete ? "Analyze Chips"
+    : [driversNeeded > 0 && `${driversNeeded} driver${driversNeeded > 1 ? "s" : ""}`,
+       consNeeded > 0 && `${consNeeded} constructor${consNeeded > 1 ? "s" : ""}`]
+       .filter(Boolean).join(" + ") + " still needed";
+
+  return (
+    <div>
+      <p className="text-gray-400 text-sm text-center mb-4">
+        Enter your current F1 Fantasy squad to get chip timing advice.
+      </p>
+
+      <select
+        value={selectedRace}
+        onChange={(e) => {
+          const r = e.target.value;
+          setSelectedRace(r);
+          resetAll();
+          if (r) fetchSessions(r);
+          else setSessions(null);
+        }}
+        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
+      >
+        <option value="">Select an upcoming race</option>
+        {upcomingRaces.map(r => (
+          <option key={r.race_name} value={r.race_name}>{r.race_name}{r.is_sprint ? " 🏁 Sprint" : ""}</option>
+        ))}
+      </select>
+
+      {selectedRace && sessions && <SessionSchedule sessions={sessions} />}
+
+      {selectedRace && !pool && !poolLoading && (
+        <button
+          onClick={loadPool}
+          disabled={sessions && !anySessionAvailable}
+          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition font-medium mb-4"
+        >
+          {sessions && !anySessionAvailable ? "No practice data yet — check back after FP1" : "Load Driver Pool"}
+        </button>
+      )}
+
+      {poolError && <p className="text-red-400 text-sm text-center mb-4">{poolError}</p>}
+      {poolLoading && (
+        <div className="text-center mb-4">
+          <p className="text-gray-400 text-sm">Fetching practice data and running predictions...</p>
+          <p className="text-gray-600 text-xs mt-1">This can take up to 30 seconds</p>
+        </div>
+      )}
+
+      {pool && sessionUsed && (
+        <div className="flex items-center gap-2 mb-4 bg-gray-800/60 rounded-lg px-3 py-2 border border-gray-700">
+          <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+          <p className="text-sm text-gray-300">Pool based on <span className="text-white font-semibold">{sessionUsed}</span> data</p>
+        </div>
+      )}
+
+      {pool && (
+        <div className="space-y-6">
+          {/* Driver picker */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+              My Drivers ({myDrivers.length}/5)
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {pool.drivers.map((d) => {
+                const isSelected = myDrivers.includes(d.Abbreviation);
+                const canAdd = !isSelected && myDrivers.length < 5;
+                const accent = teamAccent(d.TeamName);
+                return (
+                  <button
+                    key={d.Abbreviation}
+                    onClick={() => toggleDriver(d.Abbreviation)}
+                    disabled={!isSelected && !canAdd}
+                    className={`text-left rounded-xl px-3 py-3 border-l-[5px] transition flex items-center gap-2 ${
+                      isSelected ? "bg-gray-700 ring-2 ring-red-500/30"
+                      : !canAdd ? "bg-gray-800/40 opacity-40 cursor-not-allowed"
+                      : "bg-gray-800 hover:bg-gray-750"
+                    }`}
+                    style={{ borderColor: accent }}
+                  >
+                    <DriverAvatar abbreviation={d.Abbreviation} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold truncate">{DRIVER_NAMES[d.Abbreviation] || d.Abbreviation}</p>
+                      <p className="text-xs text-gray-500">${d.Price?.toFixed(1)}M</p>
+                    </div>
+                    {isSelected && <span className="text-red-400 text-xs flex-shrink-0 font-bold">✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Constructor picker */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+              My Constructors ({myConstructors.length}/2)
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {pool.constructors.map((c) => {
+                const isSelected = myConstructors.includes(c.name);
+                const canAdd = !isSelected && myConstructors.length < 2;
+                const accent = teamAccent(c.name);
+                return (
+                  <button
+                    key={c.name}
+                    onClick={() => toggleConstructor(c.name)}
+                    disabled={!isSelected && !canAdd}
+                    className={`text-left rounded-xl px-3 py-3 border-l-[5px] transition flex justify-between items-center ${
+                      isSelected ? "bg-gray-700 ring-2 ring-red-500/30"
+                      : !canAdd ? "bg-gray-800/40 opacity-40 cursor-not-allowed"
+                      : "bg-gray-800 hover:bg-gray-750"
+                    }`}
+                    style={{ borderColor: accent }}
+                  >
+                    <div>
+                      <p className="text-sm font-bold">{c.name}</p>
+                      <p className="text-xs text-gray-500">${c.price?.toFixed(1)}M</p>
+                    </div>
+                    {isSelected && <span className="text-red-400 text-xs font-bold">✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <button
+            onClick={analyzeChips}
+            disabled={!squadComplete || chipLoading}
+            className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition font-medium"
+          >
+            {btnText}
+          </button>
+
+          {chipError && <p className="text-red-400 text-sm text-center">{chipError}</p>}
+          {chipResult && <ChipAdvisorResults data={chipResult} />}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [mode, setMode] = useState("results");
   const [races, setRaces] = useState([]);
@@ -902,6 +1264,7 @@ function App() {
     { id: "qualifying",  label: "Qualifying" },
     { id: "budget",      label: "Budget Team" },
     { id: "manual",      label: "Manual Team" },
+    { id: "chips",       label: "Chip Advisor" },
   ];
 
   return (
@@ -918,7 +1281,7 @@ function App() {
           <button
             key={tab.id}
             onClick={() => setMode(tab.id)}
-            className={`flex-1 py-2 text-xs font-medium transition ${
+            className={`flex-1 py-2 text-xs font-medium transition leading-tight px-1 ${
               mode === tab.id ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
             }`}
           >
@@ -1023,6 +1386,11 @@ function App() {
         {/* Manual Team */}
         {mode === "manual" && (
           <ManualTeamBuilder upcomingRaces={upcomingRaces} />
+        )}
+
+        {/* Chip Advisor */}
+        {mode === "chips" && (
+          <ChipAdvisor upcomingRaces={upcomingRaces} />
         )}
       </div>
 
