@@ -9,17 +9,18 @@ import os
 from src.pipeline import run_pipeline, predict_upcoming_race
 from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, get_race_pool
 from src.fetch_practice import get_practice_grid, is_sprint_weekend
-from src.fetch_prices import fetch_prices, save_prices
+from src.fetch_prices import fetch_prices, save_prices, fetch_price_changes
 from src.fetch_results import update_season_results
 
 fantasy_table = None
 current_prices = None
+price_changes = None
 race_schedule = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global fantasy_table, current_prices, race_schedule
+    global fantasy_table, current_prices, price_changes, race_schedule
 
     # Auto-fetch any completed 2026 races not yet in the CSV
     added = update_season_results(2026, "data/processed/race_results_2026.csv")
@@ -37,6 +38,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Warning: could not fetch prices — {e}")
         current_prices = {"drivers": {}, "constructors": {}}
+
+    try:
+        price_changes = fetch_price_changes(latest_round)
+        print(f"Price changes loaded (round {latest_round} vs {latest_round - 1})")
+    except Exception as e:
+        print(f"Warning: could not fetch price changes — {e}")
+        price_changes = {"drivers": {}, "constructors": {}}
 
     try:
         fastf1.Cache.enable_cache("data/cache")
@@ -303,6 +311,11 @@ def get_next_race():
 @app.get("/prices")
 def get_prices():
     return current_prices
+
+
+@app.get("/price-changes")
+def get_price_changes():
+    return price_changes
 
 
 HIGH_ATTRITION_CIRCUITS = {

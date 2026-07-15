@@ -52,3 +52,55 @@ def load_prices(path: str = "data/prices.json") -> dict:
     """Loads saved prices from disk."""
     with open(path) as f:
         return json.load(f)["prices"]
+
+
+def fetch_price_changes(current_race_id: int) -> dict:
+    """
+    Returns current prices with change vs the previous round.
+    Each entry: { "price": float, "change": float }
+    Positive change = price rose, negative = price dropped.
+    """
+    current = fetch_prices(current_race_id)
+
+    try:
+        previous = fetch_prices(current_race_id - 1)
+    except Exception:
+        previous = {"drivers": {}, "constructors": {}}
+
+    drivers = {}
+    for abbr, price in current["drivers"].items():
+        prev = previous["drivers"].get(abbr, price)
+        drivers[abbr] = {"price": price, "change": round(price - prev, 1)}
+
+    constructors = {}
+    for name, price in current["constructors"].items():
+        prev = previous["constructors"].get(name, price)
+        constructors[name] = {"price": price, "change": round(price - prev, 1)}
+
+    return {"drivers": drivers, "constructors": constructors}
+
+
+def fetch_price_changes(current_race_id: int) -> dict:
+    """
+    Returns current prices enriched with change vs the previous round.
+    Each entry is { "price": float, "change": float } where change is positive
+    for a price rise and negative for a drop.
+    """
+    current = fetch_prices(current_race_id)
+
+    try:
+        previous = fetch_prices(current_race_id - 1)
+    except Exception:
+        previous = {"drivers": {}, "constructors": {}}
+
+    drivers = {}
+    for abbr, price in current["drivers"].items():
+        prev = previous["drivers"].get(abbr, price)
+        drivers[abbr] = {"price": price, "change": round(price - prev, 1)}
+
+    constructors = {}
+    for name, price in current["constructors"].items():
+        prev = previous["constructors"].get(name, price)
+        constructors[name] = {"price": price, "change": round(price - prev, 1)}
+
+    return {"drivers": drivers, "constructors": constructors}
