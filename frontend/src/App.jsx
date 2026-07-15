@@ -1,1168 +1,27 @@
 import { useState, useEffect } from "react";
-
-// Drop driver headshots into frontend/public/drivers/ named by abbreviation e.g. VER.png
-// If an image is missing the component falls back to showing the abbreviation text.
-
-const DRIVER_NAMES = {
-  VER: "Max Verstappen",
-  NOR: "Lando Norris",
-  PIA: "Oscar Piastri",
-  LEC: "Charles Leclerc",
-  HAM: "Lewis Hamilton",
-  RUS: "George Russell",
-  SAI: "Carlos Sainz",
-  ALO: "Fernando Alonso",
-  STR: "Lance Stroll",
-  GAS: "Pierre Gasly",
-  ALB: "Alexander Albon",
-  TSU: "Yuki Tsunoda",
-  LAW: "Liam Lawson",
-  HUL: "Nico Hülkenberg",
-  BEA: "Oliver Bearman",
-  ANT: "Andrea Kimi Antonelli",
-  BOR: "Gabriel Bortoleto",
-  DOO: "Jack Doohan",
-  HAD: "Isack Hadjar",
-  COL: "Franco Colapinto",
-  PER: "Sergio Pérez",
-  BOT: "Valtteri Bottas",
-  OCO: "Esteban Ocon",
-  LIN: "Arvid Lindblad",
-};
-
-const BADGE_COLOR = {
-  Safe: "bg-green-500",
-  Value: "bg-yellow-500",
-  Risk: "bg-orange-500",
-  Avoid: "bg-red-500",
-};
-
-const TEAM_COLORS = {
-  "Red Bull Racing": "#3671C6",
-  McLaren: "#FF8000",
-  Ferrari: "#E8002D",
-  Mercedes: "#27F4D2",
-  "Aston Martin": "#229971",
-  Alpine: "#FF87BC",
-  Williams: "#64C4FF",
-  "RB F1 Team": "#6692FF",
-  "Kick Sauber": "#52E252",
-  Haas: "#B6BABD",
-  Audi: "#E8E234",
-};
-
-function teamAccent(teamName) {
-  for (const [key, color] of Object.entries(TEAM_COLORS)) {
-    if (teamName?.toLowerCase().includes(key.toLowerCase())) return color;
-  }
-  return "#6b7280";
-}
-
-function DriverAvatar({ abbreviation, size = "md" }) {
-  const [failed, setFailed] = useState(false);
-  const cls = size === "sm"
-    ? "w-8 h-8 text-xs"
-    : size === "lg"
-    ? "w-14 h-14 text-sm"
-    : "w-10 h-10 text-xs";
-
-  if (!failed) {
-    return (
-      <img
-        src={`/drivers/${abbreviation}.avif`}
-        alt={abbreviation}
-        className={`${cls} rounded-full object-cover object-top bg-gray-700 flex-shrink-0`}
-        onError={() => setFailed(true)}
-      />
-    );
-  }
-  return (
-    <div className={`${cls} rounded-full bg-gray-700 flex items-center justify-center font-bold text-gray-400 flex-shrink-0`}>
-      {abbreviation}
-    </div>
-  );
-}
-
-function PositionChange({ change, status }) {
-  if (status === "DNF") {
-    return <span className="text-gray-500 text-sm font-medium">DNF</span>;
-  }
-  if (change === null || change === undefined) return null;
-  if (change > 0) return <span className="text-green-400 font-bold text-sm">+{change} ↑</span>;
-  if (change < 0) return <span className="text-red-400 font-bold text-sm">{change} ↓</span>;
-  return <span className="text-gray-500 text-sm">—</span>;
-}
-
-function RaceResultsTable({ results }) {
-  return (
-    <div className="space-y-2">
-      {results.map((row) => {
-        const accent = teamAccent(row.TeamName);
-        const isDNF = row.Status === "DNF";
-        return (
-          <div
-            key={row.Abbreviation}
-            className={`flex items-center gap-4 rounded-xl px-4 py-4 border-l-[6px] ${isDNF ? "bg-gray-800/40 opacity-55" : "bg-gray-800"}`}
-            style={{ borderColor: accent }}
-          >
-            {/* Final position */}
-            <div className="w-14 text-center flex-shrink-0">
-              {isDNF
-                ? <span className="text-red-500 text-sm font-bold">DNF</span>
-                : <span className="text-white text-2xl font-black leading-none">P{row.Position}</span>
-              }
-            </div>
-
-            {/* Driver photo */}
-            <DriverAvatar abbreviation={row.Abbreviation} size="lg" />
-
-            {/* Name + team */}
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-lg leading-tight truncate">{row.FullName}</p>
-              <p className="text-gray-400 text-sm mt-0.5 truncate">{row.TeamName}</p>
-            </div>
-
-            {/* Start → Finish + change badge */}
-            <div className="text-right flex-shrink-0">
-              {!isDNF && row.GridPosition != null && (
-                <p className="text-gray-400 text-sm font-mono mb-1">
-                  P{row.GridPosition} → P{row.Position}
-                </p>
-              )}
-              <PositionChange change={row.PositionChange} status={row.Status} />
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function QualifyingTable({ results }) {
-  return (
-    <div className="space-y-2">
-      {/* Header */}
-      <div className="flex items-center gap-4 px-4 py-1 text-xs text-gray-500 uppercase tracking-wider">
-        <span className="w-14 text-center flex-shrink-0">Pos</span>
-        <span className="w-14 flex-shrink-0" />
-        <span className="flex-1">Driver</span>
-        <div className="flex gap-3 flex-shrink-0 text-right">
-          <span className="w-24">Q1</span>
-          <span className="w-24">Q2</span>
-          <span className="w-24">Q3</span>
-        </div>
-      </div>
-      {results.map((row) => {
-        const accent = teamAccent(row.TeamName);
-        const inQ3 = row.Q3 !== null;
-        const inQ2 = row.Q2 !== null;
-        return (
-          <div
-            key={row.Abbreviation}
-            className="flex items-center gap-4 rounded-xl px-4 py-4 bg-gray-800 border-l-[6px]"
-            style={{ borderColor: accent }}
-          >
-            <div className="w-14 text-center flex-shrink-0">
-              <span className="text-white text-2xl font-black leading-none">P{row.Position}</span>
-            </div>
-            <DriverAvatar abbreviation={row.Abbreviation} size="lg" />
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-lg leading-tight truncate">{row.FullName}</p>
-              <p className="text-gray-400 text-sm mt-0.5 truncate">{row.TeamName}</p>
-            </div>
-            <div className="flex gap-3 flex-shrink-0 text-right text-sm font-mono">
-              <span className={`w-24 ${inQ3 ? "text-yellow-400" : inQ2 ? "text-white" : "text-gray-400"}`}>
-                {row.Q1 ?? "—"}
-              </span>
-              <span className={`w-24 ${inQ3 ? "text-yellow-400" : inQ2 ? "text-white" : "text-gray-600"}`}>
-                {row.Q2 ?? "—"}
-              </span>
-              <span className={`w-24 ${inQ3 ? "text-yellow-300 font-bold" : "text-gray-600"}`}>
-                {row.Q3 ?? "—"}
-              </span>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function BudgetDriverCard({ driver }) {
-  const accent = teamAccent(driver.TeamName);
-  return (
-    <div
-      className="bg-gray-800 rounded-xl px-4 py-4 shadow-lg border-l-[6px]"
-      style={{ borderColor: accent }}
-    >
-      <div className="flex items-center gap-4 mb-3">
-        <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
-        <div className="flex-1 min-w-0">
-          <p className="text-lg font-bold leading-tight truncate">
-            {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
-          </p>
-          <p className="text-gray-400 text-sm mt-0.5">{driver.TeamName}</p>
-        </div>
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <p className="text-white font-bold text-base">${driver.Price?.toFixed(1)}M</p>
-          {driver.PickCategory && (
-            <span className={`text-white text-xs px-2.5 py-1 rounded-full font-medium ${BADGE_COLOR[driver.PickCategory]}`}>
-              {driver.PickCategory}
-            </span>
-          )}
-        </div>
-      </div>
-      <div className="flex justify-between text-sm text-gray-500 border-t border-gray-700 pt-2">
-        <span>Grid: <span className="text-gray-300">P{Math.round(driver.GridPosition)}</span></span>
-        <span>Predicted: <span className="text-gray-300">P{Math.round(driver.Predicted)}</span></span>
-        <span>Score: <span className="text-gray-300">{driver.FantasyValue?.toFixed(2)}</span></span>
-      </div>
-    </div>
-  );
-}
-
-function ConstructorCard({ constructor: c }) {
-  const accent = teamAccent(c.name);
-  return (
-    <div
-      className="bg-gray-800 rounded-xl px-4 py-4 shadow-lg border-l-[6px] flex justify-between items-center"
-      style={{ borderColor: accent }}
-    >
-      <div>
-        <p className="text-lg font-bold">{c.name}</p>
-        <p className="text-gray-500 text-sm mt-0.5">Constructor</p>
-      </div>
-      <div className="text-right">
-        <p className="text-white font-bold text-base">${c.price?.toFixed(1)}M</p>
-        <p className="text-gray-500 text-sm mt-0.5">Score: {c.score?.toFixed(2)}</p>
-      </div>
-    </div>
-  );
-}
-
-function BudgetBar({ used, total = 100 }) {
-  const pct = Math.min((used / total) * 100, 100);
-  const remaining = total - used;
-  const barColor = pct > 90 ? "bg-red-500" : pct > 75 ? "bg-yellow-500" : "bg-green-500";
-  return (
-    <div className="mb-6">
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-400">Budget used: <span className="text-white font-medium">${used.toFixed(1)}M</span></span>
-        <span className="text-gray-400">Remaining: <span className="text-green-400 font-medium">${remaining.toFixed(1)}M</span></span>
-      </div>
-      <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
-}
-
-function CountdownWidget({ nextRace }) {
-  const [timeLeft, setTimeLeft] = useState(null);
-
-  useEffect(() => {
-    if (!nextRace?.race_date) return;
-    const tick = () => {
-      const diff = new Date(nextRace.race_date) - new Date();
-      if (diff <= 0) { setTimeLeft(null); return; }
-      setTimeLeft({
-        days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
-      });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [nextRace]);
-
-  if (!nextRace) return null;
-
-  return (
-    <div className="max-w-2xl mx-auto mb-6 bg-gray-800 rounded-xl p-4 border border-gray-700">
-      <p className="text-xs text-gray-500 text-center mb-1 uppercase tracking-wider">Next Race</p>
-      <p className="text-center text-white font-bold text-lg mb-3">{nextRace.race_name}</p>
-      {timeLeft ? (
-        <div className="flex justify-center gap-6">
-          {[["Days", timeLeft.days], ["Hours", timeLeft.hours], ["Mins", timeLeft.minutes], ["Secs", timeLeft.seconds]].map(([label, val]) => (
-            <div key={label} className="text-center">
-              <p className="text-2xl font-mono font-bold text-red-500">{String(val).padStart(2, "0")}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{label}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-center text-green-400 text-sm font-medium">Race weekend is here!</p>
-      )}
-    </div>
-  );
-}
-
-function WeekendTeamWidget() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/weekend-team")
-      .then((res) => res.json())
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading || !data || !data.active || !data.team) return null;
-
-  const { race_name, session_used, team } = data;
-
-  return (
-    <div className="max-w-2xl mx-auto mb-6 bg-gray-900 rounded-xl border border-red-600/40 overflow-hidden">
-      <div className="bg-red-600/10 px-4 py-3 flex justify-between items-center border-b border-red-600/30">
-        <div>
-          <p className="text-xs text-red-400 uppercase tracking-wider font-medium">Race Weekend</p>
-          <p className="text-white font-bold">{race_name}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-500">Based on {session_used}</p>
-          <p className="text-xs text-gray-500">Score: <span className="text-white font-medium">{team.total_score?.toFixed(2)}</span></p>
-        </div>
-      </div>
-      <div className="p-4 space-y-2">
-        <div className="grid grid-cols-1 gap-2">
-          {team.drivers.map((d) => {
-            const accent = teamAccent(d.TeamName);
-            return (
-              <div key={d.Abbreviation} className="flex items-center gap-3 bg-gray-800 rounded-xl px-3 py-3 border-l-[6px]" style={{ borderColor: accent }}>
-                <DriverAvatar abbreviation={d.Abbreviation} size="md" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm leading-tight truncate">{DRIVER_NAMES[d.Abbreviation] || d.Abbreviation}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{d.TeamName}</p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={`text-white text-xs px-2 py-0.5 rounded-full font-medium ${BADGE_COLOR[d.PickCategory]}`}>{d.PickCategory}</span>
-                  <span className="text-gray-400 text-sm">${d.Price?.toFixed(1)}M</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="grid grid-cols-2 gap-1.5 mt-1">
-          {team.constructors.map((c) => {
-            const accent = teamAccent(c.name);
-            return (
-              <div key={c.name} className="flex justify-between items-center bg-gray-800 rounded-lg px-3 py-2 border-l-4" style={{ borderColor: accent }}>
-                <span className="font-medium text-xs">{c.name}</span>
-                <span className="text-gray-400 text-xs">${c.price?.toFixed(1)}M</span>
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex justify-between text-xs text-gray-500 pt-1">
-          <span>Total: <span className="text-white">${team.total_cost}M</span></span>
-          <span>Remaining: <span className="text-green-400">${team.budget_remaining}M</span></span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const BUDGET = 100.0;
-
-function SessionSchedule({ sessions }) {
-  if (!sessions?.length) return null;
-  const practiceSessions = sessions.filter(s => ["FP1","FP2","FP3"].includes(s.name));
-  if (!practiceSessions.length) return null;
-
-  return (
-    <div className="bg-gray-800/60 rounded-xl px-4 py-4 border border-gray-700 mb-3">
-      <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Practice Sessions</p>
-      <div className="space-y-3">
-        {practiceSessions.map((s) => {
-          const dt = new Date(s.date);
-          const available = s.available;
-          return (
-            <div key={s.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className={`w-3 h-3 rounded-full flex-shrink-0 ${available ? "bg-green-400" : "bg-gray-600"}`} />
-                <span className={`text-base font-bold ${available ? "text-white" : "text-gray-400"}`}>{s.name}</span>
-              </div>
-              <span className={`text-sm font-medium ${available ? "text-green-400" : "text-gray-400"}`}>
-                {available
-                  ? "Data available ✓"
-                  : dt.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function ManualTeamBuilder({ upcomingRaces }) {
-  const [selectedRace, setSelectedRace] = useState("");
-  const [sessions, setSessions] = useState(null);
-  const [pool, setPool] = useState(null);
-  const [optimalTeam, setOptimalTeam] = useState(null);
-  const [sessionUsed, setSessionUsed] = useState(null);
-  const [selectedDrivers, setSelectedDrivers] = useState([]);
-  const [selectedConstructors, setSelectedConstructors] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const selectedIsSprint = upcomingRaces.find(r => r.race_name === selectedRace)?.is_sprint ?? false;
-  const anySessionAvailable = sessions?.some(s => ["FP1","FP2","FP3"].includes(s.name) && s.available);
-
-  const resetPool = () => {
-    setPool(null);
-    setOptimalTeam(null);
-    setSessionUsed(null);
-    setSelectedDrivers([]);
-    setSelectedConstructors([]);
-    setError(null);
-  };
-
-  const fetchSessions = async (raceName) => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/race-sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: raceName }),
-      });
-      const data = await res.json();
-      if (!data.detail) setSessions(data.sessions);
-    } catch {}
-  };
-
-  // Auto-refresh session availability every 60 seconds so dots turn green when a session starts
-  useEffect(() => {
-    if (!selectedRace || pool) return;
-    const id = setInterval(() => fetchSessions(selectedRace), 60000);
-    return () => clearInterval(id);
-  }, [selectedRace, pool]);
-
-  const loadPool = async () => {
-    if (!selectedRace) return;
-    resetPool();
-    setLoading(true);
-    try {
-      const res = await fetch("http://127.0.0.1:8000/upcoming-race-pool", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year: 2026, race_name: selectedRace, session: selectedIsSprint ? "FP1" : "FP3" }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setPool(data.pool);
-      setSessionUsed(data.session_used);
-      if (data.optimal) setOptimalTeam(data.optimal);
-    } catch (e) {
-      setError(e.message || "Failed to load race data.");
-    }
-    setLoading(false);
-  };
-
-  const toggleDriver = (driver) => {
-    const isSelected = selectedDrivers.some(d => d.Abbreviation === driver.Abbreviation);
-    if (isSelected) {
-      setSelectedDrivers(prev => prev.filter(d => d.Abbreviation !== driver.Abbreviation));
-    } else if (selectedDrivers.length < 5) {
-      setSelectedDrivers(prev => [...prev, driver]);
-    }
-  };
-
-  const toggleConstructor = (constructor) => {
-    const isSelected = selectedConstructors.some(c => c.name === constructor.name);
-    if (isSelected) {
-      setSelectedConstructors(prev => prev.filter(c => c.name !== constructor.name));
-    } else if (selectedConstructors.length < 2) {
-      setSelectedConstructors(prev => [...prev, constructor]);
-    }
-  };
-
-  const driverCost = selectedDrivers.reduce((s, d) => s + d.Price, 0);
-  const constructorCost = selectedConstructors.reduce((s, c) => s + c.price, 0);
-  const totalCost = driverCost + constructorCost;
-  const remaining = BUDGET - totalCost;
-  const overBudget = totalCost > BUDGET;
-  const teamComplete = selectedDrivers.length === 5 && selectedConstructors.length === 2;
-
-  const myScore = selectedDrivers.reduce((s, d) => s + d.FantasyValue, 0)
-    + selectedConstructors.reduce((s, c) => s + c.score, 0);
-
-  const driverCategoryCounts = selectedDrivers.reduce((acc, d) => {
-    acc[d.PickCategory] = (acc[d.PickCategory] || 0) + 1;
-    return acc;
-  }, {});
-
-  const scoreVsOptimal = optimalTeam ? Math.round((myScore / optimalTeam.total_score) * 100) : null;
-
-  const qualityColor = !teamComplete ? "text-gray-400"
-    : scoreVsOptimal >= 90 ? "text-green-400"
-    : scoreVsOptimal >= 70 ? "text-yellow-400"
-    : "text-orange-400";
-
-  const qualityLabel = !teamComplete ? "—"
-    : scoreVsOptimal >= 90 ? "Excellent"
-    : scoreVsOptimal >= 70 ? "Good"
-    : scoreVsOptimal >= 50 ? "Average"
-    : "Weak";
-
-  const budgetPct = Math.min((totalCost / BUDGET) * 100, 100);
-  const barColor = overBudget ? "bg-red-500" : budgetPct > 90 ? "bg-yellow-500" : "bg-green-500";
-
-  return (
-    <div>
-      <p className="text-gray-400 text-sm text-center mb-4">
-        Pick 5 drivers + 2 constructors for an upcoming race based on practice data.
-      </p>
-
-      <select
-        value={selectedRace}
-        onChange={(e) => {
-          const race = e.target.value;
-          setSelectedRace(race);
-          resetPool();
-          if (race) fetchSessions(race);
-          else setSessions(null);
-        }}
-        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
-      >
-        <option value="">Select an upcoming race</option>
-        {upcomingRaces.map((r) => (
-          <option key={r.race_name} value={r.race_name}>
-            {r.race_name}{r.is_sprint ? " 🏁 Sprint" : ""}
-          </option>
-        ))}
-      </select>
-
-      {selectedRace && selectedIsSprint && (
-        <p className="text-yellow-400 text-sm mb-3 text-center">Sprint weekend — will use FP1 data</p>
-      )}
-
-      {selectedRace && sessions && <SessionSchedule sessions={sessions} />}
-
-      {selectedRace && !pool && !loading && (
-        <button
-          onClick={loadPool}
-          disabled={sessions && !anySessionAvailable}
-          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition font-medium mb-4"
-        >
-          {sessions && !anySessionAvailable ? "No practice data yet — check back after FP1" : "Load Driver Pool"}
-        </button>
-      )}
-
-      {error && <p className="text-red-400 text-sm text-center mb-4">{error}</p>}
-      {loading && (
-        <div className="text-center mb-4">
-          <p className="text-gray-400 text-sm">Fetching practice data and running predictions...</p>
-          <p className="text-gray-600 text-xs mt-1">This can take up to 30 seconds</p>
-        </div>
-      )}
-
-      {pool && sessionUsed && (
-        <div className="flex items-center gap-2 mb-4 bg-gray-800/60 rounded-lg px-3 py-2 border border-gray-700">
-          <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
-          <p className="text-sm text-gray-300">Predictions based on <span className="text-white font-semibold">{sessionUsed}</span> data</p>
-        </div>
-      )}
-
-      {pool && (
-        <div className="space-y-6">
-          {/* Budget bar */}
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400">
-                Spent: <span className={`font-semibold ${overBudget ? "text-red-400" : "text-white"}`}>${totalCost.toFixed(1)}M</span>
-              </span>
-              <span className="text-gray-400">
-                Remaining: <span className={`font-semibold ${overBudget ? "text-red-400" : "text-green-400"}`}>
-                  {overBudget ? `-$${(totalCost - BUDGET).toFixed(1)}M` : `$${remaining.toFixed(1)}M`}
-                </span>
-              </span>
-            </div>
-            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${budgetPct}%` }} />
-            </div>
-            {overBudget && (
-              <p className="text-red-400 text-xs mt-2 text-center">Over budget — remove a pick to fix this</p>
-            )}
-          </div>
-
-          {/* Team quality panel */}
-          {teamComplete && (
-            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-              <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Team Summary</h3>
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">My Score</p>
-                  <p className="text-white font-bold text-lg">{myScore.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">vs Optimal</p>
-                  <p className={`font-bold text-lg ${qualityColor}`}>{scoreVsOptimal}%</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Rating</p>
-                  <p className={`font-bold text-lg ${qualityColor}`}>{qualityLabel}</p>
-                </div>
-              </div>
-              {optimalTeam && (
-                <p className="text-xs text-gray-500 text-center mt-3">
-                  Optimal score: {optimalTeam.total_score?.toFixed(2)} (cost: ${optimalTeam.total_cost}M)
-                </p>
-              )}
-              <div className="flex justify-center gap-3 mt-3 flex-wrap">
-                {Object.entries(driverCategoryCounts).map(([cat, count]) => (
-                  <span key={cat} className={`text-white text-xs px-2 py-0.5 rounded-full ${BADGE_COLOR[cat]}`}>
-                    {count}× {cat}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Selected team */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-              Your Drivers ({selectedDrivers.length}/5)
-            </h3>
-            <div className="grid grid-cols-1 gap-2 mb-4">
-              {selectedDrivers.length === 0 ? (
-                <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">
-                  Click drivers below to add them
-                </p>
-              ) : (
-                selectedDrivers.map((d) => (
-                  <SelectedDriverSlot key={d.Abbreviation} driver={d} onRemove={() => toggleDriver(d)} />
-                ))
-              )}
-            </div>
-
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-              Your Constructors ({selectedConstructors.length}/2)
-            </h3>
-            <div className="grid grid-cols-1 gap-2 mb-6">
-              {selectedConstructors.length === 0 ? (
-                <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">
-                  Click constructors below to add them
-                </p>
-              ) : (
-                selectedConstructors.map((c) => (
-                  <SelectedConstructorSlot key={c.name} constructor={c} onRemove={() => toggleConstructor(c)} />
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Driver pool */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Available Drivers</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {pool.drivers.map((driver) => {
-                const isSelected = selectedDrivers.some(d => d.Abbreviation === driver.Abbreviation);
-                const canAdd = !isSelected && selectedDrivers.length < 5;
-                return (
-                  <PoolDriverCard
-                    key={driver.Abbreviation}
-                    driver={driver}
-                    isSelected={isSelected}
-                    canAdd={canAdd}
-                    onToggle={() => toggleDriver(driver)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Constructor pool */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Available Constructors</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {pool.constructors.map((c) => {
-                const isSelected = selectedConstructors.some(sc => sc.name === c.name);
-                const canAdd = !isSelected && selectedConstructors.length < 2;
-                return (
-                  <PoolConstructorCard
-                    key={c.name}
-                    constructor={c}
-                    isSelected={isSelected}
-                    canAdd={canAdd}
-                    onToggle={() => toggleConstructor(c)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SelectedDriverSlot({ driver, onRemove }) {
-  const accent = teamAccent(driver.TeamName);
-  return (
-    <div className="bg-gray-800 rounded-xl px-4 py-3 border-l-[6px] flex items-center gap-3" style={{ borderColor: accent }}>
-      <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
-      <div className="flex-1 min-w-0">
-        <p className="font-bold text-base leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-gray-400 text-sm">${driver.Price?.toFixed(1)}M</span>
-          <span className={`text-white text-xs px-2 py-0.5 rounded-full font-medium ${BADGE_COLOR[driver.PickCategory]}`}>
-            {driver.PickCategory}
-          </span>
-        </div>
-      </div>
-      <button onClick={onRemove} className="text-gray-500 hover:text-red-400 text-sm ml-2 transition flex-shrink-0">✕</button>
-    </div>
-  );
-}
-
-function SelectedConstructorSlot({ constructor: c, onRemove }) {
-  const accent = teamAccent(c.name);
-  return (
-    <div className="bg-gray-800 rounded-xl px-4 py-3 border-l-[6px] flex justify-between items-center" style={{ borderColor: accent }}>
-      <div>
-        <p className="font-bold text-base">{c.name}</p>
-        <p className="text-gray-400 text-sm mt-0.5">${c.price?.toFixed(1)}M</p>
-      </div>
-      <button onClick={onRemove} className="text-gray-500 hover:text-red-400 text-sm ml-2 transition">✕</button>
-    </div>
-  );
-}
-
-function PoolDriverCard({ driver, isSelected, canAdd, onToggle }) {
-  const accent = teamAccent(driver.TeamName);
-  const dimmed = !isSelected && !canAdd;
-  return (
-    <button
-      onClick={onToggle}
-      disabled={dimmed}
-      className={`text-left w-full rounded-xl px-4 py-4 border-l-[6px] transition ${
-        isSelected ? "bg-gray-700 ring-2 ring-white/20"
-        : dimmed ? "bg-gray-800/50 opacity-40 cursor-not-allowed"
-        : "bg-gray-800 hover:bg-gray-750 cursor-pointer"
-      }`}
-      style={{ borderColor: accent }}
-    >
-      <div className="flex items-center gap-3 mb-3">
-        <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-base leading-tight truncate">
-            {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
-          </p>
-          <p className="text-gray-400 text-sm mt-0.5">{driver.TeamName}</p>
-        </div>
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <p className="text-white font-bold text-base">${driver.Price?.toFixed(1)}M</p>
-          <span className={`text-white text-xs px-2.5 py-1 rounded-full font-medium ${BADGE_COLOR[driver.PickCategory]}`}>
-            {driver.PickCategory}
-          </span>
-        </div>
-      </div>
-      <div className="flex justify-between text-sm text-gray-500 border-t border-gray-700 pt-2">
-        <span>Grid: <span className="text-gray-300">P{Math.round(driver.GridPosition)}</span></span>
-        <span>Predicted: <span className="text-gray-300">P{Math.round(driver.Predicted)}</span></span>
-        <span>Score: <span className="text-gray-300">{driver.FantasyValue?.toFixed(2)}</span></span>
-      </div>
-      {isSelected && <p className="text-xs text-white/40 mt-2 text-right">Click to remove</p>}
-    </button>
-  );
-}
-
-function PoolConstructorCard({ constructor: c, isSelected, canAdd, onToggle }) {
-  const accent = teamAccent(c.name);
-  const dimmed = !isSelected && !canAdd;
-  return (
-    <button
-      onClick={onToggle}
-      disabled={dimmed}
-      className={`text-left w-full rounded-xl px-4 py-4 border-l-[6px] transition flex justify-between items-center ${
-        isSelected ? "bg-gray-700 ring-2 ring-white/20"
-        : dimmed ? "bg-gray-800/50 opacity-40 cursor-not-allowed"
-        : "bg-gray-800 hover:bg-gray-750 cursor-pointer"
-      }`}
-      style={{ borderColor: accent }}
-    >
-      <div>
-        <p className="font-bold text-base">{c.name}</p>
-        <p className="text-gray-500 text-sm mt-0.5">Score: {c.score?.toFixed(2)}</p>
-      </div>
-      <div className="text-right">
-        <p className="text-white font-bold text-base">${c.price?.toFixed(1)}M</p>
-        {isSelected && <p className="text-xs text-white/40 mt-1">Click to remove</p>}
-      </div>
-    </button>
-  );
-}
-
-const CHIP_META = {
-  limitless:      { label: "Limitless",       color: "#E8002D", desc: "No budget cap — pick any 5 drivers + 2 constructors for one race." },
-  triple_captain: { label: "Triple Captain",  color: "#FF8000", desc: "Your captain scores 3× instead of 2× this race." },
-  extra_drs:      { label: "Extra DRS",       color: "#27F4D2", desc: "A second driver scores 2× alongside your captain." },
-  wildcard:       { label: "Wildcard",        color: "#6692FF", desc: "Rebuild your entire squad for free — transfers reset after." },
-  no_negative:    { label: "No Negative",     color: "#52E252", desc: "Any negative score is floored at 0 — ideal for high-attrition circuits." },
-  final_fix:      { label: "Final Fix",       color: "#FFD700", desc: "One free swap after qualifying locks in." },
-  autopilot:      { label: "Autopilot",       color: "#6b7280", desc: "F1's auto-pick — PitWall already does this better. Save it." },
-};
-
-const REC_STYLE = {
-  PLAY:        "bg-green-500/20 text-green-400 border border-green-500/40",
-  CONSIDER:    "bg-yellow-500/20 text-yellow-400 border border-yellow-500/40",
-  HOLD:        "bg-gray-700 text-gray-400 border border-gray-600",
-  HEDGE:       "bg-orange-500/20 text-orange-400 border border-orange-500/40",
-  "POST-QUALI":"bg-blue-500/20 text-blue-400 border border-blue-500/40",
-  SAVE:        "bg-gray-700 text-gray-500 border border-gray-600",
-};
-
-function ChipCard({ chipKey, data, isBest }) {
-  const meta = CHIP_META[chipKey];
-  const rec = data.recommendation;
-  const recStyle = REC_STYLE[rec] || REC_STYLE.HOLD;
-
-  let metric = null;
-  if (chipKey === "limitless" || chipKey === "wildcard") {
-    metric = data.gain > 0 ? `+${data.gain} xP` : "≈ same";
-  } else if (chipKey === "triple_captain" || chipKey === "extra_drs") {
-    metric = data.gain > 0 ? `+${data.gain} xP bonus` : null;
-  } else if (chipKey === "no_negative") {
-    metric = `${data.dnf_risk_pct}% DNF risk`;
-  } else if (chipKey === "final_fix") {
-    metric = "after qualifying";
-  } else if (chipKey === "autopilot") {
-    metric = "save it";
-  }
-
-  return (
-    <div
-      className="rounded-xl px-4 py-4 bg-gray-800 border border-gray-700 border-l-[6px]"
-      style={{ borderLeftColor: meta.color }}
-    >
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-bold text-white text-base">{meta.label}</span>
-          {isBest && (
-            <span className="text-xs bg-red-600/30 text-red-400 border border-red-600/40 px-2 py-0.5 rounded-full font-medium">
-              Best this week
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {metric && <span className="text-gray-400 text-sm font-mono">{metric}</span>}
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${recStyle}`}>{rec}</span>
-        </div>
-      </div>
-      <p className="text-gray-400 text-sm leading-snug">{meta.desc}</p>
-      {(chipKey === "triple_captain" || chipKey === "extra_drs") && data.target && (
-        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-700">
-          <DriverAvatar abbreviation={data.target} size="sm" />
-          <p className="text-sm text-gray-300">
-            Best target: <span className="text-white font-semibold">{DRIVER_NAMES[data.target] || data.target}</span>
-          </p>
-        </div>
-      )}
-      {chipKey === "wildcard" && data.optimal_team && (
-        <p className="text-xs text-gray-500 mt-2">
-          Optimal team score: <span className="text-gray-300">{data.optimal_team.total_score?.toFixed(2)} xP</span>
-          {" · "}cost: <span className="text-gray-300">${data.optimal_team.total_cost}M</span>
-        </p>
-      )}
-      {chipKey === "final_fix" && data.riskiest_driver && (
-        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-700">
-          <DriverAvatar abbreviation={data.riskiest_driver} size="sm" />
-          <p className="text-sm text-gray-300">
-            Watch: <span className="text-white font-semibold">{DRIVER_NAMES[data.riskiest_driver] || data.riskiest_driver}</span>
-            <span className="text-gray-500"> — lowest projected scorer in your squad</span>
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ChipAdvisorResults({ data }) {
-  const { my_team_score, chips } = data;
-
-  const gainMap = {
-    limitless: chips.limitless.gain,
-    triple_captain: chips.triple_captain.gain,
-    extra_drs: chips.extra_drs.gain,
-    wildcard: chips.wildcard.gain,
-  };
-  const bestKey = Object.entries(gainMap).reduce(
-    (best, [k, v]) => (v > gainMap[best] ? k : best),
-    "limitless"
-  );
-
-  const ORDER = ["limitless", "triple_captain", "extra_drs", "wildcard", "no_negative", "final_fix", "autopilot"];
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Chip Advisor</h3>
-        <span className="text-xs text-gray-500">
-          My team score: <span className="text-white font-medium">{my_team_score} xP</span>
-        </span>
-      </div>
-      <div className="space-y-2">
-        {ORDER.map((key) => (
-          <ChipCard key={key} chipKey={key} data={chips[key]} isBest={key === bestKey} />
-        ))}
-      </div>
-      <p className="text-xs text-gray-600 text-center mt-4">
-        Each chip is once-a-season — hold unless a race really stands out.
-      </p>
-    </div>
-  );
-}
-
-function ChipAdvisor({ upcomingRaces }) {
-  const [selectedRace, setSelectedRace] = useState("");
-  const [sessions, setSessions] = useState(null);
-  const [pool, setPool] = useState(null);
-  const [sessionUsed, setSessionUsed] = useState(null);
-  const [poolLoading, setPoolLoading] = useState(false);
-  const [poolError, setPoolError] = useState(null);
-
-  const [myDrivers, setMyDrivers] = useState([]);
-  const [myConstructors, setMyConstructors] = useState([]);
-
-  const [chipResult, setChipResult] = useState(null);
-  const [chipLoading, setChipLoading] = useState(false);
-  const [chipError, setChipError] = useState(null);
-
-  const selectedIsSprint = upcomingRaces.find(r => r.race_name === selectedRace)?.is_sprint ?? false;
-  const anySessionAvailable = sessions?.some(s => ["FP1","FP2","FP3"].includes(s.name) && s.available);
-  const squadComplete = myDrivers.length === 5 && myConstructors.length === 2;
-
-  const resetAll = () => {
-    setPool(null); setSessionUsed(null);
-    setMyDrivers([]); setMyConstructors([]);
-    setChipResult(null); setPoolError(null); setChipError(null);
-  };
-
-  const fetchSessions = async (raceName) => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/race-sessions", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: raceName }),
-      });
-      const d = await res.json();
-      if (!d.detail) setSessions(d.sessions);
-    } catch {}
-  };
-
-  useEffect(() => {
-    if (!selectedRace || pool) return;
-    const id = setInterval(() => fetchSessions(selectedRace), 60000);
-    return () => clearInterval(id);
-  }, [selectedRace, pool]);
-
-  const loadPool = async () => {
-    resetAll();
-    setPoolLoading(true);
-    try {
-      const res = await fetch("http://127.0.0.1:8000/upcoming-race-pool", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year: 2026, race_name: selectedRace, session: selectedIsSprint ? "FP1" : "FP3" }),
-      });
-      const d = await res.json();
-      if (d.detail) throw new Error(d.detail);
-      setPool(d.pool);
-      setSessionUsed(d.session_used);
-    } catch (e) {
-      setPoolError(e.message || "Failed to load race data.");
-    }
-    setPoolLoading(false);
-  };
-
-  const analyzeChips = async () => {
-    if (!squadComplete) return;
-    setChipLoading(true);
-    setChipError(null);
-    setChipResult(null);
-    try {
-      const res = await fetch("http://127.0.0.1:8000/chip-advisor", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: selectedRace, my_drivers: myDrivers, my_constructors: myConstructors }),
-      });
-      const d = await res.json();
-      if (d.detail) throw new Error(d.detail);
-      setChipResult(d);
-    } catch (e) {
-      setChipError(e.message || "Failed to analyze chips.");
-    }
-    setChipLoading(false);
-  };
-
-  const toggleDriver = (abbr) => {
-    if (myDrivers.includes(abbr)) {
-      setMyDrivers(p => p.filter(a => a !== abbr));
-      setChipResult(null);
-    } else if (myDrivers.length < 5) {
-      setMyDrivers(p => [...p, abbr]);
-      setChipResult(null);
-    }
-  };
-
-  const toggleConstructor = (name) => {
-    if (myConstructors.includes(name)) {
-      setMyConstructors(p => p.filter(n => n !== name));
-      setChipResult(null);
-    } else if (myConstructors.length < 2) {
-      setMyConstructors(p => [...p, name]);
-      setChipResult(null);
-    }
-  };
-
-  const driversNeeded = 5 - myDrivers.length;
-  const consNeeded = 2 - myConstructors.length;
-  const btnText = chipLoading ? "Analyzing..."
-    : squadComplete ? "Analyze Chips"
-    : [driversNeeded > 0 && `${driversNeeded} driver${driversNeeded > 1 ? "s" : ""}`,
-       consNeeded > 0 && `${consNeeded} constructor${consNeeded > 1 ? "s" : ""}`]
-       .filter(Boolean).join(" + ") + " still needed";
-
-  return (
-    <div>
-      <p className="text-gray-400 text-sm text-center mb-4">
-        Enter your current F1 Fantasy squad to get chip timing advice.
-      </p>
-
-      <select
-        value={selectedRace}
-        onChange={(e) => {
-          const r = e.target.value;
-          setSelectedRace(r);
-          resetAll();
-          if (r) fetchSessions(r);
-          else setSessions(null);
-        }}
-        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
-      >
-        <option value="">Select an upcoming race</option>
-        {upcomingRaces.map(r => (
-          <option key={r.race_name} value={r.race_name}>{r.race_name}{r.is_sprint ? " 🏁 Sprint" : ""}</option>
-        ))}
-      </select>
-
-      {selectedRace && sessions && <SessionSchedule sessions={sessions} />}
-
-      {selectedRace && !pool && !poolLoading && (
-        <button
-          onClick={loadPool}
-          disabled={sessions && !anySessionAvailable}
-          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition font-medium mb-4"
-        >
-          {sessions && !anySessionAvailable ? "No practice data yet — check back after FP1" : "Load Driver Pool"}
-        </button>
-      )}
-
-      {poolError && <p className="text-red-400 text-sm text-center mb-4">{poolError}</p>}
-      {poolLoading && (
-        <div className="text-center mb-4">
-          <p className="text-gray-400 text-sm">Fetching practice data and running predictions...</p>
-          <p className="text-gray-600 text-xs mt-1">This can take up to 30 seconds</p>
-        </div>
-      )}
-
-      {pool && sessionUsed && (
-        <div className="flex items-center gap-2 mb-4 bg-gray-800/60 rounded-lg px-3 py-2 border border-gray-700">
-          <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
-          <p className="text-sm text-gray-300">Pool based on <span className="text-white font-semibold">{sessionUsed}</span> data</p>
-        </div>
-      )}
-
-      {pool && (
-        <div className="space-y-6">
-          {/* Driver picker */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-              My Drivers ({myDrivers.length}/5)
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {pool.drivers.map((d) => {
-                const isSelected = myDrivers.includes(d.Abbreviation);
-                const canAdd = !isSelected && myDrivers.length < 5;
-                const accent = teamAccent(d.TeamName);
-                return (
-                  <button
-                    key={d.Abbreviation}
-                    onClick={() => toggleDriver(d.Abbreviation)}
-                    disabled={!isSelected && !canAdd}
-                    className={`text-left rounded-xl px-3 py-3 border-l-[5px] transition flex items-center gap-2 ${
-                      isSelected ? "bg-gray-700 ring-2 ring-red-500/30"
-                      : !canAdd ? "bg-gray-800/40 opacity-40 cursor-not-allowed"
-                      : "bg-gray-800 hover:bg-gray-750"
-                    }`}
-                    style={{ borderColor: accent }}
-                  >
-                    <DriverAvatar abbreviation={d.Abbreviation} size="sm" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold truncate">{DRIVER_NAMES[d.Abbreviation] || d.Abbreviation}</p>
-                      <p className="text-xs text-gray-500">${d.Price?.toFixed(1)}M</p>
-                    </div>
-                    {isSelected && <span className="text-red-400 text-xs flex-shrink-0 font-bold">✓</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Constructor picker */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-              My Constructors ({myConstructors.length}/2)
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {pool.constructors.map((c) => {
-                const isSelected = myConstructors.includes(c.name);
-                const canAdd = !isSelected && myConstructors.length < 2;
-                const accent = teamAccent(c.name);
-                return (
-                  <button
-                    key={c.name}
-                    onClick={() => toggleConstructor(c.name)}
-                    disabled={!isSelected && !canAdd}
-                    className={`text-left rounded-xl px-3 py-3 border-l-[5px] transition flex justify-between items-center ${
-                      isSelected ? "bg-gray-700 ring-2 ring-red-500/30"
-                      : !canAdd ? "bg-gray-800/40 opacity-40 cursor-not-allowed"
-                      : "bg-gray-800 hover:bg-gray-750"
-                    }`}
-                    style={{ borderColor: accent }}
-                  >
-                    <div>
-                      <p className="text-sm font-bold">{c.name}</p>
-                      <p className="text-xs text-gray-500">${c.price?.toFixed(1)}M</p>
-                    </div>
-                    {isSelected && <span className="text-red-400 text-xs font-bold">✓</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <button
-            onClick={analyzeChips}
-            disabled={!squadComplete || chipLoading}
-            className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition font-medium"
-          >
-            {btnText}
-          </button>
-
-          {chipError && <p className="text-red-400 text-sm text-center">{chipError}</p>}
-          {chipResult && <ChipAdvisorResults data={chipResult} />}
-        </div>
-      )}
-    </div>
-  );
-}
+import CountdownWidget from "./components/CountdownWidget";
+import WeekendTeamWidget from "./components/WeekendTeamWidget";
+import RaceResultsTable from "./components/RaceResultsTable";
+import QualifyingTable from "./components/QualifyingTable";
+import { BudgetBar, BudgetDriverCard, ConstructorCard } from "./components/BudgetTeam";
+import ManualTeamBuilder from "./components/ManualTeamBuilder";
+import ChipAdvisor from "./components/ChipAdvisor";
+import PricesSidebar from "./components/PricesSidebar";
+
+const TABS = [
+  { id: "results",    label: "Race Results" },
+  { id: "qualifying", label: "Qualifying" },
+  { id: "budget",     label: "Budget Team" },
+  { id: "manual",     label: "Manual Team" },
+  { id: "chips",      label: "Chip Advisor" },
+];
 
 function App() {
   const [mode, setMode] = useState("results");
   const [races, setRaces] = useState([]);
   const [upcomingRaces, setUpcomingRaces] = useState([]);
   const [nextRace, setNextRace] = useState(null);
+  const [priceChanges, setPriceChanges] = useState(null);
 
   // Race Results tab
   const [resultsRace, setResultsRace] = useState("");
@@ -1177,248 +36,206 @@ function App() {
   const [qualError, setQualError] = useState(null);
 
   // Budget Team tab
-  const [selectedBudgetRace, setSelectedBudgetRace] = useState("");
+  const [budgetRace, setBudgetRace] = useState("");
   const [budgetTeam, setBudgetTeam] = useState(null);
   const [budgetLoading, setBudgetLoading] = useState(false);
   const [budgetError, setBudgetError] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/races")
-      .then((r) => r.json())
-      .then(setRaces)
-      .catch(() => {});
-
-    fetch("http://127.0.0.1:8000/upcoming-races")
-      .then((r) => r.json())
-      .then(setUpcomingRaces)
-      .catch(() => {});
-
-    fetch("http://127.0.0.1:8000/next-race")
-      .then((r) => r.json())
-      .then(setNextRace)
-      .catch(() => {});
+    fetch("http://127.0.0.1:8000/races").then(r => r.json()).then(setRaces).catch(() => {});
+    fetch("http://127.0.0.1:8000/upcoming-races").then(r => r.json()).then(setUpcomingRaces).catch(() => {});
+    fetch("http://127.0.0.1:8000/next-race").then(r => r.json()).then(setNextRace).catch(() => {});
+    fetch("http://127.0.0.1:8000/price-changes").then(r => r.json()).then(setPriceChanges).catch(() => {});
   }, []);
 
   const fetchRaceResults = async (raceName) => {
     if (!raceName) return;
-    setResultsLoading(true);
-    setResultsError(null);
-    setRaceResults(null);
+    setResultsLoading(true); setResultsError(null); setRaceResults(null);
     try {
       const res = await fetch("http://127.0.0.1:8000/race-results", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ race_name: raceName }),
       });
       const data = await res.json();
       if (data.detail) throw new Error(data.detail);
       setRaceResults(data);
-    } catch (e) {
-      setResultsError(e.message || "Failed to load race results.");
-    }
+    } catch (e) { setResultsError(e.message || "Failed to load race results."); }
     setResultsLoading(false);
   };
 
   const fetchQualifying = async () => {
     if (!qualRace) return;
-    setQualLoading(true);
-    setQualError(null);
-    setQualResults(null);
+    setQualLoading(true); setQualError(null); setQualResults(null);
     try {
       const res = await fetch("http://127.0.0.1:8000/qualifying-results", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ race_name: qualRace }),
       });
       const data = await res.json();
       if (data.detail) throw new Error(data.detail);
       setQualResults(data);
-    } catch (e) {
-      setQualError(e.message || "Failed to load qualifying data.");
-    }
+    } catch (e) { setQualError(e.message || "Failed to load qualifying data."); }
     setQualLoading(false);
   };
 
   const fetchBudgetTeam = async () => {
-    if (!selectedBudgetRace) return;
-    setBudgetLoading(true);
-    setBudgetError(null);
-    setBudgetTeam(null);
+    if (!budgetRace) return;
+    setBudgetLoading(true); setBudgetError(null); setBudgetTeam(null);
     try {
       const res = await fetch("http://127.0.0.1:8000/predict-budget", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: selectedBudgetRace, budget: 100.0 }),
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ race_name: budgetRace, budget: 100.0 }),
       });
       const data = await res.json();
       if (data.detail) throw new Error(data.detail);
       setBudgetTeam(data);
-    } catch (e) {
-      setBudgetError(e.message || "Failed to build budget team.");
-    }
+    } catch (e) { setBudgetError(e.message || "Failed to build budget team."); }
     setBudgetLoading(false);
   };
 
-  const tabs = [
-    { id: "results",     label: "Race Results" },
-    { id: "qualifying",  label: "Qualifying" },
-    { id: "budget",      label: "Budget Team" },
-    { id: "manual",      label: "Manual Team" },
-    { id: "chips",       label: "Chip Advisor" },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <h1 className="text-4xl font-bold mb-2 text-center">PitWall</h1>
-      <p className="text-center text-gray-500 mb-6 text-sm">F1 Fantasy · 2026 Season</p>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="flex gap-6 px-6 pt-6 pb-10 items-start">
 
-      <CountdownWidget nextRace={nextRace} />
-      <WeekendTeamWidget />
+        {/* Left panel — main content (2/3) */}
+        <div className="flex-1 min-w-0">
+          <h1 className="text-4xl font-bold mb-1">PitWall</h1>
+          <p className="text-gray-500 text-sm mb-6">F1 Fantasy · 2026 Season</p>
 
-      {/* Tabs */}
-      <div className="max-w-2xl mx-auto flex rounded-lg overflow-hidden border border-gray-700 mb-6">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setMode(tab.id)}
-            className={`flex-1 py-2 text-xs font-medium transition leading-tight px-1 ${
-              mode === tab.id ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+          <CountdownWidget nextRace={nextRace} />
+          <WeekendTeamWidget />
 
-      <div className="max-w-2xl mx-auto mb-8">
-
-        {/* Race Results */}
-        {mode === "results" && (
-          <>
-            <select
-              value={resultsRace}
-              onChange={(e) => {
-                setResultsRace(e.target.value);
-                fetchRaceResults(e.target.value);
-              }}
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
-            >
-              <option value="">Select a completed race</option>
-              {races.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
-            {resultsLoading && <p className="text-gray-400 text-sm text-center">Loading results...</p>}
-            {resultsError && <p className="text-red-400 text-sm text-center">{resultsError}</p>}
-            {raceResults && (
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Race Results</h2>
-                  <span className="text-xs text-gray-600">{resultsRace}</span>
-                </div>
-                <RaceResultsTable results={raceResults} />
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Qualifying */}
-        {mode === "qualifying" && (
-          <>
-            <select
-              value={qualRace}
-              onChange={(e) => { setQualRace(e.target.value); setQualResults(null); setQualError(null); }}
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
-            >
-              <option value="">Select a completed race</option>
-              {races.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
-            {qualRace && !qualResults && !qualLoading && (
+          {/* Tab bar */}
+          <div className="flex rounded-lg overflow-hidden border border-gray-700 mb-6">
+            {TABS.map(tab => (
               <button
-                onClick={fetchQualifying}
-                className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 transition font-medium mb-4"
+                key={tab.id}
+                onClick={() => setMode(tab.id)}
+                className={`flex-1 py-2 text-xs font-medium transition leading-tight px-1 ${
+                  mode === tab.id ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                }`}
               >
-                Load Qualifying Results
+                {tab.label}
               </button>
-            )}
-            {qualLoading && (
-              <div className="text-center mb-4">
-                <p className="text-gray-400 text-sm">Fetching qualifying data from FastF1...</p>
-                <p className="text-gray-600 text-xs mt-1">May take 15–30 seconds on first load</p>
-              </div>
-            )}
-            {qualError && <p className="text-red-400 text-sm text-center mb-4">{qualError}</p>}
-            {qualResults && (
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Qualifying</h2>
-                  <span className="text-xs text-gray-600">{qualRace}</span>
-                </div>
-                <QualifyingTable results={qualResults} />
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Budget Team */}
-        {mode === "budget" && (
-          <>
-            <p className="text-gray-400 text-sm text-center mb-4">
-              Finds the highest-scoring 5 drivers + 2 constructors within the $100M budget.
-            </p>
-            <select
-              value={selectedBudgetRace}
-              onChange={(e) => { setSelectedBudgetRace(e.target.value); setBudgetTeam(null); }}
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
-            >
-              <option value="">Select a race</option>
-              {races.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
-            <button
-              onClick={fetchBudgetTeam}
-              disabled={!selectedBudgetRace || budgetLoading}
-              className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-600 transition font-medium"
-            >
-              {budgetLoading ? "Solving..." : "Build Optimal Team"}
-            </button>
-            {budgetError && <p className="mt-4 text-red-400 text-sm text-center">{budgetError}</p>}
-          </>
-        )}
-
-        {/* Manual Team */}
-        {mode === "manual" && (
-          <ManualTeamBuilder upcomingRaces={upcomingRaces} />
-        )}
-
-        {/* Chip Advisor */}
-        {mode === "chips" && (
-          <ChipAdvisor upcomingRaces={upcomingRaces} />
-        )}
-      </div>
-
-      {/* Budget team results */}
-      {mode === "budget" && budgetTeam && (
-        <div className="max-w-4xl mx-auto">
-          <BudgetBar used={budgetTeam.total_cost} />
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-200">Optimal Team</h2>
-            <div className="text-right">
-              <p className="text-xs text-gray-500">Total score</p>
-              <p className="text-white font-bold">{budgetTeam.total_score?.toFixed(2)}</p>
-            </div>
-          </div>
-          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Drivers</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {budgetTeam.drivers.map((driver, i) => (
-              <BudgetDriverCard key={i} driver={driver} />
             ))}
           </div>
-          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Constructors</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {budgetTeam.constructors.map((c, i) => (
-              <ConstructorCard key={i} constructor={c} />
-            ))}
+
+          {/* Tab content */}
+          <div className="mb-8">
+
+            {mode === "results" && (
+              <>
+                <select
+                  value={resultsRace}
+                  onChange={e => { setResultsRace(e.target.value); fetchRaceResults(e.target.value); }}
+                  className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
+                >
+                  <option value="">Select a completed race</option>
+                  {races.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                {resultsLoading && <p className="text-gray-400 text-sm text-center">Loading results...</p>}
+                {resultsError && <p className="text-red-400 text-sm text-center">{resultsError}</p>}
+                {raceResults && (
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Race Results</h2>
+                      <span className="text-xs text-gray-600">{resultsRace}</span>
+                    </div>
+                    <RaceResultsTable results={raceResults} />
+                  </div>
+                )}
+              </>
+            )}
+
+            {mode === "qualifying" && (
+              <>
+                <select
+                  value={qualRace}
+                  onChange={e => { setQualRace(e.target.value); setQualResults(null); setQualError(null); }}
+                  className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
+                >
+                  <option value="">Select a completed race</option>
+                  {races.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                {qualRace && !qualResults && !qualLoading && (
+                  <button onClick={fetchQualifying} className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 transition font-medium mb-4">
+                    Load Qualifying Results
+                  </button>
+                )}
+                {qualLoading && (
+                  <div className="text-center mb-4">
+                    <p className="text-gray-400 text-sm">Fetching qualifying data from FastF1...</p>
+                    <p className="text-gray-600 text-xs mt-1">May take 15–30 seconds on first load</p>
+                  </div>
+                )}
+                {qualError && <p className="text-red-400 text-sm text-center mb-4">{qualError}</p>}
+                {qualResults && (
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Qualifying</h2>
+                      <span className="text-xs text-gray-600">{qualRace}</span>
+                    </div>
+                    <QualifyingTable results={qualResults} />
+                  </div>
+                )}
+              </>
+            )}
+
+            {mode === "budget" && (
+              <>
+                <p className="text-gray-400 text-sm text-center mb-4">
+                  Finds the highest-scoring 5 drivers + 2 constructors within the $100M budget.
+                </p>
+                <select
+                  value={budgetRace}
+                  onChange={e => { setBudgetRace(e.target.value); setBudgetTeam(null); }}
+                  className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
+                >
+                  <option value="">Select a race</option>
+                  {races.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                <button
+                  onClick={fetchBudgetTeam}
+                  disabled={!budgetRace || budgetLoading}
+                  className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-600 transition font-medium"
+                >
+                  {budgetLoading ? "Solving..." : "Build Optimal Team"}
+                </button>
+                {budgetError && <p className="mt-4 text-red-400 text-sm text-center">{budgetError}</p>}
+                {budgetTeam && (
+                  <div className="mt-6">
+                    <BudgetBar used={budgetTeam.total_cost} />
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-lg font-semibold text-gray-200">Optimal Team</h2>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">Total score</p>
+                        <p className="text-white font-bold">{budgetTeam.total_score?.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Drivers</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      {budgetTeam.drivers.map((driver, i) => <BudgetDriverCard key={i} driver={driver} />)}
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Constructors</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {budgetTeam.constructors.map((c, i) => <ConstructorCard key={i} constructor={c} />)}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {mode === "manual" && <ManualTeamBuilder upcomingRaces={upcomingRaces} />}
+            {mode === "chips" && <ChipAdvisor upcomingRaces={upcomingRaces} />}
           </div>
         </div>
-      )}
+
+        {/* Right panel — prices sidebar (1/3) */}
+        <div className="w-72 flex-shrink-0 sticky top-6">
+          <PricesSidebar priceChanges={priceChanges} />
+        </div>
+
+      </div>
     </div>
   );
 }
