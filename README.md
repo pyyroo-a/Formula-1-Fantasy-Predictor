@@ -1,10 +1,10 @@
 # PitWall
 
-An ML-powered F1 Fantasy assistant that predicts race outcomes, builds optimal teams within budget, and gives you the intel to make smarter picks before qualifying locks in.
+An ML-powered F1 Fantasy assistant that predicts race outcomes, builds optimal teams within budget, advises on chip timing, and gives you the intel to make smarter picks before qualifying locks in.
 
 ## Motivation
 
-F1 Fantasy is deceptively hard. The sport is chaotic — a consistent midfield driver can suddenly shine at a specific circuit, or a front-runner can qualify on pole and finish P8. Plain statistics aren't enough. PitWall combines historical rolling form, grid position analysis, and live practice session data to capture both the predictable and the unpredictable sides of F1.
+F1 Fantasy is deceptively hard. The sport is chaotic — a consistent midfield driver can suddenly shine at a specific circuit, or a front-runner can qualify on pole and finish P8. Plain statistics aren't enough. PitWall combines historical rolling form, grid position analysis, live practice session data, and F1 Fantasy pricing to capture both the predictable and the unpredictable sides of F1.
 
 ## What It Does
 
@@ -14,8 +14,11 @@ F1 Fantasy is deceptively hard. The sport is chaotic — a consistent midfield d
 | **Qualifying** | Full qualifying session results with Q1 / Q2 / Q3 times |
 | **Budget Team** | ML-optimised 5 drivers + 2 constructors within a $100M budget, based on race predictions |
 | **Manual Team** | Build your own team for an upcoming race using live practice session data, scored against the optimal |
+| **Chip Advisor** | Enter your current F1 Fantasy squad and get a PLAY / CONSIDER / HOLD recommendation for each chip |
 
 The **Weekend Team Widget** auto-activates within 5 days of a race — it detects the current weekend, fetches the best available practice session (FP3 → FP2 → FP1), and shows the optimal team without you having to do anything.
+
+The **Prices Sidebar** is always visible on the right — it shows current F1 Fantasy prices for every driver and constructor, with arrows indicating whether each price went up or down compared to last round.
 
 ## How Predictions Work
 
@@ -25,7 +28,23 @@ The **Weekend Team Widget** auto-activates within 5 days of a race — it detect
 4. The model predicts finishing positions, which are converted into a FantasyValue score
 5. Budget optimisation then searches all valid 5-driver + 2-constructor combinations to find the highest-scoring team under $100M
 
-Practice session availability is shown directly in the Manual Team tab — green dot means data is ready, otherwise the expected session time is displayed so you know exactly when to come back.
+Practice session availability is shown directly in the Manual Team tab — green dot means data is ready, otherwise the expected session time is displayed so you know exactly when to come back. The session picker auto-fallbacks FP3 → FP2 → FP1 and always shows which session the predictions are based on.
+
+## Chip Advisor
+
+PitWall analyses all 7 F1 Fantasy chips against your squad and the upcoming race predictions:
+
+| Chip | Logic |
+|------|-------|
+| **Limitless** | Removes budget cap — compares uncapped optimal team vs your squad |
+| **Triple Captain** | Scores if your best predicted driver is significantly ahead of the field |
+| **Extra DRS** | Scores if two drivers are strong enough to justify double 2× scoring |
+| **Wildcard** | Scores if a full squad rebuild would gain significantly over your current team |
+| **No Negative** | Recommends for high-attrition circuits (Monaco, Singapore, Baku, etc.) |
+| **Final Fix** | Flags your weakest scorer as a swap candidate after qualifying |
+| **Autopilot** | Always SAVE — PitWall already does this better |
+
+Each chip gets a **PLAY / CONSIDER / HOLD / SAVE** verdict with an expected xP gain.
 
 ## Feature Engineering
 
@@ -55,11 +74,13 @@ Practice session availability is shown directly in the Manual Team tab — green
 - Python, FastAPI, Uvicorn
 - XGBoost, scikit-learn, Pandas, NumPy
 - FastF1 — live race schedule, practice session data, qualifying results
+- Public F1 Fantasy API — driver and constructor prices
 
 **Frontend**
 - React + Vite
 - Tailwind CSS
-- Driver headshots per driver card, team colour accents
+- Component-based architecture — each feature in its own file under `frontend/src/components/`
+- Driver headshots per card (`.avif`), team colour accents on every card
 
 ## Project Structure
 
@@ -67,9 +88,21 @@ Practice session availability is shown directly in the Manual Team tab — green
 pitwall/
 ├── frontend/
 │   ├── public/
-│   │   └── drivers/          # Driver headshot images (ABBR.avif)
+│   │   └── drivers/              # Driver headshots (ABBR.avif, one per driver)
 │   └── src/
-│       └── App.jsx
+│       ├── App.jsx               # Thin shell: layout, top-level state, tab switching
+│       ├── constants.js          # DRIVER_NAMES, TEAM_COLORS, CHIP_META, REC_STYLE, etc.
+│       └── components/
+│           ├── DriverAvatar.jsx       # Headshot with abbreviation fallback
+│           ├── CountdownWidget.jsx    # Race name + live countdown
+│           ├── SessionSchedule.jsx    # FP1/FP2/FP3 availability dots
+│           ├── WeekendTeamWidget.jsx  # Auto-shows optimal team near race weekend
+│           ├── RaceResultsTable.jsx   # Completed race results with position change
+│           ├── QualifyingTable.jsx    # Q1/Q2/Q3 results with Q3 highlight
+│           ├── BudgetTeam.jsx         # BudgetBar, BudgetDriverCard, ConstructorCard
+│           ├── ManualTeamBuilder.jsx  # Pick-your-own team with scoring vs optimal
+│           ├── ChipAdvisor.jsx        # Chip PLAY/CONSIDER/HOLD recommendations
+│           └── PricesSidebar.jsx      # Sticky sidebar: prices + vs-last-round changes
 ├── src/
 │   ├── data_loader.py
 │   ├── features.py
@@ -77,10 +110,10 @@ pitwall/
 │   ├── models.py
 │   ├── pipeline.py
 │   ├── fetch_practice.py
-│   ├── fetch_prices.py
+│   ├── fetch_prices.py            # Fetches current + previous round prices, diffs them
 │   └── fetch_results.py
 ├── data/
-│   ├── cache/                # FastF1 HTTP cache
+│   ├── cache/                     # FastF1 HTTP cache
 │   └── processed/
 │       ├── race_results_2024.csv
 │       ├── race_results_2025.csv
@@ -90,19 +123,32 @@ pitwall/
 └── .env.example
 ```
 
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/races` | List of completed 2026 races |
+| GET | `/upcoming-races` | Upcoming races with sprint flag |
+| GET | `/next-race` | Next race name + date |
+| GET | `/weekend-team` | Auto optimal team if within 5 days of a race |
+| GET | `/price-changes` | All driver + constructor prices vs last round |
+| POST | `/race-results` | Completed race finishing order |
+| POST | `/qualifying-results` | Q1/Q2/Q3 times for a race |
+| POST | `/race-sessions` | FP1/FP2/FP3 schedule + availability for a race |
+| POST | `/predict` | ML prediction for an upcoming race |
+| POST | `/predict-budget` | Optimal team within $100M budget |
+| POST | `/upcoming-race-pool` | Driver + constructor pool for manual team builder |
+| POST | `/chip-advisor` | Chip recommendations for a given squad |
+
 ## Running Locally
 
 **Backend**
 ```bash
-# Create and activate virtual environment
 python -m venv venv
 venv\Scripts\activate      # Windows
 source venv/bin/activate   # Mac/Linux
 
 pip install -r requirements.txt
-
-# Copy .env.example to .env (optional for local dev)
-cp .env.example .env
 
 uvicorn main:app --reload
 ```
@@ -124,17 +170,17 @@ Opens at `http://localhost:5173`
 |----------|-------------|---------|
 | `CORS_ORIGINS` | Comma-separated list of allowed frontend origins | `*` (all) |
 
-In production, set `CORS_ORIGINS` to your deployed frontend URL (e.g. `https://pitwall.vercel.app`).
+In production, set `CORS_ORIGINS` to your deployed frontend URL.
 
 ## Deployment
 
 - **Frontend** → Vercel (set root directory to `frontend/`)
 - **Backend** → Railway (start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`)
-- Set `CORS_ORIGINS` environment variable on Railway to the Vercel deployment URL
+- Set `CORS_ORIGINS` on Railway to the Vercel deployment URL
 
 ## Planned
 
+- APScheduler background job to auto-fetch practice data as sessions finish
+- Sports betting odds integration — market-implied finishing order as an extra signal
 - Reddit r/FantasyF1 community sentiment layer
 - Weather integration per circuit
-- Tyre degradation analysis
-- UI redesign with Figma mockups
