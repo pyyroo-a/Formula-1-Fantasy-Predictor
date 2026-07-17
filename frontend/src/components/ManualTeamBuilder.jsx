@@ -3,13 +3,21 @@ import { DRIVER_NAMES, BADGE_COLOR, BUDGET, teamAccent } from "../constants";
 import DriverAvatar from "./DriverAvatar";
 import SessionSchedule from "./SessionSchedule";
 
-function SelectedDriverSlot({ driver, onRemove }) {
+function SelectedDriverSlot({ driver, isCaptain, onRemove }) {
   const accent = teamAccent(driver.TeamName);
   return (
-    <div className="bg-gray-800 rounded-xl px-4 py-3 border-l-[6px] flex items-center gap-3" style={{ borderColor: accent }}>
-      <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
+    <div className={`bg-gray-800 rounded-xl px-4 py-3 border-l-[6px] flex items-center gap-3 ${isCaptain ? "ring-2 ring-yellow-400/50" : ""}`} style={{ borderColor: accent }}>
+      <div className="relative flex-shrink-0">
+        <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
+        {isCaptain && (
+          <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">C</span>
+        )}
+      </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-base leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-bold text-base leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
+          {isCaptain && <span className="text-yellow-400 text-xs font-semibold bg-yellow-400/10 px-2 py-0.5 rounded-full flex-shrink-0">Captain</span>}
+        </div>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-gray-400 text-sm">${driver.Price?.toFixed(1)}M</span>
           <span className={`text-white text-xs px-2 py-0.5 rounded-full font-medium ${BADGE_COLOR[driver.PickCategory]}`}>
@@ -290,7 +298,18 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
             <div className="grid grid-cols-1 gap-2 mb-4">
               {selectedDrivers.length === 0
                 ? <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">Click drivers below to add them</p>
-                : selectedDrivers.map(d => <SelectedDriverSlot key={d.Abbreviation} driver={d} onRemove={() => toggleDriver(d)} />)
+                : (() => {
+                    const captainAbbr = selectedDrivers.reduce((best, d) =>
+                      d.FantasyValue > (best?.FantasyValue ?? -Infinity) ? d : best, null)?.Abbreviation;
+                    return selectedDrivers.map(d => (
+                      <SelectedDriverSlot
+                        key={d.Abbreviation}
+                        driver={d}
+                        isCaptain={d.Abbreviation === captainAbbr}
+                        onRemove={() => toggleDriver(d)}
+                      />
+                    ));
+                  })()
               }
             </div>
             <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Your Constructors ({selectedConstructors.length}/2)</h3>

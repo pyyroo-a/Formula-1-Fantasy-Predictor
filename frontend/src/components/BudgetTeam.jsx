@@ -18,14 +18,22 @@ export function BudgetBar({ used, total = 100 }) {
   );
 }
 
-export function BudgetDriverCard({ driver }) {
+export function BudgetDriverCard({ driver, isCaptain = false }) {
   const accent = teamAccent(driver.TeamName);
   return (
-    <div className="bg-gray-800 rounded-xl px-4 py-4 shadow-lg border-l-[6px]" style={{ borderColor: accent }}>
+    <div className={`bg-gray-800 rounded-xl px-4 py-4 shadow-lg border-l-[6px] ${isCaptain ? "ring-2 ring-yellow-400/50" : ""}`} style={{ borderColor: accent }}>
       <div className="flex items-center gap-4 mb-3">
-        <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
+        <div className="relative flex-shrink-0">
+          <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
+          {isCaptain && (
+            <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">C</span>
+          )}
+        </div>
         <div className="flex-1 min-w-0">
-          <p className="text-lg font-bold leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-lg font-bold leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
+            {isCaptain && <span className="text-yellow-400 text-xs font-semibold bg-yellow-400/10 px-2 py-0.5 rounded-full flex-shrink-0">Captain</span>}
+          </div>
           <p className="text-gray-400 text-sm mt-0.5">{driver.TeamName}</p>
         </div>
         <div className="flex flex-col items-end gap-1.5 flex-shrink-0">

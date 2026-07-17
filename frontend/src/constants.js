@@ -44,6 +44,7 @@ export const TEAM_COLORS = {
   "Kick Sauber":     "#52E252",
   Haas:              "#B6BABD",
   Audi:              "#E8E234",
+  Cadillac:          "#003087",
 };
 
 export const CHIP_META = {

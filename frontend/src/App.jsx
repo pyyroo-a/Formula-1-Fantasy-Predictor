@@ -214,7 +214,13 @@ function App() {
                     </div>
                     <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Drivers</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {budgetTeam.drivers.map((driver, i) => <BudgetDriverCard key={i} driver={driver} />)}
+                      {(() => {
+                        const captainAbbr = budgetTeam.drivers.reduce((best, d) =>
+                          d.FantasyValue > (best?.FantasyValue ?? -Infinity) ? d : best, null)?.Abbreviation;
+                        return budgetTeam.drivers.map((driver, i) => (
+                          <BudgetDriverCard key={i} driver={driver} isCaptain={driver.Abbreviation === captainAbbr} />
+                        ));
+                      })()}
                     </div>
                     <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Constructors</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -4,11 +4,12 @@ import DriverAvatar from "./DriverAvatar";
 
 const ALL_DRIVERS = [
   "VER","NOR","PIA","LEC","HAM","RUS","SAI","ALO","STR","GAS",
-  "ALB","TSU","LAW","HUL","BEA","ANT","BOR","DOO","HAD","COL",
+  "ALB","OCO","LAW","HUL","BEA","ANT","BOR","LIN","HAD","COL",
+  "PER","BOT",
 ];
 const ALL_CONSTRUCTORS = [
   "Red Bull Racing","McLaren","Ferrari","Mercedes","Aston Martin",
-  "Alpine","Williams","RB F1 Team","Kick Sauber","Haas",
+  "Alpine","Williams","RB F1 Team","Kick Sauber","Haas","Cadillac",
 ];
 
 function ChipCard({ chipKey, data }) {
@@ -133,29 +134,28 @@ export default function ChipAdvisor({ upcomingRaces }) {
       </select>
 
       <div className="mb-5">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center mb-3">
           <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Your Drivers</h3>
           <span className="text-gray-600 text-xs">{myDrivers.length}/5</span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-8 gap-1.5">
           {ALL_DRIVERS.map(abbr => {
             const isSelected = myDrivers.includes(abbr);
             const canAdd = !isSelected && myDrivers.length < 5;
-            const accent = "#6b7280";
             return (
               <button
                 key={abbr}
                 onClick={() => toggleDriver(abbr)}
                 disabled={!isSelected && !canAdd}
-                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition border ${
-                  isSelected ? "bg-gray-600 border-gray-400 text-white"
-                  : canAdd ? "bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500"
-                  : "bg-gray-800/40 border-gray-800 text-gray-600 cursor-not-allowed"
+                className={`flex flex-col items-center gap-1 rounded-lg py-2 px-1 transition border ${
+                  isSelected ? "bg-gray-700 border-white/20 text-white"
+                  : canAdd ? "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-750 hover:border-gray-500"
+                  : "bg-gray-800/40 border-gray-800 text-gray-600 cursor-not-allowed opacity-40"
                 }`}
               >
-                <DriverAvatar abbreviation={abbr} size="sm" />
-                <span>{abbr}</span>
-                {isSelected && <span className="text-gray-400 ml-0.5">✓</span>}
+                <DriverAvatar abbreviation={abbr} size="md" />
+                <span className="text-[10px] font-semibold leading-none">{abbr}</span>
+                {isSelected && <span className="text-green-400 text-[10px] leading-none">✓</span>}
               </button>
             );
           })}
