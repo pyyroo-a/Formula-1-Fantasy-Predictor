@@ -299,8 +299,10 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
               {selectedDrivers.length === 0
                 ? <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">Click drivers below to add them</p>
                 : (() => {
-                    const captainAbbr = selectedDrivers.reduce((best, d) =>
-                      d.FantasyValue > (best?.FantasyValue ?? -Infinity) ? d : best, null)?.Abbreviation;
+                    const withScore = selectedDrivers.filter(d => d.FantasyValue != null && !isNaN(d.FantasyValue));
+                    const captainAbbr = withScore.length > 0
+                      ? withScore.reduce((best, d) => d.FantasyValue > best.FantasyValue ? d : best).Abbreviation
+                      : selectedDrivers[0]?.Abbreviation;
                     return selectedDrivers.map(d => (
                       <SelectedDriverSlot
                         key={d.Abbreviation}
