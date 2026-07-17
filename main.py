@@ -6,6 +6,8 @@ import pandas as pd
 import fastf1
 import os
 
+os.makedirs("data/cache", exist_ok=True)
+
 from src.pipeline import run_pipeline, predict_upcoming_race
 from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, get_race_pool
 from src.fetch_practice import get_practice_grid, is_sprint_weekend

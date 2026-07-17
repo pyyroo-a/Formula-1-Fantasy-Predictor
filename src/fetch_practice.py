@@ -1,6 +1,8 @@
+import os
 import fastf1
 import pandas as pd
 
+os.makedirs("data/cache", exist_ok=True)
 fastf1.Cache.enable_cache("data/cache")
 
 # Remaining 2026 sprint weekends — FP1 is the only practice session
