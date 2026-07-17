@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API } from "./api";
 import CountdownWidget from "./components/CountdownWidget";
 import WeekendTeamWidget from "./components/WeekendTeamWidget";
 import WeatherWidget from "./components/WeatherWidget";
@@ -43,17 +44,17 @@ function App() {
   const [budgetError, setBudgetError] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/races").then(r => r.json()).then(setRaces).catch(() => {});
-    fetch("http://127.0.0.1:8000/upcoming-races").then(r => r.json()).then(setUpcomingRaces).catch(() => {});
-    fetch("http://127.0.0.1:8000/next-race").then(r => r.json()).then(setNextRace).catch(() => {});
-    fetch("http://127.0.0.1:8000/price-changes").then(r => r.json()).then(setPriceChanges).catch(() => {});
+    fetch(`${API}/races`).then(r => r.json()).then(setRaces).catch(() => {});
+    fetch(`${API}/upcoming-races`).then(r => r.json()).then(setUpcomingRaces).catch(() => {});
+    fetch(`${API}/next-race`).then(r => r.json()).then(setNextRace).catch(() => {});
+    fetch(`${API}/price-changes`).then(r => r.json()).then(setPriceChanges).catch(() => {});
   }, []);
 
   const fetchRaceResults = async (raceName) => {
     if (!raceName) return;
     setResultsLoading(true); setResultsError(null); setRaceResults(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/race-results", {
+      const res = await fetch(`${API}/race-results`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ race_name: raceName }),
       });
@@ -68,7 +69,7 @@ function App() {
     if (!qualRace) return;
     setQualLoading(true); setQualError(null); setQualResults(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/qualifying-results", {
+      const res = await fetch(`${API}/qualifying-results`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ race_name: qualRace }),
       });
@@ -83,7 +84,7 @@ function App() {
     if (!budgetRace) return;
     setBudgetLoading(true); setBudgetError(null); setBudgetTeam(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/predict-budget", {
+      const res = await fetch(`${API}/predict-budget`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ race_name: budgetRace, budget: 100.0 }),
       });

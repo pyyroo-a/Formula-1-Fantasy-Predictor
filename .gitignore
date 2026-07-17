@@ -1,5 +1,7 @@
 venv/
 __pycache__/
 *.pyc
-data/
+data/cache/
 .ipynb_checkpoints/
+frontend/.env.local
+frontend/node_modules/

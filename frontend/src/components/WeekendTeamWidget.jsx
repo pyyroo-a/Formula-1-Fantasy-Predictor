@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API } from "../api";
 import { DRIVER_NAMES, BADGE_COLOR, teamAccent } from "../constants";
 import DriverAvatar from "./DriverAvatar";
 
@@ -7,7 +8,7 @@ export default function WeekendTeamWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/weekend-team")
+    fetch(`${API}/weekend-team`)
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));

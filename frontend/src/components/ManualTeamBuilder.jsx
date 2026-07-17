@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API } from "../api";
 import { DRIVER_NAMES, BADGE_COLOR, BUDGET, teamAccent } from "../constants";
 import DriverAvatar from "./DriverAvatar";
 import SessionSchedule from "./SessionSchedule";
@@ -87,7 +88,7 @@ function PoolConstructorCard({ constructor: c, isSelected, canAdd, onToggle }) {
     <button
       onClick={onToggle}
       disabled={dimmed}
-      className={`text-left w-full rounded-xl px-4 py-4 border-l-[6px] transition flex justify-between items-center ${
+      className={`text-left w-full rounded-xl px-3 py-2 border-l-[6px] transition flex justify-between items-center ${
         isSelected ? "bg-gray-700 ring-2 ring-white/20"
         : dimmed ? "bg-gray-800/50 opacity-40 cursor-not-allowed"
         : "bg-gray-800 hover:bg-gray-750 cursor-pointer"
@@ -95,8 +96,8 @@ function PoolConstructorCard({ constructor: c, isSelected, canAdd, onToggle }) {
       style={{ borderColor: accent }}
     >
       <div>
-        <p className="font-bold text-base">{c.name}</p>
-        <p className="text-gray-500 text-sm mt-0.5">Score: {c.score?.toFixed(2)}</p>
+        <p className="font-bold text-sm">{c.name}</p>
+        <p className="text-gray-500 text-xs mt-0.5">Score: {c.score?.toFixed(2)}</p>
       </div>
       <div className="text-right">
         <p className="text-white font-bold text-base">${c.price?.toFixed(1)}M</p>
@@ -127,7 +128,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
 
   const fetchSessions = async (raceName) => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/race-sessions", {
+      const res = await fetch(`${API}/race-sessions`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ race_name: raceName }),
       });
@@ -147,7 +148,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
     resetPool();
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/upcoming-race-pool", {
+      const res = await fetch(`${API}/upcoming-race-pool`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ year: 2026, race_name: selectedRace, session: selectedIsSprint ? "FP1" : "FP3" }),
       });
@@ -340,7 +341,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
 
           <div>
             <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Available Constructors</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {pool.constructors.map(c => (
                 <PoolConstructorCard
                   key={c.name}

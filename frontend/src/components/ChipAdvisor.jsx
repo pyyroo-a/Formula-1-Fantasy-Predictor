@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API } from "../api";
 import { DRIVER_NAMES, CHIP_META, REC_STYLE, teamAccent } from "../constants";
 import DriverAvatar from "./DriverAvatar";
 
@@ -9,7 +10,7 @@ const ALL_DRIVERS = [
 ];
 const ALL_CONSTRUCTORS = [
   "Red Bull Racing","McLaren","Ferrari","Mercedes","Aston Martin",
-  "Alpine","Williams","RB F1 Team","Kick Sauber","Haas","Cadillac",
+  "Alpine","Williams","RB F1 Team","Audi","Haas","Cadillac",
 ];
 
 function ChipCard({ chipKey, data }) {
@@ -102,7 +103,7 @@ export default function ChipAdvisor({ upcomingRaces }) {
   const submit = async () => {
     setLoading(true); setError(null); setResult(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/chip-advisor", {
+      const res = await fetch(`${API}/chip-advisor`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ race_name: raceName, my_drivers: myDrivers, my_constructors: myConstructors }),
@@ -176,7 +177,7 @@ export default function ChipAdvisor({ upcomingRaces }) {
           <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Your Constructors</h3>
           <span className="text-gray-600 text-xs">{myConstructors.length}/2</span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {ALL_CONSTRUCTORS.map(name => {
             const isSelected = myConstructors.includes(name);
             const canAdd = !isSelected && myConstructors.length < 2;
@@ -186,10 +187,10 @@ export default function ChipAdvisor({ upcomingRaces }) {
                 key={name}
                 onClick={() => toggleConstructor(name)}
                 disabled={!isSelected && !canAdd}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition border-l-2 ${
-                  isSelected ? "bg-gray-600 text-white border-opacity-100"
-                  : canAdd ? "bg-gray-800 text-gray-300 hover:bg-gray-750"
-                  : "bg-gray-800/40 text-gray-600 cursor-not-allowed"
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition border-l-4 ${
+                  isSelected ? "bg-gray-600 text-white"
+                  : canAdd ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  : "bg-gray-800/40 text-gray-600 cursor-not-allowed opacity-40"
                 }`}
                 style={{ borderLeftColor: accent }}
               >
