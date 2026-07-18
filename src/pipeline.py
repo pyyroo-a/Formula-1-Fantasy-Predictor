@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestRegressor
 from src.data_loader import load_dataset
 from src.features import build_features
 from src.models import prepare_data, train_model, predict, build_fantasy_table
+from src.championship_form import compute_championship_form, apply_championship_signal
 
 
 def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
@@ -43,6 +44,12 @@ def run_pipeline() -> pd.DataFrame:
     model = train_model(X_train, y_train)
     predictions = predict(model, X_test)
     fantasy_table = build_fantasy_table(df_2026, predictions)
+
+    # Compute 2026 championship standings from the completed race data
+    # and use them to fine-tune predictions — drivers leading the title
+    # get a small boost, backmarkers get a small penalty.
+    form_df = compute_championship_form(df_2026)
+    fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=0.15)
 
     return fantasy_table
 
@@ -133,6 +140,11 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     blended = np.clip(blended, 1, 20)
 
     fantasy_table["Predicted"] = blended.round(2)
+
+    # Apply championship standings signal on top of the blended prediction.
+    # We use all historical + 2026 data so the standings reflect the full season so far.
+    form_df = compute_championship_form(df_history[df_history["Year"] == df_history["Year"].max()])
+    fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=0.15)
 
     # Compute scoring columns from blended predictions
     fantasy_table["PositionChange"] = fantasy_table["GridPosition"] - fantasy_table["Predicted"]
