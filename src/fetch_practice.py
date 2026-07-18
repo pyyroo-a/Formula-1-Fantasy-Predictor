@@ -49,6 +49,15 @@ def get_practice_grid(year: int, race_name: str, session: str = "FP3") -> pd.Dat
 
     fastest = fastest.rename(columns={"Driver": "Abbreviation", "Team": "TeamName"})
     fastest["RaceName"] = race_name
-    fastest = fastest[["Abbreviation", "TeamName", "GridPosition", "RaceName"]]
+
+    # Lap time gap features (in seconds)
+    fastest["LapTime_s"] = fastest["LapTime"].dt.total_seconds()
+    pole_time = fastest["LapTime_s"].min()
+    fastest["GapToPole"] = (fastest["LapTime_s"] - pole_time).round(3)
+
+    team_best = fastest.groupby("TeamName")["LapTime_s"].transform("min")
+    fastest["GapToTeammate"] = (fastest["LapTime_s"] - team_best).round(3)
+
+    fastest = fastest[["Abbreviation", "TeamName", "GridPosition", "RaceName", "GapToPole", "GapToTeammate"]]
 
     return fastest

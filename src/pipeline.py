@@ -87,14 +87,57 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
 
     X_train, y_train, X_test, _ = prepare_data(df_history, upcoming)
     model = train_model(X_train, y_train)
-    predictions = predict(model, X_test)
+    base_predictions = predict(model, X_test)
 
-    fantasy_table = build_fantasy_table(upcoming, predictions)
+    fantasy_table = build_fantasy_table(upcoming, base_predictions)
 
-    # Compute scoring columns from predicted positions (not dummy actuals)
+    # --- Practice pace signal ---
+    # Convert GapToPole (seconds) into a 1–20 position-scale estimate.
+    # A driver on pole (gap=0) maps to P1; the slowest maps to P20.
+    if "GapToPole" in upcoming.columns:
+        max_gap = upcoming["GapToPole"].max()
+        if max_gap > 0:
+            practice_pace = 1 + (upcoming["GapToPole"].values / max_gap) * 19
+        else:
+            practice_pace = upcoming["GridPosition"].values.astype(float)
+    else:
+        practice_pace = upcoming["GridPosition"].values.astype(float)
+
+    # Teammate gap adjustment: slower teammate gets a small penalty
+    if "GapToTeammate" in upcoming.columns:
+        max_team_gap = upcoming["GapToTeammate"].max()
+        if max_team_gap > 0:
+            teammate_penalty = (upcoming["GapToTeammate"].values / max_team_gap) * 3
+        else:
+            teammate_penalty = np.zeros(len(upcoming))
+    else:
+        teammate_penalty = np.zeros(len(upcoming))
+
+    # --- Circuit history signal ---
+    race_name = practice_df["RaceName"].iloc[0]
+    circuit_history = (
+        df_history[df_history["RaceName"] == race_name]
+        .groupby("Abbreviation")["Position"]
+        .mean()
+    )
+    circuit_avg = upcoming["Abbreviation"].map(circuit_history)
+    circuit_signal = circuit_avg.fillna(pd.Series(base_predictions, index=upcoming.index)).values
+
+    # Blend: 45% form model + 35% practice pace + 10% teammate gap + 10% circuit history
+    blended = (
+        0.45 * base_predictions
+        + 0.35 * practice_pace
+        + 0.10 * teammate_penalty
+        + 0.10 * circuit_signal
+    )
+    blended = np.clip(blended, 1, 20)
+
+    fantasy_table["Predicted"] = blended.round(2)
+
+    # Compute scoring columns from blended predictions
     fantasy_table["PositionChange"] = fantasy_table["GridPosition"] - fantasy_table["Predicted"]
     fantasy_table["Top10Finish"] = (fantasy_table["Predicted"] <= 10).astype(int)
     fantasy_table["Top5Finish"] = (fantasy_table["Predicted"] <= 5).astype(int)
-    fantasy_table["DNF"] = 0  # can't predict DNF; assume clean race
+    fantasy_table["DNF"] = 0
 
     return fantasy_table

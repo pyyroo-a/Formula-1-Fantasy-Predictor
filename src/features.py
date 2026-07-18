@@ -12,12 +12,10 @@ def add_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df["Rolling3Average"] = (
         df.groupby("Abbreviation")["Position"]
-        .rolling(window=3)
-        .mean()
-        .reset_index(0 ,drop=True)
+        .transform(lambda x: x.ewm(span=3, adjust=False).mean())
     )
 
-    df = df.dropna(subset=["PreviousPosition","Rolling3Average"])
+    df = df.dropna(subset=["PreviousPosition"])
 
     return df
 
@@ -28,10 +26,10 @@ def add_position_change(df: pd.DataFrame) -> pd.DataFrame:
 
     df["AveragePositionChange"] = (
         df.groupby("Abbreviation")["PositionChange"]
-        .transform(lambda x: x.rolling(window=3).mean())
+        .transform(lambda x: x.ewm(span=3, adjust=False).mean())
     )
 
-    df["AveragePositionChange"] = df["AveragePositionChange"].fillna(0) # just a check incase there isnt any history
+    df["AveragePositionChange"] = df["AveragePositionChange"].fillna(0)
 
     return df
 
@@ -40,7 +38,7 @@ def add_consistency(df: pd.DataFrame) -> pd.DataFrame:
 
     df["Consistency"] = (
         df.groupby("Abbreviation")["PositionChange"]
-        .transform(lambda x: x.rolling(window=3).std()) # the lower the std the better because it shows the driver is consistenc
+        .transform(lambda x: x.ewm(span=3, adjust=False).std())
     )
 
     df["Consistency"] = df["Consistency"].fillna(0)
