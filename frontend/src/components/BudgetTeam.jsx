@@ -54,6 +54,41 @@ export function BudgetDriverCard({ driver, isCaptain = false }) {
   );
 }
 
+export function BoostPickCard({ pick }) {
+  if (!pick) return null;
+  const accent = teamAccent(pick.TeamName);
+  const gain = pick.GridPosition - pick.Predicted;
+  return (
+    <div className="rounded-xl p-4 mb-6 border border-yellow-400/30 bg-yellow-400/5">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full tracking-wider">2× BOOST PICK</span>
+        {pick.alternatives?.length > 0 && (
+          <span className="text-gray-500 text-xs">Alt: {pick.alternatives.join(", ")}</span>
+        )}
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="relative flex-shrink-0">
+          <DriverAvatar abbreviation={pick.Abbreviation} size="lg" />
+          <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">2×</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-bold text-lg leading-tight">{DRIVER_NAMES[pick.Abbreviation] || pick.Abbreviation}</p>
+          <p className="text-gray-400 text-sm">{pick.TeamName}</p>
+          <div className="flex gap-3 mt-1 text-xs text-gray-500">
+            <span>P{pick.GridPosition} → P{Math.round(pick.Predicted)}</span>
+            {gain > 0 && <span className="text-green-400">+{gain.toFixed(1)} pos</span>}
+          </div>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-yellow-400 font-bold text-base">{pick.FantasyValue?.toFixed(2)}</p>
+          <p className="text-gray-500 text-xs">score</p>
+        </div>
+      </div>
+      <p className="text-gray-400 text-xs mt-3 leading-relaxed border-t border-gray-700 pt-3">{pick.reason}</p>
+    </div>
+  );
+}
+
 export function ConstructorCard({ constructor: c }) {
   const accent = teamAccent(c.name);
   return (

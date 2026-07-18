@@ -18,9 +18,7 @@ export default function WeekendTeamWidget() {
 
   const { race_name, session_used, team } = data;
 
-  const captainAbbr = team.drivers.length > 0
-    ? [...team.drivers].sort((a, b) => (b.FantasyValue ?? 0) - (a.FantasyValue ?? 0))[0].Abbreviation
-    : null;
+  const captainAbbr = team.boost_pick?.Abbreviation ?? null;
 
   return (
     <div className="mb-4">
@@ -67,7 +65,7 @@ export default function WeekendTeamWidget() {
       </div>
 
       {/* Constructor row */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 mb-2">
         {team.constructors.map(c => {
           const accent = teamAccent(c.name);
           return (
@@ -78,6 +76,17 @@ export default function WeekendTeamWidget() {
           );
         })}
       </div>
+
+      {/* 2x boost recommendation */}
+      {team.boost_pick && (
+        <div className="flex items-start gap-3 rounded-lg bg-yellow-400/5 border border-yellow-400/20 px-3 py-2 mt-1">
+          <span className="bg-yellow-400 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full mt-0.5 flex-shrink-0">2×</span>
+          <div className="min-w-0">
+            <span className="text-yellow-400 text-xs font-semibold">{team.boost_pick.Abbreviation}</span>
+            <span className="text-gray-500 text-xs"> · {team.boost_pick.reason}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

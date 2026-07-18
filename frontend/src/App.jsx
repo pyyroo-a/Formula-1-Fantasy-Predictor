@@ -5,7 +5,7 @@ import WeekendTeamWidget from "./components/WeekendTeamWidget";
 import WeatherWidget from "./components/WeatherWidget";
 import RaceResultsTable from "./components/RaceResultsTable";
 import QualifyingTable from "./components/QualifyingTable";
-import { BudgetBar, BudgetDriverCard, ConstructorCard } from "./components/BudgetTeam";
+import { BudgetBar, BudgetDriverCard, ConstructorCard, BoostPickCard } from "./components/BudgetTeam";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
 import { DriverPricesCard, ConstructorPricesCard } from "./components/PricesSidebar";
@@ -225,17 +225,16 @@ function App() {
                       <p className="text-white font-bold">{budgetTeam.total_score?.toFixed(2)}</p>
                     </div>
                   </div>
+                  <BoostPickCard pick={budgetTeam.boost_pick} />
                   <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Drivers</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    {(() => {
-                      const withScore = budgetTeam.drivers.filter(d => d.FantasyValue != null && !isNaN(d.FantasyValue));
-                      const captainAbbr = withScore.length > 0
-                        ? withScore.reduce((best, d) => d.FantasyValue > best.FantasyValue ? d : best).Abbreviation
-                        : budgetTeam.drivers[0]?.Abbreviation;
-                      return budgetTeam.drivers.map((driver, i) => (
-                        <BudgetDriverCard key={i} driver={driver} isCaptain={driver.Abbreviation === captainAbbr} />
-                      ));
-                    })()}
+                    {budgetTeam.drivers.map((driver, i) => (
+                      <BudgetDriverCard
+                        key={i}
+                        driver={driver}
+                        isCaptain={driver.Abbreviation === budgetTeam.boost_pick?.Abbreviation}
+                      />
+                    ))}
                   </div>
                   <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Constructors</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

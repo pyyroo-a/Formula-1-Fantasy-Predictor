@@ -169,6 +169,55 @@ def generate_explanations(team: pd.DataFrame) -> pd.DataFrame:
 
     return team
 
+def pick_boost_driver(drivers: list) -> dict:
+    """
+    Recommends which driver to give the 2x points boost to.
+
+    Scoring: FantasyValue is the main factor (highest expected score = best doubling target).
+    A small safety bonus is added for drivers starting from the top 6 — they have less
+    DNF risk, so the double is less likely to be wasted.
+    """
+    scored = []
+    for d in drivers:
+        grid = d["GridPosition"]
+        predicted = d["Predicted"]
+        fv = d["FantasyValue"]
+
+        # Safety bonus: rewards starting near the front (max 0.5 bonus at P1, 0 at P6+)
+        safety = max(0.0, (6 - grid) / 6) * 0.5
+
+        # Expected position gain from grid to predicted finish
+        position_gain = grid - predicted
+
+        scored.append({**d, "_boost_score": fv + safety})
+
+    scored.sort(key=lambda x: x["_boost_score"], reverse=True)
+    pick = scored[0]
+
+    grid = pick["GridPosition"]
+    predicted = round(pick["Predicted"])
+    gain = round(grid - pick["Predicted"], 1)
+
+    if grid <= 3:
+        reason = f"Starting P{grid}, predicted P{predicted} — front row safety makes this the most reliable double"
+    elif gain >= 3:
+        reason = f"Starting P{grid}, predicted P{predicted} — expecting +{gain} position gains, great 2x upside"
+    else:
+        reason = f"Predicted P{predicted} — highest expected score in this team, best candidate for doubling"
+
+    alternatives = [s["Abbreviation"] for s in scored[1:3]]
+
+    return {
+        "Abbreviation": pick["Abbreviation"],
+        "TeamName": pick["TeamName"],
+        "GridPosition": grid,
+        "Predicted": pick["Predicted"],
+        "FantasyValue": pick["FantasyValue"],
+        "reason": reason,
+        "alternatives": alternatives,
+    }
+
+
 def build_budget_team(
     fantasy_table: pd.DataFrame,
     race_name: str,
@@ -274,7 +323,11 @@ def build_budget_team(
                     "total_cost": round(total_cost, 1),
                     "budget_remaining": round(budget - total_cost, 1),
                     "total_score": round(best_score, 3),
+                    "boost_pick": None,  # filled in after the loop
                 }
+
+    if best_team:
+        best_team["boost_pick"] = pick_boost_driver(best_team["drivers"])
 
     return best_team
 
