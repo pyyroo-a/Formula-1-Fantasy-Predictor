@@ -36,7 +36,7 @@ def prepare_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
     # This is basically the logic we used in the notebooks which we are applying here
     return X_train, y_train, X_test, y_test
 
-def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> XGBRegressor:
+def train_model(X_train: pd.DataFrame, y_train: pd.Series, sample_weight=None) -> XGBRegressor:
     model = XGBRegressor(
         n_estimators=200,
         learning_rate=0.05,
@@ -46,7 +46,7 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> XGBRegressor:
         random_state=42,
         verbosity=0,
     )
-    model.fit(X_train, y_train)
+    model.fit(X_train, y_train, sample_weight=sample_weight)
     return model
 
 def predict(model: XGBRegressor, X_test: pd.DataFrame) -> np.ndarray:

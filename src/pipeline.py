@@ -8,12 +8,11 @@ from src.championship_form import compute_championship_form, apply_championship_
 
 
 def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
-    """Train on all historical + completed 2026 data. Returns model and full training df."""
-    df_2024 = load_dataset("data/processed/race_results_2024.csv")
+    """Train on 2025 + 2026 data, with 2026 weighted 3x to reflect current car pace."""
     df_2025 = load_dataset("data/processed/race_results_2025.csv")
     df_2026 = load_dataset("data/processed/race_results_2026.csv")
 
-    df_train = pd.concat([df_2024, df_2025, df_2026], ignore_index=True)
+    df_train = pd.concat([df_2025, df_2026], ignore_index=True)
     df_train = build_features(df_train)
 
     features = [
@@ -22,21 +21,22 @@ def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
     ]
     df_train = df_train.dropna(subset=features)
 
+    sample_weight = np.where(df_train["Year"] == 2026, 3.0, 1.0)
+
     X_train = pd.get_dummies(df_train[features].drop("Position", axis=1), columns=["TeamName"])
     y_train = df_train["Position"]
 
-    model = train_model(X_train, y_train)
+    model = train_model(X_train, y_train, sample_weight=sample_weight)
 
     return model, df_train, X_train.columns.tolist()
 
 
 def run_pipeline() -> pd.DataFrame:
     """Returns fantasy table for all completed 2026 races (for the race selector)."""
-    df_2024 = load_dataset("data/processed/race_results_2024.csv")
     df_2025 = load_dataset("data/processed/race_results_2025.csv")
     df_2026 = load_dataset("data/processed/race_results_2026.csv")
 
-    df_train = pd.concat([df_2024, df_2025], ignore_index=True)
+    df_train = df_2025.copy()
     df_train = build_features(df_train)
     df_2026 = build_features(df_2026)
 
@@ -60,11 +60,10 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     (must have: Abbreviation, TeamName, GridPosition, RaceName)
     and returns a fantasy table prediction using historical form features.
     """
-    df_2024 = load_dataset("data/processed/race_results_2024.csv")
     df_2025 = load_dataset("data/processed/race_results_2025.csv")
     df_2026 = load_dataset("data/processed/race_results_2026.csv")
 
-    df_history = pd.concat([df_2024, df_2025, df_2026], ignore_index=True)
+    df_history = pd.concat([df_2025, df_2026], ignore_index=True)
     df_history = build_features(df_history)
 
     # Get the latest rolling features per driver from history
@@ -92,8 +91,11 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     upcoming["Position"] = 10.0
     upcoming["Status"] = "Finished"
 
+    # Weight 2026 races 3x higher than 2025 so current car pace dominates
+    sample_weight = np.where(df_history["Year"] == 2026, 3.0, 1.0)
+
     X_train, y_train, X_test, _ = prepare_data(df_history, upcoming)
-    model = train_model(X_train, y_train)
+    model = train_model(X_train, y_train, sample_weight=sample_weight)
     base_predictions = predict(model, X_test)
 
     fantasy_table = build_fantasy_table(upcoming, base_predictions)
