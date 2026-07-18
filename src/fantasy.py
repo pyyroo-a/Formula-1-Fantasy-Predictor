@@ -209,8 +209,8 @@ def build_budget_team(
     # Remove avoid-tier drivers from the candidate pool
     race_df = race_df[race_df["PickCategory"] != "Avoid"]
 
-    # Constructor score = average FantasyValue of their drivers this race
-    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].mean().to_dict()
+    # Constructor score = sum of both drivers' FantasyValue — you get points from both cars
+    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
 
     constructors = [
         {
@@ -311,7 +311,8 @@ def get_race_pool(
 
     race_df["PickCategory"] = race_df.apply(_category, axis=1)
 
-    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].mean().to_dict()
+    # Constructor score = sum of both drivers' FantasyValue — you get points from both cars
+    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
 
     drivers = [
         {
