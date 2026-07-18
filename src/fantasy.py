@@ -69,14 +69,31 @@ def get_position_gain_picks(midfield: pd.DataFrame) -> pd.DataFrame:
 
     return pd.concat([stable_midfield, risky_pick])
 
+def qualifying_score(grid_pos: float) -> float:
+    """
+    Points contribution from qualifying performance.
+    Q3 (P1-10) = bonus, Q2 (P11-15) = small bonus, Q1 (P16+) = penalty.
+    Scaled to be balanced with the race scoring components.
+    """
+    if grid_pos <= 10:
+        return 1.5   # Made Q3
+    elif grid_pos <= 15:
+        return 0.5   # Made Q2
+    else:
+        return -0.5  # Knocked out in Q1
+
+
 def calculate_fantasy_score(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+
+    df["QualifyingScore"] = df["GridPosition"].apply(qualifying_score)
 
     df["FantasyValue"] = (
         0.5 * df["PositionChange"] +
         0.4 * df["Top10Finish"] +
         0.3 * df["Top5Finish"] -
-        0.2 * df["DNF"]
+        0.2 * df["DNF"] +
+        df["QualifyingScore"]
     )
 
     return df
@@ -177,17 +194,19 @@ def pick_boost_driver(drivers: list) -> dict:
     A small safety bonus is added for drivers starting from the top 6 — they have less
     DNF risk, so the double is less likely to be wasted.
     """
+    # Never waste the 2x on a Q1 driver — only consider Q3 qualifiers (P1-10).
+    # Fall back to the full list only if no Q3 drivers are in the team.
+    q3_drivers = [d for d in drivers if d["GridPosition"] <= 10]
+    candidates = q3_drivers if q3_drivers else drivers
+
     scored = []
-    for d in drivers:
+    for d in candidates:
         grid = d["GridPosition"]
         predicted = d["Predicted"]
         fv = d["FantasyValue"]
 
         # Safety bonus: rewards starting near the front (max 0.5 bonus at P1, 0 at P6+)
         safety = max(0.0, (6 - grid) / 6) * 0.5
-
-        # Expected position gain from grid to predicted finish
-        position_gain = grid - predicted
 
         scored.append({**d, "_boost_score": fv + safety})
 
@@ -199,11 +218,13 @@ def pick_boost_driver(drivers: list) -> dict:
     gain = round(grid - pick["Predicted"], 1)
 
     if grid <= 3:
-        reason = f"Starting P{grid}, predicted P{predicted} — front row safety makes this the most reliable double"
+        reason = f"Starting P{grid} (Q3), predicted P{predicted} — front row, qualifying points already banked, safest 2x"
+    elif grid <= 10:
+        reason = f"Starting P{grid} (Q3), predicted P{predicted} — made Q3 so qualifying points secured, good 2x candidate"
     elif gain >= 3:
-        reason = f"Starting P{grid}, predicted P{predicted} — expecting +{gain} position gains, great 2x upside"
+        reason = f"Starting P{grid}, predicted P{predicted} — no Q3 drivers in team, best available with +{gain} position gain expected"
     else:
-        reason = f"Predicted P{predicted} — highest expected score in this team, best candidate for doubling"
+        reason = f"Predicted P{predicted} — highest expected score available for the 2x boost"
 
     alternatives = [s["Abbreviation"] for s in scored[1:3]]
 
