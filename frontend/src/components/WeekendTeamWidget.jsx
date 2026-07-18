@@ -29,6 +29,11 @@ export default function WeekendTeamWidget() {
           <p className="text-white font-bold text-lg">{race_name} Lineup</p>
         </div>
         <div className="text-right">
+          {data.locked && (
+            <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-400 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-green-500/20 mb-1">
+              LOCKED
+            </span>
+          )}
           <p className="text-xs text-gray-500">Based on {session_used} · Score <span className="text-white font-medium">{team.total_score?.toFixed(2)}</span></p>
           <p className="text-xs text-gray-600 mt-0.5">${team.total_cost}M used · <span className="text-green-400">${team.budget_remaining}M left</span></p>
         </div>

@@ -5,8 +5,27 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import fastf1
 import os
+import json
 
 os.makedirs("data/cache", exist_ok=True)
+os.makedirs("data", exist_ok=True)
+
+LOCKED_TEAM_PATH = "data/locked_team.json"
+
+
+def load_locked_team() -> dict | None:
+    """Returns the saved locked team, or None if no lock file exists."""
+    try:
+        with open(LOCKED_TEAM_PATH) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+def save_locked_team(data: dict) -> None:
+    """Saves the locked team to disk so it survives restarts."""
+    with open(LOCKED_TEAM_PATH, "w") as f:
+        json.dump(data, f, indent=2)
 
 from src.pipeline import run_pipeline, predict_upcoming_race
 from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, get_race_pool
@@ -555,7 +574,23 @@ def get_weekend_team():
 
     race_name = upcoming["EventName"]
 
-    # Try sessions from best to fallback
+    # Return the locked team immediately if it belongs to this race weekend.
+    # The lock is set the first time FP3 data becomes available and never
+    # changes mid-weekend — qualifying/race results don't affect it.
+    locked = load_locked_team()
+    if locked and locked.get("race_name") == race_name:
+        return {
+            "active": True,
+            "race_name": race_name,
+            "session_used": locked["session_used"],
+            "days_until": round(days_until_race, 1),
+            "race_date": race_date.isoformat(),
+            "locked": True,
+            "locked_at": locked["locked_at"],
+            "team": locked["team"],
+        }
+
+    # No lock yet for this race — try to fetch practice data and generate one.
     sessions_to_try = ["FP3", "FP2", "FP1"] if not is_sprint_weekend(race_name) else ["FP1"]
     practice_df = None
     session_used = None
@@ -573,7 +608,7 @@ def get_weekend_team():
             "active": True,
             "race_name": race_name,
             "days_until": round(days_until_race, 1),
-            "message": "No practice data available yet",
+            "message": "No practice data available yet — team will lock once FP3 is complete",
             "team": None,
         }
 
@@ -583,11 +618,31 @@ def get_weekend_team():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
 
+    # Lock this team — it won't change again until a new race weekend starts.
+    locked_at = pd.Timestamp.now(tz="UTC").isoformat()
+    save_locked_team({
+        "race_name": race_name,
+        "session_used": session_used,
+        "locked_at": locked_at,
+        "team": result,
+    })
+
     return {
         "active": True,
         "race_name": race_name,
         "session_used": session_used,
         "days_until": round(days_until_race, 1),
         "race_date": race_date.isoformat(),
+        "locked": True,
+        "locked_at": locked_at,
         "team": result,
     }
+
+
+@app.post("/unlock-team")
+def unlock_team():
+    """Clears the locked team so it regenerates fresh on the next request."""
+    if os.path.exists(LOCKED_TEAM_PATH):
+        os.remove(LOCKED_TEAM_PATH)
+        return {"message": "Team unlocked — will regenerate on next request"}
+    return {"message": "No locked team to clear"}
