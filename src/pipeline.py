@@ -137,10 +137,10 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     circuit_avg = upcoming["Abbreviation"].map(circuit_history)
     circuit_signal = circuit_avg.fillna(pd.Series(base_predictions, index=upcoming.index)).values
 
-    # Blend: 45% form model + 35% practice pace + 10% teammate gap + 10% circuit history
+    # Blend: 60% form model + 20% practice pace + 10% teammate gap + 10% circuit history
     blended = (
-        0.45 * base_predictions
-        + 0.35 * practice_pace
+        0.60 * base_predictions
+        + 0.20 * practice_pace
         + 0.10 * teammate_penalty
         + 0.10 * circuit_signal
     )
