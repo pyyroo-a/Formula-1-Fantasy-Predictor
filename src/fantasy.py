@@ -88,12 +88,25 @@ def calculate_fantasy_score(df: pd.DataFrame) -> pd.DataFrame:
 
     df["QualifyingScore"] = df["GridPosition"].apply(qualifying_score)
 
+    # Grid penalty boost: driver starting 10+ places below their recent average
+    # is likely serving a grid penalty in a fast car — high upside pick
+    if "Rolling3Average" in df.columns:
+        df["GridPenaltyBoost"] = np.where(
+            (df["GridPosition"] - df["Rolling3Average"]) > 10, 1.0, 0.0
+        )
+    else:
+        df["GridPenaltyBoost"] = 0.0
+
+    avg_pos_change = df["AveragePositionChange"] if "AveragePositionChange" in df.columns else 0
+
     df["FantasyValue"] = (
         0.5 * df["PositionChange"] +
+        0.3 * avg_pos_change +
         0.4 * df["Top10Finish"] +
         0.3 * df["Top5Finish"] -
         0.2 * df["DNF"] +
-        df["QualifyingScore"]
+        df["QualifyingScore"] +
+        df["GridPenaltyBoost"]
     )
 
     return df
@@ -282,11 +295,26 @@ def build_budget_team(
     # Constructor score = sum of both drivers' FantasyValue — you get points from both cars
     constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
 
+    # Top-team bonus: constructors whose drivers average a top-4 finish get a boost
+    # so Mercedes/Ferrari always beat out midfield constructors on score
+    team_avg_pos = (
+        race_df.groupby("TeamName")["TeamAvgPosition"].mean().to_dict()
+        if "TeamAvgPosition" in race_df.columns else {}
+    )
+
+    def _constructor_bonus(team):
+        avg = team_avg_pos.get(team, 10.0)
+        if avg <= 4:
+            return 1.5
+        if avg <= 7:
+            return 0.5
+        return 0.0
+
     constructors = [
         {
             "name": team,
             "price": price,
-            "score": round(constructor_scores.get(team, 0.0), 3),
+            "score": round(constructor_scores.get(team, 0.0) + _constructor_bonus(team), 3),
         }
         for team, price in constructor_prices.items()
     ]
