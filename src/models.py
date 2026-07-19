@@ -7,7 +7,7 @@ from itertools import product
 def prepare_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
 
 
-    features =[
+    features = [
         "TeamName",
         "GridPosition",
         "PreviousPosition",
@@ -15,6 +15,9 @@ def prepare_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
         "Consistency",
         "GridvsForm",
         "FormTrend",
+        "WinRate",
+        "PodiumRate",
+        "TeamAvgPosition",
         "Position"
     ]
 

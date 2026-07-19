@@ -17,11 +17,12 @@ def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
 
     features = [
         "TeamName", "GridPosition", "PreviousPosition",
-        "AveragePositionChange", "Consistency", "GridvsForm", "FormTrend", "Position"
+        "AveragePositionChange", "Consistency", "GridvsForm", "FormTrend",
+        "WinRate", "PodiumRate", "TeamAvgPosition", "Position"
     ]
     df_train = df_train.dropna(subset=features)
 
-    sample_weight = np.where(df_train["Year"] == 2026, 3.0, 1.0)
+    sample_weight = np.where(df_train["Year"] == 2026, 5.0, 1.0)
 
     X_train = pd.get_dummies(df_train[features].drop("Position", axis=1), columns=["TeamName"])
     y_train = df_train["Position"]
@@ -72,7 +73,8 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
         .groupby("Abbreviation")
         .last()
         .reset_index()[["Abbreviation", "TeamName", "PreviousPosition",
-                         "AveragePositionChange", "Consistency", "Rolling3Average"]]
+                         "AveragePositionChange", "Consistency", "Rolling3Average",
+                         "WinRate", "PodiumRate", "TeamAvgPosition"]]
     )
 
     upcoming = practice_df.merge(latest_form, on="Abbreviation", how="left", suffixes=("", "_hist"))
@@ -83,6 +85,9 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     upcoming["AveragePositionChange"] = upcoming["AveragePositionChange"].fillna(0.0)
     upcoming["Consistency"] = upcoming["Consistency"].fillna(0.0)
     upcoming["Rolling3Average"] = upcoming["Rolling3Average"].fillna(10.0)
+    upcoming["WinRate"] = upcoming["WinRate"].fillna(0.0)
+    upcoming["PodiumRate"] = upcoming["PodiumRate"].fillna(0.0)
+    upcoming["TeamAvgPosition"] = upcoming["TeamAvgPosition"].fillna(10.0)
 
     upcoming["GridvsForm"] = upcoming["GridPosition"] - upcoming["Rolling3Average"]
     upcoming["FormTrend"] = upcoming["Rolling3Average"] - upcoming["PreviousPosition"]
@@ -91,8 +96,8 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     upcoming["Position"] = 10.0
     upcoming["Status"] = "Finished"
 
-    # Weight 2026 races 3x higher than 2025 so current car pace dominates
-    sample_weight = np.where(df_history["Year"] == 2026, 3.0, 1.0)
+    # Weight 2026 races 5x higher than 2025 so current car pace dominates
+    sample_weight = np.where(df_history["Year"] == 2026, 5.0, 1.0)
 
     X_train, y_train, X_test, _ = prepare_data(df_history, upcoming)
     model = train_model(X_train, y_train, sample_weight=sample_weight)
