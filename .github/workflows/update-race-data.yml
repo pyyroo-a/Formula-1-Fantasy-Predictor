@@ -1,0 +1,39 @@
+name: Update Race Data
+
+on:
+  schedule:
+    # Every Monday at 06:00 UTC — safely after Sunday race results are available
+    - cron: "0 6 * * 1"
+  workflow_dispatch: # also lets you trigger it manually from GitHub
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install fastf1 pandas
+
+      - name: Fetch new race results
+        run: python scripts/update_data.py
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/processed/race_results_2026.csv
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: add race results $(date +'%Y-%m-%d')"
+            git push
+          fi
