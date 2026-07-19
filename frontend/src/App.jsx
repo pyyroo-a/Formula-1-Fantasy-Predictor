@@ -97,10 +97,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-screen-xl mx-auto px-6">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6">
 
         {/* ── Top navbar ── */}
-        <div className="flex items-center justify-between py-5 border-b border-gray-800 mb-5">
+        <div className="flex flex-wrap items-center justify-between gap-y-2 py-5 border-b border-gray-800 mb-5">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-black tracking-tight">PitWall</h1>
             <span className="text-gray-500 text-sm">F1 Fantasy · 2026 Season</span>
@@ -109,7 +109,7 @@ function App() {
         </div>
 
         {/* ── Info row: weather | driver prices | constructor prices ── */}
-        <div className="grid grid-cols-3 gap-4 mb-5" style={{ height: "180px" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
           <WeatherWidget nextRace={nextRace} />
           <DriverPricesCard priceChanges={priceChanges} />
           <ConstructorPricesCard priceChanges={priceChanges} />
@@ -119,18 +119,20 @@ function App() {
         <WeekendTeamWidget />
 
         {/* ── Tabs ── */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-700 mb-5">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setMode(tab.id)}
-              className={`flex-1 py-2.5 text-xs font-medium transition px-1 ${
-                mode === tab.id ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="overflow-x-auto mb-5">
+          <div className="flex rounded-lg overflow-hidden border border-gray-700 min-w-max sm:min-w-0">
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setMode(tab.id)}
+                className={`flex-1 py-2.5 text-xs font-medium transition px-3 min-w-[90px] sm:min-w-0 whitespace-nowrap ${
+                  mode === tab.id ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* ── Tab content ── */}
