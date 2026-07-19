@@ -110,9 +110,9 @@ function App() {
 
         {/* ── Info row: weather | driver prices | constructor prices ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-          <WeatherWidget nextRace={nextRace} />
-          <DriverPricesCard priceChanges={priceChanges} />
-          <ConstructorPricesCard priceChanges={priceChanges} />
+          <div className="h-44"><WeatherWidget nextRace={nextRace} /></div>
+          <div className="h-44"><DriverPricesCard priceChanges={priceChanges} /></div>
+          <div className="h-44"><ConstructorPricesCard priceChanges={priceChanges} /></div>
         </div>
 
         {/* ── Weekend lineup (only shown near race weekend) ── */}
