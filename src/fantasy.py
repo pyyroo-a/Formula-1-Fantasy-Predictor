@@ -381,6 +381,143 @@ def build_budget_team(
     return best_team
 
 
+def build_budget_teams(
+    fantasy_table: pd.DataFrame,
+    race_name: str,
+    prices: dict,
+    budget: float = 100.0,
+    n: int = 3,
+    min_driver_diff: int = 2,
+) -> list[dict]:
+    """
+    Returns n high-scoring teams that are mutually diverse (differ by at least
+    min_driver_diff drivers). Runs the full combinations solver once and keeps
+    a pool of top candidates, then greedily picks diverse teams from that pool.
+    """
+    race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
+    race_df = calculate_fantasy_score(race_df)
+    race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
+    race_df = race_df.reset_index(drop=True)
+
+    driver_prices = prices.get("drivers", {})
+    constructor_prices = prices.get("constructors", {})
+
+    race_df["Price"] = race_df["Abbreviation"].map(driver_prices)
+    race_df = race_df.dropna(subset=["Price"])
+
+    safe_abbrevs = set(race_df.nsmallest(3, "Predicted")["Abbreviation"].tolist())
+    avoid_threshold = race_df["FantasyValue"].quantile(0.25)
+    value_threshold = race_df["FantasyValue"].quantile(0.75)
+
+    def _category(row):
+        if row["Abbreviation"] in safe_abbrevs:
+            return "Safe"
+        if row["FantasyValue"] >= value_threshold:
+            return "Value"
+        if row["FantasyValue"] <= avoid_threshold:
+            return "Avoid"
+        return "Risk"
+
+    race_df["PickCategory"] = race_df.apply(_category, axis=1)
+    race_df = race_df[race_df["PickCategory"] != "Avoid"]
+
+    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
+    team_avg_pos = (
+        race_df.groupby("TeamName")["TeamAvgPosition"].mean().to_dict()
+        if "TeamAvgPosition" in race_df.columns else {}
+    )
+
+    def _constructor_bonus(team):
+        avg = team_avg_pos.get(team, 10.0)
+        if avg <= 4: return 1.5
+        if avg <= 7: return 0.5
+        return 0.0
+
+    constructors = [
+        {
+            "name": team,
+            "price": price,
+            "score": round(constructor_scores.get(team, 0.0) + _constructor_bonus(team), 3),
+        }
+        for team, price in constructor_prices.items()
+    ]
+
+    drivers_list = race_df.to_dict("records")
+
+    # Collect the top 50 valid teams by score in a single pass
+    POOL_SIZE = 50
+    pool: list[tuple[float, frozenset, dict]] = []
+
+    for driver_combo in combinations(drivers_list, 5):
+        safe_count = sum(1 for d in driver_combo if d["Abbreviation"] in safe_abbrevs)
+        if safe_count < 1:
+            continue
+        driver_cost = sum(d["Price"] for d in driver_combo)
+        if driver_cost > budget:
+            continue
+
+        for constructor_combo in combinations(constructors, 2):
+            constructor_cost = sum(c["price"] for c in constructor_combo)
+            total_cost = driver_cost + constructor_cost
+            if total_cost > budget:
+                continue
+
+            total_score = (
+                sum(d["FantasyValue"] for d in driver_combo)
+                + sum(c["score"] for c in constructor_combo)
+            )
+
+            team_dict = {
+                "drivers": [
+                    {
+                        "Abbreviation": d["Abbreviation"],
+                        "TeamName": d["TeamName"],
+                        "GridPosition": int(d["GridPosition"]),
+                        "Predicted": round(d["Predicted"], 1),
+                        "FantasyValue": round(d["FantasyValue"], 3),
+                        "Price": d["Price"],
+                        "PickCategory": d["PickCategory"],
+                    }
+                    for d in driver_combo
+                ],
+                "constructors": [
+                    {"name": c["name"], "price": c["price"], "score": c["score"]}
+                    for c in constructor_combo
+                ],
+                "total_cost": round(total_cost, 1),
+                "budget_remaining": round(budget - total_cost, 1),
+                "total_score": round(total_score, 3),
+                "boost_pick": None,
+            }
+            abbrevs = frozenset(d["Abbreviation"] for d in driver_combo)
+
+            if len(pool) < POOL_SIZE:
+                pool.append((total_score, abbrevs, team_dict))
+                pool.sort(key=lambda x: -x[0])
+            elif total_score > pool[-1][0]:
+                pool[-1] = (total_score, abbrevs, team_dict)
+                pool.sort(key=lambda x: -x[0])
+
+    # Greedily pick n teams that each differ by at least min_driver_diff from all already-picked teams
+    selected: list[tuple[float, frozenset, dict]] = []
+    for score, abbrevs, team_dict in pool:
+        if len(selected) >= n:
+            break
+        diverse = all(
+            len(abbrevs & sel_abbrevs) <= (5 - min_driver_diff)
+            for _, sel_abbrevs, _ in selected
+        )
+        if diverse:
+            selected.append((score, abbrevs, team_dict))
+
+    result = []
+    for _, _, team_dict in selected:
+        team_dict["boost_pick"] = pick_boost_driver(team_dict["drivers"])
+        result.append(team_dict)
+
+    return result
+
+
 def get_race_pool(
     fantasy_table: pd.DataFrame,
     race_name: str,

@@ -39,7 +39,8 @@ function App() {
 
   // Budget Team tab
   const [budgetRace, setBudgetRace] = useState("");
-  const [budgetTeam, setBudgetTeam] = useState(null);
+  const [budgetTeams, setBudgetTeams] = useState(null);
+  const [activeTeam, setActiveTeam] = useState(0);
   const [budgetLoading, setBudgetLoading] = useState(false);
   const [budgetError, setBudgetError] = useState(null);
 
@@ -82,7 +83,7 @@ function App() {
 
   const fetchBudgetTeam = async () => {
     if (!budgetRace) return;
-    setBudgetLoading(true); setBudgetError(null); setBudgetTeam(null);
+    setBudgetLoading(true); setBudgetError(null); setBudgetTeams(null); setActiveTeam(0);
     try {
       const res = await fetch(`${API}/predict-budget`, {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -90,7 +91,7 @@ function App() {
       });
       const data = await res.json();
       if (data.detail) throw new Error(data.detail);
-      setBudgetTeam(data);
+      setBudgetTeams(data.teams);
     } catch (e) { setBudgetError(e.message || "Failed to build budget team."); }
     setBudgetLoading(false);
   };
@@ -199,11 +200,11 @@ function App() {
           {mode === "budget" && (
             <>
               <p className="text-gray-400 text-sm text-center mb-4">
-                Finds the highest-scoring 5 drivers + 2 constructors within the $100M budget.
+                Generates 3 high-scoring lineups within $100M — pick whichever suits your strategy.
               </p>
               <select
                 value={budgetRace}
-                onChange={e => { setBudgetRace(e.target.value); setBudgetTeam(null); }}
+                onChange={e => { setBudgetRace(e.target.value); setBudgetTeams(null); setActiveTeam(0); }}
                 className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
               >
                 <option value="">Select a race</option>
@@ -214,36 +215,52 @@ function App() {
                 disabled={!budgetRace || budgetLoading}
                 className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-600 transition font-medium"
               >
-                {budgetLoading ? "Solving..." : "Build Optimal Team"}
+                {budgetLoading ? "Solving..." : "Build Optimal Teams"}
               </button>
               {budgetError && <p className="mt-4 text-red-400 text-sm text-center">{budgetError}</p>}
-              {budgetTeam && (
-                <div className="mt-6">
-                  <BudgetBar used={budgetTeam.total_cost} />
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-gray-200">Optimal Team</h2>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">Total score</p>
-                      <p className="text-white font-bold">{budgetTeam.total_score?.toFixed(2)}</p>
+              {budgetTeams && budgetTeams.length > 0 && (() => {
+                const team = budgetTeams[activeTeam];
+                return (
+                  <div className="mt-6">
+                    {/* Team switcher */}
+                    <div className="flex rounded-lg overflow-hidden border border-gray-700 mb-5">
+                      {budgetTeams.map((t, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveTeam(i)}
+                          className={`flex-1 py-2.5 text-sm font-medium transition ${
+                            activeTeam === i
+                              ? "bg-red-600 text-white"
+                              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                          }`}
+                        >
+                          Team {i + 1}
+                          <span className={`block text-xs mt-0.5 ${activeTeam === i ? "text-red-200" : "text-gray-600"}`}>
+                            {t.total_score?.toFixed(1)} pts · ${t.total_cost}M
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <BudgetBar used={team.total_cost} />
+                    <BoostPickCard pick={team.boost_pick} />
+                    <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Drivers</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      {team.drivers.map((driver, i) => (
+                        <BudgetDriverCard
+                          key={i}
+                          driver={driver}
+                          isCaptain={driver.Abbreviation === team.boost_pick?.Abbreviation}
+                        />
+                      ))}
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Constructors</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {team.constructors.map((c, i) => <ConstructorCard key={i} constructor={c} />)}
                     </div>
                   </div>
-                  <BoostPickCard pick={budgetTeam.boost_pick} />
-                  <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Drivers</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    {budgetTeam.drivers.map((driver, i) => (
-                      <BudgetDriverCard
-                        key={i}
-                        driver={driver}
-                        isCaptain={driver.Abbreviation === budgetTeam.boost_pick?.Abbreviation}
-                      />
-                    ))}
-                  </div>
-                  <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Constructors</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {budgetTeam.constructors.map((c, i) => <ConstructorCard key={i} constructor={c} />)}
-                  </div>
-                </div>
-              )}
+                );
+              })()}
             </>
           )}
 

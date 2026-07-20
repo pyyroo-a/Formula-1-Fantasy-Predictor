@@ -28,7 +28,7 @@ def save_locked_team(data: dict) -> None:
         json.dump(data, f, indent=2)
 
 from src.pipeline import run_pipeline, predict_upcoming_race
-from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, get_race_pool
+from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, build_budget_teams, get_race_pool
 from src.fetch_practice import get_practice_grid, is_sprint_weekend
 from src.fetch_prices import fetch_prices, save_prices, fetch_price_changes
 from src.fetch_results import update_season_results
@@ -151,20 +151,20 @@ def get_budget_team(request: BudgetRequest):
     if not current_prices or not current_prices.get("drivers"):
         raise HTTPException(status_code=503, detail="Prices not available")
 
-    result = build_budget_team(
+    teams = build_budget_teams(
         fantasy_table,
         request.race_name,
         current_prices,
         budget=request.budget,
     )
 
-    if result is None:
+    if not teams:
         raise HTTPException(
             status_code=400,
             detail="No valid team found within budget. Try increasing the budget."
         )
 
-    return result
+    return {"teams": teams}
 
 
 @app.post("/race-pool")
