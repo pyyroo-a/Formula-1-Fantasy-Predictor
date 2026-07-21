@@ -84,13 +84,28 @@ def qualifying_score(grid_pos: float) -> float:
         return -5                          # Q1 knockout: -5
 
 
-def calculate_fantasy_score(df: pd.DataFrame, race_name: str | None = None) -> pd.DataFrame:
+def calculate_fantasy_score(
+    df: pd.DataFrame,
+    race_name: str | None = None,
+    scale_by_circuit: bool = True,
+) -> pd.DataFrame:
+    """
+    Computes real F1 Fantasy points per driver.
+
+    scale_by_circuit weights the overtake/qualifying components by how hard the
+    circuit is to overtake at. That is a *prediction* device — it tilts picks
+    toward qualifiers at Monaco and climbers at Spa. Pass False to score an
+    actual result, where the game's true unscaled points are what count.
+    """
     df = df.copy()
 
-    # Circuit profile — scales overtaking value and qualifying importance
-    profile = get_circuit_profile(race_name) if race_name else {"overtaking": 5, "attrition": 0.10}
-    ot_scale = overtaking_scale(profile["overtaking"])   # e.g. Brazil=1.8x, Monaco=0.2x
-    q_scale  = quali_scale(profile["overtaking"])        # e.g. Monaco=1.9x, Brazil=1.1x
+    if scale_by_circuit and race_name:
+        profile = get_circuit_profile(race_name)
+        ot_scale = overtaking_scale(profile["overtaking"])   # Brazil 1.8x, Monaco 0.2x
+        q_scale  = quali_scale(profile["overtaking"])        # Monaco 1.9x, Brazil 1.1x
+    else:
+        ot_scale = 1.0
+        q_scale = 1.0
 
     # Use predicted position for upcoming races, actual finish for historical
     pos_col = "Predicted" if "Predicted" in df.columns else "Position"
