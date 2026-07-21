@@ -13,7 +13,11 @@ CIRCUIT_PROFILES = {
     "Miami Grand Prix":            {"overtaking": 6, "attrition": 0.12},
     "Emilia Romagna Grand Prix":   {"overtaking": 4, "attrition": 0.10},
     "Monaco Grand Prix":           {"overtaking": 1, "attrition": 0.15},
-    "Spanish Grand Prix":          {"overtaking": 5, "attrition": 0.08},
+    # 2026 runs Barcelona and Madrid as separate events — Madrid took the
+    # "Spanish Grand Prix" name. Barcelona is aero-limited and hard to follow at;
+    # Madrid is a new street circuit, so its rating is an unvalidated estimate.
+    "Barcelona Grand Prix":        {"overtaking": 4, "attrition": 0.08},
+    "Spanish Grand Prix":          {"overtaking": 4, "attrition": 0.10},
     "Canadian Grand Prix":         {"overtaking": 7, "attrition": 0.10},
     "Austrian Grand Prix":         {"overtaking": 7, "attrition": 0.08},
     "British Grand Prix":          {"overtaking": 7, "attrition": 0.10},
