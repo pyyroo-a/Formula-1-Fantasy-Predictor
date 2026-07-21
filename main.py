@@ -32,11 +32,13 @@ from src.fantasy import build_fantasy_team, generate_explanations, build_budget_
 from src.fetch_practice import get_practice_grid, is_sprint_weekend
 from src.fetch_prices import fetch_prices, save_prices, fetch_price_changes
 from src.fetch_results import update_season_results
+from src.backtest import run_backtest
 
 fantasy_table = None
 current_prices = None
 price_changes = None
 race_schedule = None
+backtest_cache = None
 
 
 @asynccontextmanager
@@ -637,6 +639,30 @@ def get_weekend_team():
         "locked_at": locked_at,
         "team": result,
     }
+
+
+@app.get("/backtest")
+def get_backtest(refresh: bool = False):
+    """
+    Replays completed 2026 races with the model trained only on prior races,
+    and compares its picks against a grid-order baseline.
+
+    Local analysis tool — disabled unless BACKTEST_ENABLED=true. It retrains the
+    model once per race (~1-2 min of CPU), so leaving it open in production would
+    let anyone stall the backend. Result is cached in memory after the first run.
+    """
+    global backtest_cache
+
+    if os.getenv("BACKTEST_ENABLED", "").lower() not in ("1", "true", "yes"):
+        raise HTTPException(status_code=404, detail="Not found")
+
+    if backtest_cache is None or refresh:
+        try:
+            backtest_cache = run_backtest(fallback_prices=current_prices)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Backtest failed: {e}")
+
+    return backtest_cache
 
 
 @app.post("/unlock-team")

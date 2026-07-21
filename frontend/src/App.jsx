@@ -8,7 +8,12 @@ import QualifyingTable from "./components/QualifyingTable";
 import { BudgetBar, BudgetDriverCard, ConstructorCard, BoostPickCard } from "./components/BudgetTeam";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
+import Backtest from "./components/Backtest";
 import { DriverPricesCard, ConstructorPricesCard } from "./components/PricesSidebar";
+
+// import.meta.env.DEV is true under `npm run dev` and false in a production
+// build — so the Backtest tab never ships to the deployed site.
+const IS_DEV = import.meta.env.DEV;
 
 const TABS = [
   { id: "results",    label: "Race Results" },
@@ -16,6 +21,7 @@ const TABS = [
   { id: "budget",     label: "Budget Team" },
   { id: "manual",     label: "Manual Team" },
   { id: "chips",      label: "Chip Advisor" },
+  ...(IS_DEV ? [{ id: "backtest", label: "Backtest" }] : []),
 ];
 
 function App() {
@@ -266,6 +272,7 @@ function App() {
 
           {mode === "manual" && <ManualTeamBuilder upcomingRaces={upcomingRaces} />}
           {mode === "chips" && <ChipAdvisor upcomingRaces={upcomingRaces} />}
+          {mode === "backtest" && IS_DEV && <Backtest />}
         </div>
 
       </div>
