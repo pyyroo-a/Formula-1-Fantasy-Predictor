@@ -56,15 +56,24 @@ def predict(model: XGBRegressor, X_test: pd.DataFrame) -> np.ndarray:
     return model.predict(X_test)
 
 
-# How far a predicted position is allowed to stray from the grid slot.
-# 1.0 = trust the prediction fully, 0.0 = just return the grid.
+# How far a predicted position is allowed to stray from the estimated grid.
+# 1.0 = trust the model fully, 0.0 = use the grid estimate as-is.
 #
-# Backtesting over 8 races (2026 R3-R9) found this monotonic against a
-# grid-order baseline: 1.0 scored -35.9 pts/race, 0.6 scored -22.9,
-# 0.4 scored -12.6, and 0.0 matched the baseline exactly. In other words the
-# model's deviations from the grid were net harmful on that sample. 0.4 is a
-# deliberately conservative compromise, not a tuned optimum — see docs/MODEL.md.
-SHRINK_TO_GRID = 0.4
+# Currently 0.0 — the model's adjustments were measured to be net harmful.
+#
+# Faithful backtest (run_backtest(use_practice=True), 8 races of 2026), where
+# both sides get FP3-estimated grid and the same optimiser:
+#     model 98.5/race vs "pick by FP3 order" 113.5/race, winning 0 of 8.
+# Handing the model the real qualifying grid instead showed the same direction:
+#     1.0 -> -35.9/race, 0.6 -> -22.9, 0.4 -> -12.6, 0.0 -> exactly baseline.
+#
+# Likely cause: train/serve skew. The model is trained with GridPosition = exact
+# qualifying grid, but served GridPosition = practice pace order, which carries
+# ~2.4 places of error. It amplifies that noise rather than correcting it.
+#
+# Raise this above 0.0 only when a backtest run shows the model beating the
+# FP3-order baseline. See docs/MODEL.md.
+SHRINK_TO_GRID = 0.0
 
 
 def shrink_to_grid(predicted, grid, k: float = SHRINK_TO_GRID):
