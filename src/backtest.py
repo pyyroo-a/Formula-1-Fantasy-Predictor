@@ -15,17 +15,27 @@ from src.models import prepare_data, train_model, predict, shrink_to_grid
 from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS
 from src.circuit_profiles import get_blend_weights
 from src.fetch_prices import fetch_prices
+from src.fetch_practice import get_practice_grid, is_sprint_weekend
 
 MIN_HISTORY_ROUNDS = 2  # need some 2026 form before predictions mean anything
 
 
-def _predict_race(history_raw: pd.DataFrame, target_raw: pd.DataFrame, race_name: str) -> pd.DataFrame:
+def _predict_race(
+    history_raw: pd.DataFrame,
+    target_raw: pd.DataFrame,
+    race_name: str,
+    practice_df: pd.DataFrame | None = None,
+) -> pd.DataFrame:
     """
-    Trains on history_raw only, then predicts finishing positions for target_raw.
+    Trains on history_raw only, then predicts finishing positions.
 
-    Mirrors predict_upcoming_race(), except there is no practice data for a past
-    race — so the FP3-pace and teammate-gap terms are dropped and the remaining
-    blend weights are renormalised.
+    With practice_df, this reproduces production exactly: grid is *estimated*
+    from practice pace (the real grid does not exist at the fantasy deadline),
+    and the full model/practice/teammate/circuit blend is used.
+
+    Without it, there is no practice signal — the FP3-pace and teammate-gap
+    terms are dropped and the remaining weights renormalised. That variant
+    hands the model the real grid, which production never has.
     """
     history = build_features(history_raw)
 
@@ -40,10 +50,20 @@ def _predict_race(history_raw: pd.DataFrame, target_raw: pd.DataFrame, race_name
         ]]
     )
 
-    # Merge onto the raw target rows so drivers who DNF'd are still included.
-    # build_features() drops non-finishers, and excluding them here would hide
-    # every -20 the optimiser walked into.
-    upcoming = target_raw.merge(latest_form, on="Abbreviation", how="left")
+    if practice_df is not None:
+        # Production path: practice pace supplies the estimated grid and the
+        # driver pool. Actual finishing positions are attached only so the
+        # caller can score afterwards — they never reach the model.
+        actuals = target_raw[["Abbreviation", "Position", "Status"]]
+        upcoming = practice_df.merge(actuals, on="Abbreviation", how="left")
+        upcoming["Position"] = upcoming["Position"].fillna(20.0)
+        upcoming["Status"] = upcoming["Status"].fillna("Finished")
+        upcoming = upcoming.merge(latest_form, on="Abbreviation", how="left")
+    else:
+        # Merge onto the raw target rows so drivers who DNF'd are still included.
+        # build_features() drops non-finishers, and excluding them here would hide
+        # every -20 the optimiser walked into.
+        upcoming = target_raw.merge(latest_form, on="Abbreviation", how="left")
 
     upcoming["PreviousPosition"] = upcoming["PreviousPosition"].fillna(10.0)
     upcoming["AveragePositionChange"] = upcoming["AveragePositionChange"].fillna(0.0)
@@ -78,8 +98,31 @@ def _predict_race(history_raw: pd.DataFrame, target_raw: pd.DataFrame, race_name
     )
 
     w = get_blend_weights(race_name)
-    total = w["model"] + w["circuit"]
-    blended = (w["model"] * base_predictions + w["circuit"] * circuit_signal) / total
+
+    if practice_df is not None:
+        # Full production blend, including the practice signals
+        max_gap = upcoming["GapToPole"].max()
+        practice_pace = (
+            1 + (upcoming["GapToPole"].values / max_gap) * 19
+            if max_gap > 0 else upcoming["GridPosition"].values.astype(float)
+        )
+
+        max_team_gap = upcoming["GapToTeammate"].max()
+        teammate_penalty = (
+            (upcoming["GapToTeammate"].values / max_team_gap) * 3
+            if max_team_gap > 0 else np.zeros(len(upcoming))
+        )
+
+        blended = (
+            w["model"] * base_predictions
+            + w["practice"] * practice_pace
+            + w["teammate"] * teammate_penalty
+            + w["circuit"] * circuit_signal
+        )
+    else:
+        total = w["model"] + w["circuit"]
+        blended = (w["model"] * base_predictions + w["circuit"] * circuit_signal) / total
+
     blended = shrink_to_grid(blended, upcoming["GridPosition"])
 
     # Clip to the real field size (22 in 2026), not 20 — see pipeline.py
@@ -156,13 +199,17 @@ def _prices_for_round(round_number: int, fallback: dict, cache: dict) -> dict:
     return p
 
 
-def run_backtest(fallback_prices: dict | None = None) -> dict:
+def run_backtest(fallback_prices: dict | None = None, use_practice: bool = True) -> dict:
     """
     Replays every completed 2026 race and reports what the model would have scored.
 
-    Each race is compared against a grid-order baseline — the same optimiser fed
-    qualifying position instead of model predictions. That isolates whether the
-    model adds anything over simply picking the front of the grid.
+    use_practice=True is the honest test: grid is estimated from FP3 pace exactly
+    as production does, and the baseline is "pick by FP3 order" — a strategy you
+    could actually have played, since the fantasy deadline falls before qualifying.
+
+    use_practice=False hands the model the real qualifying grid and benchmarks it
+    against grid order. Both sides get information unavailable at the deadline, so
+    treat it as an upper bound rather than a verdict.
     """
     df_2025 = load_dataset("data/processed/race_results_2025.csv")
     df_2026 = load_dataset("data/processed/race_results_2026.csv")
@@ -189,8 +236,25 @@ def run_backtest(fallback_prices: dict | None = None) -> dict:
         if not prices.get("drivers"):
             continue
 
+        practice_df = None
+        session_used = None
+        if use_practice:
+            for sess in (["FP1"] if is_sprint_weekend(race_name) else ["FP3", "FP2", "FP1"]):
+                try:
+                    practice_df = get_practice_grid(2026, race_name, sess)
+                    session_used = sess
+                    break
+                except Exception:
+                    continue
+            if practice_df is None:
+                races.append({
+                    "race_name": race_name, "round": int(rnd),
+                    "error": "no practice data available",
+                })
+                continue
+
         try:
-            predicted = _predict_race(history_raw, target_raw, race_name)
+            predicted = _predict_race(history_raw, target_raw, race_name, practice_df)
         except Exception as e:
             races.append({"race_name": race_name, "round": int(rnd), "error": str(e)})
             continue
@@ -200,7 +264,8 @@ def run_backtest(fallback_prices: dict | None = None) -> dict:
 
         model_teams = build_budget_teams(predicted, race_name, prices, budget=100.0)
 
-        # Baseline: same optimiser, but "prediction" = qualifying position
+        # Baseline: same optimiser, same information, no model. In practice mode
+        # that means "pick by FP3 order" — genuinely playable before the deadline.
         grid_table = predicted.copy()
         grid_table["Predicted"] = grid_table["GridPosition"].astype(float)
         baseline_teams = build_budget_teams(grid_table, race_name, prices, budget=100.0)
@@ -215,6 +280,7 @@ def run_backtest(fallback_prices: dict | None = None) -> dict:
         races.append({
             "race_name": race_name,
             "round": int(rnd),
+            "session_used": session_used,
             "model_score": model_scores[0] if model_scores else 0.0,
             "all_team_scores": model_scores,
             "best_of_three": max(model_scores) if model_scores else 0.0,
@@ -248,5 +314,6 @@ def run_backtest(fallback_prices: dict | None = None) -> dict:
         "total_baseline_score": round(sum(r["baseline_score"] for r in scored), 1),
     }
     summary["avg_delta"] = round(summary["avg_model_score"] - summary["avg_baseline_score"], 1)
+    summary["mode"] = "practice" if use_practice else "actual-grid"
 
     return {"summary": summary, "races": races}
