@@ -55,6 +55,31 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series, sample_weight=None) -
 def predict(model: XGBRegressor, X_test: pd.DataFrame) -> np.ndarray:
     return model.predict(X_test)
 
+
+# How far a predicted position is allowed to stray from the grid slot.
+# 1.0 = trust the prediction fully, 0.0 = just return the grid.
+#
+# Backtesting over 8 races (2026 R3-R9) found this monotonic against a
+# grid-order baseline: 1.0 scored -35.9 pts/race, 0.6 scored -22.9,
+# 0.4 scored -12.6, and 0.0 matched the baseline exactly. In other words the
+# model's deviations from the grid were net harmful on that sample. 0.4 is a
+# deliberately conservative compromise, not a tuned optimum — see docs/MODEL.md.
+SHRINK_TO_GRID = 0.4
+
+
+def shrink_to_grid(predicted, grid, k: float = SHRINK_TO_GRID):
+    """
+    Pulls predicted finishing positions back toward the starting grid.
+
+    The model routinely forecast large climbs (e.g. P14 -> P5.6) that didn't
+    happen, which biased team selection toward midfield runners. Grid position
+    is a strong predictor in F1, so shrinking toward it is a regression-to-mean
+    correction on the model's most speculative calls.
+    """
+    grid = np.asarray(grid, dtype=float)
+    predicted = np.asarray(predicted, dtype=float)
+    return grid + k * (predicted - grid)
+
 def evaluate_model(y_test: pd.Series, predictions: np.ndarray) -> float:
     mean_error = mean_absolute_error(y_test, predictions)
     print(f"Mean Absolute Error: {mean_error:.2f}")

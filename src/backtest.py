@@ -11,7 +11,7 @@ import pandas as pd
 
 from src.data_loader import load_dataset
 from src.features import build_features
-from src.models import prepare_data, train_model, predict
+from src.models import prepare_data, train_model, predict, shrink_to_grid
 from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS
 from src.circuit_profiles import get_blend_weights
 from src.fetch_prices import fetch_prices
@@ -80,9 +80,13 @@ def _predict_race(history_raw: pd.DataFrame, target_raw: pd.DataFrame, race_name
     w = get_blend_weights(race_name)
     total = w["model"] + w["circuit"]
     blended = (w["model"] * base_predictions + w["circuit"] * circuit_signal) / total
+    blended = shrink_to_grid(blended, upcoming["GridPosition"])
+
+    # Clip to the real field size (22 in 2026), not 20 — see pipeline.py
+    field_size = max(len(upcoming), int(upcoming["GridPosition"].max()))
 
     upcoming["Position"] = actual_position
-    upcoming["Predicted"] = np.clip(blended, 1, 20).round(2)
+    upcoming["Predicted"] = np.clip(blended, 1, field_size).round(2)
     return upcoming
 
 

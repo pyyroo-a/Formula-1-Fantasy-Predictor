@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from src.data_loader import load_dataset
 from src.features import build_features
-from src.models import prepare_data, train_model, predict, build_fantasy_table
+from src.models import prepare_data, train_model, predict, build_fantasy_table, shrink_to_grid
 from src.championship_form import compute_championship_form, apply_championship_signal
 from src.circuit_profiles import get_blend_weights
 
@@ -148,7 +148,15 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
         + w["teammate"] * teammate_penalty
         + w["circuit"]  * circuit_signal
     )
-    blended = np.clip(blended, 1, 20)
+    # Regression to mean: the model over-predicts large climbs, so pull the
+    # blended result back toward the grid slot before scoring.
+    blended = shrink_to_grid(blended, upcoming["GridPosition"])
+
+    # Clip to the actual field size, not a hardcoded 20 — 2026 runs 22 cars.
+    # Clipping to 20 would cap a P22 starter's predicted finish at P20 and
+    # hand them a phantom +2 overtake bonus for going nowhere.
+    field_size = max(len(upcoming), int(upcoming["GridPosition"].max()))
+    blended = np.clip(blended, 1, field_size)
 
     fantasy_table["Predicted"] = blended.round(2)
 
