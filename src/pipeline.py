@@ -5,6 +5,7 @@ from src.data_loader import load_dataset
 from src.features import build_features
 from src.models import prepare_data, train_model, predict, build_fantasy_table
 from src.championship_form import compute_championship_form, apply_championship_signal
+from src.circuit_profiles import get_blend_weights
 
 
 def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
@@ -137,12 +138,15 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     circuit_avg = upcoming["Abbreviation"].map(circuit_history)
     circuit_signal = circuit_avg.fillna(pd.Series(base_predictions, index=upcoming.index)).values
 
-    # Blend: 60% form model + 20% practice pace + 10% teammate gap + 10% circuit history
+    # Blend weights tuned to circuit type:
+    # Monaco → circuit history dominates (grid = result)
+    # Brazil/Spa → model + pace drive the pick (lots of overtaking)
+    w = get_blend_weights(race_name)
     blended = (
-        0.60 * base_predictions
-        + 0.20 * practice_pace
-        + 0.10 * teammate_penalty
-        + 0.10 * circuit_signal
+        w["model"]    * base_predictions
+        + w["practice"] * practice_pace
+        + w["teammate"] * teammate_penalty
+        + w["circuit"]  * circuit_signal
     )
     blended = np.clip(blended, 1, 20)
 

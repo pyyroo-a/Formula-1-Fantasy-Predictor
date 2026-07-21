@@ -1,6 +1,11 @@
 import pandas as pd
 from itertools import combinations
 import numpy as np
+from src.circuit_profiles import get_circuit_profile, overtaking_scale, quali_scale
+
+# Real F1 Fantasy points scales
+RACE_POINTS = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1}
+QUALI_POINTS = {1: 10, 2: 9, 3: 8, 4: 7, 5: 6, 6: 5, 7: 4, 8: 3, 9: 2, 10: 1}
 
 def calculate_gainer_score(
     midfield: pd.DataFrame,
@@ -70,44 +75,58 @@ def get_position_gain_picks(midfield: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([stable_midfield, risky_pick])
 
 def qualifying_score(grid_pos: float) -> float:
-    """
-    Points contribution from qualifying performance.
-    Q3 (P1-10) = bonus, Q2 (P11-15) = small bonus, Q1 (P16+) = penalty.
-    Scaled to be balanced with the race scoring components.
-    """
-    if grid_pos <= 10:
-        return 1.5   # Made Q3
-    elif grid_pos <= 15:
-        return 0.5   # Made Q2
+    pos = int(round(grid_pos))
+    if pos <= 10:
+        return QUALI_POINTS.get(pos, 1)   # Q3: +10 down to +1
+    elif pos <= 15:
+        return 0                           # Q2 but not Q3: no points
     else:
-        return -0.5  # Knocked out in Q1
+        return -5                          # Q1 knockout: -5
 
 
-def calculate_fantasy_score(df: pd.DataFrame) -> pd.DataFrame:
+def calculate_fantasy_score(df: pd.DataFrame, race_name: str | None = None) -> pd.DataFrame:
     df = df.copy()
 
-    df["QualifyingScore"] = df["GridPosition"].apply(qualifying_score)
+    # Circuit profile — scales overtaking value and qualifying importance
+    profile = get_circuit_profile(race_name) if race_name else {"overtaking": 5, "attrition": 0.10}
+    ot_scale = overtaking_scale(profile["overtaking"])   # e.g. Brazil=1.8x, Monaco=0.2x
+    q_scale  = quali_scale(profile["overtaking"])        # e.g. Monaco=1.9x, Brazil=1.1x
 
-    # Grid penalty boost: driver starting 10+ places below their recent average
-    # is likely serving a grid penalty in a fast car — high upside pick
-    if "Rolling3Average" in df.columns:
-        df["GridPenaltyBoost"] = np.where(
-            (df["GridPosition"] - df["Rolling3Average"]) > 10, 1.0, 0.0
-        )
+    # Use predicted position for upcoming races, actual finish for historical
+    pos_col = "Predicted" if "Predicted" in df.columns else "Position"
+    pos = df[pos_col].round().clip(1, 20).astype(int)
+
+    # Championship points for finishing position (P1=25 ... P10=1, P11+=0)
+    df["RacePoints"] = pos.map(RACE_POINTS).fillna(0)
+
+    # Net overtake/loss scaled by circuit overtaking rating
+    # Brazil/Spa: more expected gains → higher weight on position changers
+    # Monaco: almost zero passes → devalue this component
+    raw_overtake = (df["GridPosition"] - df[pos_col]).round().astype(int)
+    df["OvertakeBonus"] = (raw_overtake * ot_scale).round(1)
+
+    # Qualifying score scaled by how much qualifying matters at this circuit
+    # Monaco: 1.9x because grid position = finishing position
+    # Brazil: 1.1x because you can always overtake
+    df["QualifyingScore"] = df["GridPosition"].apply(qualifying_score) * q_scale
+
+    # DNF: -20. For upcoming races DNF col is pre-set to 0 so this is safe.
+    if "Status" in df.columns:
+        dnf_mask = ~df["Status"].isin(["Finished", "Lapped"])
+        df["DNFPenalty"] = np.where(dnf_mask, -20, 0)
     else:
-        df["GridPenaltyBoost"] = 0.0
+        df["DNFPenalty"] = df.get("DNF", pd.Series(0, index=df.index)) * -20
 
-    avg_pos_change = df["AveragePositionChange"] if "AveragePositionChange" in df.columns else 0
-
+    # FL (+10) and DOTD (+10) excluded — cannot predict reliably pre-race
     df["FantasyValue"] = (
-        0.5 * df["PositionChange"] +
-        0.3 * avg_pos_change +
-        0.4 * df["Top10Finish"] +
-        0.3 * df["Top5Finish"] -
-        0.2 * df["DNF"] +
+        df["RacePoints"] +
+        df["OvertakeBonus"] +
         df["QualifyingScore"] +
-        df["GridPenaltyBoost"]
+        df["DNFPenalty"]
     )
+
+    # Keep PositionChange as alias for backward compat
+    df["PositionChange"] = raw_overtake
 
     return df
 
@@ -147,7 +166,7 @@ def build_fantasy_team(
         fantasy_table["RaceName"] == race_name
     ].copy()
 
-    race_predictions = calculate_fantasy_score(race_predictions)
+    race_predictions = calculate_fantasy_score(race_predictions, race_name=race_name)
 
     race_predictions["GridGap"] = (
         race_predictions["GridPosition"] - race_predictions["Predicted"]
@@ -260,7 +279,7 @@ def build_budget_team(
     min_safe: int = 1,
 ) -> dict:
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df)
+    race_df = calculate_fantasy_score(race_df, race_name=race_name)
 
     race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
     race_df = race_df.reset_index(drop=True)
@@ -295,20 +314,30 @@ def build_budget_team(
     # Constructor score = sum of both drivers' FantasyValue — you get points from both cars
     constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
 
-    # Top-team bonus: constructors whose drivers average a top-4 finish get a boost
-    # so Mercedes/Ferrari always beat out midfield constructors on score
     team_avg_pos = (
         race_df.groupby("TeamName")["TeamAvgPosition"].mean().to_dict()
         if "TeamAvgPosition" in race_df.columns else {}
     )
 
+    # Q2/Q3 bonus: +1 if both cars reach Q2, +3 if both reach Q3
+    driver_grids_by_team = race_df.groupby("TeamName")["GridPosition"].apply(list).to_dict()
+
     def _constructor_bonus(team):
         avg = team_avg_pos.get(team, 10.0)
-        if avg <= 4:
-            return 1.5
-        if avg <= 7:
-            return 0.5
-        return 0.0
+        top_team = 1.5 if avg <= 4 else (0.5 if avg <= 7 else 0.0)
+
+        grids = driver_grids_by_team.get(team, [])
+        if len(grids) >= 2:
+            if all(g <= 10 for g in grids):
+                q_bonus = 3  # both in Q3
+            elif all(g <= 15 for g in grids):
+                q_bonus = 1  # both in Q2
+            else:
+                q_bonus = 0
+        else:
+            q_bonus = 0
+
+        return top_team + q_bonus
 
     constructors = [
         {
@@ -395,7 +424,7 @@ def build_budget_teams(
     a pool of top candidates, then greedily picks diverse teams from that pool.
     """
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df)
+    race_df = calculate_fantasy_score(race_df, race_name=race_name)
     race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
     race_df = race_df.reset_index(drop=True)
 
@@ -427,11 +456,22 @@ def build_budget_teams(
         if "TeamAvgPosition" in race_df.columns else {}
     )
 
+    driver_grids_by_team = race_df.groupby("TeamName")["GridPosition"].apply(list).to_dict()
+
     def _constructor_bonus(team):
         avg = team_avg_pos.get(team, 10.0)
-        if avg <= 4: return 1.5
-        if avg <= 7: return 0.5
-        return 0.0
+        top_team = 1.5 if avg <= 4 else (0.5 if avg <= 7 else 0.0)
+        grids = driver_grids_by_team.get(team, [])
+        if len(grids) >= 2:
+            if all(g <= 10 for g in grids):
+                q_bonus = 3
+            elif all(g <= 15 for g in grids):
+                q_bonus = 1
+            else:
+                q_bonus = 0
+        else:
+            q_bonus = 0
+        return top_team + q_bonus
 
     constructors = [
         {
@@ -525,7 +565,7 @@ def get_race_pool(
 ) -> dict:
     """Returns all drivers + constructors for a race with prices and categories — used by the manual team builder."""
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df)
+    race_df = calculate_fantasy_score(race_df, race_name=race_name)
     race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
     race_df = race_df.reset_index(drop=True)
 
