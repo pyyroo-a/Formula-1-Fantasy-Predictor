@@ -12,7 +12,7 @@ F1 Fantasy is deceptively hard. The sport is chaotic — a consistent midfield d
 |-----|-------------|
 | **Race Results** | Actual finishing order for any completed 2026 race with position changes (P5 → P2, +3) |
 | **Qualifying** | Full qualifying session results with Q1 / Q2 / Q3 times |
-| **Budget Team** | ML-optimised 5 drivers + 2 constructors within a $100M budget, based on race predictions |
+| **Budget Team** | Three ML-optimised lineups (5 drivers + 2 constructors) within a $100M budget, with a team switcher — F1 Fantasy allows up to 3 entries |
 | **Manual Team** | Build your own team for an upcoming race using live practice session data, scored against the optimal |
 | **Chip Advisor** | Enter your current F1 Fantasy squad and get a PLAY / CONSIDER / HOLD recommendation for each chip |
 
@@ -22,11 +22,26 @@ The **Prices Sidebar** is always visible on the right — it shows current F1 Fa
 
 ## How Predictions Work
 
-1. Historical race results (2024 + 2025 + completed 2026 rounds) are used to train an XGBoost model
+1. Historical race results (2025 + completed 2026 rounds, 2026 weighted 5×) train an XGBoost model
 2. For upcoming races, live practice session data is fetched from FastF1 to estimate grid positions
-3. Each driver's recent rolling form (last 3 races) is merged with their practice pace
-4. The model predicts finishing positions, which are converted into a FantasyValue score
-5. Budget optimisation then searches all valid 5-driver + 2-constructor combinations to find the highest-scoring team under $100M
+3. Each driver's recent rolling form is merged with their practice pace
+4. The raw prediction is blended with FP3 pace, teammate gap, and circuit history — **the blend weights change per circuit** (see below)
+5. Predicted finishing positions are converted into **real F1 Fantasy points** (FantasyValue)
+6. Budget optimisation searches all valid 5-driver + 2-constructor combinations and returns the 3 best mutually-distinct teams under $100M
+
+Full detail on the scoring system and circuit profiles: **[`docs/MODEL.md`](docs/MODEL.md)**
+
+### Circuit-Aware Predictions
+
+Every circuit is rated 1–10 for overtaking difficulty, which changes both the blend and the scoring:
+
+| Circuit type | Example | Blend shifts toward | Scoring effect |
+|---|---|---|---|
+| Low overtaking | Monaco (1), Hungary (3) | Circuit history / grid | Qualifying points weighted up to **1.9×**, overtake bonus down to **0.2×** |
+| Neutral | Australia (5), Abu Dhabi (5) | Balanced | 1.0× / 1.0× |
+| High overtaking | Spa (8), Monza & Brazil (9) | Model + FP3 pace | Overtake bonus up to **1.8×** |
+
+This means at Monaco the optimiser naturally prefers front-row qualifiers, and at Spa or Brazil it favours value picks starting further back who can climb.
 
 Practice session availability is shown directly in the Manual Team tab — green dot means data is ready, otherwise the expected session time is displayed so you know exactly when to come back. The session picker auto-fallbacks FP3 → FP2 → FP1 and always shows which session the predictions are based on.
 
@@ -59,13 +74,36 @@ Each chip gets a **PLAY / CONSIDER / HOLD / SAVE** verdict with an expected xP g
 | FormTrend | Rolling average vs previous race — captures momentum |
 | Top10Finish | Binary: points finish |
 | Top5Finish | Binary: strong finish |
-| FantasyValue | Weighted score: position gain + top finish bonuses |
+| WinRate | Wins over the last 5 races — captures in-season dominance |
+| PodiumRate | Podiums over the last 5 races |
+| TeamAvgPosition | Team's average finish over its last 3 races |
+| FantasyValue | **Real F1 Fantasy points** for the predicted result (see below) |
+
+## Scoring
+
+`FantasyValue` is the actual F1 Fantasy points a driver is expected to score, not an invented heuristic:
+
+```
+FantasyValue = RacePoints + OvertakeBonus + QualifyingScore + DNFPenalty
+```
+
+| Component | Value |
+|---|---|
+| Race position | P1 = 25, P2 = 18, P3 = 15, P4 = 12, P5 = 10, P6 = 8, P7 = 6, P8 = 4, P9 = 2, P10 = 1 |
+| Qualifying | P1 = +10 down to P10 = +1 · Q2-only = 0 · Q1 knockout = **−5** |
+| Overtakes | +1 per position gained, −1 per position lost (scaled by circuit) |
+| DNF | **−20** |
+
+Constructors score the sum of both their drivers, plus **+3 if both cars reach Q3** (or +1 for Q2), plus a top-team bonus so Mercedes/Ferrari are correctly favoured.
+
+Fastest Lap (+10) and Driver of the Day (+10) are deliberately excluded — they can't be predicted reliably before a race.
 
 ## Model
 
 - **Algorithm**: XGBoost Regressor (`n_estimators=200, learning_rate=0.05, max_depth=4`)
-- **Training data**: 2024 + 2025 seasons, updated with completed 2026 rounds automatically on startup
+- **Training data**: 2025 season + completed 2026 rounds, with **2026 weighted 5×** so current car pace dominates. Updated automatically on startup.
 - **Target**: Finishing position
+- **Blend**: model / FP3 pace / teammate gap / circuit history — weights vary per circuit
 - **Pick categories**: Safe (top 3 predicted) / Value / Risk / Avoid — based on FantasyValue quartiles
 
 ## Tech Stack
@@ -106,19 +144,28 @@ pitwall/
 ├── src/
 │   ├── data_loader.py
 │   ├── features.py
-│   ├── fantasy.py
+│   ├── fantasy.py                 # Real F1 Fantasy scoring + budget team solver
+│   ├── circuit_profiles.py        # Per-circuit overtaking ratings + blend weights
+│   ├── championship_form.py
 │   ├── models.py
 │   ├── pipeline.py
 │   ├── fetch_practice.py
 │   ├── fetch_prices.py            # Fetches current + previous round prices, diffs them
 │   └── fetch_results.py
+├── scripts/
+│   └── update_data.py             # Called by the GitHub Actions cron
+├── .github/workflows/
+│   └── update-race-data.yml       # Auto-fetches new race results every Monday
+├── docs/
+│   └── MODEL.md                   # Scoring system + circuit profiles in detail
 ├── data/
 │   ├── cache/                     # FastF1 HTTP cache
+│   ├── locked_team.json           # Weekend team lock (survives restarts)
 │   └── processed/
-│       ├── race_results_2024.csv
 │       ├── race_results_2025.csv
 │       └── race_results_2026.csv
 ├── main.py
+├── ROADMAP.md
 ├── requirements.txt
 └── .env.example
 ```
@@ -136,7 +183,8 @@ pitwall/
 | POST | `/qualifying-results` | Q1/Q2/Q3 times for a race |
 | POST | `/race-sessions` | FP1/FP2/FP3 schedule + availability for a race |
 | POST | `/predict` | ML prediction for an upcoming race |
-| POST | `/predict-budget` | Optimal team within $100M budget |
+| POST | `/predict-budget` | Three optimal teams within $100M budget — returns `{ "teams": [...] }` |
+| POST | `/unlock-team` | Clears the weekend team lock so it regenerates |
 | POST | `/upcoming-race-pool` | Driver + constructor pool for manual team builder |
 | POST | `/chip-advisor` | Chip recommendations for a given squad |
 
@@ -178,9 +226,15 @@ In production, set `CORS_ORIGINS` to your deployed frontend URL.
 - **Backend** → Railway (start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`)
 - Set `CORS_ORIGINS` on Railway to the Vercel deployment URL
 
+## Automation
+
+A GitHub Actions cron (`.github/workflows/update-race-data.yml`) runs every Monday at 06:00 UTC, fetches any newly completed races via FastF1, and commits the updated CSV. Railway auto-deploys on push, so the model retrains on fresh data without any manual step.
+
 ## Planned
 
-- APScheduler background job to auto-fetch practice data as sessions finish
+See **[`ROADMAP.md`](ROADMAP.md)** for the full list. Next up:
+
 - Sports betting odds integration — market-implied finishing order as an extra signal
-- Reddit r/FantasyF1 community sentiment layer
-- Weather integration per circuit
+- Session health signal — detect car issues from FP3 lap counts vs teammate
+- Weather as an ML feature
+- APScheduler background job to auto-fetch practice data as sessions finish

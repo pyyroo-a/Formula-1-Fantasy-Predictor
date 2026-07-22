@@ -4,20 +4,7 @@ All planned improvements discussed but not yet built. Update this file as things
 
 ---
 
-## 1. Three-Team Generator
-**What:** F1 Fantasy allows up to 3 separate teams. Instead of recommending one optimal team, generate 3 distinct high-scoring lineups so the user can enter all three and maximise coverage across different race outcomes.
-
-**How it works:**
-- Run `build_budget_team()` once to get the best team
-- Force diversity on the second and third teams — e.g. exclude the top 2 drivers from team 1 when solving team 2, exclude top 2 from team 2 when solving team 3
-- Each team still respects the $100M budget and min 1 safe pick constraint
-- Show all 3 side by side in the Budget Team tab with a team switcher
-
-**Why it helps:** One team might be aggressive (value/midfield picks), another safe (top 3 + two constructors), another balanced. If one team has a bad race the others cover it.
-
----
-
-## 2. Betting Odds as Prediction Signal
+## 1. Betting Odds as Prediction Signal
 **What:** Blend bookmaker race odds into the model's prediction before the FP3 deadline.
 
 **How it works:**
@@ -32,7 +19,7 @@ All planned improvements discussed but not yet built. Update this file as things
 
 ---
 
-## 3. Session Health Signal (Practice Car Issues)
+## 2. Session Health Signal (Practice Car Issues)
 
 ### Stage 1 — FastF1 Data (build first, high value, low complexity)
 **What:** Detect car problems automatically from FastF1 session data and apply a confidence penalty to affected drivers.
@@ -63,7 +50,7 @@ All planned improvements discussed but not yet built. Update this file as things
 
 ---
 
-## 4. Weather as ML Feature
+## 3. Weather as ML Feature
 **What:** The weather widget shows the forecast but weather data is not currently fed into the prediction model.
 
 **Why it helps:** Wet races completely scramble grid position predictions — position changes are larger, DNFs spike, midfield drivers outperform front-runners. The model currently has no way to adjust for this.
@@ -76,7 +63,7 @@ All planned improvements discussed but not yet built. Update this file as things
 
 ---
 
-## 5. APScheduler Auto-Fetch
+## 4. APScheduler Auto-Fetch
 **What:** Practice data currently requires a manual trigger (user clicks "Load Driver Pool"). A background scheduler should poll FastF1 automatically after each session ends so the prediction is ready without any manual action.
 
 **How it works:**
@@ -89,7 +76,7 @@ All planned improvements discussed but not yet built. Update this file as things
 
 ---
 
-## 6. Reddit r/FantasyF1 Sentiment
+## 5. Reddit r/FantasyF1 Sentiment
 **What:** Scrape community driver picks and sentiment from r/FantasyF1 before each race as an extra signal.
 
 **Why it helps:** The community often has insider knowledge on upgrades, tyre strategy, and circuit-specific pace that the model doesn't capture. The Reddit-recommended team last race (Antonelli, Hadjar, Lindblad, Lawson, Hulkenberg) outperformed our model's picks.
@@ -102,13 +89,22 @@ All planned improvements discussed but not yet built. Update this file as things
 
 ---
 
+## 6. Circuit Profiles — Remaining Work
+The core circuit-profile system is built (see `docs/MODEL.md`). Still outstanding:
+
+- **Attrition is stored but unused.** Each circuit has an `attrition` rate (Baku 0.20, Japan 0.08) that doesn't yet feed scoring. Should apply as expected DNF value: `FantasyValue -= attrition * 20`, making Baku/Singapore picks appropriately riskier.
+- **Sprint weekend scoring.** Sprint quali and the sprint race have their own points scales that aren't modelled.
+- **Validate ratings after the season.** Once 2026 is complete, re-run `compute_historical_overtaking()` against the full season and adjust the hardcoded anchors where the data disagrees.
+
+---
+
 ## Priority Order (suggested)
 
 | # | Feature | Impact | Complexity |
 |---|---------|--------|------------|
-| 1 | Three-team generator | High | Low |
-| 2 | Betting odds signal | High | Medium |
-| 3 | Session health (Stage 1 - FastF1) | High | Low |
+| 1 | Betting odds signal | High | Medium |
+| 2 | Session health (Stage 1 - FastF1) | High | Low |
+| 3 | Circuit attrition → DNF expected value | Medium | Low |
 | 4 | Weather as ML feature | Medium | Medium |
 | 5 | APScheduler auto-fetch | Medium | Medium |
 | 6 | Session health (Stage 2 - scraping) | Medium | High |
@@ -117,9 +113,12 @@ All planned improvements discussed but not yet built. Update this file as things
 ---
 
 ## Already Completed
-- [x] Constructor scoring fixed (mean → sum, both cars)
-- [x] Qualifying score added to FantasyValue (Q3 +1.5, Q2 +0.5, Q1 -0.5)
-- [x] 2024 data dropped, 2026 weighted 3x over 2025
+- [x] **Real F1 Fantasy scoring system** — replaced the invented FantasyValue heuristic with actual game points (race 25/18/15…, quali +10→+1 / −5, overtakes ±1, DNF −20, constructor Q2 +1 / Q3 +3). The old formula scored a DNF at −0.2 instead of −20, which is largely why the −93 race happened.
+- [x] **Circuit profiles** — all 24 circuits rated 1–10 for overtaking. Drives both the prediction blend weights and the scoring multipliers (`overtaking_scale`, `quali_scale`). Monaco now favours qualifiers; Spa/Brazil favour climbers.
+- [x] **Three-team generator** — `build_budget_teams()` keeps a top-50 pool and greedily selects 3 lineups differing by ≥2 drivers. Frontend has a team switcher.
+- [x] WinRate / PodiumRate / TeamAvgPosition added as model features
+- [x] Constructor scoring fixed (mean → sum, both cars) + top-team bonus
+- [x] 2024 data dropped, 2026 weighted 5x over 2025
 - [x] 2x boost pick restricted to Q3 drivers only
 - [x] Team lock after FP3 (locked_team.json, survives restarts)
 - [x] GitHub Actions cron — auto-fetches race results every Monday
