@@ -30,7 +30,7 @@ def save_locked_team(data: dict) -> None:
 from src.pipeline import run_pipeline, predict_upcoming_race
 from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, build_budget_teams, get_race_pool
 from src.fetch_practice import get_practice_grid, is_sprint_weekend
-from src.fetch_prices import fetch_prices, save_prices, fetch_price_changes
+from src.fetch_prices import fetch_prices, save_prices, save_price_history, fetch_price_changes
 from src.fetch_results import update_season_results
 from src.backtest import run_backtest
 
@@ -53,18 +53,29 @@ async def lifespan(app: FastAPI):
     fantasy_table = run_pipeline()
     print(f"Pipeline loaded with {len(fantasy_table)} rows")
 
-    latest_round = int(fantasy_table["RoundNumber"].max())
-    try:
-        current_prices = fetch_prices(latest_round)
-        save_prices(latest_round)
-        print(f"Prices loaded for race {latest_round}")
-    except Exception as e:
-        print(f"Warning: could not fetch prices — {e}")
-        current_prices = {"drivers": {}, "constructors": {}}
+    # Load prices for the UPCOMING round (latest completed + 1) — that's what the
+    # fantasy game charges for this weekend's team. The old code loaded the latest
+    # *completed* round instead, which is why weekend budgets came out stale (and
+    # it overwrote prices.json back to the old round on every restart). Fall back
+    # to the completed round if the next round's feed isn't published yet.
+    latest_completed = int(fantasy_table["RoundNumber"].max())
+    price_round = None
+    for target in (latest_completed + 1, latest_completed):
+        try:
+            current_prices = fetch_prices(target)
+            save_prices(target)
+            save_price_history(target)
+            price_round = target
+            print(f"Prices loaded for round {target}")
+            break
+        except Exception as e:
+            print(f"Warning: could not fetch prices for round {target} — {e}")
+            current_prices = {"drivers": {}, "constructors": {}}
 
     try:
-        price_changes = fetch_price_changes(latest_round)
-        print(f"Price changes loaded (round {latest_round} vs {latest_round - 1})")
+        change_round = price_round or latest_completed
+        price_changes = fetch_price_changes(change_round)
+        print(f"Price changes loaded (round {change_round} vs {change_round - 1})")
     except Exception as e:
         print(f"Warning: could not fetch price changes — {e}")
         price_changes = {"drivers": {}, "constructors": {}}
