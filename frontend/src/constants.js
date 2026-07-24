@@ -48,13 +48,12 @@ export const TEAM_COLORS = {
 };
 
 export const CHIP_META = {
-  limitless:      { label: "Limitless",      color: "#E8002D", desc: "No budget cap: pick any 5 drivers + 2 constructors for one race." },
-  triple_captain: { label: "Triple Captain", color: "#FF8000", desc: "Your captain scores 3× instead of 2× this race." },
-  extra_drs:      { label: "Extra DRS",      color: "#27F4D2", desc: "A second driver scores 2× alongside your captain." },
-  wildcard:       { label: "Wildcard",       color: "#6692FF", desc: "Rebuild your entire squad for free: transfers reset after." },
-  no_negative:    { label: "No Negative",    color: "#52E252", desc: "Any negative score is floored at 0: ideal for high-attrition circuits." },
-  final_fix:      { label: "Final Fix",      color: "#FFD700", desc: "One free swap after qualifying locks in." },
-  autopilot:      { label: "Autopilot",      color: "#6b7280", desc: "F1's auto-pick: PitWall already does this better. Save it." },
+  limitless:  { label: "Limitless",  color: "#E8002D", desc: "No budget cap: pick any 5 drivers + 2 constructors for one race." },
+  wildcard:   { label: "Wildcard",   color: "#6692FF", desc: "Rebuild your entire squad for free: transfers reset after." },
+  x3_boost:   { label: "3× Boost",   color: "#FF8000", desc: "Your boost driver scores 3× instead of 2× this race." },
+  final_fix:  { label: "Final Fix",  color: "#FFD700", desc: "One free swap after qualifying locks in." },
+  no_negative:{ label: "No Negative",color: "#52E252", desc: "Any negative score is floored at 0: ideal for high-attrition circuits." },
+  autopilot:  { label: "Auto Pilot", color: "#6b7280", desc: "F1's auto-pick: PitWall already does this better. Save it." },
 };
 
 export const REC_STYLE = {
