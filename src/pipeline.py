@@ -148,6 +148,16 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
         + w["teammate"] * teammate_penalty
         + w["circuit"]  * circuit_signal
     )
+
+    field_size = max(len(upcoming), int(upcoming["GridPosition"].max()))
+
+    # The model's genuine forecast, BEFORE we shrink it toward the grid.
+    # When SHRINK_TO_GRID = 0 the shrink collapses `Predicted` onto the grid
+    # (the practice-order baseline), so this pre-shrink column is the only place
+    # the model's own opinion survives — used by the Predicted Finishes view to
+    # compare the model against the baseline. It does NOT feed fantasy scoring.
+    fantasy_table["ModelPredicted"] = np.clip(blended, 1, field_size).round(2)
+
     # Regression to mean: the model over-predicts large climbs, so pull the
     # blended result back toward the grid slot before scoring.
     blended = shrink_to_grid(blended, upcoming["GridPosition"])
@@ -155,7 +165,6 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     # Clip to the actual field size, not a hardcoded 20 — 2026 runs 22 cars.
     # Clipping to 20 would cap a P22 starter's predicted finish at P20 and
     # hand them a phantom +2 overtake bonus for going nowhere.
-    field_size = max(len(upcoming), int(upcoming["GridPosition"].max()))
     blended = np.clip(blended, 1, field_size)
 
     fantasy_table["Predicted"] = blended.round(2)
