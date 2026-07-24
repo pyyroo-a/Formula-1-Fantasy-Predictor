@@ -47,17 +47,16 @@ Practice session availability is shown directly in the Manual Team tab — green
 
 ## Chip Advisor
 
-PitWall analyses all 7 F1 Fantasy chips against your squad and the upcoming race predictions:
+PitWall analyses all 6 F1 Fantasy chips against your squad and the upcoming race predictions:
 
 | Chip | Logic |
 |------|-------|
 | **Limitless** | Removes budget cap — compares uncapped optimal team vs your squad |
-| **Triple Captain** | Scores if your best predicted driver is significantly ahead of the field |
-| **Extra DRS** | Scores if two drivers are strong enough to justify double 2× scoring |
 | **Wildcard** | Scores if a full squad rebuild would gain significantly over your current team |
-| **No Negative** | Recommends for high-attrition circuits (Monaco, Singapore, Baku, etc.) |
+| **3× Boost** | Scores if your best predicted driver is significantly ahead of the field (2× → 3×) |
 | **Final Fix** | Flags your weakest scorer as a swap candidate after qualifying |
-| **Autopilot** | Always SAVE — PitWall already does this better |
+| **No Negative** | Recommends for high-attrition circuits (Monaco, Singapore, Baku, etc.) |
+| **Auto Pilot** | Always SAVE — PitWall already does this better |
 
 Each chip gets a **PLAY / CONSIDER / HOLD / SAVE** verdict with an expected xP gain.
 
