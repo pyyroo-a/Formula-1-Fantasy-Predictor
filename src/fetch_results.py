@@ -2,6 +2,9 @@ import fastf1
 import pandas as pd
 import os
 
+# enable_cache() raises if the directory is missing. data/cache is gitignored,
+# so on a fresh checkout (e.g. GitHub Actions) it won't exist — create it first.
+os.makedirs("data/cache", exist_ok=True)
 fastf1.Cache.enable_cache("data/cache")
 
 
