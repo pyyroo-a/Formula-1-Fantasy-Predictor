@@ -16,18 +16,28 @@ import { DriverPricesCard, ConstructorPricesCard } from "./components/PricesSide
 // build — so the Backtest tab never ships to the deployed site.
 const IS_DEV = import.meta.env.DEV;
 
-const TABS = [
-  { id: "results",    label: "Race Results" },
-  { id: "qualifying", label: "Qualifying" },
-  { id: "budget",     label: "Budget Team" },
-  { id: "manual",     label: "Manual Team" },
-  { id: "chips",      label: "Chip Advisor" },
-  { id: "finishes",   label: "Predicted Finishes" },
-  ...(IS_DEV ? [{ id: "backtest", label: "Backtest" }] : []),
+const TAB_GROUPS = [
+  {
+    label: "My Team",
+    tabs: [
+      { id: "budget", label: "Budget Team" },
+      { id: "manual", label: "Manual Team" },
+      { id: "chips",  label: "Chip Advisor" },
+    ],
+  },
+  {
+    label: "Race Data",
+    tabs: [
+      { id: "results",    label: "Race Results" },
+      { id: "qualifying", label: "Qualifying" },
+      { id: "finishes",   label: "Predicted Finishes" },
+      ...(IS_DEV ? [{ id: "backtest", label: "Backtest" }] : []),
+    ],
+  },
 ];
 
 function App() {
-  const [mode, setMode] = useState("results");
+  const [mode, setMode] = useState("budget");
   const [races, setRaces] = useState([]);
   const [upcomingRaces, setUpcomingRaces] = useState([]);
   const [nextRace, setNextRace] = useState(null);
@@ -127,21 +137,26 @@ function App() {
         {/* ── Weekend lineup (only shown near race weekend) ── */}
         <WeekendTeamWidget />
 
-        {/* ── Tabs ── */}
-        <div className="overflow-x-auto mb-5">
-          <div className="flex rounded-lg overflow-hidden border border-gray-700 min-w-max sm:min-w-0">
-            {TABS.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setMode(tab.id)}
-                className={`flex-1 py-2.5 text-xs font-medium transition px-3 min-w-[90px] sm:min-w-0 whitespace-nowrap ${
-                  mode === tab.id ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        {/* ── Tabs — grouped by purpose ── */}
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mb-5">
+          {TAB_GROUPS.map(group => (
+            <div key={group.label}>
+              <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-2">{group.label}</p>
+              <div className="flex rounded-lg overflow-x-auto border border-gray-700 bg-gray-800/40 w-max max-w-full">
+                {group.tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setMode(tab.id)}
+                    className={`py-2.5 px-4 text-xs font-medium transition whitespace-nowrap ${
+                      mode === tab.id ? "bg-red-600 text-white" : "bg-transparent text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* ── Tab content ── */}
