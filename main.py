@@ -575,6 +575,8 @@ def get_weekend_team():
     # changes mid-weekend — qualifying/race results don't affect it.
     locked = load_locked_team()
     if locked and locked.get("race_name") == race_name:
+        # Support both the new multi-team lock and any older single-team lock.
+        locked_teams = locked.get("teams") or ([locked["team"]] if locked.get("team") else [])
         return {
             "active": True,
             "race_name": race_name,
@@ -583,7 +585,8 @@ def get_weekend_team():
             "race_date": race_date.isoformat(),
             "locked": True,
             "locked_at": locked["locked_at"],
-            "team": locked["team"],
+            "teams": locked_teams,
+            "team": locked_teams[0] if locked_teams else None,
         }
 
     # No lock yet for this race — try to fetch practice data and generate one.
@@ -610,17 +613,27 @@ def get_weekend_team():
 
     try:
         upcoming_table = predict_upcoming_race(practice_df)
-        result = build_budget_team(upcoming_table, race_name, current_prices, budget=100.0)
+        teams = build_budget_teams(upcoming_table, race_name, current_prices, budget=100.0)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
 
-    # Lock this team — it won't change again until a new race weekend starts.
+    if not teams:
+        return {
+            "active": True,
+            "race_name": race_name,
+            "days_until": round(days_until_race, 1),
+            "message": "Could not build a team within budget for this weekend.",
+            "teams": [],
+            "team": None,
+        }
+
+    # Lock these teams — they won't change again until a new race weekend starts.
     locked_at = pd.Timestamp.now(tz="UTC").isoformat()
     save_locked_team({
         "race_name": race_name,
         "session_used": session_used,
         "locked_at": locked_at,
-        "team": result,
+        "teams": teams,
     })
 
     return {
@@ -631,7 +644,8 @@ def get_weekend_team():
         "race_date": race_date.isoformat(),
         "locked": True,
         "locked_at": locked_at,
-        "team": result,
+        "teams": teams,
+        "team": teams[0],
     }
 
 

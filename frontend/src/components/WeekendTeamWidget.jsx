@@ -6,6 +6,7 @@ import DriverAvatar from "./DriverAvatar";
 export default function WeekendTeamWidget() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTeam, setActiveTeam] = useState(0);
 
   useEffect(() => {
     fetch(`${API}/weekend-team`)
@@ -14,9 +15,13 @@ export default function WeekendTeamWidget() {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading || !data || !data.active || !data.team) return null;
+  // Prefer the multi-team array; fall back to a single team for safety.
+  const teams = data?.teams?.length ? data.teams : (data?.team ? [data.team] : []);
 
-  const { race_name, session_used, team } = data;
+  if (loading || !data || !data.active || teams.length === 0) return null;
+
+  const { race_name, session_used } = data;
+  const team = teams[Math.min(activeTeam, teams.length - 1)];
 
   const captainAbbr = team.boost_pick?.Abbreviation ?? null;
 
@@ -38,6 +43,26 @@ export default function WeekendTeamWidget() {
           <p className="text-xs text-gray-600 mt-0.5">${team.total_cost}M used · <span className="text-green-400">${team.budget_remaining}M left</span></p>
         </div>
       </div>
+
+      {/* Team switcher — F1 Fantasy allows up to 3 entries */}
+      {teams.length > 1 && (
+        <div className="flex rounded-lg overflow-hidden border border-gray-700 mb-3">
+          {teams.map((t, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveTeam(i)}
+              className={`flex-1 py-2 text-xs font-medium transition ${
+                activeTeam === i ? "bg-red-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+              }`}
+            >
+              Team {i + 1}
+              <span className={`block text-[10px] mt-0.5 ${activeTeam === i ? "text-red-200" : "text-gray-600"}`}>
+                {t.total_score?.toFixed(1)} pts · ${t.total_cost}M
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Driver grid — 2 columns */}
       <div className="grid grid-cols-2 gap-2 mb-2">
