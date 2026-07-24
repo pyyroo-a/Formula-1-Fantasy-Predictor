@@ -398,11 +398,10 @@ def get_chip_advisor(request: ChipAdvisorRequest):
     limitless_gain = max(0.0, round(limitless_score - my_team_score, 1))
 
     sorted_drivers = sorted(pool["drivers"], key=lambda d: d["FantasyValue"], reverse=True)
-    triple_captain_target = sorted_drivers[0] if sorted_drivers else None
-    extra_drs_target = sorted_drivers[1] if len(sorted_drivers) > 1 else None
-
-    triple_captain_gain = round(triple_captain_target["FantasyValue"], 1) if triple_captain_target else 0.0
-    extra_drs_gain = round(extra_drs_target["FantasyValue"], 1) if extra_drs_target else 0.0
+    # 3× Boost upgrades your boost driver from 2× to 3× for one race, so the
+    # marginal gain is one extra copy of the best driver's fantasy value.
+    boost_target = sorted_drivers[0] if sorted_drivers else None
+    boost_gain = round(boost_target["FantasyValue"], 1) if boost_target else 0.0
 
     my_drivers_in_pool = [driver_map[a] for a in request.my_drivers if a in driver_map]
     riskiest = min(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
@@ -427,29 +426,24 @@ def get_chip_advisor(request: ChipAdvisorRequest):
                 "team": limitless,
                 "recommendation": grade(limitless_gain, (40, 20)),
             },
-            "triple_captain": {
-                "gain": triple_captain_gain,
-                "target": triple_captain_target["Abbreviation"] if triple_captain_target else None,
-                "recommendation": grade(triple_captain_gain, (30, 15)),
-            },
-            "extra_drs": {
-                "gain": extra_drs_gain,
-                "target": extra_drs_target["Abbreviation"] if extra_drs_target else None,
-                "recommendation": grade(extra_drs_gain, (25, 12)),
-            },
             "wildcard": {
                 "gain": wildcard_gain,
                 "optimal_team": optimal,
                 "recommendation": grade(wildcard_gain, (25, 12)),
             },
-            "no_negative": {
-                "dnf_risk_pct": dnf_risk_pct,
-                "is_high_attrition": is_high_attrition,
-                "recommendation": "HEDGE" if is_high_attrition else "HOLD",
+            "x3_boost": {
+                "gain": boost_gain,
+                "target": boost_target["Abbreviation"] if boost_target else None,
+                "recommendation": grade(boost_gain, (30, 15)),
             },
             "final_fix": {
                 "riskiest_driver": riskiest["Abbreviation"] if riskiest else None,
                 "recommendation": "POST-QUALI",
+            },
+            "no_negative": {
+                "dnf_risk_pct": dnf_risk_pct,
+                "is_high_attrition": is_high_attrition,
+                "recommendation": "HEDGE" if is_high_attrition else "HOLD",
             },
             "autopilot": {
                 "recommendation": "SAVE",
@@ -672,3 +666,97 @@ def unlock_team():
         os.remove(LOCKED_TEAM_PATH)
         return {"message": "Team unlocked — will regenerate on next request"}
     return {"message": "No locked team to clear"}
+
+
+@app.get("/weekend-finishes")
+def get_weekend_finishes():
+    """
+    Predicted finishing order for the active race weekend, once practice data
+    exists. For the F1 Predict game mode — separate from fantasy team building.
+
+    Returns two orderings side by side:
+      - model:    the model's own forecast (blend before shrink-to-grid)
+      - baseline: the practice-pace order (the backtest's winning strategy)
+
+    Only ever covers the upcoming weekend; completed races are not shown.
+    """
+    try:
+        fastf1.Cache.enable_cache("data/cache")
+        schedule = fastf1.get_event_schedule(2026, include_testing=False)
+        now = pd.Timestamp.now(tz="UTC")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Could not fetch schedule: {e}")
+
+    upcoming = None
+    for _, event in schedule.sort_values("RoundNumber").iterrows():
+        race_date = event["Session5Date"]
+        if pd.isna(race_date):
+            continue
+        if pd.Timestamp(race_date) > now:
+            upcoming = event
+            break
+
+    if upcoming is None:
+        return {"active": False, "message": "Season complete"}
+
+    race_name = upcoming["EventName"]
+    race_date = pd.Timestamp(upcoming["Session5Date"])
+    days_until = (race_date - now).total_seconds() / 86400
+
+    if days_until > 5:
+        return {
+            "active": False,
+            "race_name": race_name,
+            "days_until": round(days_until, 1),
+            "message": f"Next race in {round(days_until)} days",
+        }
+
+    sessions_to_try = ["FP3", "FP2", "FP1"] if not is_sprint_weekend(race_name) else ["FP1"]
+    practice_df = None
+    session_used = None
+    for sess in sessions_to_try:
+        try:
+            practice_df = get_practice_grid(2026, race_name, sess)
+            session_used = sess
+            break
+        except Exception:
+            continue
+
+    if practice_df is None:
+        return {
+            "active": True,
+            "race_name": race_name,
+            "days_until": round(days_until, 1),
+            "message": "No practice data yet — finishes appear once FP3 is complete",
+            "predictions": None,
+        }
+
+    try:
+        table = predict_upcoming_race(practice_df).copy()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+
+    # Model order = rank of the pre-shrink model forecast.
+    # Baseline order = practice-pace order, which is the GridPosition estimate.
+    table["ModelRank"] = table["ModelPredicted"].rank(method="first").astype(int)
+
+    predictions = []
+    for _, r in table.sort_values("ModelRank").iterrows():
+        baseline_pos = int(round(r["GridPosition"]))
+        model_pos = int(r["ModelRank"])
+        predictions.append({
+            "abbreviation": r["Abbreviation"],
+            "team": r["TeamName"],
+            "model_pos": model_pos,
+            "baseline_pos": baseline_pos,
+            # positive = model expects them to finish higher than practice order does
+            "delta": baseline_pos - model_pos,
+        })
+
+    return {
+        "active": True,
+        "race_name": race_name,
+        "session_used": session_used,
+        "days_until": round(days_until, 1),
+        "predictions": predictions,
+    }
