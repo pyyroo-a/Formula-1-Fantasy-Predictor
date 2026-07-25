@@ -600,7 +600,13 @@ def get_weekend_team():
             "team": locked_teams[0] if locked_teams else None,
         }
 
-    # No lock yet for this race — try to fetch practice data and generate one.
+    # No lock yet for this race — try to fetch practice data and generate a team.
+    # The team should be built on the LAST practice session (FP3, or FP1 on a
+    # sprint weekend), which is the most informative and the one just before the
+    # fantasy deadline. Earlier sessions (FP2/FP1) give a *provisional* team that
+    # is NOT locked, so it refreshes as soon as FP3 data lands. Locking on FP2
+    # was the bug that froze the team and stopped it rebuilding on FP3.
+    final_session = "FP1" if is_sprint_weekend(race_name) else "FP3"
     sessions_to_try = ["FP3", "FP2", "FP1"] if not is_sprint_weekend(race_name) else ["FP1"]
     practice_df = None
     session_used = None
@@ -618,7 +624,7 @@ def get_weekend_team():
             "active": True,
             "race_name": race_name,
             "days_until": round(days_until_race, 1),
-            "message": "No practice data available yet — team will lock once FP3 is complete",
+            "message": f"No practice data available yet — team will lock once {final_session} is complete",
             "team": None,
         }
 
@@ -638,14 +644,17 @@ def get_weekend_team():
             "team": None,
         }
 
-    # Lock these teams — they won't change again until a new race weekend starts.
+    # Only lock once we're on the final session; otherwise keep it provisional
+    # so a later FP3 rebuild can replace it.
+    is_final = session_used == final_session
     locked_at = pd.Timestamp.now(tz="UTC").isoformat()
-    save_locked_team({
-        "race_name": race_name,
-        "session_used": session_used,
-        "locked_at": locked_at,
-        "teams": teams,
-    })
+    if is_final:
+        save_locked_team({
+            "race_name": race_name,
+            "session_used": session_used,
+            "locked_at": locked_at,
+            "teams": teams,
+        })
 
     return {
         "active": True,
@@ -653,7 +662,8 @@ def get_weekend_team():
         "session_used": session_used,
         "days_until": round(days_until_race, 1),
         "race_date": race_date.isoformat(),
-        "locked": True,
+        "locked": is_final,
+        "provisional": not is_final,
         "locked_at": locked_at,
         "teams": teams,
         "team": teams[0],
