@@ -364,6 +364,81 @@ class ChipAdvisorRequest(BaseModel):
     my_constructors: list[str]
 
 
+def _grade(gain, thresholds):
+    play, consider = thresholds
+    if gain >= play:
+        return "PLAY"
+    if gain >= consider:
+        return "CONSIDER"
+    return "HOLD"
+
+
+def evaluate_team_chips(
+    my_drivers: list[str],
+    my_constructors: list[str],
+    pool: dict,
+    optimal_score: float,
+    limitless_score: float,
+    race_name: str,
+) -> dict:
+    """
+    Grades all 6 chips for a single team (a list of driver abbreviations +
+    constructor names). `optimal_score` / `limitless_score` are the best legal
+    team and the best uncapped team for this weekend — they don't depend on the
+    team being graded, so the caller computes them once and reuses them across
+    every generated team.
+    """
+    driver_map = {d["Abbreviation"]: d for d in pool["drivers"]}
+    constructor_map = {c["name"]: c for c in pool["constructors"]}
+
+    my_driver_score = sum(driver_map.get(a, {}).get("FantasyValue", 0) for a in my_drivers)
+    my_constructor_score = sum(constructor_map.get(n, {}).get("score", 0) for n in my_constructors)
+    my_team_score = my_driver_score + my_constructor_score
+
+    wildcard_gain = max(0.0, round(optimal_score - my_team_score, 1))
+    limitless_gain = max(0.0, round(limitless_score - my_team_score, 1))
+
+    # 3× Boost applies to a driver you already own, so the target is the best
+    # driver *in this team* — not the best in the whole field.
+    my_drivers_in_pool = [driver_map[a] for a in my_drivers if a in driver_map]
+    boost_target = max(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
+    boost_gain = round(boost_target["FantasyValue"], 1) if boost_target else 0.0
+
+    riskiest = min(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
+
+    is_high_attrition = race_name in HIGH_ATTRITION_CIRCUITS
+    dnf_risk_pct = 120 if is_high_attrition else 65
+
+    return {
+        "my_team_score": round(my_team_score, 2),
+        "limitless": {
+            "gain": limitless_gain,
+            "recommendation": _grade(limitless_gain, (40, 20)),
+        },
+        "wildcard": {
+            "gain": wildcard_gain,
+            "recommendation": _grade(wildcard_gain, (25, 12)),
+        },
+        "x3_boost": {
+            "gain": boost_gain,
+            "target": boost_target["Abbreviation"] if boost_target else None,
+            "recommendation": _grade(boost_gain, (30, 15)),
+        },
+        "final_fix": {
+            "riskiest_driver": riskiest["Abbreviation"] if riskiest else None,
+            "recommendation": "POST-QUALI",
+        },
+        "no_negative": {
+            "dnf_risk_pct": dnf_risk_pct,
+            "is_high_attrition": is_high_attrition,
+            "recommendation": "HEDGE" if is_high_attrition else "HOLD",
+        },
+        "autopilot": {
+            "recommendation": "SAVE",
+        },
+    }
+
+
 @app.post("/chip-advisor")
 def get_chip_advisor(request: ChipAdvisorRequest):
     if not current_prices or not current_prices.get("drivers"):
@@ -392,74 +467,29 @@ def get_chip_advisor(request: ChipAdvisorRequest):
     if not pool["drivers"]:
         raise HTTPException(status_code=400, detail="No priced drivers found for this race.")
 
-    driver_map = {d["Abbreviation"]: d for d in pool["drivers"]}
-    constructor_map = {c["name"]: c for c in pool["constructors"]}
-
-    my_driver_score = sum(driver_map.get(a, {}).get("FantasyValue", 0) for a in request.my_drivers)
-    my_constructor_score = sum(constructor_map.get(n, {}).get("score", 0) for n in request.my_constructors)
-    my_team_score = my_driver_score + my_constructor_score
-
     optimal = build_budget_team(upcoming_table, request.race_name, current_prices, budget=100.0)
-    optimal_score = optimal["total_score"] if optimal else my_team_score
-
     limitless = build_budget_team(upcoming_table, request.race_name, current_prices, budget=999.0)
+
+    my_team_score = (
+        sum({d["Abbreviation"]: d for d in pool["drivers"]}.get(a, {}).get("FantasyValue", 0) for a in request.my_drivers)
+        + sum({c["name"]: c for c in pool["constructors"]}.get(n, {}).get("score", 0) for n in request.my_constructors)
+    )
+    optimal_score = optimal["total_score"] if optimal else my_team_score
     limitless_score = limitless["total_score"] if limitless else optimal_score
 
-    wildcard_gain = max(0.0, round(optimal_score - my_team_score, 1))
-    limitless_gain = max(0.0, round(limitless_score - my_team_score, 1))
-
-    sorted_drivers = sorted(pool["drivers"], key=lambda d: d["FantasyValue"], reverse=True)
-    # 3× Boost upgrades your boost driver from 2× to 3× for one race, so the
-    # marginal gain is one extra copy of the best driver's fantasy value.
-    boost_target = sorted_drivers[0] if sorted_drivers else None
-    boost_gain = round(boost_target["FantasyValue"], 1) if boost_target else 0.0
-
-    my_drivers_in_pool = [driver_map[a] for a in request.my_drivers if a in driver_map]
-    riskiest = min(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
-
-    is_high_attrition = request.race_name in HIGH_ATTRITION_CIRCUITS
-    dnf_risk_pct = 120 if is_high_attrition else 65
-
-    def grade(gain, thresholds):
-        play, consider = thresholds
-        if gain >= play:
-            return "PLAY"
-        if gain >= consider:
-            return "CONSIDER"
-        return "HOLD"
+    chips = evaluate_team_chips(
+        request.my_drivers, request.my_constructors, pool,
+        optimal_score, limitless_score, request.race_name,
+    )
+    # The manual advisor also surfaces the full suggested teams for the two
+    # rebuild chips; the auto-advisor (per generated team) omits these to stay light.
+    chips["limitless"]["team"] = limitless
+    chips["wildcard"]["optimal_team"] = optimal
 
     return {
         "session_used": session_used,
-        "my_team_score": round(my_team_score, 2),
-        "chips": {
-            "limitless": {
-                "gain": limitless_gain,
-                "team": limitless,
-                "recommendation": grade(limitless_gain, (40, 20)),
-            },
-            "wildcard": {
-                "gain": wildcard_gain,
-                "optimal_team": optimal,
-                "recommendation": grade(wildcard_gain, (25, 12)),
-            },
-            "x3_boost": {
-                "gain": boost_gain,
-                "target": boost_target["Abbreviation"] if boost_target else None,
-                "recommendation": grade(boost_gain, (30, 15)),
-            },
-            "final_fix": {
-                "riskiest_driver": riskiest["Abbreviation"] if riskiest else None,
-                "recommendation": "POST-QUALI",
-            },
-            "no_negative": {
-                "dnf_risk_pct": dnf_risk_pct,
-                "is_high_attrition": is_high_attrition,
-                "recommendation": "HEDGE" if is_high_attrition else "HOLD",
-            },
-            "autopilot": {
-                "recommendation": "SAVE",
-            },
-        },
+        "my_team_score": chips["my_team_score"],
+        "chips": chips,
     }
 
 
@@ -631,6 +661,22 @@ def get_weekend_team():
     try:
         upcoming_table = predict_upcoming_race(practice_df)
         teams = build_budget_teams(upcoming_table, race_name, current_prices, budget=100.0)
+
+        # Auto-advise all 6 chips for each generated team. The optimal/limitless
+        # reference teams are the same for every team this weekend, so build them
+        # once and reuse them across all three.
+        if teams:
+            pool = get_race_pool(upcoming_table, race_name, current_prices)
+            optimal = build_budget_team(upcoming_table, race_name, current_prices, budget=100.0)
+            limitless = build_budget_team(upcoming_table, race_name, current_prices, budget=999.0)
+            optimal_score = optimal["total_score"] if optimal else 0.0
+            limitless_score = limitless["total_score"] if limitless else optimal_score
+            for team in teams:
+                team["chips"] = evaluate_team_chips(
+                    [d["Abbreviation"] for d in team["drivers"]],
+                    [c["name"] for c in team["constructors"]],
+                    pool, optimal_score, limitless_score, race_name,
+                )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
 
