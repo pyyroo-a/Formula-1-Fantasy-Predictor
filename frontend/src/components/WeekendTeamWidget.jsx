@@ -1,46 +1,14 @@
-import { useState, useEffect } from "react";
-import { API } from "../api";
-import { DRIVER_NAMES, BADGE_COLOR, teamAccent, CHIP_META, REC_STYLE } from "../constants";
+import { DRIVER_NAMES, BADGE_COLOR, teamAccent } from "../constants";
 import DriverAvatar from "./DriverAvatar";
 
-// Actionable recommendations sort to the front so the useful chips surface first.
-const REC_PRIORITY = { PLAY: 0, CONSIDER: 1, HEDGE: 1, "POST-QUALI": 2, HOLD: 3, SAVE: 3 };
-const CHIP_ORDER = ["x3_boost", "wildcard", "limitless", "final_fix", "no_negative", "autopilot"];
-
-function chipContext(key, chip) {
-  switch (key) {
-    case "x3_boost":
-      return chip.target ? `${chip.target}${chip.gain ? ` · +${chip.gain}` : ""}` : null;
-    case "wildcard":
-    case "limitless":
-      return chip.gain ? `+${chip.gain} pts` : "no gain";
-    case "final_fix":
-      return chip.riskiest_driver ? `swap ${chip.riskiest_driver}` : null;
-    case "no_negative":
-      return chip.is_high_attrition ? "high attrition" : "low risk";
-    case "autopilot":
-      return "PitWall picks better";
-    default:
-      return null;
-  }
-}
-
-export default function WeekendTeamWidget() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTeam, setActiveTeam] = useState(0);
-
-  useEffect(() => {
-    fetch(`${API}/weekend-team`)
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
-
+// Controlled component: the weekend data and the active-team selection are owned
+// by App and shared with AutoChipAdvisor (which renders the chip menu below),
+// so the whole main page reads from a single /weekend-team fetch.
+export default function WeekendTeamWidget({ data, activeTeam, setActiveTeam }) {
   // Prefer the multi-team array; fall back to a single team for safety.
   const teams = data?.teams?.length ? data.teams : (data?.team ? [data.team] : []);
 
-  if (loading || !data || !data.active || teams.length === 0) return null;
+  if (!data || !data.active || teams.length === 0) return null;
 
   const { race_name, session_used } = data;
   const team = teams[Math.min(activeTeam, teams.length - 1)];
@@ -136,41 +104,6 @@ export default function WeekendTeamWidget() {
           <div className="min-w-0">
             <span className="text-yellow-400 text-xs font-semibold">{team.boost_pick.Abbreviation}</span>
             <span className="text-gray-500 text-xs"> · {team.boost_pick.reason}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Auto chip advice for this team — every chip graded, best suggestions first */}
-      {team.chips && (
-        <div className="mt-3">
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1.5">Chip Advice</p>
-          <div className="grid grid-cols-2 gap-1.5">
-            {[...CHIP_ORDER]
-              .sort((a, b) => (REC_PRIORITY[team.chips[a]?.recommendation] ?? 9) - (REC_PRIORITY[team.chips[b]?.recommendation] ?? 9))
-              .map(key => {
-                const chip = team.chips[key];
-                if (!chip) return null;
-                const meta = CHIP_META[key] || { label: key, color: "#6b7280" };
-                const rec = chip.recommendation;
-                const ctx = chipContext(key, chip);
-                const muted = rec === "HOLD" || rec === "SAVE";
-                return (
-                  <div
-                    key={key}
-                    title={meta.desc}
-                    className={`flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 border ${muted ? "bg-gray-800/40 border-gray-800 opacity-60" : "bg-gray-800 border-gray-700"}`}
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: meta.color }} />
-                        <span className="text-[11px] font-semibold text-white truncate">{meta.label}</span>
-                      </div>
-                      {ctx && <span className="text-[10px] text-gray-500 block leading-tight mt-0.5 truncate">{ctx}</span>}
-                    </div>
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${REC_STYLE[rec] || "bg-gray-700 text-gray-400"}`}>{rec}</span>
-                  </div>
-                );
-              })}
           </div>
         </div>
       )}
