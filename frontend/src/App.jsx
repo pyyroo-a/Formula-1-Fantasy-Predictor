@@ -47,6 +47,13 @@ function App() {
   const [weekendData, setWeekendData] = useState(null);
   const [weekendActiveTeam, setWeekendActiveTeam] = useState(0);
 
+  // Last active weekend team, cached so the Overview has something to show
+  // between races ("hold this team" state) instead of an empty panel.
+  const [lastTeam] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("pitwall_last_team") || "null"); }
+    catch { return null; }
+  });
+
   // Predicted finishes — fetched once, shared by Overview live-card + Insights.
   const [finishes, setFinishes] = useState(null);
   const [finishesLoading, setFinishesLoading] = useState(true);
@@ -76,7 +83,13 @@ function App() {
     fetch(`${API}/upcoming-races`).then(r => r.json()).then(setUpcomingRaces).catch(() => {});
     fetch(`${API}/next-race`).then(r => r.json()).then(setNextRace).catch(() => {});
     fetch(`${API}/price-changes`).then(r => r.json()).then(setPriceChanges).catch(() => {});
-    fetch(`${API}/weekend-team`).then(r => r.json()).then(setWeekendData).catch(() => {});
+    fetch(`${API}/weekend-team`).then(r => r.json()).then(d => {
+      setWeekendData(d);
+      // Persist the last live weekend so it can be held between races.
+      if (d?.active && (d?.teams?.length || d?.team)) {
+        try { localStorage.setItem("pitwall_last_team", JSON.stringify(d)); } catch {}
+      }
+    }).catch(() => {});
     fetch(`${API}/weekend-finishes`)
       .then(r => r.json())
       .then(d => { if (d.detail) throw new Error(d.detail); setFinishes(d); })
@@ -131,6 +144,11 @@ function App() {
 
   // Derived mode keeps the existing content blocks working unchanged.
   const mode = section === "myteam" ? myTeamTab : raceDataTab;
+
+  // Between races the live fetch is inactive — fall back to the cached team so
+  // the Overview keeps showing the last lineup, flagged as "held".
+  const held = !!(weekendData && !weekendData.active && lastTeam);
+  const overviewWeekend = held ? lastTeam : weekendData;
 
   // Shared pit-wall form styling.
   const inputCls = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";
@@ -195,7 +213,8 @@ function App() {
             {section === "overview" && (
               <Overview
                 nextRace={nextRace}
-                weekendData={weekendData}
+                weekendData={overviewWeekend}
+                held={held}
                 weekendActiveTeam={weekendActiveTeam}
                 setWeekendActiveTeam={setWeekendActiveTeam}
                 priceChanges={priceChanges}

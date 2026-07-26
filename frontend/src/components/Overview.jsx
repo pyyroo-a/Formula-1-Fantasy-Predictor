@@ -21,7 +21,7 @@ function shortName(abbr) {
 }
 
 // The landing dashboard — weather, weekend lineup, prices, live predicted finish.
-export default function Overview({ nextRace, weekendData, weekendActiveTeam, setWeekendActiveTeam, priceChanges, finishes }) {
+export default function Overview({ nextRace, weekendData, held = false, weekendActiveTeam, setWeekendActiveTeam, priceChanges, finishes }) {
   const teams = weekendData?.teams?.length ? weekendData.teams : (weekendData?.team ? [weekendData.team] : []);
   const activeIdx = Math.min(weekendActiveTeam, teams.length - 1);
   const team = weekendData?.active && teams.length ? teams[activeIdx] : null;
@@ -45,7 +45,9 @@ export default function Overview({ nextRace, weekendData, weekendActiveTeam, set
 
         <div className="bg-pw-panel border border-white/[0.06] p-3.5">
           <div className="flex items-start justify-between gap-2 mb-2.5">
-            <p className="text-[10.5px] tracking-[0.05em] text-pw-muted">RACE WEEKEND LINEUP{raceName ? ` · ${raceName}` : ""}</p>
+            <p className="text-[10.5px] tracking-[0.05em] text-pw-muted">
+              {held ? "HELD TEAM" : "RACE WEEKEND LINEUP"}{raceName ? ` · ${raceName}` : ""}
+            </p>
             {teams.length > 1 && (
               <div className="flex gap-0.5 flex-shrink-0">
                 {teams.map((t, i) => (
@@ -63,6 +65,11 @@ export default function Overview({ nextRace, weekendData, weekendActiveTeam, set
               </div>
             )}
           </div>
+          {team && held && (
+            <p className="text-[10px] text-pw-risk bg-pw-risk/10 border-l-2 border-pw-risk pl-2 py-1 mb-2.5">
+              No active weekend — holding your last locked team. New picks appear once the next race's practice data is in.
+            </p>
+          )}
           {team ? (
             <div className="flex flex-col">
               {team.drivers.map((d, i) => {
