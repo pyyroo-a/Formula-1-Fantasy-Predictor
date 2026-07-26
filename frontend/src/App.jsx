@@ -141,15 +141,15 @@ function App() {
       <div className="max-w-6xl mx-auto min-h-screen bg-[#05070c]">
 
         {/* ── Header: wordmark · nav · T-MINUS ── */}
-        <header className="flex items-center justify-between gap-3 px-5 py-3 border-b border-[#ff5c5c]/25 bg-pw-panel2">
-          <div className="flex items-center gap-3 sm:gap-5 min-w-0">
-            <span className="font-extrabold text-[15px] tracking-[0.05em] text-pw-red flex-shrink-0">PITWALL</span>
-            <nav className="flex gap-0.5 overflow-x-auto no-scrollbar">
+        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 sm:px-5 py-3 border-b border-[#ff5c5c]/25 bg-pw-panel2">
+          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+            <span className="font-extrabold text-lg sm:text-xl tracking-[0.05em] text-pw-red flex-shrink-0">PITWALL</span>
+            <nav className="flex gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
               {NAV.map(item => (
                 <button
                   key={item.id}
                   onClick={() => setSection(item.id)}
-                  className={`px-3 py-1.5 text-[10.5px] tracking-[0.04em] whitespace-nowrap transition ${
+                  className={`px-2.5 sm:px-3 py-1.5 text-[13px] sm:text-sm tracking-[0.04em] whitespace-nowrap transition ${
                     section === item.id
                       ? "text-white border-b-2 border-pw-red"
                       : "text-pw-muted hover:text-gray-300"
@@ -165,7 +165,7 @@ function App() {
 
         {/* ── Section sub-tabs (My Team / Race Data) ── */}
         {subTabs && (
-          <div className="flex gap-0.5 px-5 pt-4">
+          <div className="flex gap-0.5 px-4 sm:px-5 pt-4 overflow-x-auto no-scrollbar">
             {subTabs.map(tab => (
               <button
                 key={tab.id}
@@ -192,6 +192,7 @@ function App() {
                 nextRace={nextRace}
                 weekendData={weekendData}
                 weekendActiveTeam={weekendActiveTeam}
+                setWeekendActiveTeam={setWeekendActiveTeam}
                 priceChanges={priceChanges}
                 finishes={finishes}
               />

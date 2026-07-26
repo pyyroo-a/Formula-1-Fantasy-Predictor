@@ -26,14 +26,14 @@ export default function CountdownWidget({ nextRace }) {
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-[10.5px] tracking-widest text-pw-muted hidden sm:inline">T-MINUS</span>
+    <div className="flex items-center gap-2.5">
+      <span className="text-[12px] tracking-widest text-pw-muted">T-MINUS</span>
       {timeLeft ? (
-        <span className="text-pw-red font-bold text-[13px] tabular-nums tracking-tight">
+        <span className="text-pw-red font-bold text-base sm:text-lg tabular-nums tracking-tight">
           {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
         </span>
       ) : (
-        <span className="text-pw-safe font-bold text-[12px]">LIGHTS OUT</span>
+        <span className="text-pw-safe font-bold text-sm">LIGHTS OUT</span>
       )}
     </div>
   );
