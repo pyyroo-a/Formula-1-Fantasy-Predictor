@@ -21,26 +21,21 @@ function shortName(abbr) {
 }
 
 // The landing dashboard — weather, weekend lineup, prices, live predicted finish.
-export default function Overview({ nextRace, weekendData, weekendActiveTeam, priceChanges, finishes }) {
+export default function Overview({ nextRace, weekendData, weekendActiveTeam, setWeekendActiveTeam, priceChanges, finishes }) {
   const teams = weekendData?.teams?.length ? weekendData.teams : (weekendData?.team ? [weekendData.team] : []);
-  const team = weekendData?.active && teams.length
-    ? teams[Math.min(weekendActiveTeam, teams.length - 1)]
-    : null;
+  const activeIdx = Math.min(weekendActiveTeam, teams.length - 1);
+  const team = weekendData?.active && teams.length ? teams[activeIdx] : null;
   const raceName = weekendData?.race_name || nextRace?.race_name;
 
-  const topDrivers = priceChanges?.drivers
-    ? Object.entries(priceChanges.drivers)
-        .sort(([, a], [, b]) => b.price - a.price)
-        .slice(0, 6)
+  const allDrivers = priceChanges?.drivers
+    ? Object.entries(priceChanges.drivers).sort(([, a], [, b]) => b.price - a.price)
     : [];
 
-  const topConstructors = priceChanges?.constructors
-    ? Object.entries(priceChanges.constructors)
-        .sort(([, a], [, b]) => b.price - a.price)
-        .slice(0, 6)
+  const allConstructors = priceChanges?.constructors
+    ? Object.entries(priceChanges.constructors).sort(([, a], [, b]) => b.price - a.price)
     : [];
 
-  const preds = finishes?.active && finishes?.predictions ? finishes.predictions.slice(0, 5) : [];
+  const preds = finishes?.active && finishes?.predictions ? finishes.predictions : [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3.5">
@@ -49,7 +44,25 @@ export default function Overview({ nextRace, weekendData, weekendActiveTeam, pri
         <WeatherWidget nextRace={nextRace} />
 
         <div className="bg-pw-panel border border-white/[0.06] p-3.5">
-          <PanelLabel>RACE WEEKEND LINEUP{raceName ? ` · ${raceName}` : ""}</PanelLabel>
+          <div className="flex items-start justify-between gap-2 mb-2.5">
+            <p className="text-[10.5px] tracking-[0.05em] text-pw-muted">RACE WEEKEND LINEUP{raceName ? ` · ${raceName}` : ""}</p>
+            {teams.length > 1 && (
+              <div className="flex gap-0.5 flex-shrink-0">
+                {teams.map((t, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setWeekendActiveTeam(i)}
+                    title={`Team ${i + 1} · ${t.total_score?.toFixed(1)} pts · $${t.total_cost}M`}
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded-sm transition ${
+                      activeIdx === i ? "bg-pw-red text-white" : "bg-pw-panel2 text-pw-muted hover:text-white"
+                    }`}
+                  >
+                    T{i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           {team ? (
             <div className="flex flex-col">
               {team.drivers.map((d, i) => {
@@ -90,31 +103,35 @@ export default function Overview({ nextRace, weekendData, weekendActiveTeam, pri
       <div className="flex flex-col gap-3.5">
         <div className="bg-pw-panel border border-white/[0.06] p-3.5">
           <PanelLabel>DRIVER PRICES</PanelLabel>
-          {topDrivers.length ? topDrivers.map(([abbr, d]) => (
-            <div key={abbr} className="flex justify-between text-[11.5px] text-white py-1">
-              <span>{DRIVER_NAMES[abbr]?.split(" ").slice(-1)[0] || abbr}</span>
-              <span>${d.price.toFixed(1)}M</span>
-            </div>
-          )) : <p className="text-pw-muted text-xs py-2">Loading…</p>}
+          <div className="max-h-44 overflow-y-auto no-scrollbar pr-1">
+            {allDrivers.length ? allDrivers.map(([abbr, d]) => (
+              <div key={abbr} className="flex justify-between text-[11.5px] text-white py-1">
+                <span>{DRIVER_NAMES[abbr]?.split(" ").slice(-1)[0] || abbr}</span>
+                <span>${d.price.toFixed(1)}M</span>
+              </div>
+            )) : <p className="text-pw-muted text-xs py-2">Loading…</p>}
+          </div>
         </div>
 
         <div className="bg-pw-panel border border-white/[0.06] p-3.5">
           <PanelLabel>CONSTRUCTOR PRICES</PanelLabel>
-          {topConstructors.length ? topConstructors.map(([name, d]) => (
-            <div key={name} className="flex justify-between text-[11.5px] text-white py-1">
-              <span
-                className="truncate border-l-2 pl-2"
-                style={{ borderColor: teamAccent(name) }}
-              >{name}</span>
-              <span className="flex-shrink-0">${d.price.toFixed(1)}M</span>
-            </div>
-          )) : <p className="text-pw-muted text-xs py-2">Loading…</p>}
+          <div className="max-h-36 overflow-y-auto no-scrollbar pr-1">
+            {allConstructors.length ? allConstructors.map(([name, d]) => (
+              <div key={name} className="flex justify-between text-[11.5px] text-white py-1">
+                <span
+                  className="truncate border-l-2 pl-2"
+                  style={{ borderColor: teamAccent(name) }}
+                >{name}</span>
+                <span className="flex-shrink-0">${d.price.toFixed(1)}M</span>
+              </div>
+            )) : <p className="text-pw-muted text-xs py-2">Loading…</p>}
+          </div>
         </div>
 
         <div className="bg-pw-panel border border-white/[0.06] p-3.5 flex-1">
           <PanelLabel>PREDICTED FINISH — LIVE</PanelLabel>
           {preds.length ? (
-            <div className="flex flex-col">
+            <div className="max-h-64 overflow-y-auto no-scrollbar pr-1">
               {preds.map((p, i) => (
                 <div
                   key={p.abbreviation}
