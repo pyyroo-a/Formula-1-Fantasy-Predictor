@@ -4,7 +4,7 @@ import CountdownWidget from "./components/CountdownWidget";
 import Overview from "./components/Overview";
 import RaceResultsTable from "./components/RaceResultsTable";
 import QualifyingTable from "./components/QualifyingTable";
-import { BudgetBar, BudgetDriverCard, ConstructorCard, BoostPickCard } from "./components/BudgetTeam";
+import { TeamStatGrid, BudgetDriverCard, ConstructorCard, BoostPickCard } from "./components/BudgetTeam";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
 import PredictedFinishes from "./components/PredictedFinishes";
@@ -22,7 +22,7 @@ const NAV = [
 ];
 
 const MYTEAM_TABS = [
-  { id: "budget", label: "BUDGET TEAM" },
+  { id: "budget", label: "TEAM OPTIMIZER" },
   { id: "manual", label: "MANUAL TEAM" },
   { id: "chips",  label: "CHIP ADVISOR" },
 ];
@@ -132,6 +132,11 @@ function App() {
   // Derived mode keeps the existing content blocks working unchanged.
   const mode = section === "myteam" ? myTeamTab : raceDataTab;
 
+  // Shared pit-wall form styling.
+  const inputCls = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";
+  const primaryBtn = "w-full p-2.5 bg-pw-red hover:bg-[#ff7676] text-white text-sm font-semibold transition disabled:bg-white/10 disabled:text-pw-muted disabled:cursor-not-allowed";
+  const sectionHead = "text-xs text-pw-muted tracking-[0.08em] mb-3";
+
   const subTabs = section === "myteam" ? MYTEAM_TABS : section === "racedata" ? RACEDATA_TABS : null;
   const activeSubTab = section === "myteam" ? myTeamTab : raceDataTab;
   const setSubTab = section === "myteam" ? setMyTeamTab : setRaceDataTab;
@@ -207,19 +212,16 @@ function App() {
                 <select
                   value={resultsRace}
                   onChange={e => { setResultsRace(e.target.value); fetchRaceResults(e.target.value); }}
-                  className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
+                  className={`${inputCls} mb-4`}
                 >
                   <option value="">Select a completed race</option>
                   {races.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
-                {resultsLoading && <p className="text-gray-400 text-sm text-center">Loading results...</p>}
-                {resultsError && <p className="text-red-400 text-sm text-center">{resultsError}</p>}
+                {resultsLoading && <p className="text-pw-muted text-sm text-center">Loading results…</p>}
+                {resultsError && <p className="text-pw-red text-sm text-center">{resultsError}</p>}
                 {raceResults && (
                   <div>
-                    <div className="flex justify-between items-center mb-3">
-                      <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Race Results</h2>
-                      <span className="text-xs text-gray-600">{resultsRace}</span>
-                    </div>
+                    <p className={sectionHead}>{resultsRace?.toUpperCase()} · FINAL CLASSIFICATION</p>
                     <RaceResultsTable results={raceResults} />
                   </div>
                 )}
@@ -231,29 +233,26 @@ function App() {
                 <select
                   value={qualRace}
                   onChange={e => { setQualRace(e.target.value); setQualResults(null); setQualError(null); }}
-                  className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
+                  className={`${inputCls} mb-3`}
                 >
                   <option value="">Select a completed race</option>
                   {races.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
                 {qualRace && !qualResults && !qualLoading && (
-                  <button onClick={fetchQualifying} className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 transition font-medium mb-4">
+                  <button onClick={fetchQualifying} className={`${primaryBtn} mb-4`}>
                     Load Qualifying Results
                   </button>
                 )}
                 {qualLoading && (
                   <div className="text-center mb-4">
-                    <p className="text-gray-400 text-sm">Fetching qualifying data from FastF1...</p>
-                    <p className="text-gray-600 text-xs mt-1">May take 15–30 seconds on first load</p>
+                    <p className="text-pw-muted text-sm">Fetching qualifying data from FastF1…</p>
+                    <p className="text-pw-muted/60 text-xs mt-1">May take 15–30 seconds on first load</p>
                   </div>
                 )}
-                {qualError && <p className="text-red-400 text-sm text-center mb-4">{qualError}</p>}
+                {qualError && <p className="text-pw-red text-sm text-center mb-4">{qualError}</p>}
                 {qualResults && (
                   <div>
-                    <div className="flex justify-between items-center mb-3">
-                      <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Qualifying</h2>
-                      <span className="text-xs text-gray-600">{qualRace}</span>
-                    </div>
+                    <p className={sectionHead}>{qualRace?.toUpperCase()} · QUALIFYING</p>
                     <QualifyingTable results={qualResults} />
                   </div>
                 )}
@@ -262,13 +261,13 @@ function App() {
 
             {mode === "budget" && section === "myteam" && (
               <>
-                <p className="text-gray-400 text-sm text-center mb-4">
+                <p className="text-pw-muted text-sm text-center mb-4">
                   Generates 3 high-scoring lineups within $100M — pick whichever suits your strategy.
                 </p>
                 <select
                   value={budgetRace}
                   onChange={e => { setBudgetRace(e.target.value); setBudgetTeams(null); setActiveTeam(0); }}
-                  className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-4"
+                  className={`${inputCls} mb-3`}
                 >
                   <option value="">Select a race</option>
                   {races.map(r => <option key={r} value={r}>{r}</option>)}
@@ -276,39 +275,39 @@ function App() {
                 <button
                   onClick={fetchBudgetTeam}
                   disabled={!budgetRace || budgetLoading}
-                  className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-600 transition font-medium"
+                  className={primaryBtn}
                 >
-                  {budgetLoading ? "Solving..." : "Build Optimal Teams"}
+                  {budgetLoading ? "Solving…" : "Build Optimal Teams"}
                 </button>
-                {budgetError && <p className="mt-4 text-red-400 text-sm text-center">{budgetError}</p>}
+                {budgetError && <p className="mt-4 text-pw-red text-sm text-center">{budgetError}</p>}
                 {budgetTeams && budgetTeams.length > 0 && (() => {
                   const team = budgetTeams[activeTeam];
                   return (
                     <div className="mt-6">
                       {/* Team switcher */}
-                      <div className="flex rounded-lg overflow-hidden border border-gray-700 mb-5">
+                      <div className="flex gap-0.5 mb-4">
                         {budgetTeams.map((t, i) => (
                           <button
                             key={i}
                             onClick={() => setActiveTeam(i)}
-                            className={`flex-1 py-2.5 text-sm font-medium transition ${
+                            className={`flex-1 py-2 text-[11px] font-medium transition ${
                               activeTeam === i
-                                ? "bg-red-600 text-white"
-                                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                                ? "bg-pw-red text-white"
+                                : "bg-pw-panel2 text-pw-muted hover:text-white"
                             }`}
                           >
-                            Team {i + 1}
-                            <span className={`block text-xs mt-0.5 ${activeTeam === i ? "text-red-200" : "text-gray-600"}`}>
+                            TEAM {i + 1}
+                            <span className={`block text-[10px] mt-0.5 ${activeTeam === i ? "text-white/70" : "text-pw-muted/70"}`}>
                               {t.total_score?.toFixed(1)} pts · ${t.total_cost}M
                             </span>
                           </button>
                         ))}
                       </div>
 
-                      <BudgetBar used={team.total_cost} />
+                      <TeamStatGrid used={team.total_cost} remaining={team.budget_remaining} score={team.total_score} />
                       <BoostPickCard pick={team.boost_pick} />
-                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Drivers</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <p className={sectionHead}>DRIVERS</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-5">
                         {team.drivers.map((driver, i) => (
                           <BudgetDriverCard
                             key={i}
@@ -317,8 +316,8 @@ function App() {
                           />
                         ))}
                       </div>
-                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Constructors</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <p className={sectionHead}>CONSTRUCTORS</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {team.constructors.map((c, i) => <ConstructorCard key={i} constructor={c} />)}
                       </div>
                     </div>

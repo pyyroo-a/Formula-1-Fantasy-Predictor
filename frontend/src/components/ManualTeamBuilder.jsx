@@ -1,32 +1,32 @@
 import { useState, useEffect } from "react";
 import { API } from "../api";
-import { DRIVER_NAMES, BADGE_COLOR, BUDGET, teamAccent } from "../constants";
-import DriverAvatar from "./DriverAvatar";
+import { DRIVER_NAMES, BUDGET, teamAccent } from "../constants";
 import SessionSchedule from "./SessionSchedule";
+
+const CAT_BADGE = {
+  Safe:  "text-pw-safe bg-pw-safe/10",
+  Value: "text-pw-rain bg-pw-rain/10",
+  Risk:  "text-pw-risk bg-pw-risk/10",
+  Avoid: "text-pw-red bg-pw-red/10",
+};
+
+const SELECT_CLS = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";
+const BTN_CLS = "w-full p-2.5 bg-pw-red hover:bg-[#ff7676] text-white text-sm font-semibold transition disabled:bg-white/10 disabled:text-pw-muted disabled:cursor-not-allowed";
+const HEAD_CLS = "text-xs text-pw-muted tracking-[0.08em] mb-3";
 
 function SelectedDriverSlot({ driver, isCaptain, onRemove }) {
   const accent = teamAccent(driver.TeamName);
+  const badge = CAT_BADGE[driver.PickCategory] || "text-pw-muted bg-white/5";
   return (
-    <div className={`bg-gray-800 rounded-xl px-4 py-3 border-l-[6px] flex items-center gap-3 ${isCaptain ? "ring-2 ring-yellow-400/50" : ""}`} style={{ borderColor: accent }}>
-      <div className="relative flex-shrink-0">
-        <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
-        {isCaptain && (
-          <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">C</span>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-bold text-base leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
-          {isCaptain && <span className="text-yellow-400 text-xs font-semibold bg-yellow-400/10 px-2 py-0.5 rounded-full flex-shrink-0">Captain</span>}
-        </div>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-gray-400 text-sm">${driver.Price?.toFixed(1)}M</span>
-          <span className={`text-white text-xs px-2 py-0.5 rounded-full font-medium ${BADGE_COLOR[driver.PickCategory]}`}>
-            {driver.PickCategory}
-          </span>
-        </div>
-      </div>
-      <button onClick={onRemove} className="text-gray-500 hover:text-red-400 text-sm ml-2 transition flex-shrink-0">✕</button>
+    <div className={`flex items-center gap-3 px-3 py-2.5 bg-pw-panel2 border-l-2 ${isCaptain ? "ring-1 ring-pw-risk/40" : ""}`} style={{ borderColor: accent }}>
+      <p className="flex-1 min-w-0 text-[12.5px] text-white truncate">
+        {isCaptain && <span className="text-pw-risk font-bold mr-1">C</span>}
+        {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
+        <span className="text-pw-muted"> — {driver.TeamName}</span>
+      </p>
+      <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{(driver.PickCategory || "").toUpperCase()}</span>
+      <span className="text-[12px] text-white w-14 text-right flex-shrink-0">${driver.Price?.toFixed(1)}M</span>
+      <button onClick={onRemove} className="text-pw-muted hover:text-pw-red text-sm flex-shrink-0 transition">✕</button>
     </div>
   );
 }
@@ -34,12 +34,10 @@ function SelectedDriverSlot({ driver, isCaptain, onRemove }) {
 function SelectedConstructorSlot({ constructor: c, onRemove }) {
   const accent = teamAccent(c.name);
   return (
-    <div className="bg-gray-800 rounded-xl px-4 py-3 border-l-[6px] flex justify-between items-center" style={{ borderColor: accent }}>
-      <div>
-        <p className="font-bold text-base">{c.name}</p>
-        <p className="text-gray-400 text-sm mt-0.5">${c.price?.toFixed(1)}M</p>
-      </div>
-      <button onClick={onRemove} className="text-gray-500 hover:text-red-400 text-sm ml-2 transition">✕</button>
+    <div className="flex items-center gap-3 px-3 py-2.5 bg-pw-panel2 border-l-2" style={{ borderColor: accent }}>
+      <span className="flex-1 text-[12.5px] text-white truncate">{c.name} <span className="text-pw-muted">— Constructor</span></span>
+      <span className="text-[12px] text-white flex-shrink-0">${c.price?.toFixed(1)}M</span>
+      <button onClick={onRemove} className="text-pw-muted hover:text-pw-red text-sm flex-shrink-0 transition">✕</button>
     </div>
   );
 }
@@ -47,36 +45,27 @@ function SelectedConstructorSlot({ constructor: c, onRemove }) {
 function PoolDriverCard({ driver, isSelected, canAdd, onToggle }) {
   const accent = teamAccent(driver.TeamName);
   const dimmed = !isSelected && !canAdd;
+  const badge = CAT_BADGE[driver.PickCategory] || "text-pw-muted bg-white/5";
   return (
     <button
       onClick={onToggle}
       disabled={dimmed}
-      className={`text-left w-full rounded-xl px-4 py-4 border-l-[6px] transition ${
-        isSelected ? "bg-gray-700 ring-2 ring-white/20"
-        : dimmed ? "bg-gray-800/50 opacity-40 cursor-not-allowed"
-        : "bg-gray-800 hover:bg-gray-750 cursor-pointer"
+      className={`text-left w-full px-3 py-2.5 border-l-2 transition ${
+        isSelected ? "bg-pw-panel ring-1 ring-white/20"
+        : dimmed ? "bg-pw-panel2/50 opacity-40 cursor-not-allowed"
+        : "bg-pw-panel2 hover:bg-pw-panel cursor-pointer"
       }`}
       style={{ borderColor: accent }}
     >
-      <div className="flex items-center gap-3 mb-3">
-        <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
+      <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-base leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
-          <p className="text-gray-400 text-sm mt-0.5">{driver.TeamName}</p>
+          <p className="text-[12.5px] text-white truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation} <span className="text-pw-muted">— {driver.TeamName}</span></p>
+          <p className="text-[10px] text-pw-muted mt-0.5">Grid P{Math.round(driver.GridPosition)} · Pred P{Math.round(driver.Predicted)} · {driver.FantasyValue?.toFixed(2)}</p>
         </div>
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <p className="text-white font-bold text-base">${driver.Price?.toFixed(1)}M</p>
-          <span className={`text-white text-xs px-2.5 py-1 rounded-full font-medium ${BADGE_COLOR[driver.PickCategory]}`}>
-            {driver.PickCategory}
-          </span>
-        </div>
+        <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{(driver.PickCategory || "").toUpperCase()}</span>
+        <span className="text-[12px] text-white w-14 text-right flex-shrink-0">${driver.Price?.toFixed(1)}M</span>
       </div>
-      <div className="flex justify-between text-sm text-gray-500 border-t border-gray-700 pt-2">
-        <span>Grid: <span className="text-gray-300">P{Math.round(driver.GridPosition)}</span></span>
-        <span>Predicted: <span className="text-gray-300">P{Math.round(driver.Predicted)}</span></span>
-        <span>Score: <span className="text-gray-300">{driver.FantasyValue?.toFixed(2)}</span></span>
-      </div>
-      {isSelected && <p className="text-xs text-white/40 mt-2 text-right">Click to remove</p>}
+      {isSelected && <p className="text-[9.5px] text-pw-muted/60 mt-1 text-right">Click to remove</p>}
     </button>
   );
 }
@@ -88,21 +77,18 @@ function PoolConstructorCard({ constructor: c, isSelected, canAdd, onToggle }) {
     <button
       onClick={onToggle}
       disabled={dimmed}
-      className={`text-left w-full rounded-xl px-3 py-2 border-l-[6px] transition flex justify-between items-center ${
-        isSelected ? "bg-gray-700 ring-2 ring-white/20"
-        : dimmed ? "bg-gray-800/50 opacity-40 cursor-not-allowed"
-        : "bg-gray-800 hover:bg-gray-750 cursor-pointer"
+      className={`text-left w-full px-3 py-2 border-l-2 transition flex justify-between items-center gap-2 ${
+        isSelected ? "bg-pw-panel ring-1 ring-white/20"
+        : dimmed ? "bg-pw-panel2/50 opacity-40 cursor-not-allowed"
+        : "bg-pw-panel2 hover:bg-pw-panel cursor-pointer"
       }`}
       style={{ borderColor: accent }}
     >
-      <div>
-        <p className="font-bold text-sm">{c.name}</p>
-        <p className="text-gray-500 text-xs mt-0.5">Score: {c.score?.toFixed(2)}</p>
+      <div className="min-w-0">
+        <p className="text-[12px] text-white truncate">{c.name}</p>
+        <p className="text-[9.5px] text-pw-muted mt-0.5">{c.score?.toFixed(2)}</p>
       </div>
-      <div className="text-right">
-        <p className="text-white font-bold text-base">${c.price?.toFixed(1)}M</p>
-        {isSelected && <p className="text-xs text-white/40 mt-1">Click to remove</p>}
-      </div>
+      <span className="text-[12px] text-white flex-shrink-0">${c.price?.toFixed(1)}M</span>
     </button>
   );
 }
@@ -183,16 +169,16 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
   const myScore = selectedDrivers.reduce((s, d) => s + d.FantasyValue, 0)
     + selectedConstructors.reduce((s, c) => s + c.score, 0);
   const scoreVsOptimal = optimalTeam ? Math.round((myScore / optimalTeam.total_score) * 100) : null;
-  const qualityColor = !teamComplete ? "text-gray-400"
-    : scoreVsOptimal >= 90 ? "text-green-400"
-    : scoreVsOptimal >= 70 ? "text-yellow-400"
-    : "text-orange-400";
+  const qualityColor = !teamComplete ? "text-pw-muted"
+    : scoreVsOptimal >= 90 ? "text-pw-safe"
+    : scoreVsOptimal >= 70 ? "text-pw-risk"
+    : "text-pw-red";
   const qualityLabel = !teamComplete ? "—"
     : scoreVsOptimal >= 90 ? "Excellent"
     : scoreVsOptimal >= 70 ? "Good"
     : scoreVsOptimal >= 50 ? "Average" : "Weak";
   const budgetPct = Math.min((totalCost / BUDGET) * 100, 100);
-  const barColor = overBudget ? "bg-red-500" : budgetPct > 90 ? "bg-yellow-500" : "bg-green-500";
+  const barColor = overBudget ? "bg-pw-red" : budgetPct > 90 ? "bg-pw-risk" : "bg-pw-safe";
   const driverCategoryCounts = selectedDrivers.reduce((acc, d) => {
     acc[d.PickCategory] = (acc[d.PickCategory] || 0) + 1;
     return acc;
@@ -200,7 +186,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
 
   return (
     <div>
-      <p className="text-gray-400 text-sm text-center mb-4">Pick 5 drivers + 2 constructors for an upcoming race based on practice data.</p>
+      <p className="text-pw-muted text-sm text-center mb-4">Pick 5 drivers + 2 constructors for an upcoming race based on practice data.</p>
 
       <select
         value={selectedRace}
@@ -211,7 +197,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
           if (race) fetchSessions(race);
           else setSessions(null);
         }}
-        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 mb-3"
+        className={`${SELECT_CLS} mb-3`}
       >
         <option value="">Select an upcoming race</option>
         {upcomingRaces.map(r => (
@@ -220,7 +206,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
       </select>
 
       {selectedRace && selectedIsSprint && (
-        <p className="text-yellow-400 text-sm mb-3 text-center">Sprint weekend — will use FP1 data</p>
+        <p className="text-pw-risk text-sm mb-3 text-center">Sprint weekend — will use FP1 data</p>
       )}
       {selectedRace && sessions && <SessionSchedule sessions={sessions} />}
 
@@ -228,77 +214,77 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
         <button
           onClick={loadPool}
           disabled={sessions && !anySessionAvailable}
-          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition font-medium mb-4"
+          className={`${BTN_CLS} mb-4`}
         >
           {sessions && !anySessionAvailable ? "No practice data yet — check back after FP1" : "Load Driver Pool"}
         </button>
       )}
 
-      {error && <p className="text-red-400 text-sm text-center mb-4">{error}</p>}
+      {error && <p className="text-pw-red text-sm text-center mb-4">{error}</p>}
       {loading && (
         <div className="text-center mb-4">
-          <p className="text-gray-400 text-sm">Fetching practice data and running predictions...</p>
-          <p className="text-gray-600 text-xs mt-1">This can take up to 30 seconds</p>
+          <p className="text-pw-muted text-sm">Fetching practice data and running predictions…</p>
+          <p className="text-pw-muted/60 text-xs mt-1">This can take up to 30 seconds</p>
         </div>
       )}
 
       {pool && sessionUsed && (
-        <div className="flex items-center gap-2 mb-4 bg-gray-800/60 rounded-lg px-3 py-2 border border-gray-700">
-          <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
-          <p className="text-sm text-gray-300">Predictions based on <span className="text-white font-semibold">{sessionUsed}</span> data</p>
+        <div className="flex items-center gap-2 mb-4 bg-pw-panel2 px-3 py-2 border border-white/[0.06]">
+          <span className="w-1.5 h-1.5 rounded-full bg-pw-safe flex-shrink-0" />
+          <p className="text-[12px] text-pw-muted">Predictions based on <span className="text-white font-semibold">{sessionUsed}</span> data</p>
         </div>
       )}
 
       {pool && (
         <div className="space-y-6">
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400">Spent: <span className={`font-semibold ${overBudget ? "text-red-400" : "text-white"}`}>${totalCost.toFixed(1)}M</span></span>
-              <span className="text-gray-400">Remaining: <span className={`font-semibold ${overBudget ? "text-red-400" : "text-green-400"}`}>
+          <div className="bg-pw-panel2 border border-white/[0.06] p-3">
+            <div className="flex justify-between text-[12px] mb-2">
+              <span className="text-pw-muted">Spent: <span className={`font-semibold ${overBudget ? "text-pw-red" : "text-white"}`}>${totalCost.toFixed(1)}M</span></span>
+              <span className="text-pw-muted">Remaining: <span className={`font-semibold ${overBudget ? "text-pw-red" : "text-pw-safe"}`}>
                 {overBudget ? `-$${(totalCost - BUDGET).toFixed(1)}M` : `$${remaining.toFixed(1)}M`}
               </span></span>
             </div>
-            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${budgetPct}%` }} />
+            <div className="h-1.5 bg-white/10 overflow-hidden">
+              <div className={`h-full transition-all ${barColor}`} style={{ width: `${budgetPct}%` }} />
             </div>
-            {overBudget && <p className="text-red-400 text-xs mt-2 text-center">Over budget — remove a pick to fix this</p>}
+            {overBudget && <p className="text-pw-red text-[10.5px] mt-2 text-center">Over budget — remove a pick to fix this</p>}
           </div>
 
           {teamComplete && (
-            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-              <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Team Summary</h3>
+            <div className="bg-pw-panel2 border border-white/[0.06] p-4">
+              <p className={HEAD_CLS}>TEAM SUMMARY</p>
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">My Score</p>
-                  <p className="text-white font-bold text-lg">{myScore.toFixed(2)}</p>
+                  <p className="text-[10px] text-pw-muted mb-1">MY SCORE</p>
+                  <p className="text-white font-extrabold text-lg">{myScore.toFixed(2)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">vs Optimal</p>
-                  <p className={`font-bold text-lg ${qualityColor}`}>{scoreVsOptimal}%</p>
+                  <p className="text-[10px] text-pw-muted mb-1">VS OPTIMAL</p>
+                  <p className={`font-extrabold text-lg ${qualityColor}`}>{scoreVsOptimal}%</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Rating</p>
-                  <p className={`font-bold text-lg ${qualityColor}`}>{qualityLabel}</p>
+                  <p className="text-[10px] text-pw-muted mb-1">RATING</p>
+                  <p className={`font-extrabold text-lg ${qualityColor}`}>{qualityLabel}</p>
                 </div>
               </div>
               {optimalTeam && (
-                <p className="text-xs text-gray-500 text-center mt-3">
+                <p className="text-[10.5px] text-pw-muted text-center mt-3">
                   Optimal score: {optimalTeam.total_score?.toFixed(2)} (cost: ${optimalTeam.total_cost}M)
                 </p>
               )}
-              <div className="flex justify-center gap-3 mt-3 flex-wrap">
+              <div className="flex justify-center gap-2 mt-3 flex-wrap">
                 {Object.entries(driverCategoryCounts).map(([cat, count]) => (
-                  <span key={cat} className={`text-white text-xs px-2 py-0.5 rounded-full ${BADGE_COLOR[cat]}`}>{count}× {cat}</span>
+                  <span key={cat} className={`text-[9.5px] px-1.5 py-0.5 rounded-sm ${CAT_BADGE[cat] || "text-pw-muted bg-white/5"}`}>{count}× {cat.toUpperCase()}</span>
                 ))}
               </div>
             </div>
           )}
 
           <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Your Drivers ({selectedDrivers.length}/5)</h3>
+            <p className={HEAD_CLS}>YOUR DRIVERS ({selectedDrivers.length}/5)</p>
             <div className="grid grid-cols-1 gap-2 mb-4">
               {selectedDrivers.length === 0
-                ? <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">Click drivers below to add them</p>
+                ? <p className="text-pw-muted/70 text-xs text-center py-4 border border-dashed border-white/10">Click drivers below to add them</p>
                 : (() => {
                     const withScore = selectedDrivers.filter(d => d.FantasyValue != null && !isNaN(d.FantasyValue));
                     const captainAbbr = withScore.length > 0
@@ -315,18 +301,18 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
                   })()
               }
             </div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Your Constructors ({selectedConstructors.length}/2)</h3>
+            <p className={HEAD_CLS}>YOUR CONSTRUCTORS ({selectedConstructors.length}/2)</p>
             <div className="grid grid-cols-1 gap-2 mb-6">
               {selectedConstructors.length === 0
-                ? <p className="text-gray-600 text-sm text-center py-4 border border-dashed border-gray-700 rounded-lg">Click constructors below to add them</p>
+                ? <p className="text-pw-muted/70 text-xs text-center py-4 border border-dashed border-white/10">Click constructors below to add them</p>
                 : selectedConstructors.map(c => <SelectedConstructorSlot key={c.name} constructor={c} onRemove={() => toggleConstructor(c)} />)
               }
             </div>
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Available Drivers</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <p className={HEAD_CLS}>AVAILABLE DRIVERS</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {pool.drivers.map(driver => (
                 <PoolDriverCard
                   key={driver.Abbreviation}
@@ -340,8 +326,8 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Available Constructors</h3>
-            <div className="grid grid-cols-3 gap-3">
+            <p className={HEAD_CLS}>AVAILABLE CONSTRUCTORS</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {pool.constructors.map(c => (
                 <PoolConstructorCard
                   key={c.name}

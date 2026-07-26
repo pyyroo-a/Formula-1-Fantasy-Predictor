@@ -1,90 +1,85 @@
-import { DRIVER_NAMES, BADGE_COLOR, teamAccent } from "../constants";
-import DriverAvatar from "./DriverAvatar";
+import { DRIVER_NAMES, teamAccent } from "../constants";
 
-export function BudgetBar({ used, total = 100 }) {
-  const pct = Math.min((used / total) * 100, 100);
-  const remaining = total - used;
-  const barColor = pct > 90 ? "bg-red-500" : pct > 75 ? "bg-yellow-500" : "bg-green-500";
+const CAT_BADGE = {
+  Safe:  "text-pw-safe bg-pw-safe/10",
+  Value: "text-pw-rain bg-pw-rain/10",
+  Risk:  "text-pw-risk bg-pw-risk/10",
+  Avoid: "text-pw-red bg-pw-red/10",
+};
+
+// 3-cell hairline stat grid: BUDGET USED · REMAINING · PROJECTED PTS.
+export function TeamStatGrid({ used, remaining, score }) {
+  const cells = [
+    { label: "BUDGET USED",   value: `$${used?.toFixed(1)}M`,      color: "text-white" },
+    { label: "REMAINING",     value: `$${remaining?.toFixed(1)}M`, color: "text-pw-safe" },
+    { label: "PROJECTED PTS", value: score?.toFixed(1),            color: "text-pw-red" },
+  ];
   return (
-    <div className="mb-6">
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-400">Budget used: <span className="text-white font-medium">${used.toFixed(1)}M</span></span>
-        <span className="text-gray-400">Remaining: <span className="text-green-400 font-medium">${remaining.toFixed(1)}M</span></span>
-      </div>
-      <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
-      </div>
+    <div className="pw-hairgrid grid grid-cols-3 gap-px border border-white/[0.06] mb-4">
+      {cells.map(c => (
+        <div key={c.label} className="bg-pw-panel px-3 py-3 text-center">
+          <p className="text-[9.5px] text-pw-muted tracking-[0.05em] mb-1">{c.label}</p>
+          <p className={`text-lg font-extrabold ${c.color}`}>{c.value}</p>
+        </div>
+      ))}
     </div>
   );
 }
 
+// Kept for backward-compat; the stat grid is the primary summary now.
+export function BudgetBar({ used, total = 100 }) {
+  return <TeamStatGrid used={used} remaining={total - used} score={null} />;
+}
+
 export function BudgetDriverCard({ driver, isCaptain = false }) {
   const accent = teamAccent(driver.TeamName);
+  const badge = CAT_BADGE[driver.PickCategory] || "text-pw-muted bg-white/5";
   return (
-    <div className={`bg-gray-800 rounded-xl px-4 py-4 shadow-lg border-l-[6px] ${isCaptain ? "ring-2 ring-yellow-400/50" : ""}`} style={{ borderColor: accent }}>
-      <div className="flex items-center gap-4 mb-3">
-        <div className="relative flex-shrink-0">
-          <DriverAvatar abbreviation={driver.Abbreviation} size="lg" />
-          {isCaptain && (
-            <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">C</span>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-lg font-bold leading-tight truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}</p>
-            {isCaptain && <span className="text-yellow-400 text-xs font-semibold bg-yellow-400/10 px-2 py-0.5 rounded-full flex-shrink-0">Captain</span>}
-          </div>
-          <p className="text-gray-400 text-sm mt-0.5">{driver.TeamName}</p>
-        </div>
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <p className="text-white font-bold text-base">${driver.Price?.toFixed(1)}M</p>
-          {driver.PickCategory && (
-            <span className={`text-white text-xs px-2.5 py-1 rounded-full font-medium ${BADGE_COLOR[driver.PickCategory]}`}>
-              {driver.PickCategory}
-            </span>
-          )}
-        </div>
+    <div
+      className={`flex items-center gap-3 px-3 py-2.5 bg-pw-panel2 border-l-2 ${isCaptain ? "ring-1 ring-pw-risk/40" : ""}`}
+      style={{ borderColor: accent }}
+    >
+      <div className="flex-1 min-w-0">
+        <p className="text-[12.5px] text-white truncate">
+          {isCaptain && <span className="text-pw-risk font-bold mr-1">C</span>}
+          {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
+          <span className="text-pw-muted"> — {driver.TeamName}</span>
+        </p>
+        <p className="text-[10px] text-pw-muted mt-0.5">
+          Grid P{Math.round(driver.GridPosition)} · Pred P{Math.round(driver.Predicted)} · {driver.FantasyValue?.toFixed(2)}
+        </p>
       </div>
-      <div className="flex justify-between text-sm text-gray-500 border-t border-gray-700 pt-2">
-        <span>Grid: <span className="text-gray-300">P{Math.round(driver.GridPosition)}</span></span>
-        <span>Predicted: <span className="text-gray-300">P{Math.round(driver.Predicted)}</span></span>
-        <span>Score: <span className="text-gray-300">{driver.FantasyValue?.toFixed(2)}</span></span>
-      </div>
+      {driver.PickCategory && (
+        <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{driver.PickCategory.toUpperCase()}</span>
+      )}
+      <span className="text-[12px] text-white w-16 text-right flex-shrink-0">${driver.Price?.toFixed(1)}M</span>
     </div>
   );
 }
 
 export function BoostPickCard({ pick }) {
   if (!pick) return null;
-  const accent = teamAccent(pick.TeamName);
   const gain = pick.GridPosition - pick.Predicted;
   return (
-    <div className="rounded-xl p-4 mb-6 border border-yellow-400/30 bg-yellow-400/5">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full tracking-wider">2× BOOST PICK</span>
+    <div className="border-l-2 border-pw-risk bg-pw-panel2 p-3 mb-4">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="bg-pw-risk text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider">2× BOOST PICK</span>
         {pick.alternatives?.length > 0 && (
-          <span className="text-gray-500 text-xs">Alt: {pick.alternatives.join(", ")}</span>
+          <span className="text-pw-muted text-[10px]">Alt: {pick.alternatives.join(", ")}</span>
         )}
       </div>
-      <div className="flex items-center gap-4">
-        <div className="relative flex-shrink-0">
-          <DriverAvatar abbreviation={pick.Abbreviation} size="lg" />
-          <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">2×</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-white font-bold text-lg leading-tight">{DRIVER_NAMES[pick.Abbreviation] || pick.Abbreviation}</p>
-          <p className="text-gray-400 text-sm">{pick.TeamName}</p>
-          <div className="flex gap-3 mt-1 text-xs text-gray-500">
-            <span>P{pick.GridPosition} → P{Math.round(pick.Predicted)}</span>
-            {gain > 0 && <span className="text-green-400">+{gain.toFixed(1)} pos</span>}
-          </div>
-        </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-yellow-400 font-bold text-base">{pick.FantasyValue?.toFixed(2)}</p>
-          <p className="text-gray-500 text-xs">score</p>
-        </div>
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="text-[13px] text-white font-bold truncate">
+          {DRIVER_NAMES[pick.Abbreviation] || pick.Abbreviation}
+          <span className="text-pw-muted font-normal"> — {pick.TeamName}</span>
+        </p>
+        <span className="text-pw-risk font-bold text-[12px] flex-shrink-0">{pick.FantasyValue?.toFixed(2)}</span>
       </div>
-      <p className="text-gray-400 text-xs mt-3 leading-relaxed border-t border-gray-700 pt-3">{pick.reason}</p>
+      <p className="text-[10.5px] text-pw-muted mt-0.5">
+        P{pick.GridPosition} → P{Math.round(pick.Predicted)}
+        {gain > 0 && <span className="text-pw-safe"> · +{gain.toFixed(1)} pos</span>}
+      </p>
+      {pick.reason && <p className="text-[10.5px] text-pw-muted mt-2 border-t border-white/[0.06] pt-2 leading-relaxed">{pick.reason}</p>}
     </div>
   );
 }
@@ -92,14 +87,11 @@ export function BoostPickCard({ pick }) {
 export function ConstructorCard({ constructor: c }) {
   const accent = teamAccent(c.name);
   return (
-    <div className="bg-gray-800 rounded-xl px-4 py-4 shadow-lg border-l-[6px] flex justify-between items-center" style={{ borderColor: accent }}>
-      <div>
-        <p className="text-lg font-bold">{c.name}</p>
-        <p className="text-gray-500 text-sm mt-0.5">Constructor</p>
-      </div>
-      <div className="text-right">
-        <p className="text-white font-bold text-base">${c.price?.toFixed(1)}M</p>
-        <p className="text-gray-500 text-sm mt-0.5">Score: {c.score?.toFixed(2)}</p>
+    <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-pw-panel2 border-l-2" style={{ borderColor: accent }}>
+      <span className="text-[12.5px] text-white truncate">{c.name} <span className="text-pw-muted">— Constructor</span></span>
+      <div className="text-right flex-shrink-0">
+        <span className="text-[12px] text-white">${c.price?.toFixed(1)}M</span>
+        <span className="text-[10px] text-pw-muted ml-2">{c.score?.toFixed(2)}</span>
       </div>
     </div>
   );

@@ -1,41 +1,39 @@
 import { teamAccent } from "../constants";
-import DriverAvatar from "./DriverAvatar";
 
 function PositionChange({ change, status }) {
-  if (status === "DNF") return <span className="text-gray-500 text-sm font-medium">DNF</span>;
+  if (status === "DNF") return null;
   if (change === null || change === undefined) return null;
-  if (change > 0) return <span className="text-green-400 font-bold text-sm">+{change} ↑</span>;
-  if (change < 0) return <span className="text-red-400 font-bold text-sm">{change} ↓</span>;
-  return <span className="text-gray-500 text-sm">—</span>;
+  if (change > 0) return <span className="text-pw-safe font-semibold">+{change}</span>;
+  if (change < 0) return <span className="text-pw-red font-semibold">{change}</span>;
+  return <span className="text-pw-muted">—</span>;
 }
 
 export default function RaceResultsTable({ results }) {
   return (
-    <div className="space-y-2">
-      {results.map((row) => {
+    <div className="border border-white/[0.06]">
+      {results.map((row, i) => {
         const accent = teamAccent(row.TeamName);
         const isDNF = row.Status === "DNF";
+        const last = i === results.length - 1;
         return (
           <div
             key={row.Abbreviation}
-            className={`flex items-center gap-4 rounded-xl px-4 py-4 border-l-[6px] ${isDNF ? "bg-gray-800/40 opacity-55" : "bg-gray-800"}`}
-            style={{ borderColor: accent }}
+            className={`flex items-center gap-3 px-3 py-2.5 ${last ? "" : "border-b border-white/[0.05]"} ${isDNF ? "opacity-50" : ""}`}
           >
-            <div className="w-14 text-center flex-shrink-0">
-              {isDNF
-                ? <span className="text-red-500 text-sm font-bold">DNF</span>
-                : <span className="text-white text-2xl font-black leading-none">P{row.Position}</span>}
+            <div className={`w-9 flex-shrink-0 text-[11px] font-bold ${isDNF ? "text-pw-red" : "text-pw-muted"}`}>
+              {isDNF ? "DNF" : `P${row.Position}`}
             </div>
-            <DriverAvatar abbreviation={row.Abbreviation} size="lg" />
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-lg leading-tight truncate">{row.FullName}</p>
-              <p className="text-gray-400 text-sm mt-0.5 truncate">{row.TeamName}</p>
+            <div
+              className="flex-1 min-w-0 text-[12.5px] text-white truncate border-l-2 pl-2.5"
+              style={{ borderColor: accent }}
+            >
+              {row.FullName} <span className="text-pw-muted">— {row.TeamName}</span>
             </div>
-            <div className="text-right flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0 text-[11px] text-right">
               {!isDNF && row.GridPosition != null && (
-                <p className="text-gray-400 text-sm font-mono mb-1">P{row.GridPosition} → P{row.Position}</p>
+                <span className="text-pw-muted hidden sm:inline">P{row.GridPosition} → P{row.Position}</span>
               )}
-              <PositionChange change={row.PositionChange} status={row.Status} />
+              <span className="w-10 text-right"><PositionChange change={row.PositionChange} status={row.Status} /></span>
             </div>
           </div>
         );
