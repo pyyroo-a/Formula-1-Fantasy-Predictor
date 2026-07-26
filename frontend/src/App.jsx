@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { API } from "./api";
 import CountdownWidget from "./components/CountdownWidget";
 import WeekendTeamWidget from "./components/WeekendTeamWidget";
+import AutoChipAdvisor from "./components/AutoChipAdvisor";
 import WeatherWidget from "./components/WeatherWidget";
 import RaceResultsTable from "./components/RaceResultsTable";
 import QualifyingTable from "./components/QualifyingTable";
@@ -43,6 +44,10 @@ function App() {
   const [nextRace, setNextRace] = useState(null);
   const [priceChanges, setPriceChanges] = useState(null);
 
+  // Weekend lineup + auto chip advice share one fetch and one team selection.
+  const [weekendData, setWeekendData] = useState(null);
+  const [weekendActiveTeam, setWeekendActiveTeam] = useState(0);
+
   // Race Results tab
   const [resultsRace, setResultsRace] = useState("");
   const [raceResults, setRaceResults] = useState(null);
@@ -67,6 +72,7 @@ function App() {
     fetch(`${API}/upcoming-races`).then(r => r.json()).then(setUpcomingRaces).catch(() => {});
     fetch(`${API}/next-race`).then(r => r.json()).then(setNextRace).catch(() => {});
     fetch(`${API}/price-changes`).then(r => r.json()).then(setPriceChanges).catch(() => {});
+    fetch(`${API}/weekend-team`).then(r => r.json()).then(setWeekendData).catch(() => {});
   }, []);
 
   const fetchRaceResults = async (raceName) => {
@@ -134,8 +140,9 @@ function App() {
           <div className="h-44"><ConstructorPricesCard priceChanges={priceChanges} /></div>
         </div>
 
-        {/* ── Weekend lineup (only shown near race weekend) ── */}
-        <WeekendTeamWidget />
+        {/* ── Weekend lineup + auto chip advice (only shown near race weekend) ── */}
+        <WeekendTeamWidget data={weekendData} activeTeam={weekendActiveTeam} setActiveTeam={setWeekendActiveTeam} />
+        <AutoChipAdvisor data={weekendData} activeTeam={weekendActiveTeam} />
 
         {/* ── Tabs — grouped by purpose ── */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mb-5">
