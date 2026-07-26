@@ -27,9 +27,9 @@ function chipContext(key, chip) {
   }
 }
 
-// Automatic chip advice for the weekend team currently shown in the lineup widget.
-// Shares App's /weekend-team data + active-team selection, so switching teams
-// above updates the chips here. Every chip is graded, best suggestions first.
+// Automatic chip advice for the weekend team currently shown. Shares App's
+// /weekend-team data + active-team selection, so switching teams updates it.
+// Every chip is graded, best suggestions first.
 export default function AutoChipAdvisor({ data, activeTeam }) {
   const teams = data?.teams?.length ? data.teams : (data?.team ? [data.team] : []);
   if (!data || !data.active || teams.length === 0) return null;
@@ -45,16 +45,13 @@ export default function AutoChipAdvisor({ data, activeTeam }) {
   const teamLabel = teams.length > 1 ? `Team ${Math.min(activeTeam, teams.length - 1) + 1}` : "your team";
 
   return (
-    <div className="mb-6">
+    <div className="bg-pw-panel border border-white/[0.06] p-3.5">
       <div className="flex items-end justify-between mb-3">
-        <div>
-          <p className="text-xs text-red-500 uppercase tracking-widest font-semibold mb-0.5">Chip Advisor · Auto</p>
-          <p className="text-white font-bold text-lg">Should you play a chip?</p>
-        </div>
-        <p className="text-xs text-gray-500 text-right">Graded for {teamLabel}<br />on {data.session_used} pace</p>
+        <p className="text-[10.5px] tracking-[0.05em] text-pw-muted">CHIP ADVISOR · AUTO</p>
+        <p className="text-[9.5px] text-pw-muted text-right">{teamLabel} · {data.session_used} pace</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {ordered.map(key => {
           const chip = chips[key];
           const meta = CHIP_META[key] || { label: key, color: "#6b7280", desc: "" };
@@ -64,17 +61,16 @@ export default function AutoChipAdvisor({ data, activeTeam }) {
           return (
             <div
               key={key}
-              className={`rounded-xl p-4 border-l-4 ${muted ? "bg-gray-800/40 opacity-70" : "bg-gray-800"}`}
-              style={{ borderLeftColor: meta.color }}
+              className={`border-l-2 pl-3 pr-2.5 py-2 bg-pw-panel2 ${muted ? "opacity-55" : ""}`}
+              style={{ borderColor: meta.color }}
             >
-              <div className="flex justify-between items-start mb-1.5 gap-2">
-                <h3 className="text-white font-bold text-sm">{meta.label}</h3>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${REC_STYLE[rec] || REC_STYLE.HOLD}`}>
+              <div className="flex justify-between items-start gap-2 mb-1">
+                <span className="text-[12px] font-bold text-white">{meta.label}</span>
+                <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${REC_STYLE[rec] || REC_STYLE.HOLD}`}>
                   {rec}
                 </span>
               </div>
-              <p className="text-gray-500 text-[11px] leading-relaxed mb-2">{meta.desc}</p>
-              {ctx && <p className="text-gray-300 text-xs font-medium">{ctx}</p>}
+              {ctx && <p className="text-[10.5px] text-pw-muted leading-snug">{ctx}</p>}
             </div>
           );
         })}

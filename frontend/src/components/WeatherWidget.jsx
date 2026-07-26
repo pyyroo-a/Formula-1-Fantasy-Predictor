@@ -100,30 +100,27 @@ export default function WeatherWidget({ nextRace }) {
 
   if (!findCoords(raceName)) return null;
 
+  const SESSION_LABEL = { FRI: "FRI PRACTICE", SAT: "SAT QUALIFYING", SUN: "SUN RACE" };
+
   return (
-    <div className="bg-gray-800 rounded-xl overflow-hidden h-full">
-      <div className="px-4 pt-4 pb-2">
-        <p className="text-sm font-bold text-white">Weekend Forecast</p>
-      </div>
-
-      {loading && <p className="text-gray-500 text-xs text-center py-4">Loading...</p>}
-
-      {!loading && forecast && (
-        <div className="grid grid-cols-3 px-3 pb-4 gap-1">
-          {forecast.map(day => {
-            const w = WMO[day.code] || { icon: "🌡️", label: "—" };
-            const rainColor = day.rainPct >= 70 ? "text-blue-400" : day.rainPct >= 40 ? "text-blue-300" : "text-gray-500";
-            return (
-              <div key={day.label} className={`text-center px-2 py-3 rounded-lg ${day.isRaceDay ? "bg-gray-700/60" : ""}`}>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">{day.label}</p>
-                <p className="text-xl mb-1">{w.icon}</p>
-                <p className="text-white font-bold text-sm">{Math.round(day.maxTemp)}°</p>
-                <p className={`text-xs font-medium mt-1 ${rainColor}`}>{day.rainPct}%</p>
-              </div>
-            );
-          })}
-        </div>
+    <div className="pw-hairgrid grid grid-cols-3 gap-px border border-[#ff5c5c]/15">
+      {loading && (
+        <p className="col-span-3 text-pw-muted text-xs text-center py-6 bg-pw-panel">Loading forecast…</p>
       )}
+
+      {!loading && forecast && forecast.map(day => {
+        const rainColor = day.rainPct >= 40 ? "text-pw-red" : "text-pw-rain";
+        return (
+          <div
+            key={day.label}
+            className={`bg-pw-panel px-3 py-3.5 text-center ${day.isRaceDay ? "border-b-2 border-pw-red bg-[#1a0f0f]" : ""}`}
+          >
+            <p className="text-[9.5px] text-pw-muted tracking-[0.06em] mb-1">{SESSION_LABEL[day.label] || day.label}</p>
+            <p className="text-white font-extrabold text-xl leading-none">{Math.round(day.maxTemp)}°C</p>
+            <p className={`text-[10px] font-medium mt-1 ${rainColor}`}>RAIN {day.rainPct}%</p>
+          </div>
+        );
+      })}
     </div>
   );
 }

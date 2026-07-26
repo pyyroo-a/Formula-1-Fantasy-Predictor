@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { API } from "../api";
 import { DRIVER_NAMES, teamAccent } from "../constants";
 import DriverAvatar from "./DriverAvatar";
 
@@ -15,23 +13,9 @@ function DeltaBadge({ delta }) {
   );
 }
 
-export default function PredictedFinishes() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch(`${API}/weekend-finishes`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.detail) throw new Error(d.detail);
-        setData(d);
-      })
-      .catch(e => setError(e.message || "Failed to load predicted finishes."))
-      .finally(() => setLoading(false));
-  }, []);
-
+// Controlled: App owns the /weekend-finishes fetch and shares it with the
+// Overview live-card, so this component just renders whatever it's handed.
+export default function PredictedFinishes({ data, loading, error }) {
   if (loading) {
     return (
       <div className="text-center py-10">

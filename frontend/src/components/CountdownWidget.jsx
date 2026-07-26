@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+// Compact "T-MINUS  DD:HH:MM:SS" clock for the header, matching the pit-wall look.
 export default function CountdownWidget({ nextRace }) {
   const [timeLeft, setTimeLeft] = useState(null);
 
@@ -22,21 +23,17 @@ export default function CountdownWidget({ nextRace }) {
 
   if (!nextRace) return null;
 
+  const pad = (n) => String(n).padStart(2, "0");
+
   return (
-    <div className="text-right">
-      <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-0.5">Next Race</p>
-      <p className="text-white font-bold text-base leading-tight mb-2">{nextRace.race_name}</p>
+    <div className="flex items-center gap-3">
+      <span className="text-[10.5px] tracking-widest text-pw-muted hidden sm:inline">T-MINUS</span>
       {timeLeft ? (
-        <div className="flex items-end gap-3 justify-end">
-          {[["D", timeLeft.days], ["H", timeLeft.hours], ["M", timeLeft.minutes], ["S", timeLeft.seconds]].map(([label, val]) => (
-            <div key={label} className="text-center">
-              <p className="text-3xl font-mono font-black text-red-500 leading-none">{String(val).padStart(2, "0")}</p>
-              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{label}</p>
-            </div>
-          ))}
-        </div>
+        <span className="text-pw-red font-bold text-[13px] tabular-nums tracking-tight">
+          {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
+        </span>
       ) : (
-        <p className="text-green-400 text-sm font-medium">Race weekend is here!</p>
+        <span className="text-pw-safe font-bold text-[12px]">LIGHTS OUT</span>
       )}
     </div>
   );
