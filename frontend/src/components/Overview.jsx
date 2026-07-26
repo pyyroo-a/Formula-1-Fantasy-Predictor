@@ -84,25 +84,19 @@ export default function Overview({ nextRace, weekendData, weekendActiveTeam, set
                   </div>
                 );
               })}
-              {(team.constructors || []).map((c, i) => {
-                const isLast = i === team.constructors.length - 1;
-                return (
+              {/* Constructors — horizontal pair, drivers stay vertical above */}
+              <div className="grid grid-cols-2 gap-2 mt-2.5">
+                {(team.constructors || []).map(c => (
                   <div
                     key={c.name}
-                    className={`flex items-center gap-2.5 py-2 ${isLast ? "" : "border-b border-white/[0.05]"}`}
+                    className="flex items-center justify-between gap-2 bg-pw-panel2 border-l-2 pl-2.5 pr-2 py-2"
+                    style={{ borderColor: teamAccent(c.name) }}
                   >
-                    <div className="w-5 text-pw-muted text-[11px]">{String(team.drivers.length + i + 1).padStart(2, "0")}</div>
-                    <div
-                      className="flex-1 text-[12.5px] text-white truncate border-l-2 pl-2.5"
-                      style={{ borderColor: teamAccent(c.name) }}
-                    >
-                      {c.name}
-                    </div>
-                    <span className="text-[9.5px] px-1.5 py-0.5 rounded-sm text-pw-muted bg-white/5">CONSTRUCTOR</span>
-                    <div className="text-[11.5px] text-white w-16 text-right">${c.price?.toFixed(1)}M</div>
+                    <span className="text-[12px] text-white truncate">{c.name}</span>
+                    <span className="text-[11.5px] text-white flex-shrink-0">${c.price?.toFixed(1)}M</span>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           ) : (
             <p className="text-pw-muted text-xs py-4">
