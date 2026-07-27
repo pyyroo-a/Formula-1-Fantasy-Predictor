@@ -20,6 +20,17 @@ function shortName(abbr) {
   return `${parts[0][0]}. ${parts.slice(1).join(" ")}`;
 }
 
+// Green ▲ / red ▼ price move vs the previous round. Nothing when unchanged.
+function PriceDelta({ change }) {
+  if (!change) return null;
+  const up = change > 0;
+  return (
+    <span className={`text-[10px] ${up ? "text-pw-safe" : "text-pw-red"}`}>
+      {up ? "▲" : "▼"}{Math.abs(change).toFixed(1)}
+    </span>
+  );
+}
+
 // The landing dashboard — weather, weekend lineup, prices, live predicted finish.
 export default function Overview({ nextRace, weekendData, held = false, weekendActiveTeam, setWeekendActiveTeam, priceChanges, finishes }) {
   const teams = weekendData?.teams?.length ? weekendData.teams : (weekendData?.team ? [weekendData.team] : []);
@@ -124,9 +135,12 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
           <PanelLabel>DRIVER PRICES</PanelLabel>
           <div className="max-h-44 overflow-y-auto no-scrollbar pr-1">
             {allDrivers.length ? allDrivers.map(([abbr, d]) => (
-              <div key={abbr} className="flex justify-between text-[11.5px] text-white py-1">
+              <div key={abbr} className="flex justify-between items-center text-[11.5px] text-white py-1">
                 <span>{DRIVER_NAMES[abbr]?.split(" ").slice(-1)[0] || abbr}</span>
-                <span>${d.price.toFixed(1)}M</span>
+                <span className="flex items-center gap-1.5">
+                  <PriceDelta change={d.change} />
+                  ${d.price.toFixed(1)}M
+                </span>
               </div>
             )) : <p className="text-pw-muted text-xs py-2">Loading…</p>}
           </div>
@@ -136,12 +150,15 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
           <PanelLabel>CONSTRUCTOR PRICES</PanelLabel>
           <div className="max-h-36 overflow-y-auto no-scrollbar pr-1">
             {allConstructors.length ? allConstructors.map(([name, d]) => (
-              <div key={name} className="flex justify-between text-[11.5px] text-white py-1">
+              <div key={name} className="flex justify-between items-center text-[11.5px] text-white py-1">
                 <span
                   className="truncate border-l-2 pl-2"
                   style={{ borderColor: teamAccent(name) }}
                 >{name}</span>
-                <span className="flex-shrink-0">${d.price.toFixed(1)}M</span>
+                <span className="flex items-center gap-1.5 flex-shrink-0">
+                  <PriceDelta change={d.change} />
+                  ${d.price.toFixed(1)}M
+                </span>
               </div>
             )) : <p className="text-pw-muted text-xs py-2">Loading…</p>}
           </div>
