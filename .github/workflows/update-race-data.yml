@@ -9,6 +9,9 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    # Grant the workflow token write access so `git push` isn't rejected (exit 128).
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repo
