@@ -120,6 +120,11 @@ class BudgetRequest(BaseModel):
     budget: float = 100.0
 
 
+class PracticeRequest(BaseModel):
+    race_name: str
+    session: str = ""  # empty = auto-pick the final practice session that exists
+
+
 @app.post("/predict")
 def get_fantasy_team(request: RaceRequest):
     team = build_fantasy_team(fantasy_table, request.race_name)
@@ -565,6 +570,89 @@ def get_qualifying_results(request: RaceRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Could not fetch qualifying: {str(e)}")
+
+
+@app.post("/practice-results")
+def get_practice_results(request: PracticeRequest):
+    """
+    Returns the fastest-lap classification for a practice session, plus the list
+    of practice sessions that actually exist for the weekend. Sprint weekends run
+    only FP1, so the available sessions are read from the real schedule rather
+    than assumed — this works for past sprints too, which the hardcoded sprint
+    list doesn't cover.
+    """
+    try:
+        df = pd.read_csv("data/processed/race_results_2026.csv")
+        race_data = df[df["RaceName"] == request.race_name]
+        year = int(race_data["Year"].iloc[0]) if not race_data.empty else 2026
+    except Exception:
+        year = 2026
+
+    try:
+        fastf1.Cache.enable_cache("data/cache")
+        event = fastf1.get_event(year, request.race_name)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not load event: {str(e)}")
+
+    # Read which practice sessions the weekend actually ran (Session1..Session5).
+    practice_names = {"Practice 1": "FP1", "Practice 2": "FP2", "Practice 3": "FP3"}
+    available = []
+    for i in range(1, 6):
+        name = event.get(f"Session{i}")
+        if name in practice_names:
+            available.append(practice_names[name])
+    available.sort()  # FP1 → FP2 → FP3
+
+    if not available:
+        raise HTTPException(status_code=404, detail="No practice sessions for this race")
+
+    # Use the requested session if it exists this weekend, else the final one.
+    session_name = request.session if request.session in available else available[-1]
+
+    try:
+        sess = event.get_session(session_name)
+        sess.load(laps=True, telemetry=False, weather=False, messages=False)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not fetch {session_name}: {str(e)}")
+
+    laps = sess.laps[["Driver", "Team", "LapTime"]].dropna(subset=["LapTime"]).copy()
+    if laps.empty:
+        raise HTTPException(status_code=404, detail=f"No lap data available for {session_name} yet")
+
+    fastest = (
+        laps.groupby("Driver")["LapTime"].min().reset_index()
+        .sort_values("LapTime").reset_index(drop=True)
+    )
+    teams = laps.groupby("Driver")["Team"].first()
+    pole = fastest["LapTime"].min()
+
+    name_map = {}
+    try:
+        for _, r in sess.results.iterrows():
+            name_map[r["Abbreviation"]] = r["FullName"]
+    except Exception:
+        pass
+
+    def fmt_time(t):
+        total_ms = int(t.total_seconds() * 1000)
+        mins = total_ms // 60000
+        secs = (total_ms % 60000) / 1000
+        return f"{mins}:{secs:06.3f}"
+
+    output = []
+    for i, row in fastest.iterrows():
+        drv = row["Driver"]
+        lap = row["LapTime"]
+        output.append({
+            "Position": int(i) + 1,
+            "Abbreviation": drv,
+            "FullName": name_map.get(drv, drv),
+            "TeamName": teams.get(drv, ""),
+            "LapTime": fmt_time(lap),
+            "GapToPole": round((lap - pole).total_seconds(), 3),
+        })
+
+    return {"session": session_name, "available_sessions": available, "results": output}
 
 
 @app.get("/weekend-team")
