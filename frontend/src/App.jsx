@@ -4,6 +4,7 @@ import CountdownWidget from "./components/CountdownWidget";
 import Overview from "./components/Overview";
 import RaceResultsTable from "./components/RaceResultsTable";
 import QualifyingTable from "./components/QualifyingTable";
+import PracticeTable from "./components/PracticeTable";
 import { TeamStatGrid, BudgetDriverCard, ConstructorCard, BoostPickCard } from "./components/BudgetTeam";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
@@ -28,15 +29,16 @@ const MYTEAM_TABS = [
 ];
 
 const RACEDATA_TABS = [
-  { id: "results",    label: "RACE RESULTS" },
+  { id: "practice",   label: "PRACTICE" },
   { id: "qualifying", label: "QUALIFYING" },
+  { id: "results",    label: "RACE RESULTS" },
   ...(IS_DEV ? [{ id: "backtest", label: "BACKTEST" }] : []),
 ];
 
 function App() {
   const [section, setSection] = useState("overview");
   const [myTeamTab, setMyTeamTab] = useState("budget");
-  const [raceDataTab, setRaceDataTab] = useState("results");
+  const [raceDataTab, setRaceDataTab] = useState("practice");
 
   const [races, setRaces] = useState([]);
   const [upcomingRaces, setUpcomingRaces] = useState([]);
@@ -64,6 +66,12 @@ function App() {
   const [raceResults, setRaceResults] = useState(null);
   const [resultsLoading, setResultsLoading] = useState(false);
   const [resultsError, setResultsError] = useState(null);
+
+  // Practice tab
+  const [practiceRace, setPracticeRace] = useState("");
+  const [practiceData, setPracticeData] = useState(null);   // { session, available_sessions, results }
+  const [practiceLoading, setPracticeLoading] = useState(false);
+  const [practiceError, setPracticeError] = useState(null);
 
   // Qualifying tab
   const [qualRace, setQualRace] = useState("");
@@ -110,6 +118,23 @@ function App() {
       setRaceResults(data);
     } catch (e) { setResultsError(e.message || "Failed to load race results."); }
     setResultsLoading(false);
+  };
+
+  // session = "" lets the backend auto-pick the final practice session that ran
+  // (FP3 normally, FP1 on sprint weekends), and tell us which sessions exist.
+  const fetchPractice = async (raceName, session = "") => {
+    if (!raceName) return;
+    setPracticeLoading(true); setPracticeError(null);
+    try {
+      const res = await fetch(`${API}/practice-results`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ race_name: raceName, session }),
+      });
+      const data = await res.json();
+      if (data.detail) throw new Error(data.detail);
+      setPracticeData(data);
+    } catch (e) { setPracticeError(e.message || "Failed to load practice data."); setPracticeData(null); }
+    setPracticeLoading(false);
   };
 
   const fetchQualifying = async () => {
@@ -242,6 +267,57 @@ function App() {
                   <div>
                     <p className={sectionHead}>{resultsRace?.toUpperCase()} · FINAL CLASSIFICATION</p>
                     <RaceResultsTable results={raceResults} />
+                  </div>
+                )}
+              </>
+            )}
+
+            {mode === "practice" && section === "racedata" && (
+              <>
+                <select
+                  value={practiceRace}
+                  onChange={e => {
+                    const r = e.target.value;
+                    setPracticeRace(r); setPracticeData(null); setPracticeError(null);
+                    if (r) fetchPractice(r);
+                  }}
+                  className={`${inputCls} mb-3`}
+                >
+                  <option value="">Select a race</option>
+                  {races.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+
+                {/* Session switcher — only the sessions that actually ran this weekend */}
+                {practiceData?.available_sessions?.length > 0 && (
+                  <div className="flex gap-0.5 mb-4">
+                    {practiceData.available_sessions.map(s => (
+                      <button
+                        key={s}
+                        onClick={() => fetchPractice(practiceRace, s)}
+                        disabled={practiceLoading}
+                        className={`px-4 py-2 text-[11px] font-medium transition ${
+                          practiceData.session === s
+                            ? "bg-pw-red text-white"
+                            : "bg-pw-panel2 text-pw-muted hover:text-white"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {practiceLoading && (
+                  <div className="text-center mb-4">
+                    <p className="text-pw-muted text-sm">Fetching practice pace from FastF1…</p>
+                    <p className="text-pw-muted/60 text-xs mt-1">May take 15–30 seconds on first load</p>
+                  </div>
+                )}
+                {practiceError && <p className="text-pw-red text-sm text-center mb-4">{practiceError}</p>}
+                {practiceData?.results?.length > 0 && !practiceLoading && (
+                  <div>
+                    <p className={sectionHead}>{practiceRace?.toUpperCase()} · {practiceData.session} PACE</p>
+                    <PracticeTable results={practiceData.results} />
                   </div>
                 )}
               </>
