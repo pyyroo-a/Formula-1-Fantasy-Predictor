@@ -27,7 +27,7 @@ def fetch_race_results(year: int, event_name: str) -> pd.DataFrame:
     if session_year != year:
         raise ValueError(
             f"FastF1 returned {session_year} data for '{event_name}', expected {year}. "
-            f"The cache may be stale — try again once FastF1 has updated."
+            f"The cache may be stale. Try again once FastF1 has updated."
         )
 
     cols = ["Abbreviation", "FullName", "TeamName", "GridPosition", "Position", "Status"]
@@ -41,13 +41,13 @@ def fetch_race_results(year: int, event_name: str) -> pd.DataFrame:
     results["Status"] = results["Status"].apply(_normalize_status)
 
     # Guard against FastF1 returning driver entries before the race is actually
-    # classified — every Position comes back NaN. Writing those gives an all-DNF
+    # classified, every Position comes back NaN. Writing those gives an all-DNF
     # placeholder race that then blocks a proper re-fetch, so treat it as "not
     # ready yet" and raise instead.
     if results["Position"].notna().sum() == 0:
         raise ValueError(
             f"'{event_name}' results are not classified yet (all positions empty). "
-            f"FastF1 may not have published the race — try again later."
+            f"FastF1 may not have published the race yet. Try again later."
         )
 
     return results
