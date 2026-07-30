@@ -804,6 +804,57 @@ def get_weekend_team():
     }
 
 
+@app.get("/last-team")
+def get_last_team():
+    """
+    Between race weekends the Overview would otherwise sit empty. This gives the
+    dashboard a lineup to "hold" so it always has something to show:
+      1. the saved lock file, if it still exists (the exact team that was fielded), or
+      2. the optimal teams for the most recently completed race, rebuilt from the
+         committed results plus current prices.
+    Option 2 is the reliable path because the lock file is runtime-only and gets
+    wiped whenever the backend redeploys. Flagged held=true so the frontend labels
+    it a held lineup, and active=true so the existing Overview renders it unchanged.
+    """
+    # Prefer the real lock if it happens to still be on disk.
+    locked = load_locked_team()
+    if locked:
+        locked_teams = locked.get("teams") or ([locked["team"]] if locked.get("team") else [])
+        if locked_teams:
+            return {
+                "active": True,
+                "held": True,
+                "race_name": locked.get("race_name"),
+                "session_used": locked.get("session_used"),
+                "locked_at": locked.get("locked_at"),
+                "teams": locked_teams,
+                "team": locked_teams[0],
+            }
+
+    # Fall back to the most recently completed race from the committed data.
+    if fantasy_table is None or not current_prices or not current_prices.get("drivers"):
+        return {"active": False, "held": False, "message": "No team available yet."}
+
+    latest_round = int(fantasy_table["RoundNumber"].max())
+    race_rows = fantasy_table[fantasy_table["RoundNumber"] == latest_round]
+    if race_rows.empty:
+        return {"active": False, "held": False, "message": "No completed races yet."}
+    race_name = race_rows["RaceName"].iloc[0]
+
+    teams = build_budget_teams(fantasy_table, race_name, current_prices, budget=100.0)
+    if not teams:
+        return {"active": False, "held": False, "message": "Could not rebuild the last team."}
+
+    return {
+        "active": True,
+        "held": True,
+        "race_name": race_name,
+        "session_used": "RACE",
+        "teams": teams,
+        "team": teams[0],
+    }
+
+
 @app.get("/backtest")
 def get_backtest(refresh: bool = False):
     """
