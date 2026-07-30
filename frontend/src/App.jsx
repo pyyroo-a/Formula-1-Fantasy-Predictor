@@ -56,6 +56,11 @@ function App() {
     catch { return null; }
   });
 
+  // Backend fallback for the very first between-races gap, before any live
+  // weekend has been cached to localStorage. Rebuilds the most recent completed
+  // race's team so the Overview is never empty.
+  const [heldFallback, setHeldFallback] = useState(null);
+
   // Predicted finishes — fetched once, shared by Overview live-card + Insights.
   const [finishes, setFinishes] = useState(null);
   const [finishesLoading, setFinishesLoading] = useState(true);
@@ -96,6 +101,12 @@ function App() {
       // Persist the last live weekend so it can be held between races.
       if (d?.active && (d?.teams?.length || d?.team)) {
         try { localStorage.setItem("pitwall_last_team", JSON.stringify(d)); } catch {}
+      } else if (!d?.active && !lastTeam) {
+        // No live weekend and nothing cached yet — pull the last team from the
+        // backend so the Overview isn't empty until localStorage starts filling.
+        fetch(`${API}/last-team`).then(r => r.json())
+          .then(h => { if (h?.held) setHeldFallback(h); })
+          .catch(() => {});
       }
     }).catch(() => {});
     fetch(`${API}/weekend-finishes`)
@@ -170,10 +181,12 @@ function App() {
   // Derived mode keeps the existing content blocks working unchanged.
   const mode = section === "myteam" ? myTeamTab : raceDataTab;
 
-  // Between races the live fetch is inactive — fall back to the cached team so
-  // the Overview keeps showing the last lineup, flagged as "held".
-  const held = !!(weekendData && !weekendData.active && lastTeam);
-  const overviewWeekend = held ? lastTeam : weekendData;
+  // Between races the live fetch is inactive — fall back to the cached team, or
+  // the backend's last-team rebuild, so the Overview keeps showing a lineup,
+  // flagged as "held". localStorage wins so the label tracks each race by name.
+  const heldTeam = lastTeam || heldFallback;
+  const held = !!(weekendData && !weekendData.active && heldTeam);
+  const overviewWeekend = (weekendData && !weekendData.active) ? (heldTeam || weekendData) : weekendData;
 
   // Shared pit-wall form styling.
   const inputCls = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";

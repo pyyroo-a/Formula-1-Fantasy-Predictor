@@ -78,7 +78,7 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
           </div>
           {team && held && (
             <p className="text-[10px] text-pw-risk bg-pw-risk/10 border-l-2 border-pw-risk pl-2 py-1 mb-2.5">
-              No active weekend — holding your last locked team. New picks appear once the next race's practice data is in.
+              No active race weekend right now. Holding your last team until the next race's practice pace comes in.
             </p>
           )}
           {team ? (
