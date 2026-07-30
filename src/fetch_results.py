@@ -10,9 +10,13 @@ fastf1.Cache.enable_cache("data/cache")
 
 def _normalize_status(status: str) -> str:
     """Maps FastF1 raw status values to the three categories the pipeline expects."""
-    if status == "Finished":
+    s = str(status)
+    if s == "Finished":
         return "Finished"
-    if str(status).startswith("+"):  # "+1 Lap", "+2 Laps", etc.
+    # Classified but laps down. FastF1 reports these either as the literal
+    # "Lapped" or as "+1 Lap" / "+2 Laps". Both are finishers the pipeline keeps;
+    # only genuine retirements (Retired, Accident, Engine, DNS, ...) become DNF.
+    if s == "Lapped" or s.startswith("+"):
         return "Lapped"
     return "DNF"
 
