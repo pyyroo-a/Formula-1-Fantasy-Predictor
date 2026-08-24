@@ -388,5 +388,45 @@
       "Aston Martin": 5.7,
       "Cadillac": 3.0
     }
+  },
+  "13": {
+    "drivers": {
+      "GAS": 12.4,
+      "COL": 10.6,
+      "ALO": 6.8,
+      "STR": 3.0,
+      "BOR": 8.0,
+      "HUL": 3.6,
+      "PER": 3.2,
+      "BOT": 3.0,
+      "HAM": 25.1,
+      "LEC": 24.2,
+      "OCO": 10.1,
+      "BEA": 7.0,
+      "NOR": 26.4,
+      "PIA": 24.1,
+      "RUS": 27.6,
+      "ANT": 26.0,
+      "LAW": 14.3,
+      "TSU": 9.7,
+      "LIN": 7.8,
+      "VER": 27.5,
+      "HAD": 14.5,
+      "SAI": 9.8,
+      "ALB": 5.2
+    },
+    "constructors": {
+      "Mercedes": 32.9,
+      "McLaren": 31.3,
+      "Red Bull Racing": 31.2,
+      "Ferrari": 26.9,
+      "Alpine": 18.9,
+      "Racing Bulls": 13.5,
+      "Williams": 13.2,
+      "Haas F1 Team": 11.4,
+      "Audi": 7.4,
+      "Aston Martin": 6.3,
+      "Cadillac": 3.0
+    }
   }
 }
