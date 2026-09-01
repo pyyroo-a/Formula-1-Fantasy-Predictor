@@ -1,0 +1,22 @@
+# The backend image needs main.py, src/, scripts/ and data/processed/ only.
+venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+
+# Frontend is deployed separately on Vercel.
+frontend/
+driver-cards/
+
+# 6.7 GB locally, and ephemeral on Spaces anyway — it rebuilds on demand.
+data/cache/
+data/locked_team.json
+
+notebooks/
+results/
+docs/
+*.md
+!README.md
+.env
+.env.local
