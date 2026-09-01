@@ -2,6 +2,8 @@
 
 An ML-powered F1 Fantasy assistant that predicts race outcomes, builds optimal teams within budget, advises on chip timing, and gives you the intel to make smarter picks before qualifying locks in.
 
+**Live:** [formula-1-fantasy-predictor.vercel.app](https://formula-1-fantasy-predictor.vercel.app)
+
 ## Motivation
 
 F1 Fantasy is deceptively hard. The sport is chaotic — a consistent midfield driver can suddenly shine at a specific circuit, or a front-runner can qualify on pole and finish P8. Plain statistics aren't enough. PitWall combines historical rolling form, grid position analysis, live practice session data, and F1 Fantasy pricing to capture both the predictable and the unpredictable sides of F1.
@@ -222,12 +224,15 @@ In production, set `CORS_ORIGINS` to your deployed frontend URL.
 ## Deployment
 
 - **Frontend** → Vercel (set root directory to `frontend/`)
-- **Backend** → Railway (start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`)
-- Set `CORS_ORIGINS` on Railway to the Vercel deployment URL
+- **Backend** → Render (Docker runtime, builds the root `Dockerfile`, binds `$PORT`)
+- Set `CORS_ORIGINS` in the Render dashboard to the Vercel deployment URL
+- Set `VITE_API_URL` on Vercel to the Render URL, then redeploy — Vite bakes env vars in at build time
+
+The free instance sleeps after 15 minutes idle, so the first request after a quiet spell pays a cold start.
 
 ## Automation
 
-A GitHub Actions cron (`.github/workflows/update-race-data.yml`) runs every Monday at 06:00 UTC, fetches any newly completed races via FastF1, and commits the updated CSV. Railway auto-deploys on push, so the model retrains on fresh data without any manual step.
+A GitHub Actions cron (`.github/workflows/update-race-data.yml`) runs every Monday at 06:00 UTC, fetches any newly completed races via FastF1, and commits the updated CSV. Render auto-deploys on push, so the model retrains on fresh data without any manual step.
 
 ## Planned
 
