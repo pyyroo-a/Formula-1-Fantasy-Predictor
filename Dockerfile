@@ -29,6 +29,5 @@ RUN mkdir -p data/cache data/processed
 
 EXPOSE 8080
 
-# Shell form so $PORT is expanded at runtime. Hosts inject their own port
-# (Cloud Run and DigitalOcean use 8080, Fly uses whatever fly.toml says).
+# Shell form so $PORT is expanded at runtime — Render injects its own port.
 CMD uvicorn main:app --host 0.0.0.0 --port $PORT
