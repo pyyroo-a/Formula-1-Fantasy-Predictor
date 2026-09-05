@@ -47,6 +47,160 @@ This means at Monaco the optimiser naturally prefers front-row qualifiers, and a
 
 Practice session availability is shown directly in the Manual Team tab — green dot means data is ready, otherwise the expected session time is displayed so you know exactly when to come back. The session picker auto-fallbacks FP3 → FP2 → FP1 and always shows which session the predictions are based on.
 
+## Handling Uncertainty
+
+**You have to pick your F1 Fantasy team before qualifying happens.**
+
+That one rule shapes everything. When the deadline hits, nobody knows the starting
+grid yet. So PitWall does the only thing available: it looks at who was fastest in
+practice and assumes the race will start roughly in that order.
+
+That assumption is the biggest source of error in the whole system. `scripts/measure_grid_error.py`
+checks how often it is wrong, by replaying all of 2026 and comparing what practice
+predicted against where drivers actually lined up.
+
+```
+python scripts/measure_grid_error.py --year 2026
+```
+
+### How good is practice, really?
+
+Across 12 races and 260 driver performances:
+
+| | |
+|---|---|
+| Typical miss | **about 2 places** |
+| Half the time | within 1 place |
+| Worst 5% of the time | off by 6 or more |
+| Picked the actual pole-sitter | **7 races out of 12** |
+
+Practice is decent. It is not close to reliable.
+
+Importantly, it is not *biased*. It does not flatter one team or drag another down.
+It is simply noisy, and it misses in both directions about equally. That matters,
+because it means you cannot fix this by tweaking a number somewhere. The wobble is
+real and it is not going away.
+
+### Why "off by 2 places" is worse than it sounds
+
+F1 Fantasy does not award points smoothly. It awards them in **jumps**:
+
+- Qualify in the **top 10** and you score up to +10
+- Qualify **11th to 15th** and you score nothing
+- Qualify **16th or worse** and you *lose* 5 points
+
+So the gap between 10th and 11th is not one place. It is the difference between
+points and nothing. And the gap between 15th and 16th swings you from zero to minus five.
+
+Now put those two facts together. Practice is normally off by about two places, and
+the scoring has sudden drops at exactly those boundaries.
+
+> **One pick in four (25.8%) ends up on the wrong side of one of these jumps.**
+> PitWall scores the driver for a grid slot he never actually started from.
+
+**Monza 2026 is the perfect example.** Practice had Gasly down in 9th, so PitWall
+gave him a small qualifying score. He then went out and took pole, worth the full
++10. The prediction was not slightly off. It was looking at a completely different
+race.
+
+### Sprint weekends are noticeably shakier
+
+Normal weekends have three practice sessions. Sprint weekends have **one**, and it
+runs on a green, dusty track before anyone has properly dialled the car in.
+
+| | Normal weekend | Sprint weekend |
+|---|---|---|
+| Typical miss | 1.9 places | **2.5 places** |
+| Landed on the wrong side of a scoring jump | 23% | **29%** |
+| Found the actual pole-sitter | **7 out of 7** | **0 out of 5** |
+
+Practice correctly identified the pole-sitter at every single normal weekend, and at
+none of the sprint weekends. Sprint weekends are not a different problem needing a
+different model. They are the same problem with **less information**, so the sensible
+response is for PitWall to be visibly less confident on those weekends.
+
+### Cars that do not finish
+
+About **3 cars per race retire**. PitWall's scoring has always applied a −20 point
+penalty for a retirement, but for upcoming races it quietly set that penalty to zero
+and assumed all 20 cars would finish. So the riskiest picks looked exactly as safe as
+the reliable ones.
+
+`src/dnf.py` estimates how likely each driver is to retire. It does **not** try to
+call who will crash, which is not possible. It prices the risk so the expected points
+stop being quietly optimistic.
+
+What the data says, over 2025 and 2026:
+
+- **Where you start matters most.** Front-runners retire far less than backmarkers:
+  roughly 8% from the first two rows, rising past 20% at the back. Slower cars are
+  less reliable and more exposed to first-lap trouble.
+- **The season matters a lot.** 2025 ran at 12.5%, 2026 at 21.6%, almost double.
+  Recent races are weighted more heavily as a result.
+- **Who is driving matters less than it looks.** One driver retiring nine times in 36
+  races and another retiring twice looks like a huge gap, but a perfectly average
+  driver would produce that spread by luck reasonably often. So individual rates get
+  pulled toward the field average, by an amount measured from the data rather than
+  picked by hand. Tracks get pulled even harder, since each one has only been raced
+  once or twice.
+
+Roughly what it produces for a typical driver:
+
+| Starting slot | Chance of retiring | Average points cost |
+|---|---|---|
+| P1 | 7.5% | −1.5 |
+| P5 | 9.8% | −2.0 |
+| P10 | 13.8% | −2.8 |
+| P15 | 18.9% | −3.8 |
+| P20 | 25.4% | −5.1 |
+
+**Was it tested?** Yes. `scripts/measure_dnf.py` replays 2026 race by race, training
+only on races that had already happened and then predicting the next one. It is graded
+against the simplest sensible forecast: give every driver the same average chance.
+
+| | Model | Flat average |
+|---|---|---|
+| Brier score (lower is better) | **0.1652** | 0.1750 |
+| Log loss (lower is better) | **0.5126** | 0.5429 |
+| Races predicted better | **11 of 12** | |
+
+An improvement of about 5.6%. Real, and consistent across the season, but modest. Worth
+being honest that the big win here is not the fancy part, it is simply no longer
+pretending that every car finishes.
+
+### What we are doing about it
+
+The instinct is "make the prediction better." That is the wrong target, and we have
+the evidence: PitWall's machine-learning adjustments are currently switched off
+(`SHRINK_TO_GRID = 0.0` in `src/models.py`) because testing showed they made results
+*worse*, not better.
+
+The actual problem is that PitWall commits to **one guess** and then treats it as
+fact, even though we now know that guess is off by two places on a typical weekend.
+
+So instead of predicting one weekend, PitWall will simulate **thousands** of them.
+
+Each simulated weekend rolls a slightly different grid, drawn from the real spread of
+errors measured above. Some drivers retire, based on how often they actually retire
+(**15.3%** of the time across 2025 and 2026, roughly 3 cars per race, a number PitWall
+currently ignores completely by assuming everyone finishes). Then every simulated
+weekend gets scored with the normal scoring rules.
+
+Run that a few thousand times and you learn things a single guess can never tell you:
+
+- What a driver scores **on average**, rather than in one lucky version of events
+- How **reliable** that number is, since a driver who scores 20 every time is a very
+  different pick from one who scores 40 or 0
+- The chance a pick **backfires**
+
+That last point is what actually wins fantasy leagues. You get three teams, so the
+right move is one safe team and one that swings for the fences, and you cannot make
+that call without knowing which picks are risky.
+
+Nothing ships on vibes. Every change is tested against `run_backtest`, which replays
+completed races. The bar to beat is the embarrassingly simple strategy of just picking
+drivers in practice order, which currently beats PitWall's model **8 races to 0**.
+
 ## Chip Advisor
 
 PitWall analyses all 6 F1 Fantasy chips against your squad and the upcoming race predictions:
@@ -147,6 +301,7 @@ pitwall/
 │   ├── features.py
 │   ├── fantasy.py                 # Real F1 Fantasy scoring + budget team solver
 │   ├── circuit_profiles.py        # Per-circuit overtaking ratings + blend weights
+│   ├── dnf.py                     # P(retirement) per driver, used to price risk
 │   ├── championship_form.py
 │   ├── models.py
 │   ├── pipeline.py
@@ -154,7 +309,9 @@ pitwall/
 │   ├── fetch_prices.py            # Fetches current + previous round prices, diffs them
 │   └── fetch_results.py
 ├── scripts/
-│   └── update_data.py             # Called by the GitHub Actions cron
+│   ├── update_data.py             # Called by the GitHub Actions cron
+│   ├── measure_grid_error.py      # Practice-order vs real-grid error (see Handling Uncertainty)
+│   └── measure_dnf.py             # Walk-forward validation of the DNF model
 ├── .github/workflows/
 │   └── update-race-data.yml       # Auto-fetches new race results every Monday
 ├── docs/
