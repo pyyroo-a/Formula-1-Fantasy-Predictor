@@ -1,0 +1,72 @@
+name: Lock Weekend Team
+
+# The backend writes data/locked_team.json when it first sees final practice data,
+# but Render's free tier has no persistent disk, so that file dies on the next
+# redeploy. This job writes the same lock from CI and commits it, so it ships
+# inside the deploy image and survives every restart.
+#
+# It also leaves a permanent record in the repo of what PitWall recommended
+# BEFORE each race, which is the honest way to judge the model later.
+
+on:
+  schedule:
+    # Every 3 hours on Friday and Saturday. Final practice is FP3 on Saturday for
+    # a conventional weekend and FP1 on Friday for a sprint, and races span every
+    # time zone, so this polls rather than trying to guess the exact hour.
+    # Runs are cheap when nothing is on: the script exits before doing any work
+    # if no race weekend is live.
+    - cron: "0 */3 * * 5,6"
+  workflow_dispatch:
+    inputs:
+      race:
+        description: "Event name to lock (blank = auto-detect this weekend)"
+        required: false
+      force:
+        description: "Overwrite an existing lock for that race"
+        type: boolean
+        default: false
+
+# Never let two runs race each other to write the same file.
+concurrency:
+  group: lock-team
+  cancel-in-progress: false
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # The lock has to be built by the same code the app uses, so this needs the
+      # full dependency set rather than the smaller one update-race-data.yml uses.
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build the lock
+        run: |
+          python scripts/lock_team.py \
+            ${{ inputs.race && format('--race "{0}"', inputs.race) || '' }} \
+            ${{ inputs.force && '--force' || '' }}
+
+      - name: Commit and push if the lock changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/locked_team.json
+          if git diff --cached --quiet; then
+            echo "Lock unchanged, nothing to commit."
+          else
+            RACE=$(python -c "import json;print(json.load(open('data/locked_team.json'))['race_name'])")
+            git commit -m "chore: lock team for $RACE"
+            git push
+          fi

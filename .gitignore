@@ -2,7 +2,9 @@ venv/
 __pycache__/
 *.pyc
 data/cache/
-data/locked_team.json
+# data/locked_team.json is now COMMITTED on purpose. Render's free tier has no
+# persistent disk, so a runtime-only lock dies on every redeploy. See
+# .github/workflows/lock-team.yml and scripts/lock_team.py.
 .ipynb_checkpoints/
 frontend/.env.local
 frontend/node_modules/

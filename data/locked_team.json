@@ -1,0 +1,346 @@
+{
+  "race_name": "Italian Grand Prix",
+  "round": 13,
+  "session_used": "FP3",
+  "locked_at": "2026-09-06T19:48:53.146928+00:00",
+  "teams": [
+    {
+      "drivers": [
+        {
+          "Abbreviation": "RUS",
+          "TeamName": "Mercedes",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 36.0,
+          "Price": 27.6,
+          "PickCategory": "Safe",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "HAM",
+          "TeamName": "Ferrari",
+          "GridPosition": 2,
+          "Predicted": 1.9,
+          "FantasyValue": 27.9,
+          "Price": 25.1,
+          "PickCategory": "Safe",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "LIN",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 7,
+          "Predicted": 7.2,
+          "FantasyValue": 10.4,
+          "Price": 7.8,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "HUL",
+          "TeamName": "Audi",
+          "GridPosition": 11,
+          "Predicted": 11.2,
+          "FantasyValue": 0.0,
+          "Price": 3.6,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "STR",
+          "TeamName": "Aston Martin",
+          "GridPosition": 22,
+          "Predicted": 20.0,
+          "FantasyValue": -1.9,
+          "Price": 3.0,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Ferrari",
+          "price": 26.9,
+          "score": 45.9,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        },
+        {
+          "name": "Cadillac",
+          "price": 3.0,
+          "score": 0.0,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        }
+      ],
+      "total_cost": 97.0,
+      "budget_remaining": 3.0,
+      "total_score": 118.3,
+      "boost_pick": {
+        "Abbreviation": "RUS",
+        "TeamName": "Mercedes",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "HAM",
+          "LIN"
+        ]
+      },
+      "chips": {
+        "my_team_score": 104.6,
+        "limitless": {
+          "gain": 124.5,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 13.7,
+          "recommendation": "CONSIDER"
+        },
+        "x3_boost": {
+          "gain": 36.0,
+          "target": "RUS",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "STR",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "dnf_risk_pct": 65,
+          "is_high_attrition": false,
+          "recommendation": "HOLD"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    },
+    {
+      "drivers": [
+        {
+          "Abbreviation": "RUS",
+          "TeamName": "Mercedes",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 36.0,
+          "Price": 27.6,
+          "PickCategory": "Safe",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "LIN",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 7,
+          "Predicted": 7.2,
+          "FantasyValue": 10.4,
+          "Price": 7.8,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "BOR",
+          "TeamName": "Audi",
+          "GridPosition": 13,
+          "Predicted": 13.2,
+          "FantasyValue": 0.0,
+          "Price": 8.0,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "BEA",
+          "TeamName": "Haas F1 Team",
+          "GridPosition": 14,
+          "Predicted": 14.2,
+          "FantasyValue": 0.0,
+          "Price": 7.0,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "STR",
+          "TeamName": "Aston Martin",
+          "GridPosition": 22,
+          "Predicted": 20.0,
+          "FantasyValue": -1.9,
+          "Price": 3.0,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Mercedes",
+          "price": 32.9,
+          "score": 59.2,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        },
+        {
+          "name": "Racing Bulls",
+          "price": 13.5,
+          "score": 11.4,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        }
+      ],
+      "total_cost": 99.8,
+      "budget_remaining": 0.2,
+      "total_score": 115.1,
+      "boost_pick": {
+        "Abbreviation": "RUS",
+        "TeamName": "Mercedes",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "LIN"
+        ]
+      },
+      "chips": {
+        "my_team_score": 110.6,
+        "limitless": {
+          "gain": 118.5,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 7.7,
+          "recommendation": "HOLD"
+        },
+        "x3_boost": {
+          "gain": 36.0,
+          "target": "RUS",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "STR",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "dnf_risk_pct": 65,
+          "is_high_attrition": false,
+          "recommendation": "HOLD"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    },
+    {
+      "drivers": [
+        {
+          "Abbreviation": "RUS",
+          "TeamName": "Mercedes",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 36.0,
+          "Price": 27.6,
+          "PickCategory": "Safe",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "LIN",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 7,
+          "Predicted": 7.2,
+          "FantasyValue": 10.4,
+          "Price": 7.8,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "GAS",
+          "TeamName": "Alpine",
+          "GridPosition": 9,
+          "Predicted": 9.1,
+          "FantasyValue": 4.2,
+          "Price": 12.4,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "COL",
+          "TeamName": "Alpine",
+          "GridPosition": 10,
+          "Predicted": 10.2,
+          "FantasyValue": 2.1,
+          "Price": 10.6,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        },
+        {
+          "Abbreviation": "HUL",
+          "TeamName": "Audi",
+          "GridPosition": 11,
+          "Predicted": 11.2,
+          "FantasyValue": 0.0,
+          "Price": 3.6,
+          "PickCategory": "Risk",
+          "DNFProb": null
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Mercedes",
+          "price": 32.9,
+          "score": 59.2,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        },
+        {
+          "name": "Cadillac",
+          "price": 3.0,
+          "score": 0.0,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        }
+      ],
+      "total_cost": 97.9,
+      "budget_remaining": 2.1,
+      "total_score": 111.9,
+      "boost_pick": {
+        "Abbreviation": "RUS",
+        "TeamName": "Mercedes",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "LIN",
+          "GAS"
+        ]
+      },
+      "chips": {
+        "my_team_score": 99.2,
+        "limitless": {
+          "gain": 129.9,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 19.1,
+          "recommendation": "CONSIDER"
+        },
+        "x3_boost": {
+          "gain": 36.0,
+          "target": "RUS",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "HUL",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "dnf_risk_pct": 65,
+          "is_high_attrition": false,
+          "recommendation": "HOLD"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    }
+  ]
+}
