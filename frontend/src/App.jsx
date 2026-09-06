@@ -40,15 +40,22 @@ function cacheTeam(d) {
   try { localStorage.setItem("pitwall_last_team", JSON.stringify(d)); } catch {}
 }
 
-// Returns whichever of two held-team payloads belongs to the later race.
-// Older cached payloads predate the `round` field, so a payload without one is
-// treated as older than any payload that has one.
-function pickNewer(a, b) {
-  if (!a) return b;
-  if (!b) return a;
-  const ra = Number.isFinite(a.round) ? a.round : -1;
-  const rb = Number.isFinite(b.round) ? b.round : -1;
-  return rb > ra ? b : a;
+// Picks between this device's cached team and the backend's, by race round.
+//
+// The cache can legitimately be ahead of the backend for a few hours after a
+// race, before the results are published, so the backend does not simply always
+// win. But on a tie, or when either round is unknown, the BACKEND wins: it is the
+// one answer every device shares, and a cached team that cannot prove it is newer
+// is exactly the stale copy this whole comparison exists to get rid of.
+//
+// The unknown case is not hypothetical. Payloads cached before the `round` field
+// existed have no round at all.
+function pickNewer(cached, fromServer) {
+  if (!cached) return fromServer;
+  if (!fromServer) return cached;
+  const rc = Number.isFinite(cached.round) ? cached.round : -1;
+  const rs = Number.isFinite(fromServer.round) ? fromServer.round : -1;
+  return rc > rs ? cached : fromServer;
 }
 
 function App() {

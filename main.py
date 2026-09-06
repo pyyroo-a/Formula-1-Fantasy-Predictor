@@ -853,28 +853,66 @@ def get_last_team():
     Option 2 is the reliable path because the lock file is runtime-only and gets
     wiped whenever the backend redeploys. Flagged held=true so the frontend labels
     it a held lineup, and active=true so the existing Overview renders it unchanged.
+
+    The lock is NOT preferred unconditionally. A lock left over from an earlier race
+    would otherwise beat newer committed results, which is how a device ends up
+    holding a lineup several races out of date.
     """
-    # Prefer the real lock if it happens to still be on disk.
     locked = load_locked_team()
+    locked_teams = []
+    locked_round = None
     if locked:
         locked_teams = locked.get("teams") or ([locked["team"]] if locked.get("team") else [])
-        if locked_teams:
-            return {
-                "active": True,
-                "held": True,
-                "race_name": locked.get("race_name"),
-                "round": locked.get("round"),
-                "session_used": locked.get("session_used"),
-                "locked_at": locked.get("locked_at"),
-                "teams": locked_teams,
-                "team": locked_teams[0],
-            }
+        # Locks written before the round field existed only carry a race name, so
+        # look the round up rather than treating it as unknown. Committed results
+        # first, then the schedule, which also covers a race that has been run but
+        # whose results have not been published yet.
+        locked_round = locked.get("round")
+        name = locked.get("race_name")
+        if locked_round is None and name and fantasy_table is not None:
+            match = fantasy_table[fantasy_table["RaceName"] == name]
+            if not match.empty:
+                locked_round = int(match["RoundNumber"].iloc[0])
+        if locked_round is None and name and race_schedule is not None:
+            try:
+                ev = race_schedule[race_schedule["EventName"] == name]
+                if not ev.empty:
+                    locked_round = int(ev["RoundNumber"].iloc[0])
+            except Exception:
+                pass
+
+    def _locked_response():
+        return {
+            "active": True,
+            "held": True,
+            "race_name": locked.get("race_name"),
+            "round": locked_round,
+            "session_used": locked.get("session_used"),
+            "locked_at": locked.get("locked_at"),
+            "teams": locked_teams,
+            "team": locked_teams[0],
+        }
 
     # Fall back to the most recently completed race from the committed data.
     if fantasy_table is None or not current_prices or not current_prices.get("drivers"):
-        return {"active": False, "held": False, "message": "No team available yet."}
+        # Nothing to compare against, so the lock is the only thing on offer.
+        return _locked_response() if locked_teams else {
+            "active": False, "held": False, "message": "No team available yet."
+        }
 
     latest_round = int(fantasy_table["RoundNumber"].max())
+
+    # The lock only wins if it is for a race at least as recent as the newest
+    # committed result. A lock for the race that just ran is exactly that case, and
+    # it is the better answer there because it is the team actually fielded, and
+    # because that race's results are not published yet.
+    #
+    # A round we could not resolve at all means the race is in neither the results
+    # nor the schedule, so it cannot be shown to be older. The lock is a real team
+    # that was really fielded, so it wins by default rather than being discarded.
+    if locked_teams and (locked_round is None or locked_round >= latest_round):
+        return _locked_response()
+
     race_rows = fantasy_table[fantasy_table["RoundNumber"] == latest_round]
     if race_rows.empty:
         return {"active": False, "held": False, "message": "No completed races yet."}
