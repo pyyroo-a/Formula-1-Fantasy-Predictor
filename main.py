@@ -33,6 +33,34 @@ from src.fetch_practice import get_practice_grid, is_sprint_weekend
 from src.fetch_prices import fetch_prices, save_prices, save_price_history, fetch_price_changes
 from src.fetch_results import update_season_results
 from src.backtest import run_backtest
+from src.dnf import DNFModel, USE_DNF_RISK
+
+
+def _upcoming_dnf_probs(upcoming_table, race_name):
+    """
+    P(does not finish) per driver for a race that has not happened yet.
+
+    Fitted fresh from all committed results each time. This is cheap (a few
+    groupbys over ~800 rows) and means the estimates track the season as it goes.
+
+    Returns None if the model is switched off or anything goes wrong, and None is
+    the old behaviour: everyone is assumed to finish. The team builder must never
+    fail just because the risk model could not be fitted.
+    """
+    if not USE_DNF_RISK:
+        return None
+    try:
+        history = pd.concat(
+            [pd.read_csv(f"data/processed/race_results_{y}.csv") for y in (2025, 2026)],
+            ignore_index=True,
+        )
+        model = DNFModel.fit(history)
+        probs = model.predict(
+            upcoming_table["Abbreviation"], upcoming_table["GridPosition"], race_name
+        )
+        return dict(zip(upcoming_table["Abbreviation"], probs))
+    except Exception:
+        return None
 
 fantasy_table = None
 current_prices = None
@@ -270,7 +298,8 @@ def get_upcoming_race_pool(request: UpcomingRaceRequest):
 
     upcoming_table = predict_upcoming_race(practice_df)
 
-    pool = get_race_pool(upcoming_table, request.race_name, current_prices)
+    pool = get_race_pool(upcoming_table, request.race_name, current_prices,
+                         dnf_probs=_upcoming_dnf_probs(upcoming_table, request.race_name))
     if not pool["drivers"]:
         raise HTTPException(status_code=400, detail="No priced drivers found for that race.")
 
@@ -467,7 +496,8 @@ def get_chip_advisor(request: ChipAdvisorRequest):
         raise HTTPException(status_code=400, detail=f"No practice data available yet. {last_error}")
 
     upcoming_table = predict_upcoming_race(practice_df)
-    pool = get_race_pool(upcoming_table, request.race_name, current_prices)
+    pool = get_race_pool(upcoming_table, request.race_name, current_prices,
+                         dnf_probs=_upcoming_dnf_probs(upcoming_table, request.race_name))
 
     if not pool["drivers"]:
         raise HTTPException(status_code=400, detail="No priced drivers found for this race.")
@@ -709,6 +739,9 @@ def get_weekend_team():
         return {
             "active": True,
             "race_name": race_name,
+            # Round number travels with every team payload so the frontend can
+            # tell which of two cached teams is the more recent one.
+            "round": int(upcoming["RoundNumber"]),
             "session_used": locked["session_used"],
             "days_until": round(days_until_race, 1),
             "race_date": race_date.isoformat(),
@@ -748,13 +781,16 @@ def get_weekend_team():
 
     try:
         upcoming_table = predict_upcoming_race(practice_df)
-        teams = build_budget_teams(upcoming_table, race_name, current_prices, budget=100.0)
+        dnf_probs = _upcoming_dnf_probs(upcoming_table, race_name)
+        teams = build_budget_teams(upcoming_table, race_name, current_prices,
+                                   budget=100.0, dnf_probs=dnf_probs)
 
         # Auto-advise all 6 chips for each generated team. The optimal/limitless
         # reference teams are the same for every team this weekend, so build them
         # once and reuse them across all three.
         if teams:
-            pool = get_race_pool(upcoming_table, race_name, current_prices)
+            pool = get_race_pool(upcoming_table, race_name, current_prices,
+                                 dnf_probs=dnf_probs)
             optimal = build_budget_team(upcoming_table, race_name, current_prices, budget=100.0)
             limitless = build_budget_team(upcoming_table, race_name, current_prices, budget=999.0)
             optimal_score = optimal["total_score"] if optimal else 0.0
@@ -785,6 +821,7 @@ def get_weekend_team():
     if is_final:
         save_locked_team({
             "race_name": race_name,
+            "round": int(upcoming["RoundNumber"]),
             "session_used": session_used,
             "locked_at": locked_at,
             "teams": teams,
@@ -793,6 +830,7 @@ def get_weekend_team():
     return {
         "active": True,
         "race_name": race_name,
+        "round": int(upcoming["RoundNumber"]),
         "session_used": session_used,
         "days_until": round(days_until_race, 1),
         "race_date": race_date.isoformat(),
@@ -825,6 +863,7 @@ def get_last_team():
                 "active": True,
                 "held": True,
                 "race_name": locked.get("race_name"),
+                "round": locked.get("round"),
                 "session_used": locked.get("session_used"),
                 "locked_at": locked.get("locked_at"),
                 "teams": locked_teams,
@@ -849,6 +888,7 @@ def get_last_team():
         "active": True,
         "held": True,
         "race_name": race_name,
+        "round": latest_round,
         "session_used": "RACE",
         "teams": teams,
         "team": teams[0],
