@@ -35,6 +35,22 @@ const RACEDATA_TABS = [
   ...(IS_DEV ? [{ id: "backtest", label: "BACKTEST" }] : []),
 ];
 
+// Writes a team payload to this device's cache, ignoring quota/private-mode errors.
+function cacheTeam(d) {
+  try { localStorage.setItem("pitwall_last_team", JSON.stringify(d)); } catch {}
+}
+
+// Returns whichever of two held-team payloads belongs to the later race.
+// Older cached payloads predate the `round` field, so a payload without one is
+// treated as older than any payload that has one.
+function pickNewer(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  const ra = Number.isFinite(a.round) ? a.round : -1;
+  const rb = Number.isFinite(b.round) ? b.round : -1;
+  return rb > ra ? b : a;
+}
+
 function App() {
   const [section, setSection] = useState("overview");
   const [myTeamTab, setMyTeamTab] = useState("budget");
@@ -51,14 +67,18 @@ function App() {
 
   // Last active weekend team, cached so the Overview has something to show
   // between races ("hold this team" state) instead of an empty panel.
-  const [lastTeam] = useState(() => {
+  //
+  // This cache is per-device. That was the bug behind the phone showing the
+  // Dutch GP team while the laptop showed Monza: whichever race you happened to
+  // last open the site on is the team that device kept, forever. It is now only
+  // a starting point, reconciled against the backend below.
+  const [lastTeam, setLastTeam] = useState(() => {
     try { return JSON.parse(localStorage.getItem("pitwall_last_team") || "null"); }
     catch { return null; }
   });
 
-  // Backend fallback for the very first between-races gap, before any live
-  // weekend has been cached to localStorage. Rebuilds the most recent completed
-  // race's team so the Overview is never empty.
+  // The backend's answer for "what was the last team?". Always fetched between
+  // races now, not just when the local cache is empty.
   const [heldFallback, setHeldFallback] = useState(null);
 
   // Predicted finishes — fetched once, shared by Overview live-card + Insights.
@@ -98,12 +118,14 @@ function App() {
     fetch(`${API}/price-changes`).then(r => r.json()).then(setPriceChanges).catch(() => {});
     fetch(`${API}/weekend-team`).then(r => r.json()).then(d => {
       setWeekendData(d);
-      // Persist the last live weekend so it can be held between races.
       if (d?.active && (d?.teams?.length || d?.team)) {
-        try { localStorage.setItem("pitwall_last_team", JSON.stringify(d)); } catch {}
-      } else if (!d?.active && !lastTeam) {
-        // No live weekend and nothing cached yet — pull the last team from the
-        // backend so the Overview isn't empty until localStorage starts filling.
+        // Live weekend: this is the truth, so overwrite the device cache.
+        cacheTeam(d);
+        setLastTeam(d);
+      } else if (!d?.active) {
+        // Between races. Always ask the backend rather than trusting whatever
+        // this particular device happens to be holding, otherwise two devices
+        // drift apart and never reconcile.
         fetch(`${API}/last-team`).then(r => r.json())
           .then(h => { if (h?.held) setHeldFallback(h); })
           .catch(() => {});
@@ -181,10 +203,29 @@ function App() {
   // Derived mode keeps the existing content blocks working unchanged.
   const mode = section === "myteam" ? myTeamTab : raceDataTab;
 
-  // Between races the live fetch is inactive — fall back to the cached team, or
-  // the backend's last-team rebuild, so the Overview keeps showing a lineup,
-  // flagged as "held". localStorage wins so the label tracks each race by name.
-  const heldTeam = lastTeam || heldFallback;
+  // Between races the live fetch is inactive, so the Overview shows a "held"
+  // lineup instead of an empty panel. Two candidates exist and they can
+  // disagree, which is what made the phone and the laptop show different teams:
+  //
+  //   lastTeam     - this device's cache. Can be stale by several races if the
+  //                  device was not opened during the most recent weekend.
+  //   heldFallback - the backend's answer. Authoritative, but it can lag by one
+  //                  race, because after a race finishes the lock file is gone
+  //                  (Render wipes it on redeploy) and the rebuild path needs
+  //                  that race's results to have been committed first.
+  //
+  // Neither one is reliably newer, so pick by round number rather than by
+  // preferring one source. Every team payload now carries `round`.
+  const heldTeam = pickNewer(lastTeam, heldFallback);
+
+  // Self-heal: if the backend knew about a later race than this device did,
+  // write it back so the device stops being stale from here on.
+  useEffect(() => {
+    if (heldTeam && heldTeam !== lastTeam) {
+      cacheTeam(heldTeam);
+      setLastTeam(heldTeam);
+    }
+  }, [heldTeam, lastTeam]);
   const held = !!(weekendData && !weekendData.active && heldTeam);
   const overviewWeekend = (weekendData && !weekendData.active) ? (heldTeam || weekendData) : weekendData;
 
