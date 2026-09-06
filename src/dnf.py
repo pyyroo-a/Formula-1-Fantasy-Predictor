@@ -60,6 +60,17 @@ FINISHED_STATUSES = ["Finished", "Lapped"]
 # weighting the main pipeline applies to 2026 results.
 CURRENT_SEASON_WEIGHT = 5.0
 
+# Whether to compute retirement probabilities for upcoming races at all.
+#
+# True means every driver and constructor in the API payload carries a DNF
+# probability. It does NOT mean those probabilities move the picks: that is
+# controlled separately by DNF_WEIGHT in src/fantasy.py, which is 0.0 because
+# charging the risk as a points deduction measured worse (-26.9 pts/race).
+#
+# So the shipped behaviour is: show the risk, let the human act on it, and leave
+# the optimiser scoring exactly as it did before.
+USE_DNF_RISK = True
+
 # Probabilities are clipped to this range. A driver is never certain to finish
 # and never doomed, and unclipped extremes make the sampler behave badly.
 P_MIN, P_MAX = 0.02, 0.60

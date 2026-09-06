@@ -47,6 +47,7 @@ export function BudgetDriverCard({ driver, isCaptain = false }) {
         </p>
         <p className="text-[10px] text-pw-muted mt-0.5">
           Grid P{Math.round(driver.GridPosition)} · Pred P{Math.round(driver.Predicted)} · {driver.FantasyValue?.toFixed(2)}
+          {driver.DNFProb != null && <> · <RiskTag p={driver.DNFProb} /></>}
         </p>
       </div>
       {driver.PickCategory && (
@@ -84,11 +85,38 @@ export function BoostPickCard({ pick }) {
   );
 }
 
+// Retirement risk, shown as a coloured percentage. This is advisory only: it
+// deliberately does NOT feed the optimiser's score, because charging it as a
+// points deduction measured worse in the backtest. It is here so a double-DNF
+// constructor like Aston Martin at Monza is at least visible before you commit.
+function RiskTag({ p, label = "DNF" }) {
+  if (p == null || Number.isNaN(p)) return null;
+  const pct = Math.round(p * 100);
+  // Bands are relative to the ~15% field-average retirement rate.
+  const tone = pct >= 30 ? "text-pw-risk" : pct >= 18 ? "text-amber-400" : "text-pw-muted";
+  return (
+    <span className={`text-[10px] ${tone}`} title={`Estimated chance of ${label === "DNF" ? "retiring" : label}`}>
+      {label} {pct}%
+    </span>
+  );
+}
+
 export function ConstructorCard({ constructor: c }) {
   const accent = teamAccent(c.name);
   return (
     <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-pw-panel2 border-l-2" style={{ borderColor: accent }}>
-      <span className="text-[12.5px] text-white truncate">{c.name} <span className="text-pw-muted">— Constructor</span></span>
+      <div className="min-w-0">
+        <span className="text-[12.5px] text-white truncate">{c.name} <span className="text-pw-muted">— Constructor</span></span>
+        {c.dnf_risk != null && (
+          <p className="mt-0.5 flex gap-2">
+            {/* A constructor scores both cars, so it carries twice the exposure
+                of any single driver. Both numbers matter: losing one car and
+                losing the pair are very different outcomes. */}
+            <RiskTag p={c.dnf_risk} label="1+ car out" />
+            <RiskTag p={c.double_dnf_risk} label="both out" />
+          </p>
+        )}
+      </div>
       <div className="text-right flex-shrink-0">
         <span className="text-[12px] text-white">${c.price?.toFixed(1)}M</span>
         <span className="text-[10px] text-pw-muted ml-2">{c.score?.toFixed(2)}</span>

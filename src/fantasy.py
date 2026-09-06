@@ -84,10 +84,25 @@ def qualifying_score(grid_pos: float) -> float:
         return -5                          # Q1 knockout: -5
 
 
+# How much of a driver's expected retirement cost to charge against his predicted
+# score. 0.0 means "show the risk, do not let it move the picks".
+#
+# Measured, not chosen. run_backtest(use_practice=True) over 10 races of 2026:
+#     weight 0.0  -> 113.9 pts/race   (unchanged behaviour)
+#     weight 1.0  ->  87.0 pts/race   (-26.9, worse on 5 of 10 races)
+# Charging the full expected penalty pushes the optimiser off cheap deep-field
+# drivers, which is exactly where the budget solver earns its points. The risk
+# estimate itself is sound (see src/dnf.py, it beats a flat rate on 11 of 12
+# races) — it is using it as a points deduction that fails.
+DNF_WEIGHT = 0.0
+
+
 def calculate_fantasy_score(
     df: pd.DataFrame,
     race_name: str | None = None,
     scale_by_circuit: bool = True,
+    dnf_probs: dict | None = None,
+    dnf_weight: float = DNF_WEIGHT,
 ) -> pd.DataFrame:
     """
     Computes real F1 Fantasy points per driver.
@@ -96,6 +111,17 @@ def calculate_fantasy_score(
     circuit is to overtake at. That is a *prediction* device — it tilts picks
     toward qualifiers at Monaco and climbers at Spa. Pass False to score an
     actual result, where the game's true unscaled points are what count.
+
+    dnf_probs maps driver abbreviation -> P(does not finish), from src/dnf.py.
+    When supplied, the -20 retirement penalty becomes an EXPECTED penalty
+    (-20 * p) instead of an all-or-nothing one. This only makes sense for a race
+    that has not happened yet, where every driver is otherwise assumed to finish
+    and the risky picks therefore look exactly as safe as the reliable ones.
+    Leave it as None to score a real result, where the retirements are known.
+
+    dnf_weight controls how much of that expected penalty is actually charged.
+    At 0.0 the probabilities are attached to the output for display but change no
+    score, which is the shipped default — see DNF_WEIGHT for why.
     """
     df = df.copy()
 
@@ -125,8 +151,15 @@ def calculate_fantasy_score(
     # Brazil: 1.1x because you can always overtake
     df["QualifyingScore"] = df["GridPosition"].apply(qualifying_score) * q_scale
 
-    # DNF: -20. For upcoming races DNF col is pre-set to 0 so this is safe.
-    if "Status" in df.columns:
+    # DNF: -20.
+    if dnf_probs is not None:
+        # Forward-looking: nobody has retired yet. The probability is always
+        # attached so it can be displayed, but it is only charged against the
+        # score to the extent of dnf_weight.
+        df["DNFProb"] = df["Abbreviation"].map(dnf_probs).fillna(0.0).astype(float)
+        df["DNFPenalty"] = (df["DNFProb"] * -20 * dnf_weight).round(2)
+    elif "Status" in df.columns:
+        # Backward-looking: the result is known, so the penalty is all or nothing.
         dnf_mask = ~df["Status"].isin(["Finished", "Lapped"])
         df["DNFPenalty"] = np.where(dnf_mask, -20, 0)
     else:
@@ -292,9 +325,12 @@ def build_budget_team(
     prices: dict,
     budget: float = 100.0,
     min_safe: int = 1,
+    dnf_probs: dict | None = None,
+    dnf_weight: float = DNF_WEIGHT,
 ) -> dict:
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df, race_name=race_name)
+    race_df = calculate_fantasy_score(race_df, race_name=race_name,
+                                      dnf_probs=dnf_probs, dnf_weight=dnf_weight)
 
     race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
     race_df = race_df.reset_index(drop=True)
@@ -432,6 +468,8 @@ def build_budget_teams(
     budget: float = 100.0,
     n: int = 3,
     min_driver_diff: int = 2,
+    dnf_probs: dict | None = None,
+    dnf_weight: float = DNF_WEIGHT,
 ) -> list[dict]:
     """
     Returns n high-scoring teams that are mutually diverse (differ by at least
@@ -439,7 +477,8 @@ def build_budget_teams(
     a pool of top candidates, then greedily picks diverse teams from that pool.
     """
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df, race_name=race_name)
+    race_df = calculate_fantasy_score(race_df, race_name=race_name,
+                                      dnf_probs=dnf_probs, dnf_weight=dnf_weight)
     race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
     race_df = race_df.reset_index(drop=True)
 
@@ -488,14 +527,37 @@ def build_budget_teams(
             q_bonus = 0
         return top_team + q_bonus
 
-    constructors = [
-        {
+    # Retirement risk per constructor. A constructor scores BOTH its cars, so it
+    # carries double the exposure of a single driver: Aston Martin losing both
+    # cars at Monza cost -40 on the constructor alone. `dnf_risk` is the chance
+    # of losing at least one car, which is the number worth showing a human.
+    team_dnf_probs = (
+        race_df.groupby("TeamName")["DNFProb"].apply(list).to_dict()
+        if "DNFProb" in race_df.columns else {}
+    )
+
+    def _team_risk(team):
+        ps = team_dnf_probs.get(team, [])
+        if not ps:
+            return None, None
+        both_finish = 1.0
+        for pr in ps:
+            both_finish *= (1 - pr)
+        both_out = 1.0
+        for pr in ps:
+            both_out *= pr
+        return round(1 - both_finish, 3), round(both_out, 3)
+
+    constructors = []
+    for team, price in constructor_prices.items():
+        any_out, both_out = _team_risk(team)
+        constructors.append({
             "name": team,
             "price": price,
             "score": round(constructor_scores.get(team, 0.0) + _constructor_bonus(team), 3),
-        }
-        for team, price in constructor_prices.items()
-    ]
+            "dnf_risk": any_out,        # P(at least one car retires)
+            "double_dnf_risk": both_out,  # P(both cars retire) — the Monza scenario
+        })
 
     drivers_list = race_df.to_dict("records")
 
@@ -532,11 +594,15 @@ def build_budget_teams(
                         "FantasyValue": round(d["FantasyValue"], 3),
                         "Price": d["Price"],
                         "PickCategory": d["PickCategory"],
+                        "DNFProb": round(d["DNFProb"], 3) if "DNFProb" in d else None,
                     }
                     for d in driver_combo
                 ],
                 "constructors": [
-                    {"name": c["name"], "price": c["price"], "score": c["score"]}
+                    {
+                        "name": c["name"], "price": c["price"], "score": c["score"],
+                        "dnf_risk": c["dnf_risk"], "double_dnf_risk": c["double_dnf_risk"],
+                    }
                     for c in constructor_combo
                 ],
                 "total_cost": round(total_cost, 1),
@@ -577,10 +643,13 @@ def get_race_pool(
     fantasy_table: pd.DataFrame,
     race_name: str,
     prices: dict,
+    dnf_probs: dict | None = None,
+    dnf_weight: float = DNF_WEIGHT,
 ) -> dict:
     """Returns all drivers + constructors for a race with prices and categories — used by the manual team builder."""
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df, race_name=race_name)
+    race_df = calculate_fantasy_score(race_df, race_name=race_name,
+                                      dnf_probs=dnf_probs, dnf_weight=dnf_weight)
     race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
     race_df = race_df.reset_index(drop=True)
 

@@ -16,6 +16,7 @@ from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS
 from src.circuit_profiles import get_blend_weights
 from src.fetch_prices import fetch_prices
 from src.fetch_practice import get_practice_grid, is_sprint_weekend
+from src.dnf import DNFModel
 
 MIN_HISTORY_ROUNDS = 2  # need some 2026 form before predictions mean anything
 
@@ -199,7 +200,12 @@ def _prices_for_round(round_number: int, fallback: dict, cache: dict) -> dict:
     return p
 
 
-def run_backtest(fallback_prices: dict | None = None, use_practice: bool = True) -> dict:
+def run_backtest(
+    fallback_prices: dict | None = None,
+    use_practice: bool = True,
+    use_dnf_risk: bool = False,
+    dnf_weight: float = 1.0,
+) -> dict:
     """
     Replays every completed 2026 race and reports what the model would have scored.
 
@@ -210,6 +216,13 @@ def run_backtest(fallback_prices: dict | None = None, use_practice: bool = True)
     use_practice=False hands the model the real qualifying grid and benchmarks it
     against grid order. Both sides get information unavailable at the deadline, so
     treat it as an upper bound rather than a verdict.
+
+    use_dnf_risk=True prices each driver's retirement probability into his expected
+    points instead of assuming everyone finishes. The DNF model is refit on only
+    the races before the one being graded, so this stays walk-forward. dnf_weight
+    is how much of the expected penalty to charge; this defaults to the full 1.0
+    here rather than to the shipped DNF_WEIGHT, because the point of the flag is
+    to measure the effect rather than to reproduce production.
     """
     df_2025 = load_dataset("data/processed/race_results_2025.csv")
     df_2026 = load_dataset("data/processed/race_results_2026.csv")
@@ -262,7 +275,21 @@ def run_backtest(fallback_prices: dict | None = None, use_practice: bool = True)
         driver_pts = _actual_driver_points(target_raw)
         constructor_pts = _actual_constructor_points(target_raw)
 
-        model_teams = build_budget_teams(predicted, race_name, prices, budget=100.0)
+        # Retirement risk, fit on history only so no future information leaks in.
+        dnf_probs = None
+        if use_dnf_risk:
+            try:
+                dnf_model = DNFModel.fit(history_raw)
+                dnf_probs = dict(zip(
+                    predicted["Abbreviation"],
+                    dnf_model.predict(predicted["Abbreviation"],
+                                      predicted["GridPosition"], race_name),
+                ))
+            except Exception:
+                dnf_probs = None
+
+        model_teams = build_budget_teams(predicted, race_name, prices, budget=100.0,
+                                         dnf_probs=dnf_probs, dnf_weight=dnf_weight)
 
         # Baseline: same optimiser, same information, no model. In practice mode
         # that means "pick by FP3 order" — genuinely playable before the deadline.

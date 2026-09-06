@@ -168,6 +168,53 @@ An improvement of about 5.6%. Real, and consistent across the season, but modest
 being honest that the big win here is not the fancy part, it is simply no longer
 pretending that every car finishes.
 
+### So does PitWall subtract those points from a driver's score?
+
+No, and this is the interesting part.
+
+The obvious move is to charge the risk: a driver with a 20% chance of retiring loses
+20% of 20 points, so knock 4 points off his prediction. That was built, and then
+tested the same way everything else here is tested, by replaying the season and
+seeing what the picks would actually have scored.
+
+It made the teams **worse**, by a lot:
+
+| Risk charged against the score | Points per race |
+|---|---|
+| None (unchanged behaviour) | **113.9** |
+| 15% of it | 83.2 |
+| 30% of it | 83.2 |
+| 50% of it | 83.2 |
+| All of it | 87.0 |
+
+Roughly 27 to 31 points a race lost, at every dose tried. The reason is that
+retirement risk rises steadily the further back you start, so charging it is close
+to just saying "prefer drivers at the front". But the whole point of a budget team
+is that cheap midfield drivers are where the value is. Penalising them strips out
+exactly the picks the optimiser exists to find.
+
+So the estimate is good and the way of spending it was bad. `DNF_WEIGHT` in
+`src/fantasy.py` is therefore **0.0**: the probabilities are calculated and shown,
+and they change no score.
+
+### What you see instead
+
+Every driver and every constructor now carries its retirement risk on the card.
+Constructors get two numbers, because a constructor scores **both** its cars and so
+carries double the exposure of any single driver:
+
+- **1+ car out** — the chance of losing at least one car
+- **both out** — the chance of losing the pair
+
+Monza 2026 is why this exists. Aston Martin was picked as a constructor and both cars
+retired, which is a swing of roughly 40 points on that pick alone. The model could not
+have called that, and nothing can. But the risk was visible in advance, and now it is
+on the screen where a human can weigh it against the three teams they are allowed to
+field.
+
+That is the honest division of labour: the optimiser picks on expected points, and the
+risk numbers tell you which of its suggestions is the one that can blow up.
+
 ### What we are doing about it
 
 The instinct is "make the prediction better." That is the wrong target, and we have
