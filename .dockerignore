@@ -9,9 +9,12 @@ __pycache__/
 frontend/
 driver-cards/
 
-# 6.7 GB locally, and ephemeral in the container anyway — it rebuilds on demand.
+# 6.7 GB locally, and ephemeral in the container anyway, it rebuilds on demand.
 data/cache/
-data/locked_team.json
+
+# data/locked_team.json is deliberately NOT ignored. Render's free tier has no
+# persistent disk, so the lock has to ship inside the image to survive a redeploy.
+# See .github/workflows/lock-team.yml.
 
 notebooks/
 results/
