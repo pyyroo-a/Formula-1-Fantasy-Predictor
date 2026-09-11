@@ -2,6 +2,8 @@ import fastf1
 import pandas as pd
 import os
 
+from src.team_names import normalize_team_names
+
 # enable_cache() raises if the directory is missing. data/cache is gitignored,
 # so on a fresh checkout (e.g. GitHub Actions) it won't exist — create it first.
 os.makedirs("data/cache", exist_ok=True)
@@ -43,6 +45,10 @@ def fetch_race_results(year: int, event_name: str) -> pd.DataFrame:
     results["Position"] = pd.to_numeric(results["Position"], errors="coerce")
     results["GridPosition"] = pd.to_numeric(results["GridPosition"], errors="coerce")
     results["Status"] = results["Status"].apply(_normalize_status)
+
+    # FastF1 renamed four teams mid-2026. Store the name the price feed uses, so
+    # joins on TeamName keep working. See src/team_names.py.
+    results = normalize_team_names(results)
 
     # Guard against FastF1 returning driver entries before the race is actually
     # classified, every Position comes back NaN. Writing those gives an all-DNF

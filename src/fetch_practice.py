@@ -2,6 +2,8 @@ import os
 import fastf1
 import pandas as pd
 
+from src.team_names import normalize_team_names
+
 os.makedirs("data/cache", exist_ok=True)
 fastf1.Cache.enable_cache("data/cache")
 
@@ -59,5 +61,6 @@ def get_practice_grid(year: int, race_name: str, session: str = "FP3") -> pd.Dat
     fastest["GapToTeammate"] = (fastest["LapTime_s"] - team_best).round(3)
 
     fastest = fastest[["Abbreviation", "TeamName", "GridPosition", "RaceName", "GapToPole", "GapToTeammate"]]
+    fastest = normalize_team_names(fastest)  # same upstream as results, see src/team_names.py
 
     return fastest

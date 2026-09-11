@@ -13,11 +13,16 @@ CIRCUIT_PROFILES = {
     "Miami Grand Prix":            {"overtaking": 6, "attrition": 0.12},
     "Emilia Romagna Grand Prix":   {"overtaking": 4, "attrition": 0.10},
     "Monaco Grand Prix":           {"overtaking": 1, "attrition": 0.15},
-    # 2026 runs Barcelona and Madrid as separate events — Madrid took the
-    # "Spanish Grand Prix" name. Barcelona is aero-limited and hard to follow at;
-    # Madrid is a new street circuit, so its rating is an unvalidated estimate.
+    # 2026 runs Barcelona and Madrid as separate events. Madrid (the Madring)
+    # took the "Spanish Grand Prix" name. Barcelona is aero-limited and hard to
+    # follow at.
     "Barcelona Grand Prix":        {"overtaking": 4, "attrition": 0.08},
-    "Spanish Grand Prix":          {"overtaking": 4, "attrition": 0.10},
+    # Madring: new street circuit with two overtaking zones, first run 2026-09-13.
+    # Rated alongside the other street tracks with real passing opportunities
+    # (Jeddah 6, Las Vegas 6, Baku 7) rather than Singapore/Monaco. Still an
+    # estimate with no race data behind it: re-check against
+    # compute_historical_overtaking() once the race has run.
+    "Spanish Grand Prix":          {"overtaking": 6, "attrition": 0.10},
     "Canadian Grand Prix":         {"overtaking": 7, "attrition": 0.10},
     "Austrian Grand Prix":         {"overtaking": 7, "attrition": 0.08},
     "British Grand Prix":          {"overtaking": 7, "attrition": 0.10},
