@@ -89,7 +89,7 @@ export function BoostPickCard({ pick }) {
 // deliberately does NOT feed the optimiser's score, because charging it as a
 // points deduction measured worse in the backtest. It is here so a double-DNF
 // constructor like Aston Martin at Monza is at least visible before you commit.
-function RiskTag({ p, label = "DNF" }) {
+export function RiskTag({ p, label = "DNF" }) {
   if (p == null || Number.isNaN(p)) return null;
   const pct = Math.round(p * 100);
   // Bands are relative to the ~15% field-average retirement rate.

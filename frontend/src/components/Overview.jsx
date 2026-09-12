@@ -1,6 +1,7 @@
 import { DRIVER_NAMES, teamAccent } from "../constants";
 import WeatherWidget from "./WeatherWidget";
 import AutoChipAdvisor from "./AutoChipAdvisor";
+import { RiskTag } from "./BudgetTeam";
 
 const CAT_BADGE = {
   Safe:  "text-pw-safe bg-pw-safe/10",
@@ -98,6 +99,8 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
                       {shortName(d.Abbreviation)} <span className="text-pw-muted">— {d.TeamName}</span>
                     </div>
                     <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm ${badge}`}>{(d.PickCategory || "").toUpperCase()}</span>
+                    {/* chance this driver retires. just for info, it doesn't change the picks */}
+                    {d.DNFProb != null && <span className="w-14 text-right"><RiskTag p={d.DNFProb} /></span>}
                     <div className="text-[11.5px] text-white w-16 text-right">${d.Price?.toFixed(1)}M</div>
                   </div>
                 );
@@ -110,7 +113,15 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
                     className="flex items-center justify-between gap-2 bg-pw-panel2 border-l-2 pl-2.5 pr-2 py-2"
                     style={{ borderColor: teamAccent(c.name) }}
                   >
-                    <span className="text-[12px] text-white truncate">{c.name}</span>
+                    <div className="min-w-0">
+                      <span className="block text-[12px] text-white truncate">{c.name}</span>
+                      {c.dnf_risk != null && (
+                        <span className="flex flex-wrap gap-x-2">
+                          <RiskTag p={c.dnf_risk} label="1+ out" />
+                          <RiskTag p={c.double_dnf_risk} label="both" />
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[11.5px] text-white flex-shrink-0">${c.price?.toFixed(1)}M</span>
                   </div>
                 ))}

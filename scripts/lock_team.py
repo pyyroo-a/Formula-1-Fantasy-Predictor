@@ -40,7 +40,7 @@ from src.fetch_prices import fetch_prices
 # evaluate_team_chips lives in main.py rather than src/. It is a pure function
 # (verified: it touches no module globals), and importing main only defines the
 # FastAPI app without running its startup, so this is safe from a script.
-from main import evaluate_team_chips, build_finish_predictions
+from main import evaluate_team_chips, build_finish_predictions, _upcoming_dnf_probs
 
 LOCK_PATH = "data/locked_team.json"
 
@@ -121,14 +121,18 @@ def main():
 
     prices = fetch_prices(rnd)
     upcoming_table = predict_upcoming_race(practice_df)
-    teams = build_budget_teams(upcoming_table, race_name, prices, budget=100.0)
+    # dnf chance per driver, same as the live app works it out. this is only for
+    # showing the risk on the site, it does not change the picks (DNF_WEIGHT is 0)
+    dnf_probs = _upcoming_dnf_probs(upcoming_table, race_name)
+    teams = build_budget_teams(upcoming_table, race_name, prices, budget=100.0,
+                               dnf_probs=dnf_probs)
     if not teams:
         print(f"::warning::Could not build a team within budget for {race_name}.")
         return
 
     # Chip advice, attached exactly as /weekend-team does so the committed lock
     # and a runtime-generated one are the same shape.
-    pool = get_race_pool(upcoming_table, race_name, prices)
+    pool = get_race_pool(upcoming_table, race_name, prices, dnf_probs=dnf_probs)
     optimal = build_budget_team(upcoming_table, race_name, prices, budget=100.0)
     limitless = build_budget_team(upcoming_table, race_name, prices, budget=999.0)
     optimal_score = optimal["total_score"] if optimal else 0.0

@@ -926,7 +926,10 @@ def get_last_team():
         return {"active": False, "held": False, "message": "No completed races yet."}
     race_name = race_rows["RaceName"].iloc[0]
 
-    teams = build_budget_teams(fantasy_table, race_name, current_prices, budget=100.0)
+    # attach dnf chances so the held team shows its risk too (display only)
+    dnf_probs = _upcoming_dnf_probs(race_rows, race_name)
+    teams = build_budget_teams(fantasy_table, race_name, current_prices, budget=100.0,
+                               dnf_probs=dnf_probs)
     if not teams:
         return {"active": False, "held": False, "message": "Could not rebuild the last team."}
 
