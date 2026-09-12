@@ -165,7 +165,7 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
         </div>
 
         <div className="bg-pw-panel border border-white/[0.06] p-3.5 flex-1">
-          <PanelLabel>PREDICTED FINISH — LIVE</PanelLabel>
+          <PanelLabel>{finishes?.held ? `PREDICTED FINISH · HELD${finishes.race_name ? ` · ${finishes.race_name}` : ""}` : "PREDICTED FINISH · LIVE"}</PanelLabel>
           {preds.length ? (
             <div className="max-h-64 overflow-y-auto no-scrollbar pr-1">
               {preds.map((p, i) => (

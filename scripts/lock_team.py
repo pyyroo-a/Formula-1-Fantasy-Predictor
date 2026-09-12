@@ -40,7 +40,7 @@ from src.fetch_prices import fetch_prices
 # evaluate_team_chips lives in main.py rather than src/. It is a pure function
 # (verified: it touches no module globals), and importing main only defines the
 # FastAPI app without running its startup, so this is safe from a script.
-from main import evaluate_team_chips
+from main import evaluate_team_chips, build_finish_predictions
 
 LOCK_PATH = "data/locked_team.json"
 
@@ -140,12 +140,21 @@ def main():
             pool, optimal_score, limitless_score, race_name,
         )
 
+    # the predicted finishing order goes in the snapshot too, so the site can still
+    # show it after the race and compare it with what actually happened
+    try:
+        finishes = build_finish_predictions(upcoming_table)
+    except Exception as e:
+        print(f"::warning::Could not build predicted finishes ({e}), locking the team anyway.")
+        finishes = None
+
     payload = {
         "race_name": race_name,
         "round": rnd,
         "session_used": session,
         "locked_at": pd.Timestamp.now(tz="UTC").isoformat(),
         "teams": teams,
+        "finishes": finishes,
     }
     os.makedirs(os.path.dirname(LOCK_PATH), exist_ok=True)
     with open(LOCK_PATH, "w") as f:

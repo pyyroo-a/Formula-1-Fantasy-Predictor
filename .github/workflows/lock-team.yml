@@ -41,10 +41,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # has to match the Dockerfile. xgboost 3.3.0 needs python 3.12+, so on 3.11
+      # pip basically gave up and every run of this workflow failed at install
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
           cache: pip
 
       # The lock has to be built by the same code the app uses, so this needs the

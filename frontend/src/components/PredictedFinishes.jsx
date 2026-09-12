@@ -13,6 +13,17 @@ function DeltaBadge({ delta }) {
   );
 }
 
+// what actually happened in the race. green means the model was within a place,
+// so you can quickly scan how it did
+function ActualCell({ p }) {
+  if (p.actual_pos != null) {
+    const off = Math.abs(p.model_pos - p.actual_pos);
+    return <span className={off <= 1 ? "text-green-400 font-semibold" : "text-white"}>P{p.actual_pos}</span>;
+  }
+  if (p.actual_status) return <span className="text-red-400 text-xs">DNF</span>;
+  return <span className="text-gray-600">?</span>;
+}
+
 // Controlled: App owns the /weekend-finishes fetch and shares it with the
 // Overview live-card, so this component just renders whatever it's handed.
 export default function PredictedFinishes({ data, loading, error }) {
@@ -49,14 +60,41 @@ export default function PredictedFinishes({ data, loading, error }) {
     );
   }
 
+  // held = the race is over (or no live weekend), so we are showing the saved
+  // predictions. hasActual = the real results are in, so we can compare
+  const held = !!data.held;
+  const hasActual = !!data.results_available;
+  const acc = data.accuracy;
+  const modelWon = acc && acc.model_mae < acc.baseline_mae;
+  const baselineWon = acc && acc.baseline_mae < acc.model_mae;
+
   return (
     <div>
       <p className="text-gray-400 text-sm text-center mb-1">
-        Predicted finishing order for <span className="text-white font-semibold">{data.race_name}</span>
+        {held && <span className="bg-pw-risk text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider mr-2">HELD</span>}
+        {held ? "What we predicted for " : "Predicted finishing order for "}
+        <span className="text-white font-semibold">{data.race_name}</span>
       </p>
       <p className="text-gray-600 text-xs text-center mb-5">
         For F1 Predict · based on {data.session_used} pace · not used for fantasy picks
       </p>
+
+      {/* predicted vs actual summary, only once the race has happened */}
+      {held && (hasActual && acc ? (
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs mb-5 border border-gray-800 py-3 px-2">
+          <span className="text-gray-400">
+            Model off by <span className={modelWon ? "text-green-400 font-semibold" : "text-white font-semibold"}>{acc.model_mae}</span> places on avg
+          </span>
+          <span className="text-gray-400">
+            Practice order off by <span className={baselineWon ? "text-green-400 font-semibold" : "text-white font-semibold"}>{acc.baseline_mae}</span>
+          </span>
+          <span className="text-gray-600">{acc.finishers} finishers compared, DNFs left out</span>
+        </div>
+      ) : (
+        <p className="text-gray-500 text-xs text-center mb-5">
+          Actual results show up here once they are published, usually the day after the race.
+        </p>
+      ))}
 
       {/* Legend */}
       <div className="flex items-center justify-center gap-4 text-xs text-gray-500 mb-4">
@@ -71,6 +109,7 @@ export default function PredictedFinishes({ data, loading, error }) {
             <tr className="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-700">
               <th className="text-left py-2 pl-2 w-14">Model</th>
               <th className="text-left py-2">Driver</th>
+              {hasActual && <th className="text-center py-2 w-16">Actual</th>}
               <th className="text-center py-2 w-20">Practice</th>
               <th className="text-center py-2 w-16">Δ</th>
             </tr>
@@ -95,6 +134,7 @@ export default function PredictedFinishes({ data, loading, error }) {
                     </div>
                   </div>
                 </td>
+                {hasActual && <td className="text-center py-2"><ActualCell p={p} /></td>}
                 <td className="text-center py-2 text-gray-400">P{p.baseline_pos}</td>
                 <td className="text-center py-2"><DeltaBadge delta={p.delta} /></td>
               </tr>
