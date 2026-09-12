@@ -52,7 +52,7 @@ def _upcoming_dnf_probs(upcoming_table, race_name):
         return None
     try:
         history = pd.concat(
-            [pd.read_csv(f"data/processed/race_results_{y}.csv") for y in (2025, 2026)],
+            [load_dataset(f"data/processed/race_results_{y}.csv") for y in (2025, 2026)],
             ignore_index=True,
         )
         model = DNFModel.fit(history)
