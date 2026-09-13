@@ -1,171 +1,84 @@
 """
-Snapshots the locked team for a race weekend into data/locked_team.json.
+Backup way to lock a race weekend: builds its snapshot on your own laptop.
 
-WHY THIS EXISTS
----------------
-The backend already writes this file when it first sees final-practice data, but
-Render's free tier has no persistent disk, so that file dies on every redeploy.
-Deploy once during a race weekend and the lineup PitWall recommended is gone.
+Normally you don't need this. POST /snapshot/auto on Render does it by itself once
+final practice is published (see docs/SNAPSHOTS.md). Use this if that didn't happen,
+for example the scheduler was switched off or the GitHub token expired.
 
-This script writes the same file from CI instead, and the workflow commits it to
-the repo. Committed means it ships inside the deploy image, so it survives every
-restart by construction.
-
-The side benefit is the bigger one: the repo accumulates a per-race record of what
-PitWall actually recommended *in advance*, which is the raw material for judging
-the model on its real forward-looking calls rather than on a replay.
-
-Safe to run repeatedly. It refuses to overwrite an existing lock for the same
-race, so the team never changes mid-weekend, which is the whole point of a lock.
+It builds exactly the same snapshot the automatic one would, then saves it into
+data/snapshots/. You commit and push it, and the site picks it up after Render
+redeploys.
 
 Usage:
-    python scripts/lock_team.py                      # auto-detect this weekend
-    python scripts/lock_team.py --race "Italian Grand Prix"
-    python scripts/lock_team.py --race "..." --force  # overwrite an existing lock
+    python scripts/lock_team.py                          # the next race weekend
+    python scripts/lock_team.py --race "Spanish Grand Prix"
+    python scripts/lock_team.py --race "..." --force     # replace an existing snapshot
 """
 import argparse
-import json
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import fastf1
 import pandas as pd
 
-from src.pipeline import predict_upcoming_race
-from src.fantasy import build_budget_teams, get_race_pool, build_budget_team
-from src.fetch_practice import get_practice_grid
 from src.fetch_prices import fetch_prices
-# evaluate_team_chips lives in main.py rather than src/. It is a pure function
-# (verified: it touches no module globals), and importing main only defines the
-# FastAPI app without running its startup, so this is safe from a script.
-from main import evaluate_team_chips, build_finish_predictions, _upcoming_dnf_probs
-
-LOCK_PATH = "data/locked_team.json"
-
-# How close to race day we consider a weekend "live". Matches /weekend-team.
-ACTIVE_WINDOW_DAYS = 5
-
-
-def final_practice_session(event) -> str:
-    """
-    The last practice session before the fantasy deadline.
-
-    Read from FastF1's EventFormat rather than a hardcoded list of sprint races.
-    Sprint weekends run FP1 only; conventional weekends run through FP3.
-    """
-    fmt = str(event.get("EventFormat", "conventional")).lower()
-    return "FP1" if "sprint" in fmt else "FP3"
-
-
-def find_weekend(schedule, race_name=None):
-    """Returns the event to lock: the named race, or the next one due."""
-    if race_name:
-        match = schedule[schedule["EventName"] == race_name]
-        if match.empty:
-            sys.exit(f"No 2026 event named {race_name!r}.")
-        return match.iloc[0]
-
-    now = pd.Timestamp.now(tz="UTC")
-    for _, event in schedule.sort_values("RoundNumber").iterrows():
-        race_date = event["Session5Date"]
-        if pd.isna(race_date) or pd.Timestamp(race_date) <= now:
-            continue
-        days_until = (pd.Timestamp(race_date) - now).total_seconds() / 86400
-        if days_until <= ACTIVE_WINDOW_DAYS:
-            return event
-        # The next race is further out than the window, so no weekend is live.
-        print(f"::notice::Next race is {round(days_until)} days away. Nothing to lock.")
-        sys.exit(0)
-    print("::notice::No upcoming races left in the schedule.")
-    sys.exit(0)
+from src.snapshots import find_snapshot, save_snapshot, snapshot_path
+from src.weekend import build_snapshot, final_practice_session, results_already_in_data
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--race", help="Event name, e.g. 'Italian Grand Prix'")
-    ap.add_argument("--force", action="store_true",
-                    help="Overwrite an existing lock for the same race")
+    ap.add_argument("--race", help="Event name, e.g. 'Spanish Grand Prix'")
+    ap.add_argument("--force", action="store_true", help="Replace an existing snapshot for that race")
     args = ap.parse_args()
 
     fastf1.Cache.enable_cache("data/cache")
     schedule = fastf1.get_event_schedule(2026, include_testing=False)
-    event = find_weekend(schedule, args.race)
 
-    race_name = event["EventName"]
+    if args.race:
+        match = schedule[schedule["EventName"] == args.race]
+        if match.empty:
+            sys.exit(f"No 2026 event called {args.race!r}.")
+        event = match.iloc[0]
+    else:
+        # the next race that hasn't started yet
+        now = pd.Timestamp.now(tz="UTC")
+        upcoming = [
+            e for _, e in schedule.sort_values("RoundNumber").iterrows()
+            if pd.notna(e["Session5Date"]) and pd.Timestamp(e["Session5Date"]) > now
+        ]
+        if not upcoming:
+            sys.exit("No races left this season.")
+        event = upcoming[0]
+
+    race = event["EventName"]
     rnd = int(event["RoundNumber"])
+
+    if find_snapshot(race) and not args.force:
+        print(f"{race} already has a snapshot ({snapshot_path(2026, rnd, race)}). Use --force to replace it.")
+        return
+
+    # if the results are already in, the model would have seen the answers
+    if results_already_in_data(race):
+        sys.exit(f"{race} results are already in the data, so a snapshot now would be cheating. Not building it.")
+
     session = final_practice_session(event)
+    print(f"Building {race} (round {rnd}) from {session}...")
 
-    # A lock already in place for this race is the team that was committed to.
-    # Leave it alone unless explicitly told otherwise.
-    if os.path.exists(LOCK_PATH) and not args.force:
-        try:
-            with open(LOCK_PATH) as f:
-                existing = json.load(f)
-            if existing.get("race_name") == race_name:
-                print(f"::notice::{race_name} is already locked. Nothing to do.")
-                return
-        except (json.JSONDecodeError, OSError):
-            pass  # unreadable lock, fall through and rewrite it
+    # no try/except on purpose: if something breaks you see the real error
+    snap = build_snapshot(event, fetch_prices(rnd), source="manual")
+    path = save_snapshot(snap, force=args.force)
 
-    print(f"Locking {race_name} (round {rnd}) on {session}...")
-
-    try:
-        practice_df = get_practice_grid(2026, race_name, session)
-    except Exception as e:
-        # Not an error. Practice simply has not run or published yet, and the
-        # workflow polls repeatedly, so a later run will pick it up.
-        print(f"::notice::{session} not available yet for {race_name} ({e}). Nothing to lock.")
-        return
-
-    prices = fetch_prices(rnd)
-    upcoming_table = predict_upcoming_race(practice_df)
-    # dnf chance per driver, same as the live app works it out. this is only for
-    # showing the risk on the site, it does not change the picks (DNF_WEIGHT is 0)
-    dnf_probs = _upcoming_dnf_probs(upcoming_table, race_name)
-    teams = build_budget_teams(upcoming_table, race_name, prices, budget=100.0,
-                               dnf_probs=dnf_probs)
-    if not teams:
-        print(f"::warning::Could not build a team within budget for {race_name}.")
-        return
-
-    # Chip advice, attached exactly as /weekend-team does so the committed lock
-    # and a runtime-generated one are the same shape.
-    pool = get_race_pool(upcoming_table, race_name, prices, dnf_probs=dnf_probs)
-    optimal = build_budget_team(upcoming_table, race_name, prices, budget=100.0)
-    limitless = build_budget_team(upcoming_table, race_name, prices, budget=999.0)
-    optimal_score = optimal["total_score"] if optimal else 0.0
-    limitless_score = limitless["total_score"] if limitless else optimal_score
-    for team in teams:
-        team["chips"] = evaluate_team_chips(
-            [d["Abbreviation"] for d in team["drivers"]],
-            [c["name"] for c in team["constructors"]],
-            pool, optimal_score, limitless_score, race_name,
-        )
-
-    # the predicted finishing order goes in the snapshot too, so the site can still
-    # show it after the race and compare it with what actually happened
-    try:
-        finishes = build_finish_predictions(upcoming_table)
-    except Exception as e:
-        print(f"::warning::Could not build predicted finishes ({e}), locking the team anyway.")
-        finishes = None
-
-    payload = {
-        "race_name": race_name,
-        "round": rnd,
-        "session_used": session,
-        "locked_at": pd.Timestamp.now(tz="UTC").isoformat(),
-        "teams": teams,
-        "finishes": finishes,
-    }
-    os.makedirs(os.path.dirname(LOCK_PATH), exist_ok=True)
-    with open(LOCK_PATH, "w") as f:
-        json.dump(payload, f, indent=2)
-
-    picks = ", ".join(d["Abbreviation"] for d in teams[0]["drivers"])
-    print(f"::notice::Locked {race_name} round {rnd} on {session}. Team 1: {picks}")
+    print(f"Saved {path}")
+    for i, t in enumerate(snap["teams"], 1):
+        drivers = ", ".join(d["Abbreviation"] for d in t["drivers"])
+        constructors = ", ".join(c["name"] for c in t["constructors"])
+        print(f"  team {i}: {drivers} | {constructors} | {t['total_score']} pts")
+    if snap.get("built_after_quali_start"):
+        print("  heads up: qualifying had already started, so this is too late for the fantasy deadline")
+    print("\nNow commit it:  git add data/snapshots && git commit -m \"snapshot for " + race + "\" && git push")
 
 
 if __name__ == "__main__":

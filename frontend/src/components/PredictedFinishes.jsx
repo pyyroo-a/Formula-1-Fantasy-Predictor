@@ -72,6 +72,8 @@ export default function PredictedFinishes({ data, loading, error }) {
     <div>
       <p className="text-gray-400 text-sm text-center mb-1">
         {held && <span className="bg-pw-risk text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider mr-2">HELD</span>}
+        {!held && data.locked && <span className="bg-pw-safe text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider mr-2">LOCKED</span>}
+        {!held && data.provisional && <span className="bg-pw-rain text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider mr-2">PROVISIONAL</span>}
         {held ? "What we predicted for " : "Predicted finishing order for "}
         <span className="text-white font-semibold">{data.race_name}</span>
       </p>

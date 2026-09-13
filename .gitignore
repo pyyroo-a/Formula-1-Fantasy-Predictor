@@ -2,9 +2,8 @@ venv/
 __pycache__/
 *.pyc
 data/cache/
-# data/locked_team.json is now COMMITTED on purpose. Render's free tier has no
-# persistent disk, so a runtime-only lock dies on every redeploy. See
-# .github/workflows/lock-team.yml and scripts/lock_team.py.
+# data/snapshots/ is COMMITTED on purpose, it's the saved record of every race
+# weekend's teams and predictions. See src/snapshots.py.
 .ipynb_checkpoints/
 frontend/.env.local
 frontend/node_modules/

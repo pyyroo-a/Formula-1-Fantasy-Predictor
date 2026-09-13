@@ -12,9 +12,8 @@ driver-cards/
 # 6.7 GB locally, and ephemeral in the container anyway, it rebuilds on demand.
 data/cache/
 
-# data/locked_team.json is deliberately NOT ignored. Render's free tier has no
-# persistent disk, so the lock has to ship inside the image to survive a redeploy.
-# See .github/workflows/lock-team.yml.
+# data/snapshots/ is deliberately NOT ignored. Render's free tier has no persistent
+# disk, so the snapshots have to ship inside the image. See src/snapshots.py.
 
 notebooks/
 results/

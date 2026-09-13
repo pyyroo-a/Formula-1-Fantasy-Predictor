@@ -354,18 +354,22 @@ pitwall/
 │   ├── pipeline.py
 │   ├── fetch_practice.py
 │   ├── fetch_prices.py            # Fetches current + previous round prices, diffs them
-│   └── fetch_results.py
+│   ├── fetch_results.py
+│   ├── weekend.py                 # Builds a race weekend: teams, chips, DNF, finishes
+│   └── snapshots.py               # Saves and reads weekend snapshots, commits them to GitHub
 ├── scripts/
 │   ├── update_data.py             # Called by the GitHub Actions cron
 │   ├── measure_grid_error.py      # Practice-order vs real-grid error (see Handling Uncertainty)
-│   └── measure_dnf.py             # Walk-forward validation of the DNF model
+│   ├── measure_dnf.py             # Walk-forward validation of the DNF model
+│   └── lock_team.py               # Backup: build a weekend snapshot on your laptop
 ├── .github/workflows/
 │   └── update-race-data.yml       # Auto-fetches new race results every Monday
 ├── docs/
-│   └── MODEL.md                   # Scoring system + circuit profiles in detail
+│   ├── MODEL.md                   # Scoring system + circuit profiles in detail
+│   └── SNAPSHOTS.md               # How weekends get locked automatically, plus setup steps
 ├── data/
 │   ├── cache/                     # FastF1 HTTP cache
-│   ├── locked_team.json           # Weekend team lock (survives restarts)
+│   ├── snapshots/                 # One saved file per race weekend: teams, chips, DNF, finishes
 │   └── processed/
 │       ├── race_results_2025.csv
 │       └── race_results_2026.csv
@@ -382,14 +386,14 @@ pitwall/
 | GET | `/races` | List of completed 2026 races |
 | GET | `/upcoming-races` | Upcoming races with sprint flag |
 | GET | `/next-race` | Next race name + date |
-| GET | `/weekend-team` | Auto optimal team if within 5 days of a race |
+| GET | `/weekend-team` | This weekend's locked snapshot, or a provisional preview before it's locked |
 | GET | `/price-changes` | All driver + constructor prices vs last round |
 | POST | `/race-results` | Completed race finishing order |
 | POST | `/qualifying-results` | Q1/Q2/Q3 times for a race |
 | POST | `/race-sessions` | FP1/FP2/FP3 schedule + availability for a race |
 | POST | `/predict` | ML prediction for an upcoming race |
 | POST | `/predict-budget` | Three optimal teams within $100M budget — returns `{ "teams": [...] }` |
-| POST | `/unlock-team` | Clears the weekend team lock so it regenerates |
+| POST | `/snapshot/auto` | Locks the current weekend into a snapshot once final practice is published (needs `X-Snapshot-Secret`) |
 | POST | `/upcoming-race-pool` | Driver + constructor pool for manual team builder |
 | POST | `/chip-advisor` | Chip recommendations for a given squad |
 

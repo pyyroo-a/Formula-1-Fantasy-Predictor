@@ -1,31 +1,21 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, BackgroundTasks
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import fastf1
 import os
 import json
+import hmac
+import threading
 
 os.makedirs("data/cache", exist_ok=True)
 os.makedirs("data", exist_ok=True)
 
-LOCKED_TEAM_PATH = "data/locked_team.json"
 
 
-def load_locked_team() -> dict | None:
-    """Returns the saved locked team, or None if no lock file exists."""
-    try:
-        with open(LOCKED_TEAM_PATH) as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return None
 
 
-def save_locked_team(data: dict) -> None:
-    """Saves the locked team to disk so it survives restarts."""
-    with open(LOCKED_TEAM_PATH, "w") as f:
-        json.dump(data, f, indent=2)
 
 from src.pipeline import run_pipeline, predict_upcoming_race
 from src.fantasy import build_fantasy_team, generate_explanations, build_budget_team, build_budget_teams, get_race_pool
@@ -35,33 +25,59 @@ from src.fetch_results import update_season_results
 from src.backtest import run_backtest
 from src.dnf import DNFModel, USE_DNF_RISK
 from src.data_loader import load_dataset
+from src.weekend import (
+    evaluate_team_chips,
+    upcoming_dnf_probs,
+    build_finish_predictions,
+    final_practice_session,
+    session_finished,
+    session_published,
+    results_already_in_data,
+    build_snapshot,
+)
+from src.snapshots import find_snapshot, latest_snapshot, save_snapshot, commit_to_github
 
 
-def _upcoming_dnf_probs(upcoming_table, race_name):
-    """
-    P(does not finish) per driver for a race that has not happened yet.
+# kept under its old name because a few endpoints below still call it that
+_upcoming_dnf_probs = upcoming_dnf_probs
 
-    Fitted fresh from all committed results each time. This is cheap (a few
-    groupbys over ~800 rows) and means the estimates track the season as it goes.
 
-    Returns None if the model is switched off or anything goes wrong, and None is
-    the old behaviour: everyone is assumed to finish. The team builder must never
-    fail just because the risk model could not be fitted.
-    """
-    if not USE_DNF_RISK:
-        return None
-    try:
-        history = pd.concat(
-            [load_dataset(f"data/processed/race_results_{y}.csv") for y in (2025, 2026)],
-            ignore_index=True,
-        )
-        model = DNFModel.fit(history)
-        probs = model.predict(
-            upcoming_table["Abbreviation"], upcoming_table["GridPosition"], race_name
-        )
-        return dict(zip(upcoming_table["Abbreviation"], probs))
-    except Exception:
-        return None
+def _now() -> pd.Timestamp:
+    # wrapped in a function so tests can pretend it's a different point in the weekend
+    return pd.Timestamp.now(tz="UTC")
+
+
+def _load_schedule():
+    fastf1.Cache.enable_cache("data/cache")
+    return fastf1.get_event_schedule(2026, include_testing=False)
+
+
+def _next_race(schedule, now):
+    """The next race that hasn't started yet, or None once the season is over."""
+    for _, event in schedule.sort_values("RoundNumber").iterrows():
+        race_date = event["Session5Date"]
+        if pd.isna(race_date):
+            continue
+        if pd.Timestamp(race_date) > now:
+            return event
+    return None
+
+
+def _team_payload(snap: dict, **extra) -> dict:
+    """Turns a saved snapshot into the shape the Overview already knows how to show."""
+    teams = snap.get("teams") or []
+    return {
+        "active": True,
+        "race_name": snap.get("race_name"),
+        "round": snap.get("round"),
+        "session_used": snap.get("session_used"),
+        "locked": True,
+        "locked_at": snap.get("locked_at"),
+        "source": snap.get("source"),
+        "teams": teams,
+        "team": teams[0] if teams else None,
+        **extra,
+    }
 
 fantasy_table = None
 current_prices = None
@@ -387,10 +403,6 @@ def get_price_changes():
     return price_changes
 
 
-HIGH_ATTRITION_CIRCUITS = {
-    "Azerbaijan Grand Prix", "Singapore Grand Prix", "Monaco Grand Prix",
-    "Las Vegas Grand Prix", "Saudi Arabian Grand Prix", "Miami Grand Prix",
-}
 
 
 class ChipAdvisorRequest(BaseModel):
@@ -399,79 +411,8 @@ class ChipAdvisorRequest(BaseModel):
     my_constructors: list[str]
 
 
-def _grade(gain, thresholds):
-    play, consider = thresholds
-    if gain >= play:
-        return "PLAY"
-    if gain >= consider:
-        return "CONSIDER"
-    return "HOLD"
 
 
-def evaluate_team_chips(
-    my_drivers: list[str],
-    my_constructors: list[str],
-    pool: dict,
-    optimal_score: float,
-    limitless_score: float,
-    race_name: str,
-) -> dict:
-    """
-    Grades all 6 chips for a single team (a list of driver abbreviations +
-    constructor names). `optimal_score` / `limitless_score` are the best legal
-    team and the best uncapped team for this weekend — they don't depend on the
-    team being graded, so the caller computes them once and reuses them across
-    every generated team.
-    """
-    driver_map = {d["Abbreviation"]: d for d in pool["drivers"]}
-    constructor_map = {c["name"]: c for c in pool["constructors"]}
-
-    my_driver_score = sum(driver_map.get(a, {}).get("FantasyValue", 0) for a in my_drivers)
-    my_constructor_score = sum(constructor_map.get(n, {}).get("score", 0) for n in my_constructors)
-    my_team_score = my_driver_score + my_constructor_score
-
-    wildcard_gain = max(0.0, round(optimal_score - my_team_score, 1))
-    limitless_gain = max(0.0, round(limitless_score - my_team_score, 1))
-
-    # 3× Boost applies to a driver you already own, so the target is the best
-    # driver *in this team* — not the best in the whole field.
-    my_drivers_in_pool = [driver_map[a] for a in my_drivers if a in driver_map]
-    boost_target = max(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
-    boost_gain = round(boost_target["FantasyValue"], 1) if boost_target else 0.0
-
-    riskiest = min(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
-
-    is_high_attrition = race_name in HIGH_ATTRITION_CIRCUITS
-    dnf_risk_pct = 120 if is_high_attrition else 65
-
-    return {
-        "my_team_score": round(my_team_score, 2),
-        "limitless": {
-            "gain": limitless_gain,
-            "recommendation": _grade(limitless_gain, (40, 20)),
-        },
-        "wildcard": {
-            "gain": wildcard_gain,
-            "recommendation": _grade(wildcard_gain, (25, 12)),
-        },
-        "x3_boost": {
-            "gain": boost_gain,
-            "target": boost_target["Abbreviation"] if boost_target else None,
-            "recommendation": _grade(boost_gain, (30, 15)),
-        },
-        "final_fix": {
-            "riskiest_driver": riskiest["Abbreviation"] if riskiest else None,
-            "recommendation": "POST-QUALI",
-        },
-        "no_negative": {
-            "dnf_risk_pct": dnf_risk_pct,
-            "is_high_attrition": is_high_attrition,
-            "recommendation": "HEDGE" if is_high_attrition else "HOLD",
-        },
-        "autopilot": {
-            "recommendation": "SAVE",
-        },
-    }
 
 
 @app.post("/chip-advisor")
@@ -689,80 +630,48 @@ def get_practice_results(request: PracticeRequest):
 @app.get("/weekend-team")
 def get_weekend_team():
     """
-    Auto-detects the current race weekend and returns the optimal budget team
-    using the best available practice session (FP3 → FP2 → FP1).
-    Returns None if no race weekend is active.
-    """
-    if not current_prices or not current_prices.get("drivers"):
-        raise HTTPException(status_code=503, detail="Prices not available")
+    The team for the current race weekend.
 
+    If this weekend already has a snapshot we just return it. It never gets rebuilt,
+    so restarts, the race starting or opening the site again can't change it.
+
+    Before the snapshot exists (final practice not published and saved yet) we work
+    out a live preview and mark it provisional. Nothing is saved from here. Saving
+    only happens in POST /snapshot/auto or scripts/lock_team.py.
+    """
     try:
-        fastf1.Cache.enable_cache("data/cache")
-        schedule = fastf1.get_event_schedule(2026, include_testing=False)
-        now = pd.Timestamp.now(tz="UTC")
+        schedule = _load_schedule()
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Could not fetch schedule: {e}")
+    now = _now()
 
-    # Find the next upcoming race
-    upcoming = None
-    for _, event in schedule.sort_values("RoundNumber").iterrows():
-        race_date = event["Session5Date"]
-        if pd.isna(race_date):
-            continue
-        if pd.Timestamp(race_date) > now:
-            upcoming = event
-            break
-
+    upcoming = _next_race(schedule, now)
     if upcoming is None:
         return {"active": False, "message": "Season complete"}
 
+    race_name = upcoming["EventName"]
     race_date = pd.Timestamp(upcoming["Session5Date"])
-    days_until_race = (race_date - now).total_seconds() / 86400
+    days_until = round((race_date - now).total_seconds() / 86400, 1)
 
-    # Only active within 5 days before the race
-    if days_until_race > 5:
+    snap = find_snapshot(race_name)
+    if snap:
+        return _team_payload(snap, days_until=days_until, race_date=race_date.isoformat())
+
+    if days_until > 5:
         return {
             "active": False,
-            "race_name": upcoming["EventName"],
-            "days_until": round(days_until_race, 1),
-            "message": f"Next race in {round(days_until_race)} days",
-        }
-
-    race_name = upcoming["EventName"]
-
-    # Return the locked team immediately if it belongs to this race weekend.
-    # The lock is set the first time FP3 data becomes available and never
-    # changes mid-weekend — qualifying/race results don't affect it.
-    locked = load_locked_team()
-    if locked and locked.get("race_name") == race_name:
-        # Support both the new multi-team lock and any older single-team lock.
-        locked_teams = locked.get("teams") or ([locked["team"]] if locked.get("team") else [])
-        return {
-            "active": True,
             "race_name": race_name,
-            # Round number travels with every team payload so the frontend can
-            # tell which of two cached teams is the more recent one.
-            "round": int(upcoming["RoundNumber"]),
-            "session_used": locked["session_used"],
-            "days_until": round(days_until_race, 1),
-            "race_date": race_date.isoformat(),
-            "locked": True,
-            "locked_at": locked["locked_at"],
-            "teams": locked_teams,
-            "team": locked_teams[0] if locked_teams else None,
+            "days_until": days_until,
+            "message": f"Next race in {round(days_until)} days",
         }
 
-    # No lock yet for this race — try to fetch practice data and generate a team.
-    # The team should be built on the LAST practice session (FP3, or FP1 on a
-    # sprint weekend), which is the most informative and the one just before the
-    # fantasy deadline. Earlier sessions (FP2/FP1) give a *provisional* team that
-    # is NOT locked, so it refreshes as soon as FP3 data lands. Locking on FP2
-    # was the bug that froze the team and stopped it rebuilding on FP3.
-    final_session = "FP1" if is_sprint_weekend(race_name) else "FP3"
-    sessions_to_try = ["FP3", "FP2", "FP1"] if not is_sprint_weekend(race_name) else ["FP1"]
+    if not current_prices or not current_prices.get("drivers"):
+        raise HTTPException(status_code=503, detail="Prices not available")
+
+    final_session = final_practice_session(upcoming)
+    sessions_to_try = ["FP1"] if final_session == "FP1" else ["FP3", "FP2", "FP1"]
     practice_df = None
     session_used = None
-
     for sess in sessions_to_try:
         try:
             practice_df = get_practice_grid(2026, race_name, sess)
@@ -772,12 +681,13 @@ def get_weekend_team():
             continue
 
     if practice_df is None:
+        # no practice yet, so we say the weekend isn't live. the site then keeps
+        # showing the last snapshot as a held team instead of an empty box
         return {
-            "active": True,
+            "active": False,
             "race_name": race_name,
-            "days_until": round(days_until_race, 1),
-            "message": f"No practice data available yet — team will lock once {final_session} is complete",
-            "team": None,
+            "days_until": days_until,
+            "message": f"No practice data yet, the team locks once {final_session} is published",
         }
 
     try:
@@ -785,13 +695,8 @@ def get_weekend_team():
         dnf_probs = _upcoming_dnf_probs(upcoming_table, race_name)
         teams = build_budget_teams(upcoming_table, race_name, current_prices,
                                    budget=100.0, dnf_probs=dnf_probs)
-
-        # Auto-advise all 6 chips for each generated team. The optimal/limitless
-        # reference teams are the same for every team this weekend, so build them
-        # once and reuse them across all three.
         if teams:
-            pool = get_race_pool(upcoming_table, race_name, current_prices,
-                                 dnf_probs=dnf_probs)
+            pool = get_race_pool(upcoming_table, race_name, current_prices, dnf_probs=dnf_probs)
             optimal = build_budget_team(upcoming_table, race_name, current_prices, budget=100.0)
             limitless = build_budget_team(upcoming_table, race_name, current_prices, budget=999.0)
             optimal_score = optimal["total_score"] if optimal else 0.0
@@ -809,42 +714,24 @@ def get_weekend_team():
         return {
             "active": True,
             "race_name": race_name,
-            "days_until": round(days_until_race, 1),
+            "days_until": days_until,
             "message": "Could not build a team within budget for this weekend.",
             "teams": [],
             "team": None,
         }
-
-    # Only lock once we're on the final session; otherwise keep it provisional
-    # so a later FP3 rebuild can replace it.
-    is_final = session_used == final_session
-    locked_at = pd.Timestamp.now(tz="UTC").isoformat()
-    if is_final:
-        # we save the predicted finishes with the team, so they are still there after
-        # the race. if building them fails for some reason we still lock the team
-        try:
-            finishes = build_finish_predictions(upcoming_table)
-        except Exception:
-            finishes = None
-        save_locked_team({
-            "race_name": race_name,
-            "round": int(upcoming["RoundNumber"]),
-            "session_used": session_used,
-            "locked_at": locked_at,
-            "teams": teams,
-            "finishes": finishes,
-        })
 
     return {
         "active": True,
         "race_name": race_name,
         "round": int(upcoming["RoundNumber"]),
         "session_used": session_used,
-        "days_until": round(days_until_race, 1),
+        "final_session": final_session,
+        "days_until": days_until,
         "race_date": race_date.isoformat(),
-        "locked": is_final,
-        "provisional": not is_final,
-        "locked_at": locked_at,
+        "locked": False,
+        "provisional": True,
+        # true when final practice is already out but the snapshot isn't saved yet
+        "awaiting_lock": session_used == final_session,
         "teams": teams,
         "team": teams[0],
     }
@@ -853,74 +740,22 @@ def get_weekend_team():
 @app.get("/last-team")
 def get_last_team():
     """
-    Between race weekends the Overview would otherwise sit empty. This gives the
-    dashboard a lineup to "hold" so it always has something to show:
-      1. the saved lock file, if it still exists (the exact team that was fielded), or
-      2. the optimal teams for the most recently completed race, rebuilt from the
-         committed results plus current prices.
-    Option 2 is the reliable path because the lock file is runtime-only and gets
-    wiped whenever the backend redeploys. Flagged held=true so the frontend labels
-    it a held lineup, and active=true so the existing Overview renders it unchanged.
+    The team to hold on the Overview when there is no live weekend.
 
-    The lock is NOT preferred unconditionally. A lock left over from an earlier race
-    would otherwise beat newer committed results, which is how a device ends up
-    holding a lineup several races out of date.
+    This is just the newest snapshot. It stays up until the next race gets its own
+    snapshot, so it doesn't disappear when the race starts.
+
+    If there are no snapshots at all (a fresh setup) we fall back to rebuilding the
+    last race's optimal team from the results, like the old behaviour.
     """
-    locked = load_locked_team()
-    locked_teams = []
-    locked_round = None
-    if locked:
-        locked_teams = locked.get("teams") or ([locked["team"]] if locked.get("team") else [])
-        # Locks written before the round field existed only carry a race name, so
-        # look the round up rather than treating it as unknown. Committed results
-        # first, then the schedule, which also covers a race that has been run but
-        # whose results have not been published yet.
-        locked_round = locked.get("round")
-        name = locked.get("race_name")
-        if locked_round is None and name and fantasy_table is not None:
-            match = fantasy_table[fantasy_table["RaceName"] == name]
-            if not match.empty:
-                locked_round = int(match["RoundNumber"].iloc[0])
-        if locked_round is None and name and race_schedule is not None:
-            try:
-                ev = race_schedule[race_schedule["EventName"] == name]
-                if not ev.empty:
-                    locked_round = int(ev["RoundNumber"].iloc[0])
-            except Exception:
-                pass
+    snap = latest_snapshot(with_key="teams")
+    if snap:
+        return _team_payload(snap, held=True)
 
-    def _locked_response():
-        return {
-            "active": True,
-            "held": True,
-            "race_name": locked.get("race_name"),
-            "round": locked_round,
-            "session_used": locked.get("session_used"),
-            "locked_at": locked.get("locked_at"),
-            "teams": locked_teams,
-            "team": locked_teams[0],
-        }
-
-    # Fall back to the most recently completed race from the committed data.
     if fantasy_table is None or not current_prices or not current_prices.get("drivers"):
-        # Nothing to compare against, so the lock is the only thing on offer.
-        return _locked_response() if locked_teams else {
-            "active": False, "held": False, "message": "No team available yet."
-        }
+        return {"active": False, "held": False, "message": "No team available yet."}
 
     latest_round = int(fantasy_table["RoundNumber"].max())
-
-    # The lock only wins if it is for a race at least as recent as the newest
-    # committed result. A lock for the race that just ran is exactly that case, and
-    # it is the better answer there because it is the team actually fielded, and
-    # because that race's results are not published yet.
-    #
-    # A round we could not resolve at all means the race is in neither the results
-    # nor the schedule, so it cannot be shown to be older. The lock is a real team
-    # that was really fielded, so it wins by default rather than being discarded.
-    if locked_teams and (locked_round is None or locked_round >= latest_round):
-        return _locked_response()
-
     race_rows = fantasy_table[fantasy_table["RoundNumber"] == latest_round]
     if race_rows.empty:
         return {"active": False, "held": False, "message": "No completed races yet."}
@@ -968,40 +803,8 @@ def get_backtest(refresh: bool = False):
     return backtest_cache
 
 
-@app.post("/unlock-team")
-def unlock_team():
-    """Clears the locked team so it regenerates fresh on the next request."""
-    if os.path.exists(LOCKED_TEAM_PATH):
-        os.remove(LOCKED_TEAM_PATH)
-        return {"message": "Team unlocked — will regenerate on next request"}
-    return {"message": "No locked team to clear"}
 
 
-def build_finish_predictions(table: pd.DataFrame) -> list[dict]:
-    """
-    Turns a prediction table into the predicted finishing order we show on the site.
-
-    We rank the model's own forecast (ModelPredicted, before it gets shrunk onto the
-    grid) and put the practice order next to it, which is basically the GridPosition
-    estimate. Used live by /weekend-finishes, and saved into the lock snapshot so the
-    predictions are still around after the race.
-    """
-    t = table.copy()
-    t["ModelRank"] = t["ModelPredicted"].rank(method="first").astype(int)
-
-    predictions = []
-    for _, r in t.sort_values("ModelRank").iterrows():
-        baseline_pos = int(round(r["GridPosition"]))
-        model_pos = int(r["ModelRank"])
-        predictions.append({
-            "abbreviation": r["Abbreviation"],
-            "team": r["TeamName"],
-            "model_pos": model_pos,
-            "baseline_pos": baseline_pos,
-            # positive = model thinks they finish higher than practice order says
-            "delta": baseline_pos - model_pos,
-        })
-    return predictions
 
 
 def attach_actual_results(snapshot: dict) -> dict:
@@ -1055,25 +858,25 @@ def attach_actual_results(snapshot: dict) -> dict:
     return snapshot
 
 
+
+
 def _held_finishes() -> dict | None:
     """
-    The predicted finishes from the last locked weekend, for when there is no live
-    weekend to show. Same idea as the held team on the Overview.
-
-    Returns None if there is no lock, or the lock was saved before we started
-    storing finishes in it.
+    Predicted finishes from the newest snapshot that has them, for when there is no
+    live weekend to show. Same idea as the held team on the Overview.
     """
-    locked = load_locked_team()
-    if not locked or not locked.get("finishes"):
+    snap = latest_snapshot(with_key="finishes")
+    if not snap:
         return None
     return attach_actual_results({
         "active": True,
         "held": True,
-        "race_name": locked.get("race_name"),
-        "round": locked.get("round"),
-        "session_used": locked.get("session_used"),
-        "locked_at": locked.get("locked_at"),
-        "predictions": locked["finishes"],
+        "locked": True,
+        "race_name": snap.get("race_name"),
+        "round": snap.get("round"),
+        "session_used": snap.get("session_used"),
+        "locked_at": snap.get("locked_at"),
+        "predictions": snap["finishes"],
     })
 
 
@@ -1087,43 +890,48 @@ def get_weekend_finishes():
       - model:    the model's own forecast (blend before shrink-to-grid)
       - baseline: the practice-pace order (the backtest's winning strategy)
 
-    During a live weekend we work it out from practice. Between races this used to
-    return nothing, so the predictions basically vanished once the race started. Now
-    we fall back to the snapshot saved with the locked team, and add the actual
-    results once they are published.
+    Same rules as /weekend-team: if this weekend has a snapshot we return its saved
+    finishes, before that a provisional live version, and between race weekends the
+    newest snapshot, with the actual results added once they are published.
     """
     try:
-        fastf1.Cache.enable_cache("data/cache")
-        schedule = fastf1.get_event_schedule(2026, include_testing=False)
-        now = pd.Timestamp.now(tz="UTC")
+        schedule = _load_schedule()
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Could not fetch schedule: {e}")
+    now = _now()
 
-    upcoming = None
-    for _, event in schedule.sort_values("RoundNumber").iterrows():
-        race_date = event["Session5Date"]
-        if pd.isna(race_date):
-            continue
-        if pd.Timestamp(race_date) > now:
-            upcoming = event
-            break
-
+    upcoming = _next_race(schedule, now)
     if upcoming is None:
         return _held_finishes() or {"active": False, "message": "Season complete"}
 
     race_name = upcoming["EventName"]
     race_date = pd.Timestamp(upcoming["Session5Date"])
-    days_until = (race_date - now).total_seconds() / 86400
+    days_until = round((race_date - now).total_seconds() / 86400, 1)
+
+    snap = find_snapshot(race_name)
+    if snap and snap.get("finishes"):
+        return attach_actual_results({
+            "active": True,
+            "held": False,
+            "locked": True,
+            "race_name": race_name,
+            "round": snap.get("round"),
+            "session_used": snap.get("session_used"),
+            "locked_at": snap.get("locked_at"),
+            "days_until": days_until,
+            "predictions": snap["finishes"],
+        })
 
     if days_until > 5:
         return _held_finishes() or {
             "active": False,
             "race_name": race_name,
-            "days_until": round(days_until, 1),
+            "days_until": days_until,
             "message": f"Next race in {round(days_until)} days",
         }
 
-    sessions_to_try = ["FP3", "FP2", "FP1"] if not is_sprint_weekend(race_name) else ["FP1"]
+    final_session = final_practice_session(upcoming)
+    sessions_to_try = ["FP1"] if final_session == "FP1" else ["FP3", "FP2", "FP1"]
     practice_df = None
     session_used = None
     for sess in sessions_to_try:
@@ -1140,8 +948,8 @@ def get_weekend_finishes():
         return _held_finishes() or {
             "active": True,
             "race_name": race_name,
-            "days_until": round(days_until, 1),
-            "message": "No practice data yet, finishes appear once FP3 is complete",
+            "days_until": days_until,
+            "message": f"No practice data yet, finishes appear once {final_session} is published",
             "predictions": None,
         }
 
@@ -1152,8 +960,185 @@ def get_weekend_finishes():
 
     return {
         "active": True,
+        "provisional": True,
+        "locked": False,
         "race_name": race_name,
         "session_used": session_used,
-        "days_until": round(days_until, 1),
+        "final_session": final_session,
+        "days_until": days_until,
         "predictions": build_finish_predictions(table),
+    }
+
+
+# only one snapshot build at a time, and we remember how the last one went so the
+# next call (or you, with curl) can see if something failed
+_snapshot_build_lock = threading.Lock()
+_last_snapshot_result: dict = {}
+
+
+def _build_and_save_snapshot(event):
+    """Runs in the background after /snapshot/auto has already answered."""
+    global _last_snapshot_result
+    race_name = event["EventName"]
+    rnd = int(event["RoundNumber"])
+    try:
+        try:
+            prices = fetch_prices(rnd)
+        except Exception:
+            prices = current_prices
+        if not prices or not prices.get("drivers"):
+            raise RuntimeError("prices not available")
+
+        snap = build_snapshot(event, prices, source="auto")
+        try:
+            save_snapshot(snap)
+        except FileExistsError:
+            pass  # another build got there first, that's fine
+        try:
+            github = commit_to_github(snap)
+        except Exception as e:
+            github = {"committed": False, "reason": str(e)}
+
+        _last_snapshot_result = {
+            "status": "locked",
+            "race_name": race_name,
+            "round": rnd,
+            "session_used": snap["session_used"],
+            "at": _now().isoformat(),
+            "built_after_quali_start": snap.get("built_after_quali_start"),
+            "team_1": [d["Abbreviation"] for d in snap["teams"][0]["drivers"]],
+            "github": github,
+        }
+        print(f"Snapshot locked: {race_name} round {rnd}, github: {github}")
+    except Exception as e:
+        # the session IS published (we checked first), so this is a real failure
+        _last_snapshot_result = {
+            "status": "error",
+            "race_name": race_name,
+            "at": _now().isoformat(),
+            "detail": str(e),
+        }
+        print(f"Snapshot build failed for {race_name}: {e}")
+    finally:
+        _snapshot_build_lock.release()
+
+
+@app.post("/snapshot/auto")
+def auto_snapshot(
+    background_tasks: BackgroundTasks,
+    x_snapshot_secret: str | None = Header(default=None),
+    dry_run: bool = False,
+):
+    """
+    Locks the current race weekend into a snapshot, all by itself.
+
+    cron-job.org calls this every 10 minutes on Fridays and Saturdays. Each call
+    basically checks: is a race weekend live, is its final practice over and
+    published, and does it still not have a snapshot? If yes, it builds one in the
+    background, saves it here so the site uses it straight away, and commits it to
+    GitHub so it survives restarts and redeploys.
+
+    It answers straight away and builds in the background, because building takes
+    longer than cron-job.org is willing to wait for a reply.
+
+    Calling it a lot is fine, it does nothing once the snapshot exists. It needs the
+    X-Snapshot-Secret header to match SNAPSHOT_SECRET so random people can't trigger
+    builds. dry_run=true builds everything and shows you the result, but saves and
+    commits nothing, which is handy for checking the setup works.
+    """
+    secret = os.getenv("SNAPSHOT_SECRET")
+    if not secret:
+        raise HTTPException(status_code=503, detail="SNAPSHOT_SECRET is not set on the server")
+    if not x_snapshot_secret or not hmac.compare_digest(x_snapshot_secret, secret):
+        raise HTTPException(status_code=401, detail="Wrong or missing X-Snapshot-Secret header")
+
+    try:
+        schedule = _load_schedule()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Could not fetch schedule: {e}")
+    now = _now()
+    last = _last_snapshot_result or None
+
+    upcoming = _next_race(schedule, now)
+    if upcoming is None:
+        return {"status": "idle", "reason": "season complete", "last_result": last}
+
+    race_name = upcoming["EventName"]
+    rnd = int(upcoming["RoundNumber"])
+    days_until = (pd.Timestamp(upcoming["Session5Date"]) - now).total_seconds() / 86400
+    if days_until > 5:
+        return {
+            "status": "idle",
+            "reason": f"no live weekend, {race_name} is in {round(days_until)} days",
+            "last_result": last,
+        }
+
+    existing = find_snapshot(race_name)
+    if existing:
+        # already locked. we still make sure it reached GitHub, in case the commit
+        # failed last time (otherwise a restart would lose it)
+        try:
+            github = commit_to_github(existing, dry_run=dry_run)
+        except Exception as e:
+            github = {"committed": False, "reason": str(e)}
+        return {
+            "status": "already_locked",
+            "race_name": race_name,
+            "locked_at": existing.get("locked_at"),
+            "github": github,
+        }
+
+    if results_already_in_data(race_name):
+        return {
+            "status": "refused",
+            "reason": f"{race_name} results are already in the data, a snapshot now would have seen the answers",
+        }
+
+    session = final_practice_session(upcoming)
+    if not session_finished(upcoming, session, now):
+        return {"status": "waiting", "reason": f"{session} for {race_name} hasn't finished yet", "last_result": last}
+    try:
+        published = session_published(race_name, session)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Could not check whether {session} is published: {e}")
+    if not published:
+        return {"status": "waiting", "reason": f"{session} for {race_name} isn't published yet", "last_result": last}
+
+    if dry_run:
+        # build right here so you can see the result in the reply. nothing is saved
+        try:
+            prices = fetch_prices(rnd)
+        except Exception:
+            prices = current_prices
+        try:
+            snap = build_snapshot(upcoming, prices, source="auto")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"{session} is published but building failed: {e}")
+        return {
+            "status": "dry_run",
+            "race_name": race_name,
+            "round": rnd,
+            "session_used": session,
+            "built_after_quali_start": snap.get("built_after_quali_start"),
+            "teams": [
+                {
+                    "drivers": [d["Abbreviation"] for d in t["drivers"]],
+                    "constructors": [c["name"] for c in t["constructors"]],
+                    "score": t["total_score"],
+                }
+                for t in snap["teams"]
+            ],
+            "finishes_top_5": [f["abbreviation"] for f in snap["finishes"][:5]],
+            "github": commit_to_github(snap, dry_run=True),
+        }
+
+    if not _snapshot_build_lock.acquire(blocking=False):
+        return {"status": "building", "race_name": race_name, "reason": "a build is already running"}
+    background_tasks.add_task(_build_and_save_snapshot, upcoming)
+    return {
+        "status": "started",
+        "race_name": race_name,
+        "round": rnd,
+        "session_used": session,
+        "last_result": last,
     }

@@ -58,7 +58,7 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
         <div className="bg-pw-panel border border-white/[0.06] p-3.5">
           <div className="flex items-start justify-between gap-2 mb-2.5">
             <p className="text-[10.5px] tracking-[0.05em] text-pw-muted">
-              {held ? "HELD TEAM" : "RACE WEEKEND LINEUP"}{raceName ? ` · ${raceName}` : ""}
+              {held ? "HELD TEAM" : weekendData?.provisional ? "PROVISIONAL LINEUP" : weekendData?.locked ? "LOCKED LINEUP" : "RACE WEEKEND LINEUP"}{raceName ? ` · ${raceName}` : ""}
             </p>
             {teams.length > 1 && (
               <div className="flex gap-0.5 flex-shrink-0">
@@ -79,7 +79,15 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
           </div>
           {team && held && (
             <p className="text-[10px] text-pw-risk bg-pw-risk/10 border-l-2 border-pw-risk pl-2 py-1 mb-2.5">
-              No active race weekend right now. Holding your last team until the next race's practice pace comes in.
+              No live race weekend right now. Holding the last locked team until the next race gets locked.
+            </p>
+          )}
+          {/* provisional = worked out live before the weekend is locked, so it can still change */}
+          {team && !held && weekendData?.provisional && (
+            <p className="text-[10px] text-pw-rain bg-pw-rain/10 border-l-2 border-pw-rain pl-2 py-1 mb-2.5">
+              {weekendData.awaiting_lock
+                ? `Built from ${weekendData.session_used}. Locking in shortly, after that it won't change.`
+                : `Not final yet, built from ${weekendData.session_used}. Locks once ${weekendData.final_session || "FP3"} is published.`}
             </p>
           )}
           {team ? (
@@ -176,7 +184,7 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
         </div>
 
         <div className="bg-pw-panel border border-white/[0.06] p-3.5 flex-1">
-          <PanelLabel>{finishes?.held ? `PREDICTED FINISH · HELD${finishes.race_name ? ` · ${finishes.race_name}` : ""}` : "PREDICTED FINISH · LIVE"}</PanelLabel>
+          <PanelLabel>{finishes?.held ? `PREDICTED FINISH · HELD${finishes.race_name ? ` · ${finishes.race_name}` : ""}` : finishes?.provisional ? "PREDICTED FINISH · PROVISIONAL" : finishes?.locked ? "PREDICTED FINISH · LOCKED" : "PREDICTED FINISH · LIVE"}</PanelLabel>
           {preds.length ? (
             <div className="max-h-64 overflow-y-auto no-scrollbar pr-1">
               {preds.map((p, i) => (
