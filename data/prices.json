@@ -1,7 +1,43 @@
 {
-  "race_id": 14,
+  "race_id": 15,
   "prices": {
-    "drivers": {},
-    "constructors": {}
+    "drivers": {
+      "GAS": 12.0,
+      "COL": 10.6,
+      "ALO": 6.8,
+      "STR": 3.0,
+      "BOR": 8.4,
+      "HUL": 4.8,
+      "PER": 3.0,
+      "BOT": 3.0,
+      "HAM": 24.9,
+      "LEC": 24.0,
+      "OCO": 8.9,
+      "BEA": 5.8,
+      "NOR": 27.0,
+      "PIA": 24.1,
+      "RUS": 27.8,
+      "ANT": 26.6,
+      "LAW": 15.1,
+      "TSU": 9.7,
+      "LIN": 8.2,
+      "VER": 27.3,
+      "HAD": 14.5,
+      "SAI": 9.0,
+      "ALB": 6.4
+    },
+    "constructors": {
+      "Mercedes": 33.5,
+      "McLaren": 31.9,
+      "Red Bull Racing": 31.8,
+      "Ferrari": 27.5,
+      "Alpine": 19.5,
+      "Racing Bulls": 14.7,
+      "Williams": 14.0,
+      "Haas F1 Team": 10.2,
+      "Audi": 8.6,
+      "Aston Martin": 6.3,
+      "Cadillac": 3.0
+    }
   }
 }
