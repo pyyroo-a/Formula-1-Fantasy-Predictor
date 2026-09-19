@@ -35,6 +35,7 @@ import pandas as pd
 
 sys.path.insert(0, os.getcwd())
 
+from src.config import PREVIOUS_SEASON, SEASON  # noqa: E402
 from src.dnf import DNFModel, label_dnf  # noqa: E402
 
 EPS = 1e-9  # keeps log loss finite if a probability ever reaches 0 or 1
@@ -52,19 +53,19 @@ def logloss(p, y):
 
 def main():
     hist = pd.concat(
-        [pd.read_csv(f"data/processed/race_results_{y}.csv") for y in (2025, 2026)],
+        [pd.read_csv(f"data/processed/race_results_{y}.csv") for y in (PREVIOUS_SEASON, SEASON)],
         ignore_index=True,
     )
     data = label_dnf(hist)
 
-    rounds = sorted(data.loc[data["Year"] == 2026, "RoundNumber"].unique())
+    rounds = sorted(data.loc[data["Year"] == SEASON, "RoundNumber"].unique())
 
     preds, base_preds, actuals, per_race = [], [], [], []
 
     for rnd in rounds:
         # Strictly everything before this race, and nothing from it.
-        train = data[(data["Year"] < 2026) | (data["RoundNumber"] < rnd)]
-        test = data[(data["Year"] == 2026) & (data["RoundNumber"] == rnd)]
+        train = data[(data["Year"] < SEASON) | (data["RoundNumber"] < rnd)]
+        test = data[(data["Year"] == SEASON) & (data["RoundNumber"] == rnd)]
         test = test.dropna(subset=["GridPosition"])
         if test.empty or len(train) < 200:
             continue

@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from src.data_loader import load_dataset
+from src.config import SEASON, PREVIOUS_SEASON, results_path
 from src.features import build_features
 from src.models import prepare_data, train_model, predict, shrink_to_grid
 from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS
@@ -82,7 +83,7 @@ def _predict_race(
     upcoming["Position"] = 10.0
 
     X_train, y_train, X_test, _ = prepare_data(history, upcoming)
-    sample_weight = np.where(history["Year"] == 2026, 5.0, 1.0)
+    sample_weight = np.where(history["Year"] == SEASON, 5.0, 1.0)
     model = train_model(X_train, y_train, sample_weight=sample_weight)
     base_predictions = predict(model, X_test)
 
@@ -224,25 +225,25 @@ def run_backtest(
     here rather than to the shipped DNF_WEIGHT, because the point of the flag is
     to measure the effect rather than to reproduce production.
     """
-    df_2025 = load_dataset("data/processed/race_results_2025.csv")
-    df_2026 = load_dataset("data/processed/race_results_2026.csv")
+    df_previous = load_dataset(results_path(PREVIOUS_SEASON))
+    df_current = load_dataset(results_path(SEASON))
 
     fallback_prices = fallback_prices or {"drivers": {}, "constructors": {}}
     price_cache: dict[int, dict] = {}
 
-    rounds = sorted(df_2026["RoundNumber"].unique())
+    rounds = sorted(df_current["RoundNumber"].unique())
     races = []
 
     for rnd in rounds:
         if rnd <= MIN_HISTORY_ROUNDS:
             continue
 
-        target_raw = df_2026[df_2026["RoundNumber"] == rnd].copy()
+        target_raw = df_current[df_current["RoundNumber"] == rnd].copy()
         race_name = target_raw["RaceName"].iloc[0]
 
         # Everything before this race — and nothing from it
         history_raw = pd.concat(
-            [df_2025, df_2026[df_2026["RoundNumber"] < rnd]], ignore_index=True
+            [df_previous, df_current[df_current["RoundNumber"] < rnd]], ignore_index=True
         )
 
         prices = _prices_for_round(int(rnd), fallback_prices, price_cache)
@@ -253,7 +254,7 @@ def run_backtest(
         session_used = None
         if use_practice:
             sessions = ["FP1"] if is_sprint_weekend(race_name) else fallback_sessions("FP3")
-            practice_df, session_used, _ = first_available_practice(2026, race_name, sessions)
+            practice_df, session_used, _ = first_available_practice(SEASON, race_name, sessions)
             if practice_df is None:
                 races.append({
                     "race_name": race_name, "round": int(rnd),

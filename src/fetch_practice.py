@@ -1,21 +1,46 @@
 import os
+from functools import lru_cache
+
 import fastf1
 import pandas as pd
 
+from src.config import SEASON
 from src.team_names import normalize_team_names
 
 os.makedirs("data/cache", exist_ok=True)
 fastf1.Cache.enable_cache("data/cache")
 
-# Remaining 2026 sprint weekends — FP1 is the only practice session
-SPRINT_WEEKENDS = {
-    "Dutch Grand Prix",
-    "Singapore Grand Prix",
+# only used as a backup if FastF1's schedule can't be loaded at all
+# (no internet and nothing cached). All six 2026 sprint weekends.
+_FALLBACK_SPRINTS = {
+    2026: {
+        "Chinese Grand Prix", "Miami Grand Prix", "Canadian Grand Prix",
+        "British Grand Prix", "Dutch Grand Prix", "Singapore Grand Prix",
+    },
 }
 
 
-def is_sprint_weekend(race_name: str) -> bool:
-    return race_name in SPRINT_WEEKENDS
+@lru_cache(maxsize=None)
+def _sprint_events(year: int) -> frozenset:
+    """Every sprint weekend in a season, read from FastF1's schedule (EventFormat)."""
+    schedule = fastf1.get_event_schedule(year, include_testing=False)
+    is_sprint = schedule["EventFormat"].astype(str).str.contains("sprint", case=False)
+    return frozenset(schedule.loc[is_sprint, "EventName"])
+
+
+def is_sprint_weekend(race_name: str, year: int = SEASON) -> bool:
+    """
+    True if this race weekend has a sprint, so FP1 is its only practice session.
+
+    This used to be a hand typed list that only had 2 of the 6 sprints in 2026
+    (Dutch and Singapore), so China, Miami, Canada and Britain were treated as
+    normal weekends. Now we read it from FastF1's schedule, which is always right
+    and keeps working next season. The typed list above is only a backup.
+    """
+    try:
+        return race_name in _sprint_events(year)
+    except Exception:
+        return race_name in _FALLBACK_SPRINTS.get(year, set())
 
 
 def fallback_sessions(first: str) -> list[str]:
@@ -52,7 +77,7 @@ def get_practice_grid(year: int, race_name: str, session: str = "FP3") -> pd.Dat
     For sprint weekends, session is automatically set to FP1 regardless
     of what was passed in, since FP2/FP3 do not exist.
     """
-    if is_sprint_weekend(race_name):
+    if is_sprint_weekend(race_name, year):
         session = "FP1"
 
     event = fastf1.get_event(year, race_name)

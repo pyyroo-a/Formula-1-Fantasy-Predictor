@@ -42,8 +42,7 @@ def final_practice_session(event) -> str:
     The last practice session before the fantasy deadline, so the one we lock on.
 
     Sprint weekends only have FP1, normal weekends go up to FP3. We read it from
-    FastF1's EventFormat instead of a hardcoded list of sprint races (that list in
-    src/fetch_practice.py is out of date).
+    FastF1's EventFormat, same as is_sprint_weekend() in src/fetch_practice.py.
     """
     fmt = str(event.get("EventFormat", "conventional")).lower()
     return "FP1" if "sprint" in fmt else "FP3"

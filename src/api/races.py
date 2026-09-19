@@ -204,8 +204,7 @@ def get_practice_results(request: PracticeRequest):
     Returns the fastest-lap classification for a practice session, plus the list
     of practice sessions that actually exist for the weekend. Sprint weekends run
     only FP1, so the available sessions are read from the real schedule rather
-    than assumed — this works for past sprints too, which the hardcoded sprint
-    list doesn't cover.
+    than assumed.
     """
     try:
         df = load_dataset(results_path())

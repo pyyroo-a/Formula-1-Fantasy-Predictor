@@ -48,6 +48,7 @@ import pandas as pd
 # Allow running as `python scripts/measure_grid_error.py` from the repo root.
 sys.path.insert(0, os.getcwd())
 
+from src.config import SEASON  # noqa: E402
 from src.fetch_practice import fallback_sessions, first_available_practice, is_sprint_weekend  # noqa: E402
 
 # The two cliff edges in qualifying_score(). Crossing either one changes a
@@ -66,7 +67,7 @@ def practice_order(year: int, race_name: str):
 
     Returns (DataFrame, session_name), or (None, None) if nothing loaded.
     """
-    sessions = ["FP1"] if is_sprint_weekend(race_name) else fallback_sessions("FP3")
+    sessions = ["FP1"] if is_sprint_weekend(race_name, year) else fallback_sessions("FP3")
     practice_df, session_used, _ = first_available_practice(year, race_name, sessions)
     return practice_df, session_used
 
@@ -183,5 +184,5 @@ def main(year: int):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Measure practice-order vs real grid error.")
-    ap.add_argument("--year", type=int, default=2026)
+    ap.add_argument("--year", type=int, default=SEASON)
     main(ap.parse_args().year)
