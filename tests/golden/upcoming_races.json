@@ -1,0 +1,41 @@
+{
+ "body": [
+  {
+   "is_sprint": false,
+   "race_name": "Azerbaijan Grand Prix"
+  },
+  {
+   "is_sprint": false,
+   "race_name": "Bahrain Grand Prix"
+  },
+  {
+   "is_sprint": true,
+   "race_name": "Singapore Grand Prix"
+  },
+  {
+   "is_sprint": false,
+   "race_name": "United States Grand Prix"
+  },
+  {
+   "is_sprint": false,
+   "race_name": "Mexico City Grand Prix"
+  },
+  {
+   "is_sprint": false,
+   "race_name": "S\u00e3o Paulo Grand Prix"
+  },
+  {
+   "is_sprint": false,
+   "race_name": "Las Vegas Grand Prix"
+  },
+  {
+   "is_sprint": false,
+   "race_name": "Qatar Grand Prix"
+  },
+  {
+   "is_sprint": false,
+   "race_name": "Abu Dhabi Grand Prix"
+  }
+ ],
+ "status": 200
+}

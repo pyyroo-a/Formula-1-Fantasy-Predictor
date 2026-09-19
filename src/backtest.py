@@ -15,7 +15,7 @@ from src.models import prepare_data, train_model, predict, shrink_to_grid
 from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS
 from src.circuit_profiles import get_blend_weights
 from src.fetch_prices import fetch_prices
-from src.fetch_practice import get_practice_grid, is_sprint_weekend
+from src.fetch_practice import fallback_sessions, first_available_practice, is_sprint_weekend
 from src.dnf import DNFModel
 
 MIN_HISTORY_ROUNDS = 2  # need some 2026 form before predictions mean anything
@@ -252,13 +252,8 @@ def run_backtest(
         practice_df = None
         session_used = None
         if use_practice:
-            for sess in (["FP1"] if is_sprint_weekend(race_name) else ["FP3", "FP2", "FP1"]):
-                try:
-                    practice_df = get_practice_grid(2026, race_name, sess)
-                    session_used = sess
-                    break
-                except Exception:
-                    continue
+            sessions = ["FP1"] if is_sprint_weekend(race_name) else fallback_sessions("FP3")
+            practice_df, session_used, _ = first_available_practice(2026, race_name, sessions)
             if practice_df is None:
                 races.append({
                     "race_name": race_name, "round": int(rnd),

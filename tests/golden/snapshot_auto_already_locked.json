@@ -1,0 +1,13 @@
+{
+ "body": {
+  "github": {
+   "committed": false,
+   "path": "data/snapshots/2026_R14_spanish_grand_prix.json",
+   "reason": "dry run, nothing committed"
+  },
+  "locked_at": "2026-09-13T18:51:29.169026+00:00",
+  "race_name": "Spanish Grand Prix",
+  "status": "already_locked"
+ },
+ "status": 200
+}

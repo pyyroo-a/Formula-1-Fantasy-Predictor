@@ -1,0 +1,257 @@
+{
+ "body": {
+  "teams": [
+   {
+    "boost_pick": {
+     "Abbreviation": "LIN",
+     "FantasyValue": 8.0,
+     "GridPosition": 9,
+     "Predicted": 8.4,
+     "TeamName": "Racing Bulls",
+     "alternatives": [
+      "COL"
+     ],
+     "reason": "Starting P9 (Q3), predicted P8 \u2014 made Q3 so qualifying points secured, good 2x candidate"
+    },
+    "budget_remaining": 0.0,
+    "constructors": [
+     {
+      "dnf_risk": null,
+      "double_dnf_risk": null,
+      "name": "Audi",
+      "price": 8.0,
+      "score": 7.7
+     },
+     {
+      "dnf_risk": null,
+      "double_dnf_risk": null,
+      "name": "Mercedes",
+      "price": 33.2,
+      "score": 67.7
+     }
+    ],
+    "drivers": [
+     {
+      "Abbreviation": "ANT",
+      "DNFProb": null,
+      "FantasyValue": 38.3,
+      "GridPosition": 19,
+      "PickCategory": "Safe",
+      "Predicted": 3.3,
+      "Price": 26.3,
+      "TeamName": "Mercedes"
+     },
+     {
+      "Abbreviation": "COL",
+      "DNFProb": null,
+      "FantasyValue": 6.6,
+      "GridPosition": 7,
+      "PickCategory": "Risk",
+      "Predicted": 8.2,
+      "Price": 10.4,
+      "TeamName": "Alpine"
+     },
+     {
+      "Abbreviation": "HUL",
+      "DNFProb": null,
+      "FantasyValue": 1.8,
+      "GridPosition": 12,
+      "PickCategory": "Risk",
+      "Predicted": 11.5,
+      "Price": 4.2,
+      "TeamName": "Audi"
+     },
+     {
+      "Abbreviation": "LIN",
+      "DNFProb": null,
+      "FantasyValue": 8.0,
+      "GridPosition": 9,
+      "PickCategory": "Risk",
+      "Predicted": 8.4,
+      "Price": 8.0,
+      "TeamName": "Racing Bulls"
+     },
+     {
+      "Abbreviation": "TSU",
+      "DNFProb": null,
+      "FantasyValue": 10.0,
+      "GridPosition": 15,
+      "PickCategory": "Risk",
+      "Predicted": 10.4,
+      "Price": 9.9,
+      "TeamName": "Racing Bulls"
+     }
+    ],
+    "total_cost": 100.0,
+    "total_score": 140.1
+   },
+   {
+    "boost_pick": {
+     "Abbreviation": "LIN",
+     "FantasyValue": 8.0,
+     "GridPosition": 9,
+     "Predicted": 8.4,
+     "TeamName": "Racing Bulls",
+     "alternatives": [
+      "BOR"
+     ],
+     "reason": "Starting P9 (Q3), predicted P8 \u2014 made Q3 so qualifying points secured, good 2x candidate"
+    },
+    "budget_remaining": 0.2,
+    "constructors": [
+     {
+      "dnf_risk": null,
+      "double_dnf_risk": null,
+      "name": "Audi",
+      "price": 8.0,
+      "score": 7.7
+     },
+     {
+      "dnf_risk": null,
+      "double_dnf_risk": null,
+      "name": "Mercedes",
+      "price": 33.2,
+      "score": 67.7
+     }
+    ],
+    "drivers": [
+     {
+      "Abbreviation": "ALB",
+      "DNFProb": null,
+      "FantasyValue": -0.1,
+      "GridPosition": 20,
+      "PickCategory": "Risk",
+      "Predicted": 16.7,
+      "Price": 5.8,
+      "TeamName": "Williams"
+     },
+     {
+      "Abbreviation": "ANT",
+      "DNFProb": null,
+      "FantasyValue": 38.3,
+      "GridPosition": 19,
+      "PickCategory": "Safe",
+      "Predicted": 3.3,
+      "Price": 26.3,
+      "TeamName": "Mercedes"
+     },
+     {
+      "Abbreviation": "BOR",
+      "DNFProb": null,
+      "FantasyValue": 4.9,
+      "GridPosition": 10,
+      "PickCategory": "Risk",
+      "Predicted": 9.3,
+      "Price": 8.6,
+      "TeamName": "Audi"
+     },
+     {
+      "Abbreviation": "LIN",
+      "DNFProb": null,
+      "FantasyValue": 8.0,
+      "GridPosition": 9,
+      "PickCategory": "Risk",
+      "Predicted": 8.4,
+      "Price": 8.0,
+      "TeamName": "Racing Bulls"
+     },
+     {
+      "Abbreviation": "TSU",
+      "DNFProb": null,
+      "FantasyValue": 10.0,
+      "GridPosition": 15,
+      "PickCategory": "Risk",
+      "Predicted": 10.4,
+      "Price": 9.9,
+      "TeamName": "Racing Bulls"
+     }
+    ],
+    "total_cost": 99.8,
+    "total_score": 136.5
+   },
+   {
+    "boost_pick": {
+     "Abbreviation": "GAS",
+     "FantasyValue": 10.0,
+     "GridPosition": 1,
+     "Predicted": 5.7,
+     "TeamName": "Alpine",
+     "alternatives": [],
+     "reason": "Starting P1 (Q3), predicted P6 \u2014 front row, qualifying points already banked, safest 2x"
+    },
+    "budget_remaining": 0.4,
+    "constructors": [
+     {
+      "dnf_risk": null,
+      "double_dnf_risk": null,
+      "name": "Audi",
+      "price": 8.0,
+      "score": 7.7
+     },
+     {
+      "dnf_risk": null,
+      "double_dnf_risk": null,
+      "name": "Mercedes",
+      "price": 33.2,
+      "score": 67.7
+     }
+    ],
+    "drivers": [
+     {
+      "Abbreviation": "ALB",
+      "DNFProb": null,
+      "FantasyValue": -0.1,
+      "GridPosition": 20,
+      "PickCategory": "Risk",
+      "Predicted": 16.7,
+      "Price": 5.8,
+      "TeamName": "Williams"
+     },
+     {
+      "Abbreviation": "ANT",
+      "DNFProb": null,
+      "FantasyValue": 38.3,
+      "GridPosition": 19,
+      "PickCategory": "Safe",
+      "Predicted": 3.3,
+      "Price": 26.3,
+      "TeamName": "Mercedes"
+     },
+     {
+      "Abbreviation": "GAS",
+      "DNFProb": null,
+      "FantasyValue": 10.0,
+      "GridPosition": 1,
+      "PickCategory": "Risk",
+      "Predicted": 5.7,
+      "Price": 12.2,
+      "TeamName": "Alpine"
+     },
+     {
+      "Abbreviation": "HUL",
+      "DNFProb": null,
+      "FantasyValue": 1.8,
+      "GridPosition": 12,
+      "PickCategory": "Risk",
+      "Predicted": 11.5,
+      "Price": 4.2,
+      "TeamName": "Audi"
+     },
+     {
+      "Abbreviation": "TSU",
+      "DNFProb": null,
+      "FantasyValue": 10.0,
+      "GridPosition": 15,
+      "PickCategory": "Risk",
+      "Predicted": 10.4,
+      "Price": 9.9,
+      "TeamName": "Racing Bulls"
+     }
+    ],
+    "total_cost": 99.6,
+    "total_score": 135.4
+   }
+  ]
+ },
+ "status": 200
+}

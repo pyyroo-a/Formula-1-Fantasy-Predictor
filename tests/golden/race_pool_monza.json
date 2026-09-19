@@ -1,0 +1,235 @@
+{
+ "body": {
+  "constructors": [
+   {
+    "name": "Mercedes",
+    "price": 33.2,
+    "score": 66.2
+   },
+   {
+    "name": "Red Bull Racing",
+    "price": 31.5,
+    "score": 44.3
+   },
+   {
+    "name": "McLaren",
+    "price": 31.6,
+    "score": 32.2
+   },
+   {
+    "name": "Racing Bulls",
+    "price": 14.1,
+    "score": 18.0
+   },
+   {
+    "name": "Alpine",
+    "price": 19.2,
+    "score": 16.6
+   },
+   {
+    "name": "Ferrari",
+    "price": 27.2,
+    "score": 15.9
+   },
+   {
+    "name": "Audi",
+    "price": 8.0,
+    "score": 6.7
+   },
+   {
+    "name": "Aston Martin",
+    "price": 6.9,
+    "score": 0.0
+   },
+   {
+    "name": "Williams",
+    "price": 13.8,
+    "score": -1.9
+   },
+   {
+    "name": "Haas F1 Team",
+    "price": 10.8,
+    "score": -10.8
+   },
+   {
+    "name": "Cadillac",
+    "price": 3.0,
+    "score": -14.6
+   }
+  ],
+  "drivers": [
+   {
+    "Abbreviation": "VER",
+    "FantasyValue": 30.0,
+    "GridPosition": 5,
+    "PickCategory": "Safe",
+    "Predicted": 2.5,
+    "Price": 27.4,
+    "TeamName": "Red Bull Racing"
+   },
+   {
+    "Abbreviation": "RUS",
+    "FantasyValue": 27.9,
+    "GridPosition": 2,
+    "PickCategory": "Safe",
+    "Predicted": 2.5,
+    "Price": 27.7,
+    "TeamName": "Mercedes"
+   },
+   {
+    "Abbreviation": "ANT",
+    "FantasyValue": 38.3,
+    "GridPosition": 19,
+    "PickCategory": "Safe",
+    "Predicted": 3.3,
+    "Price": 26.3,
+    "TeamName": "Mercedes"
+   },
+   {
+    "Abbreviation": "HAM",
+    "FantasyValue": 15.9,
+    "GridPosition": 4,
+    "PickCategory": "Value",
+    "Predicted": 4.8,
+    "Price": 25.2,
+    "TeamName": "Ferrari"
+   },
+   {
+    "Abbreviation": "NOR",
+    "FantasyValue": 18.7,
+    "GridPosition": 8,
+    "PickCategory": "Value",
+    "Predicted": 5.2,
+    "Price": 26.7,
+    "TeamName": "McLaren"
+   },
+   {
+    "Abbreviation": "GAS",
+    "FantasyValue": 10.0,
+    "GridPosition": 1,
+    "PickCategory": "Risk",
+    "Predicted": 5.7,
+    "Price": 12.2,
+    "TeamName": "Alpine"
+   },
+   {
+    "Abbreviation": "PIA",
+    "FantasyValue": 13.5,
+    "GridPosition": 6,
+    "PickCategory": "Risk",
+    "Predicted": 5.8,
+    "Price": 24.0,
+    "TeamName": "McLaren"
+   },
+   {
+    "Abbreviation": "COL",
+    "FantasyValue": 6.6,
+    "GridPosition": 7,
+    "PickCategory": "Risk",
+    "Predicted": 8.2,
+    "Price": 10.4,
+    "TeamName": "Alpine"
+   },
+   {
+    "Abbreviation": "LIN",
+    "FantasyValue": 8.0,
+    "GridPosition": 9,
+    "PickCategory": "Risk",
+    "Predicted": 8.4,
+    "Price": 8.0,
+    "TeamName": "Racing Bulls"
+   },
+   {
+    "Abbreviation": "BOR",
+    "FantasyValue": 4.9,
+    "GridPosition": 10,
+    "PickCategory": "Risk",
+    "Predicted": 9.3,
+    "Price": 8.6,
+    "TeamName": "Audi"
+   },
+   {
+    "Abbreviation": "TSU",
+    "FantasyValue": 10.0,
+    "GridPosition": 15,
+    "PickCategory": "Risk",
+    "Predicted": 10.4,
+    "Price": 9.9,
+    "TeamName": "Racing Bulls"
+   },
+   {
+    "Abbreviation": "LAW",
+    "FantasyValue": 14.3,
+    "GridPosition": 22,
+    "PickCategory": "Risk",
+    "Predicted": 11.3,
+    "Price": 14.9,
+    "TeamName": "Red Bull Racing"
+   },
+   {
+    "Abbreviation": "HUL",
+    "FantasyValue": 1.8,
+    "GridPosition": 12,
+    "PickCategory": "Risk",
+    "Predicted": 11.5,
+    "Price": 4.2,
+    "TeamName": "Audi"
+   },
+   {
+    "Abbreviation": "BEA",
+    "FantasyValue": -5.4,
+    "GridPosition": 11,
+    "PickCategory": "Avoid",
+    "Predicted": 13.7,
+    "Price": 6.4,
+    "TeamName": "Haas F1 Team"
+   },
+   {
+    "Abbreviation": "SAI",
+    "FantasyValue": -1.8,
+    "GridPosition": 13,
+    "PickCategory": "Avoid",
+    "Predicted": 13.8,
+    "Price": 9.6,
+    "TeamName": "Williams"
+   },
+   {
+    "Abbreviation": "PER",
+    "FantasyValue": -5.5,
+    "GridPosition": 17,
+    "PickCategory": "Avoid",
+    "Predicted": 16.6,
+    "Price": 3.0,
+    "TeamName": "Cadillac"
+   },
+   {
+    "Abbreviation": "OCO",
+    "FantasyValue": -5.4,
+    "GridPosition": 14,
+    "PickCategory": "Avoid",
+    "Predicted": 16.7,
+    "Price": 9.5,
+    "TeamName": "Haas F1 Team"
+   },
+   {
+    "Abbreviation": "ALB",
+    "FantasyValue": -0.1,
+    "GridPosition": 20,
+    "PickCategory": "Risk",
+    "Predicted": 16.7,
+    "Price": 5.8,
+    "TeamName": "Williams"
+   },
+   {
+    "Abbreviation": "BOT",
+    "FantasyValue": -9.1,
+    "GridPosition": 16,
+    "PickCategory": "Avoid",
+    "Predicted": 17.9,
+    "Price": 3.0,
+    "TeamName": "Cadillac"
+   }
+  ]
+ },
+ "status": 200
+}

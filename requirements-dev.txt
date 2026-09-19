@@ -1,0 +1,4 @@
+-r requirements.txt
+
+# only needed to run the tests locally, not on Render
+pytest

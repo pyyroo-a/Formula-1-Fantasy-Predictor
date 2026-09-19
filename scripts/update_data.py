@@ -11,12 +11,13 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import pandas as pd
+from src.config import SEASON, results_path
 from src.fetch_results import update_season_results
 from src.fetch_prices import save_prices, save_price_history
 
-CSV_PATH = "data/processed/race_results_2026.csv"
+CSV_PATH = results_path()
 
-added = update_season_results(2026, CSV_PATH)
+added = update_season_results(SEASON, CSV_PATH)
 
 if added:
     print(f"::notice::Added {len(added)} new race(s): {', '.join(added)}")

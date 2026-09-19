@@ -48,7 +48,7 @@ import pandas as pd
 # Allow running as `python scripts/measure_grid_error.py` from the repo root.
 sys.path.insert(0, os.getcwd())
 
-from src.fetch_practice import get_practice_grid, is_sprint_weekend  # noqa: E402
+from src.fetch_practice import fallback_sessions, first_available_practice, is_sprint_weekend  # noqa: E402
 
 # The two cliff edges in qualifying_score(). Crossing either one changes a
 # driver's fantasy points discontinuously, so an error that straddles a cliff
@@ -66,13 +66,9 @@ def practice_order(year: int, race_name: str):
 
     Returns (DataFrame, session_name), or (None, None) if nothing loaded.
     """
-    sessions = ["FP1"] if is_sprint_weekend(race_name) else ["FP3", "FP2", "FP1"]
-    for sess in sessions:
-        try:
-            return get_practice_grid(year, race_name, sess), sess
-        except Exception:
-            continue
-    return None, None
+    sessions = ["FP1"] if is_sprint_weekend(race_name) else fallback_sessions("FP3")
+    practice_df, session_used, _ = first_available_practice(year, race_name, sessions)
+    return practice_df, session_used
 
 
 def main(year: int):

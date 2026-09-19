@@ -1,0 +1,142 @@
+{
+ "constructors": {
+  "Alpine": {
+   "change": 0.3,
+   "price": 19.2
+  },
+  "Aston Martin": {
+   "change": 0.6,
+   "price": 6.9
+  },
+  "Audi": {
+   "change": 0.6,
+   "price": 8.0
+  },
+  "Cadillac": {
+   "change": 0.0,
+   "price": 3.0
+  },
+  "Ferrari": {
+   "change": 0.3,
+   "price": 27.2
+  },
+  "Haas F1 Team": {
+   "change": -0.6,
+   "price": 10.8
+  },
+  "McLaren": {
+   "change": 0.3,
+   "price": 31.6
+  },
+  "Mercedes": {
+   "change": 0.3,
+   "price": 33.2
+  },
+  "Racing Bulls": {
+   "change": 0.6,
+   "price": 14.1
+  },
+  "Red Bull Racing": {
+   "change": 0.3,
+   "price": 31.5
+  },
+  "Williams": {
+   "change": 0.6,
+   "price": 13.8
+  }
+ },
+ "drivers": {
+  "ALB": {
+   "change": 0.6,
+   "price": 5.8
+  },
+  "ALO": {
+   "change": 0.2,
+   "price": 7.0
+  },
+  "ANT": {
+   "change": 0.3,
+   "price": 26.3
+  },
+  "BEA": {
+   "change": -0.6,
+   "price": 6.4
+  },
+  "BOR": {
+   "change": 0.6,
+   "price": 8.6
+  },
+  "BOT": {
+   "change": 0.0,
+   "price": 3.0
+  },
+  "COL": {
+   "change": -0.2,
+   "price": 10.4
+  },
+  "GAS": {
+   "change": -0.2,
+   "price": 12.2
+  },
+  "HAD": {
+   "change": 0.0,
+   "price": 14.5
+  },
+  "HAM": {
+   "change": 0.1,
+   "price": 25.2
+  },
+  "HUL": {
+   "change": 0.6,
+   "price": 4.2
+  },
+  "LAW": {
+   "change": 0.6,
+   "price": 14.9
+  },
+  "LEC": {
+   "change": -0.1,
+   "price": 24.1
+  },
+  "LIN": {
+   "change": 0.2,
+   "price": 8.0
+  },
+  "NOR": {
+   "change": 0.3,
+   "price": 26.7
+  },
+  "OCO": {
+   "change": -0.6,
+   "price": 9.5
+  },
+  "PER": {
+   "change": -0.2,
+   "price": 3.0
+  },
+  "PIA": {
+   "change": -0.1,
+   "price": 24.0
+  },
+  "RUS": {
+   "change": 0.1,
+   "price": 27.7
+  },
+  "SAI": {
+   "change": -0.2,
+   "price": 9.6
+  },
+  "STR": {
+   "change": 0.0,
+   "price": 3.0
+  },
+  "TSU": {
+   "change": 0.2,
+   "price": 9.9
+  },
+  "VER": {
+   "change": -0.1,
+   "price": 27.4
+  }
+ }
+}

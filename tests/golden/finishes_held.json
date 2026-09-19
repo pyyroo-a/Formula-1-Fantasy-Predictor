@@ -1,0 +1,218 @@
+{
+ "body": {
+  "accuracy": {
+   "baseline_mae": 2.56,
+   "finishers": 18,
+   "model_mae": 3.06
+  },
+  "active": true,
+  "held": true,
+  "locked": true,
+  "locked_at": "2026-09-13T18:51:29.169026+00:00",
+  "predictions": [
+   {
+    "abbreviation": "ANT",
+    "actual_pos": 1,
+    "actual_status": "Finished",
+    "baseline_pos": 1,
+    "delta": 0,
+    "model_pos": 1,
+    "team": "Mercedes"
+   },
+   {
+    "abbreviation": "LEC",
+    "actual_pos": 4,
+    "actual_status": "Finished",
+    "baseline_pos": 2,
+    "delta": 0,
+    "model_pos": 2,
+    "team": "Ferrari"
+   },
+   {
+    "abbreviation": "VER",
+    "actual_pos": 2,
+    "actual_status": "Finished",
+    "baseline_pos": 5,
+    "delta": 2,
+    "model_pos": 3,
+    "team": "Red Bull Racing"
+   },
+   {
+    "abbreviation": "NOR",
+    "actual_pos": 3,
+    "actual_status": "Finished",
+    "baseline_pos": 4,
+    "delta": 0,
+    "model_pos": 4,
+    "team": "McLaren"
+   },
+   {
+    "abbreviation": "PIA",
+    "actual_pos": 8,
+    "actual_status": "Finished",
+    "baseline_pos": 3,
+    "delta": -2,
+    "model_pos": 5,
+    "team": "McLaren"
+   },
+   {
+    "abbreviation": "RUS",
+    "actual_pos": 5,
+    "actual_status": "Finished",
+    "baseline_pos": 6,
+    "delta": 0,
+    "model_pos": 6,
+    "team": "Mercedes"
+   },
+   {
+    "abbreviation": "HAM",
+    "actual_pos": null,
+    "actual_status": "DNF",
+    "baseline_pos": 9,
+    "delta": 2,
+    "model_pos": 7,
+    "team": "Ferrari"
+   },
+   {
+    "abbreviation": "HUL",
+    "actual_pos": 10,
+    "actual_status": "Lapped",
+    "baseline_pos": 8,
+    "delta": 0,
+    "model_pos": 8,
+    "team": "Audi"
+   },
+   {
+    "abbreviation": "LAW",
+    "actual_pos": 6,
+    "actual_status": "Finished",
+    "baseline_pos": 7,
+    "delta": -2,
+    "model_pos": 9,
+    "team": "Red Bull Racing"
+   },
+   {
+    "abbreviation": "ALO",
+    "actual_pos": 17,
+    "actual_status": "Lapped",
+    "baseline_pos": 17,
+    "delta": 7,
+    "model_pos": 10,
+    "team": "Aston Martin"
+   },
+   {
+    "abbreviation": "BOR",
+    "actual_pos": 13,
+    "actual_status": "Lapped",
+    "baseline_pos": 10,
+    "delta": -1,
+    "model_pos": 11,
+    "team": "Audi"
+   },
+   {
+    "abbreviation": "LIN",
+    "actual_pos": 9,
+    "actual_status": "Lapped",
+    "baseline_pos": 14,
+    "delta": 2,
+    "model_pos": 12,
+    "team": "Racing Bulls"
+   },
+   {
+    "abbreviation": "TSU",
+    "actual_pos": 14,
+    "actual_status": "Lapped",
+    "baseline_pos": 15,
+    "delta": 2,
+    "model_pos": 13,
+    "team": "Racing Bulls"
+   },
+   {
+    "abbreviation": "COL",
+    "actual_pos": 7,
+    "actual_status": "Finished",
+    "baseline_pos": 11,
+    "delta": -3,
+    "model_pos": 14,
+    "team": "Alpine"
+   },
+   {
+    "abbreviation": "STR",
+    "actual_pos": null,
+    "actual_status": "DNF",
+    "baseline_pos": 19,
+    "delta": 4,
+    "model_pos": 15,
+    "team": "Aston Martin"
+   },
+   {
+    "abbreviation": "GAS",
+    "actual_pos": 12,
+    "actual_status": "Lapped",
+    "baseline_pos": 16,
+    "delta": 0,
+    "model_pos": 16,
+    "team": "Alpine"
+   },
+   {
+    "abbreviation": "OCO",
+    "actual_pos": 11,
+    "actual_status": "Lapped",
+    "baseline_pos": 12,
+    "delta": -5,
+    "model_pos": 17,
+    "team": "Haas F1 Team"
+   },
+   {
+    "abbreviation": "BEA",
+    "actual_pos": 16,
+    "actual_status": "Lapped",
+    "baseline_pos": 13,
+    "delta": -5,
+    "model_pos": 18,
+    "team": "Haas F1 Team"
+   },
+   {
+    "abbreviation": "SAI",
+    "actual_pos": null,
+    "actual_status": "DNF",
+    "baseline_pos": 18,
+    "delta": -1,
+    "model_pos": 19,
+    "team": "Williams"
+   },
+   {
+    "abbreviation": "PER",
+    "actual_pos": null,
+    "actual_status": "DNF",
+    "baseline_pos": 20,
+    "delta": 0,
+    "model_pos": 20,
+    "team": "Cadillac"
+   },
+   {
+    "abbreviation": "BOT",
+    "actual_pos": 18,
+    "actual_status": "Lapped",
+    "baseline_pos": 21,
+    "delta": 0,
+    "model_pos": 21,
+    "team": "Cadillac"
+   },
+   {
+    "abbreviation": "ALB",
+    "actual_pos": 15,
+    "actual_status": "Lapped",
+    "baseline_pos": 22,
+    "delta": 0,
+    "model_pos": 22,
+    "team": "Williams"
+   }
+  ],
+  "race_name": "Spanish Grand Prix",
+  "results_available": true,
+  "round": 14,
+  "session_used": "FP3"
+ },
+ "status": 200
+}

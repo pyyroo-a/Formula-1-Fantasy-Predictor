@@ -1,0 +1,43 @@
+{
+ "body": {
+  "constructors": {
+   "Alpine": 19.2,
+   "Aston Martin": 6.9,
+   "Audi": 8.0,
+   "Cadillac": 3.0,
+   "Ferrari": 27.2,
+   "Haas F1 Team": 10.8,
+   "McLaren": 31.6,
+   "Mercedes": 33.2,
+   "Racing Bulls": 14.1,
+   "Red Bull Racing": 31.5,
+   "Williams": 13.8
+  },
+  "drivers": {
+   "ALB": 5.8,
+   "ALO": 7.0,
+   "ANT": 26.3,
+   "BEA": 6.4,
+   "BOR": 8.6,
+   "BOT": 3.0,
+   "COL": 10.4,
+   "GAS": 12.2,
+   "HAD": 14.5,
+   "HAM": 25.2,
+   "HUL": 4.2,
+   "LAW": 14.9,
+   "LEC": 24.1,
+   "LIN": 8.0,
+   "NOR": 26.7,
+   "OCO": 9.5,
+   "PER": 3.0,
+   "PIA": 24.0,
+   "RUS": 27.7,
+   "SAI": 9.6,
+   "STR": 3.0,
+   "TSU": 9.9,
+   "VER": 27.4
+  }
+ },
+ "status": 200
+}

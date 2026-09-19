@@ -16,6 +16,7 @@ data/cache/
 # disk, so the snapshots have to ship inside the image. See src/snapshots.py.
 
 notebooks/
+tests/
 results/
 docs/
 *.md

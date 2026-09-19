@@ -1,0 +1,9 @@
+{
+ "body": {
+  "active": false,
+  "days_until": 12.7,
+  "message": "Next race in 13 days",
+  "race_name": "Azerbaijan Grand Prix"
+ },
+ "status": 200
+}

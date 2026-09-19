@@ -1,0 +1,187 @@
+{
+ "body": {
+  "chips": {
+   "autopilot": {
+    "recommendation": "SAVE"
+   },
+   "final_fix": {
+    "recommendation": "POST-QUALI",
+    "riskiest_driver": "BEA"
+   },
+   "limitless": {
+    "gain": 127.2,
+    "recommendation": "PLAY",
+    "team": {
+     "boost_pick": {
+      "Abbreviation": "ANT",
+      "FantasyValue": 39.0,
+      "GridPosition": 1,
+      "Predicted": 1.0,
+      "TeamName": "Mercedes",
+      "alternatives": [
+       "LEC",
+       "PIA"
+      ],
+      "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
+     },
+     "budget_remaining": 805.7,
+     "constructors": [
+      {
+       "name": "McLaren",
+       "price": 31.6,
+       "score": 52.5
+      },
+      {
+       "name": "Mercedes",
+       "price": 33.2,
+       "score": 58.5
+      }
+     ],
+     "drivers": [
+      {
+       "Abbreviation": "ANT",
+       "FantasyValue": 39.0,
+       "GridPosition": 1,
+       "PickCategory": "Safe",
+       "Predicted": 1.0,
+       "Price": 26.3,
+       "TeamName": "Mercedes"
+      },
+      {
+       "Abbreviation": "LEC",
+       "FantasyValue": 30.6,
+       "GridPosition": 2,
+       "PickCategory": "Safe",
+       "Predicted": 2.0,
+       "Price": 24.1,
+       "TeamName": "Ferrari"
+      },
+      {
+       "Abbreviation": "PIA",
+       "FantasyValue": 26.2,
+       "GridPosition": 3,
+       "PickCategory": "Safe",
+       "Predicted": 3.1,
+       "Price": 24.0,
+       "TeamName": "McLaren"
+      },
+      {
+       "Abbreviation": "NOR",
+       "FantasyValue": 21.8,
+       "GridPosition": 4,
+       "PickCategory": "Value",
+       "Predicted": 4.0,
+       "Price": 26.7,
+       "TeamName": "McLaren"
+      },
+      {
+       "Abbreviation": "VER",
+       "FantasyValue": 18.4,
+       "GridPosition": 5,
+       "PickCategory": "Value",
+       "Predicted": 5.0,
+       "Price": 27.4,
+       "TeamName": "Red Bull Racing"
+      }
+     ],
+     "total_cost": 193.3,
+     "total_score": 247.0
+    }
+   },
+   "my_team_score": 119.8,
+   "no_negative": {
+    "dnf_risk_pct": 65,
+    "is_high_attrition": false,
+    "recommendation": "HOLD"
+   },
+   "wildcard": {
+    "gain": 7.5,
+    "optimal_team": {
+     "boost_pick": {
+      "Abbreviation": "ANT",
+      "FantasyValue": 39.0,
+      "GridPosition": 1,
+      "Predicted": 1.0,
+      "TeamName": "Mercedes",
+      "alternatives": [
+       "LAW",
+       "HUL"
+      ],
+      "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
+     },
+     "budget_remaining": 0.0,
+     "constructors": [
+      {
+       "name": "Audi",
+       "price": 8.0,
+       "score": 13.6
+      },
+      {
+       "name": "McLaren",
+       "price": 31.6,
+       "score": 52.5
+      }
+     ],
+     "drivers": [
+      {
+       "Abbreviation": "ANT",
+       "FantasyValue": 39.0,
+       "GridPosition": 1,
+       "PickCategory": "Safe",
+       "Predicted": 1.0,
+       "Price": 26.3,
+       "TeamName": "Mercedes"
+      },
+      {
+       "Abbreviation": "LAW",
+       "FantasyValue": 11.6,
+       "GridPosition": 7,
+       "PickCategory": "Risk",
+       "Predicted": 7.1,
+       "Price": 14.9,
+       "TeamName": "Red Bull Racing"
+      },
+      {
+       "Abbreviation": "HUL",
+       "FantasyValue": 8.2,
+       "GridPosition": 8,
+       "PickCategory": "Risk",
+       "Predicted": 8.2,
+       "Price": 4.2,
+       "TeamName": "Audi"
+      },
+      {
+       "Abbreviation": "BOR",
+       "FantasyValue": 2.4,
+       "GridPosition": 10,
+       "PickCategory": "Risk",
+       "Predicted": 10.2,
+       "Price": 8.6,
+       "TeamName": "Audi"
+      },
+      {
+       "Abbreviation": "BEA",
+       "FantasyValue": 0.0,
+       "GridPosition": 13,
+       "PickCategory": "Risk",
+       "Predicted": 13.2,
+       "Price": 6.4,
+       "TeamName": "Haas F1 Team"
+      }
+     ],
+     "total_cost": 100.0,
+     "total_score": 127.3
+    },
+    "recommendation": "HOLD"
+   },
+   "x3_boost": {
+    "gain": 39.0,
+    "recommendation": "PLAY",
+    "target": "ANT"
+   }
+  },
+  "my_team_score": 119.8,
+  "session_used": "FP3"
+ },
+ "status": 200
+}

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from src.data_loader import load_dataset
+from src.config import SEASON, PREVIOUS_SEASON, results_path
 from src.features import build_features
 from src.models import prepare_data, train_model, predict, build_fantasy_table, shrink_to_grid
 from src.championship_form import compute_championship_form, apply_championship_signal
@@ -9,11 +10,11 @@ from src.circuit_profiles import get_blend_weights
 
 
 def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
-    """Train on 2025 + 2026 data, with 2026 weighted 3x to reflect current car pace."""
-    df_2025 = load_dataset("data/processed/race_results_2025.csv")
-    df_2026 = load_dataset("data/processed/race_results_2026.csv")
+    """Train on last season + this season, with this season weighted 5x to reflect current car pace."""
+    df_previous = load_dataset(results_path(PREVIOUS_SEASON))
+    df_current = load_dataset(results_path(SEASON))
 
-    df_train = pd.concat([df_2025, df_2026], ignore_index=True)
+    df_train = pd.concat([df_previous, df_current], ignore_index=True)
     df_train = build_features(df_train)
 
     features = [
@@ -23,7 +24,7 @@ def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
     ]
     df_train = df_train.dropna(subset=features)
 
-    sample_weight = np.where(df_train["Year"] == 2026, 5.0, 1.0)
+    sample_weight = np.where(df_train["Year"] == SEASON, 5.0, 1.0)
 
     X_train = pd.get_dummies(df_train[features].drop("Position", axis=1), columns=["TeamName"])
     y_train = df_train["Position"]
@@ -34,23 +35,23 @@ def build_trained_model() -> tuple[RandomForestRegressor, pd.DataFrame]:
 
 
 def run_pipeline() -> pd.DataFrame:
-    """Returns fantasy table for all completed 2026 races (for the race selector)."""
-    df_2025 = load_dataset("data/processed/race_results_2025.csv")
-    df_2026 = load_dataset("data/processed/race_results_2026.csv")
+    """Returns fantasy table for all completed races this season (for the race selector)."""
+    df_previous = load_dataset(results_path(PREVIOUS_SEASON))
+    df_current = load_dataset(results_path(SEASON))
 
-    df_train = df_2025.copy()
+    df_train = df_previous.copy()
     df_train = build_features(df_train)
-    df_2026 = build_features(df_2026)
+    df_current = build_features(df_current)
 
-    X_train, y_train, X_test, y_test = prepare_data(df_train, df_2026)
+    X_train, y_train, X_test, y_test = prepare_data(df_train, df_current)
     model = train_model(X_train, y_train)
     predictions = predict(model, X_test)
-    fantasy_table = build_fantasy_table(df_2026, predictions)
+    fantasy_table = build_fantasy_table(df_current, predictions)
 
-    # Compute 2026 championship standings from the completed race data
+    # Compute this season's championship standings from the completed race data
     # and use them to fine-tune predictions — drivers leading the title
     # get a small boost, backmarkers get a small penalty.
-    form_df = compute_championship_form(df_2026)
+    form_df = compute_championship_form(df_current)
     fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=0.15)
 
     return fantasy_table
@@ -62,10 +63,10 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     (must have: Abbreviation, TeamName, GridPosition, RaceName)
     and returns a fantasy table prediction using historical form features.
     """
-    df_2025 = load_dataset("data/processed/race_results_2025.csv")
-    df_2026 = load_dataset("data/processed/race_results_2026.csv")
+    df_previous = load_dataset(results_path(PREVIOUS_SEASON))
+    df_current = load_dataset(results_path(SEASON))
 
-    df_history = pd.concat([df_2025, df_2026], ignore_index=True)
+    df_history = pd.concat([df_previous, df_current], ignore_index=True)
     df_history = build_features(df_history)
 
     # Get the latest rolling features per driver from history
@@ -97,8 +98,8 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     upcoming["Position"] = 10.0
     upcoming["Status"] = "Finished"
 
-    # Weight 2026 races 5x higher than 2025 so current car pace dominates
-    sample_weight = np.where(df_history["Year"] == 2026, 5.0, 1.0)
+    # Weight this season's races 5x higher than last season's so current car pace dominates
+    sample_weight = np.where(df_history["Year"] == SEASON, 5.0, 1.0)
 
     X_train, y_train, X_test, _ = prepare_data(df_history, upcoming)
     model = train_model(X_train, y_train, sample_weight=sample_weight)

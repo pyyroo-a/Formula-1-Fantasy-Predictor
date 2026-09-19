@@ -18,6 +18,32 @@ def is_sprint_weekend(race_name: str) -> bool:
     return race_name in SPRINT_WEEKENDS
 
 
+def fallback_sessions(first: str) -> list[str]:
+    """
+    The order we try practice sessions in, starting from `first` and working
+    backwards. FP3 -> [FP3, FP2, FP1], FP2 -> [FP2, FP1], anything else -> [first].
+    """
+    order = ["FP3", "FP2", "FP1"]
+    return order[order.index(first):] if first in order else [first]
+
+
+def first_available_practice(year: int, race_name: str, sessions: list[str]):
+    """
+    Tries each practice session in order and gives back the first one that loads,
+    as (practice_df, session_used, last_error). If none of them load, practice_df
+    and session_used are None and last_error says why the last try failed.
+
+    This loop used to be copied in six different places.
+    """
+    last_error = None
+    for sess in sessions:
+        try:
+            return get_practice_grid(year, race_name, sess), sess, None
+        except Exception as e:
+            last_error = str(e)
+    return None, None, last_error
+
+
 def get_practice_grid(year: int, race_name: str, session: str = "FP3") -> pd.DataFrame:
     """
     Fetches practice session data and returns estimated grid positions

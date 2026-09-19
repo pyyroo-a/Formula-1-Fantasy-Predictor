@@ -1,0 +1,341 @@
+{
+ "body": {
+  "optimal": {
+   "boost_pick": {
+    "Abbreviation": "ANT",
+    "FantasyValue": 39.0,
+    "GridPosition": 1,
+    "Predicted": 1.0,
+    "TeamName": "Mercedes",
+    "alternatives": [
+     "LAW",
+     "HUL"
+    ],
+    "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
+   },
+   "budget_remaining": 0.0,
+   "constructors": [
+    {
+     "name": "Audi",
+     "price": 8.0,
+     "score": 13.6
+    },
+    {
+     "name": "McLaren",
+     "price": 31.6,
+     "score": 52.5
+    }
+   ],
+   "drivers": [
+    {
+     "Abbreviation": "ANT",
+     "FantasyValue": 39.0,
+     "GridPosition": 1,
+     "PickCategory": "Safe",
+     "Predicted": 1.0,
+     "Price": 26.3,
+     "TeamName": "Mercedes"
+    },
+    {
+     "Abbreviation": "LAW",
+     "FantasyValue": 11.6,
+     "GridPosition": 7,
+     "PickCategory": "Risk",
+     "Predicted": 7.1,
+     "Price": 14.9,
+     "TeamName": "Red Bull Racing"
+    },
+    {
+     "Abbreviation": "HUL",
+     "FantasyValue": 8.2,
+     "GridPosition": 8,
+     "PickCategory": "Risk",
+     "Predicted": 8.2,
+     "Price": 4.2,
+     "TeamName": "Audi"
+    },
+    {
+     "Abbreviation": "BOR",
+     "FantasyValue": 2.4,
+     "GridPosition": 10,
+     "PickCategory": "Risk",
+     "Predicted": 10.2,
+     "Price": 8.6,
+     "TeamName": "Audi"
+    },
+    {
+     "Abbreviation": "BEA",
+     "FantasyValue": 0.0,
+     "GridPosition": 13,
+     "PickCategory": "Risk",
+     "Predicted": 13.2,
+     "Price": 6.4,
+     "TeamName": "Haas F1 Team"
+    }
+   ],
+   "total_cost": 100.0,
+   "total_score": 127.3
+  },
+  "pool": {
+   "constructors": [
+    {
+     "name": "Mercedes",
+     "price": 33.2,
+     "score": 54.0
+    },
+    {
+     "name": "McLaren",
+     "price": 31.6,
+     "score": 48.0
+    },
+    {
+     "name": "Ferrari",
+     "price": 27.2,
+     "score": 35.4
+    },
+    {
+     "name": "Red Bull Racing",
+     "price": 31.5,
+     "score": 30.0
+    },
+    {
+     "name": "Audi",
+     "price": 8.0,
+     "score": 10.6
+    },
+    {
+     "name": "Haas F1 Team",
+     "price": 10.8,
+     "score": 0.0
+    },
+    {
+     "name": "Racing Bulls",
+     "price": 14.1,
+     "score": 0.0
+    },
+    {
+     "name": "Alpine",
+     "price": 19.2,
+     "score": -7.0
+    },
+    {
+     "name": "Williams",
+     "price": 13.8,
+     "score": -11.6
+    },
+    {
+     "name": "Cadillac",
+     "price": 3.0,
+     "score": -12.8
+    },
+    {
+     "name": "Aston Martin",
+     "price": 6.9,
+     "score": -14.0
+    }
+   ],
+   "drivers": [
+    {
+     "Abbreviation": "ANT",
+     "FantasyValue": 39.0,
+     "GridPosition": 1,
+     "PickCategory": "Safe",
+     "Predicted": 1.0,
+     "Price": 26.3,
+     "TeamName": "Mercedes"
+    },
+    {
+     "Abbreviation": "LEC",
+     "FantasyValue": 30.6,
+     "GridPosition": 2,
+     "PickCategory": "Safe",
+     "Predicted": 2.0,
+     "Price": 24.1,
+     "TeamName": "Ferrari"
+    },
+    {
+     "Abbreviation": "PIA",
+     "FantasyValue": 26.2,
+     "GridPosition": 3,
+     "PickCategory": "Safe",
+     "Predicted": 3.1,
+     "Price": 24.0,
+     "TeamName": "McLaren"
+    },
+    {
+     "Abbreviation": "NOR",
+     "FantasyValue": 21.8,
+     "GridPosition": 4,
+     "PickCategory": "Value",
+     "Predicted": 4.0,
+     "Price": 26.7,
+     "TeamName": "McLaren"
+    },
+    {
+     "Abbreviation": "VER",
+     "FantasyValue": 18.4,
+     "GridPosition": 5,
+     "PickCategory": "Value",
+     "Predicted": 5.0,
+     "Price": 27.4,
+     "TeamName": "Red Bull Racing"
+    },
+    {
+     "Abbreviation": "RUS",
+     "FantasyValue": 15.0,
+     "GridPosition": 6,
+     "PickCategory": "Value",
+     "Predicted": 5.9,
+     "Price": 27.7,
+     "TeamName": "Mercedes"
+    },
+    {
+     "Abbreviation": "LAW",
+     "FantasyValue": 11.6,
+     "GridPosition": 7,
+     "PickCategory": "Risk",
+     "Predicted": 7.1,
+     "Price": 14.9,
+     "TeamName": "Red Bull Racing"
+    },
+    {
+     "Abbreviation": "HUL",
+     "FantasyValue": 8.2,
+     "GridPosition": 8,
+     "PickCategory": "Risk",
+     "Predicted": 8.2,
+     "Price": 4.2,
+     "TeamName": "Audi"
+    },
+    {
+     "Abbreviation": "HAM",
+     "FantasyValue": 4.8,
+     "GridPosition": 9,
+     "PickCategory": "Risk",
+     "Predicted": 8.9,
+     "Price": 25.2,
+     "TeamName": "Ferrari"
+    },
+    {
+     "Abbreviation": "BOR",
+     "FantasyValue": 2.4,
+     "GridPosition": 10,
+     "PickCategory": "Risk",
+     "Predicted": 10.2,
+     "Price": 8.6,
+     "TeamName": "Audi"
+    },
+    {
+     "Abbreviation": "COL",
+     "FantasyValue": 0.0,
+     "GridPosition": 11,
+     "PickCategory": "Risk",
+     "Predicted": 11.2,
+     "Price": 10.4,
+     "TeamName": "Alpine"
+    },
+    {
+     "Abbreviation": "OCO",
+     "FantasyValue": 0.0,
+     "GridPosition": 12,
+     "PickCategory": "Risk",
+     "Predicted": 12.2,
+     "Price": 9.5,
+     "TeamName": "Haas F1 Team"
+    },
+    {
+     "Abbreviation": "BEA",
+     "FantasyValue": 0.0,
+     "GridPosition": 13,
+     "PickCategory": "Risk",
+     "Predicted": 13.2,
+     "Price": 6.4,
+     "TeamName": "Haas F1 Team"
+    },
+    {
+     "Abbreviation": "LIN",
+     "FantasyValue": 0.0,
+     "GridPosition": 14,
+     "PickCategory": "Risk",
+     "Predicted": 14.2,
+     "Price": 8.0,
+     "TeamName": "Racing Bulls"
+    },
+    {
+     "Abbreviation": "TSU",
+     "FantasyValue": 0.0,
+     "GridPosition": 15,
+     "PickCategory": "Risk",
+     "Predicted": 15.2,
+     "Price": 9.9,
+     "TeamName": "Racing Bulls"
+    },
+    {
+     "Abbreviation": "GAS",
+     "FantasyValue": -7.0,
+     "GridPosition": 16,
+     "PickCategory": "Avoid",
+     "Predicted": 16.1,
+     "Price": 12.2,
+     "TeamName": "Alpine"
+    },
+    {
+     "Abbreviation": "ALO",
+     "FantasyValue": -7.0,
+     "GridPosition": 17,
+     "PickCategory": "Avoid",
+     "Predicted": 17.2,
+     "Price": 7.0,
+     "TeamName": "Aston Martin"
+    },
+    {
+     "Abbreviation": "SAI",
+     "FantasyValue": -7.0,
+     "GridPosition": 18,
+     "PickCategory": "Avoid",
+     "Predicted": 18.2,
+     "Price": 9.6,
+     "TeamName": "Williams"
+    },
+    {
+     "Abbreviation": "STR",
+     "FantasyValue": -7.0,
+     "GridPosition": 19,
+     "PickCategory": "Avoid",
+     "Predicted": 19.2,
+     "Price": 3.0,
+     "TeamName": "Aston Martin"
+    },
+    {
+     "Abbreviation": "PER",
+     "FantasyValue": -7.0,
+     "GridPosition": 20,
+     "PickCategory": "Avoid",
+     "Predicted": 20.0,
+     "Price": 3.0,
+     "TeamName": "Cadillac"
+    },
+    {
+     "Abbreviation": "BOT",
+     "FantasyValue": -5.8,
+     "GridPosition": 21,
+     "PickCategory": "Avoid",
+     "Predicted": 20.0,
+     "Price": 3.0,
+     "TeamName": "Cadillac"
+    },
+    {
+     "Abbreviation": "ALB",
+     "FantasyValue": -4.6,
+     "GridPosition": 22,
+     "PickCategory": "Risk",
+     "Predicted": 20.0,
+     "Price": 5.8,
+     "TeamName": "Williams"
+    }
+   ]
+  },
+  "session_used": "FP3"
+ },
+ "status": 200
+}

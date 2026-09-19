@@ -23,6 +23,8 @@ import re
 
 import requests
 
+from src.config import SEASON
+
 # where snapshots live in the repo. this is also the path we commit to on GitHub
 REPO_SNAPSHOT_DIR = "data/snapshots"
 
@@ -56,13 +58,13 @@ def list_snapshots() -> list[dict]:
                 snaps.append(snap)
         except (OSError, json.JSONDecodeError):
             continue
-    return sorted(snaps, key=lambda s: (int(s.get("year", 2026)), int(s["round"])))
+    return sorted(snaps, key=lambda s: (int(s.get("year", SEASON)), int(s["round"])))
 
 
-def find_snapshot(race_name: str, year: int = 2026) -> dict | None:
+def find_snapshot(race_name: str, year: int = SEASON) -> dict | None:
     """The snapshot for one race, or None if that weekend hasn't been locked."""
     for snap in list_snapshots():
-        if snap["race_name"] == race_name and int(snap.get("year", 2026)) == year:
+        if snap["race_name"] == race_name and int(snap.get("year", SEASON)) == year:
             return snap
     return None
 
@@ -83,7 +85,7 @@ def save_snapshot(snap: dict, force: bool = False) -> str:
     Writes a snapshot file. Refuses to overwrite an existing one unless force=True,
     because the whole point is that a locked weekend never changes.
     """
-    path = snapshot_path(snap.get("year", 2026), snap["round"], snap["race_name"])
+    path = snapshot_path(snap.get("year", SEASON), snap["round"], snap["race_name"])
     if os.path.exists(path) and not force:
         raise FileExistsError(path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -102,7 +104,7 @@ def commit_to_github(snap: dict, dry_run: bool = False) -> dict:
     """
     repo = os.getenv("GITHUB_REPO", "pyyroo-a/Formula-1-Fantasy-Predictor")
     branch = os.getenv("GITHUB_BRANCH", "main")
-    path = f"{REPO_SNAPSHOT_DIR}/{snapshot_filename(snap.get('year', 2026), snap['round'], snap['race_name'])}"
+    path = f"{REPO_SNAPSHOT_DIR}/{snapshot_filename(snap.get('year', SEASON), snap['round'], snap['race_name'])}"
 
     if dry_run:
         return {"committed": False, "reason": "dry run, nothing committed", "path": path}

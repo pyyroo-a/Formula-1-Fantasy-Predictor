@@ -21,8 +21,7 @@ from src.fantasy import build_budget_team, build_budget_teams, get_race_pool
 from src.fetch_practice import get_practice_grid
 from src.dnf import DNFModel, USE_DNF_RISK
 from src.data_loader import load_dataset
-
-YEAR = 2026
+from src.config import SEASON, PREVIOUS_SEASON, results_path
 
 # tracks where lots of cars retire, used by the no negative chip advice
 HIGH_ATTRITION_CIRCUITS = {
@@ -69,7 +68,7 @@ def session_finished(event, session: str, now) -> bool:
     return start is not None and now >= start + PRACTICE_LENGTH
 
 
-def session_published(race_name: str, session: str, year: int = YEAR) -> bool:
+def session_published(race_name: str, session: str, year: int = SEASON) -> bool:
     """
     Asks F1's timing server directly whether a session's lap data is out yet.
 
@@ -84,7 +83,7 @@ def session_published(race_name: str, session: str, year: int = YEAR) -> bool:
     return r.status_code == 200
 
 
-def results_already_in_data(race_name: str, year: int = YEAR) -> bool:
+def results_already_in_data(race_name: str, year: int = SEASON) -> bool:
     """
     True if this race's results are already in our history.
 
@@ -92,7 +91,7 @@ def results_already_in_data(race_name: str, year: int = YEAR) -> bool:
     anything that saves a snapshot refuses to go ahead.
     """
     try:
-        df = load_dataset(f"data/processed/race_results_{year}.csv")
+        df = load_dataset(results_path(year))
     except Exception:
         return False
     return bool(((df["RaceName"] == race_name) & (df["Year"] == year)).any())
@@ -113,7 +112,7 @@ def upcoming_dnf_probs(upcoming_table, race_name):
         return None
     try:
         history = pd.concat(
-            [load_dataset(f"data/processed/race_results_{y}.csv") for y in (2025, 2026)],
+            [load_dataset(results_path(y)) for y in (PREVIOUS_SEASON, SEASON)],
             ignore_index=True,
         )
         model = DNFModel.fit(history)
@@ -227,7 +226,7 @@ def evaluate_team_chips(
 
 
 def build_snapshot(event, prices: dict, source: str = "auto", note: str | None = None,
-                   year: int = YEAR) -> dict:
+                   year: int = SEASON) -> dict:
     """
     Builds the full snapshot for one race weekend from its final practice session.
 

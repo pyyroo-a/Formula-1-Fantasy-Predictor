@@ -1,0 +1,65 @@
+{
+ "body": [
+  {
+   "Abbreviation": "VER",
+   "Explanation": "Safe Pick: starts P5, predicted P2, consistent top finisher",
+   "FantasyValue": 30.0,
+   "GridPosition": 5.0,
+   "PickCategory": "Safe",
+   "Position": 3.0,
+   "Predicted": 2.47,
+   "TeamName": "Red Bull Racing"
+  },
+  {
+   "Abbreviation": "RUS",
+   "Explanation": "Safe Pick: starts P2, predicted P2, consistent top finisher",
+   "FantasyValue": 27.9,
+   "GridPosition": 2.0,
+   "PickCategory": "Safe",
+   "Position": 2.0,
+   "Predicted": 2.49,
+   "TeamName": "Mercedes"
+  },
+  {
+   "Abbreviation": "ANT",
+   "Explanation": "Safe Pick: starts P19, predicted P3, consistent top finisher",
+   "FantasyValue": 38.3,
+   "GridPosition": 19.0,
+   "PickCategory": "Safe",
+   "Position": 1.0,
+   "Predicted": 3.26,
+   "TeamName": "Mercedes"
+  },
+  {
+   "Abbreviation": "NOR",
+   "Explanation": "Value Pick: starts P8, predicted P5, averages 2.4 position gains \u2014 strong upside",
+   "FantasyValue": 18.7,
+   "GridPosition": 8.0,
+   "PickCategory": "Value",
+   "Position": 4.0,
+   "Predicted": 5.15,
+   "TeamName": "McLaren"
+  },
+  {
+   "Abbreviation": "PIA",
+   "Explanation": "Value Pick: starts P6, predicted P6, averages 0.1 position gains \u2014 strong upside",
+   "FantasyValue": 13.5,
+   "GridPosition": 6.0,
+   "PickCategory": "Value",
+   "Position": 5.0,
+   "Predicted": 5.79,
+   "TeamName": "McLaren"
+  },
+  {
+   "Abbreviation": "HUL",
+   "Explanation": "Risk Pick: starts p12, predicted P11, inconsistent but 0.5 positions of potential upside",
+   "FantasyValue": 1.8,
+   "GridPosition": 12.0,
+   "PickCategory": "Risk",
+   "Position": 12.0,
+   "Predicted": 11.48,
+   "TeamName": "Audi"
+  }
+ ],
+ "status": 200
+}

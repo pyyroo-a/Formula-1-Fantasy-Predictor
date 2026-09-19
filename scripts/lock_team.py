@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import fastf1
 import pandas as pd
 
+from src.config import SEASON
 from src.fetch_prices import fetch_prices
 from src.snapshots import find_snapshot, save_snapshot, snapshot_path
 from src.weekend import build_snapshot, final_practice_session, results_already_in_data
@@ -35,12 +36,12 @@ def main():
     args = ap.parse_args()
 
     fastf1.Cache.enable_cache("data/cache")
-    schedule = fastf1.get_event_schedule(2026, include_testing=False)
+    schedule = fastf1.get_event_schedule(SEASON, include_testing=False)
 
     if args.race:
         match = schedule[schedule["EventName"] == args.race]
         if match.empty:
-            sys.exit(f"No 2026 event called {args.race!r}.")
+            sys.exit(f"No {SEASON} event called {args.race!r}.")
         event = match.iloc[0]
     else:
         # the next race that hasn't started yet
@@ -57,7 +58,7 @@ def main():
     rnd = int(event["RoundNumber"])
 
     if find_snapshot(race) and not args.force:
-        print(f"{race} already has a snapshot ({snapshot_path(2026, rnd, race)}). Use --force to replace it.")
+        print(f"{race} already has a snapshot ({snapshot_path(SEASON, rnd, race)}). Use --force to replace it.")
         return
 
     # if the results are already in, the model would have seen the answers
