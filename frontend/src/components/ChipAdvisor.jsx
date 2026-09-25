@@ -16,7 +16,7 @@ const SELECT_CLS = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-w
 const HEAD_CLS = "text-xs text-pw-muted tracking-[0.08em]";
 
 function ChipCard({ chipKey, data }) {
-  const meta = CHIP_META[chipKey];
+  const meta = CHIP_META[chipKey] || { label: chipKey, color: "#6b7280", desc: "" };
   const recStyle = REC_STYLE[data.recommendation] || REC_STYLE.HOLD;
   return (
     <div className="bg-pw-panel2 border-l-2 pl-3 pr-3 py-2.5" style={{ borderColor: meta.color }}>
@@ -41,7 +41,9 @@ function ChipCard({ chipKey, data }) {
 }
 
 function ChipAdvisorResults({ result, myTeamScore }) {
-  const chips = Object.entries(result.chips);
+  const chips = Object.keys(CHIP_META)
+    .filter(key => result.chips?.[key])
+    .map(key => [key, result.chips[key]]);
   const playChips = chips.filter(([, d]) => d.recommendation === "PLAY");
   const considerChips = chips.filter(([, d]) => d.recommendation === "CONSIDER");
   const topPick = playChips[0] || considerChips[0];
