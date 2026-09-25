@@ -686,6 +686,8 @@ def get_race_pool(
             "FantasyValue": round(d["FantasyValue"], 3),
             "Price": d["Price"],
             "PickCategory": d["PickCategory"],
+            # None when dnf risk wasn't worked out (e.g. a race that already happened)
+            "DNFProb": round(d["DNFProb"], 3) if "DNFProb" in d else None,
         }
         for d in race_df.sort_values("Predicted").to_dict("records")
     ]

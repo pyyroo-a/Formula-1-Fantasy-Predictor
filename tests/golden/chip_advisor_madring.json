@@ -90,9 +90,12 @@
    },
    "my_team_score": 119.8,
    "no_negative": {
-    "dnf_risk_pct": 65,
+    "expected_dnfs": 0.71,
+    "gain": 24.5,
     "is_high_attrition": false,
-    "recommendation": "HOLD"
+    "points_at_risk": 24.5,
+    "reason": "About 0.7 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
+    "recommendation": "HEDGE"
    },
    "wildcard": {
     "gain": 7.5,

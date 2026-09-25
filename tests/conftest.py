@@ -21,6 +21,7 @@ expected. Pull the new data, check nothing ELSE changed, then re-record.
 import importlib
 import json
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -92,6 +93,23 @@ def empty_snapshots(monkeypatch, tmp_path):
     """Points the app at an empty snapshot folder, like a weekend nobody has locked yet."""
     monkeypatch.setenv("SNAPSHOT_DIR", str(tmp_path))
     return tmp_path
+
+
+@pytest.fixture
+def snapshots(monkeypatch, tmp_path):
+    """
+    Pins which snapshots exist, e.g. snapshots("2026_R13...", "2026_R14...").
+
+    Without this the tests read the real data/snapshots folder, so every new race
+    weekend silently changed what "the newest snapshot" meant and quietly rewrote
+    these answers. Now they only see the files we name.
+    """
+    def _use(*names):
+        for name in names:
+            shutil.copy(ROOT / "data" / "snapshots" / name, tmp_path / name)
+        monkeypatch.setenv("SNAPSHOT_DIR", str(tmp_path))
+        return tmp_path
+    return _use
 
 
 def _normalise(obj):

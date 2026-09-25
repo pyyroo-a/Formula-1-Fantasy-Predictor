@@ -16,6 +16,10 @@ from conftest import (
 MADRING = "Spanish Grand Prix"
 MONZA = "Italian Grand Prix"
 
+# the weekend tests only ever see these two, so a new race landing in the repo
+# can't change what they're testing
+UP_TO_MADRING = ("2026_R13_italian_grand_prix.json", "2026_R14_spanish_grand_prix.json")
+
 # the Madring snapshot's team 1, so the chip advisor has a real team to grade
 MADRING_TEAM_DRIVERS = ["ANT", "LAW", "HUL", "BOR", "BEA"]
 MADRING_TEAM_CONSTRUCTORS = ["McLaren", "Audi"]
@@ -100,7 +104,8 @@ def test_chip_advisor(client, golden):
 
 # ---- race weekend (snapshots) --------------------------------------------------
 
-def test_weekend_team_locked(client, golden, at):
+def test_weekend_team_locked(client, golden, at, snapshots):
+    snapshots(*UP_TO_MADRING)
     at(SAT_MADRING_BEFORE_QUALI)
     golden("weekend_team_locked", client.get("/weekend-team"))
 
@@ -110,12 +115,14 @@ def test_weekend_team_provisional(client, golden, at, empty_snapshots):
     golden("weekend_team_provisional", client.get("/weekend-team"))
 
 
-def test_weekend_team_after_race(client, golden, at):
+def test_weekend_team_after_race(client, golden, at, snapshots):
+    snapshots(*UP_TO_MADRING)
     at(SUN_MADRING_AFTER_RACE)
     golden("weekend_team_after_race", client.get("/weekend-team"))
 
 
-def test_last_team(client, golden, at):
+def test_last_team(client, golden, at, snapshots):
+    snapshots(*UP_TO_MADRING)
     at(SUN_MADRING_AFTER_RACE)
     golden("last_team", client.get("/last-team"))
 
@@ -125,7 +132,8 @@ def test_last_team_no_snapshots(client, golden, at, empty_snapshots):
     golden("last_team_no_snapshots", client.get("/last-team"))
 
 
-def test_finishes_locked(client, golden, at):
+def test_finishes_locked(client, golden, at, snapshots):
+    snapshots(*UP_TO_MADRING)
     at(SAT_MADRING_BEFORE_QUALI)
     golden("finishes_locked", client.get("/weekend-finishes"))
 
@@ -135,7 +143,8 @@ def test_finishes_provisional(client, golden, at, empty_snapshots):
     golden("finishes_provisional", client.get("/weekend-finishes"))
 
 
-def test_finishes_held_with_results(client, golden, at):
+def test_finishes_held_with_results(client, golden, at, snapshots):
+    snapshots(*UP_TO_MADRING)
     at(SUN_MADRING_AFTER_RACE)
     golden("finishes_held", client.get("/weekend-finishes"))
 
@@ -160,11 +169,13 @@ def test_snapshot_auto_rejects_wrong_secret(client, monkeypatch):
     # Baku on FP1 day: live weekend, no snapshot, FP3 hasn't happened yet
     ("waiting_before_fp3", BAKU_THURSDAY, True),
 ])
-def test_snapshot_auto_states(client, golden, at, monkeypatch, tmp_path, name, when, empty):
+def test_snapshot_auto_states(client, golden, at, monkeypatch, tmp_path, snapshots, name, when, empty):
     monkeypatch.setenv("SNAPSHOT_SECRET", "test-secret")
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     if empty:
         monkeypatch.setenv("SNAPSHOT_DIR", str(tmp_path))
+    else:
+        snapshots(*UP_TO_MADRING)
     at(when)
     golden(f"snapshot_auto_{name}",
            client.post("/snapshot/auto?dry_run=true", headers={"X-Snapshot-Secret": "test-secret"}))

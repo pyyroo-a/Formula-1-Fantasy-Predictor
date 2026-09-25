@@ -191,8 +191,30 @@ def evaluate_team_chips(
 
     riskiest = min(my_drivers_in_pool, key=lambda d: d["FantasyValue"]) if my_drivers_in_pool else None
 
+    # No Negative floors any negative score at 0, so what it's worth is roughly the
+    # points your team is at risk of losing. We work that out from the real dnf
+    # chances (src/dnf.py) instead of just checking a list of crashy circuits:
+    #   - a retirement costs -20
+    #   - qualifying P16 or worse costs -5
+    # Constructors score BOTH their cars, so we count their exposure too.
+    dnf_by_driver = {d["Abbreviation"]: (d.get("DNFProb") or 0.0) for d in pool["drivers"]}
+    team_of = {d["Abbreviation"]: d.get("TeamName") for d in pool["drivers"]}
+    grid_of = {d["Abbreviation"]: d.get("GridPosition") or 0 for d in pool["drivers"]}
+
+    driver_dnfs = sum(dnf_by_driver.get(a, 0.0) for a in my_drivers)
+    constructor_dnfs = sum(p for a, p in dnf_by_driver.items() if team_of.get(a) in my_constructors)
+    back_row = [a for a in my_drivers if grid_of.get(a, 0) >= 16]
+    points_at_risk = round((driver_dnfs + constructor_dnfs) * 20 + len(back_row) * 5, 1)
+
     is_high_attrition = race_name in HIGH_ATTRITION_CIRCUITS
-    dnf_risk_pct = 120 if is_high_attrition else 65
+    no_negative_reason = (
+        f"About {driver_dnfs:.1f} expected retirements across your 5 drivers"
+        f" and {constructor_dnfs:.1f} across your constructors' 4 cars."
+    )
+    if back_row:
+        no_negative_reason += f" {', '.join(back_row)} also projected P16 or worse (-5 each)."
+    if not dnf_by_driver or all(v == 0 for v in dnf_by_driver.values()):
+        no_negative_reason = "No retirement risk numbers for this race, so this is a guess."
 
     return {
         "my_team_score": round(my_team_score, 2),
@@ -214,9 +236,13 @@ def evaluate_team_chips(
             "recommendation": "POST-QUALI",
         },
         "no_negative": {
-            "dnf_risk_pct": dnf_risk_pct,
+            # points you'd expect to save by playing it
+            "gain": points_at_risk,
+            "points_at_risk": points_at_risk,
+            "expected_dnfs": round(driver_dnfs, 2),
             "is_high_attrition": is_high_attrition,
-            "recommendation": "HEDGE" if is_high_attrition else "HOLD",
+            "reason": no_negative_reason,
+            "recommendation": "PLAY" if points_at_risk >= 30 else "HEDGE" if points_at_risk >= 18 else "HOLD",
         },
         "autopilot": {
             "recommendation": "SAVE",

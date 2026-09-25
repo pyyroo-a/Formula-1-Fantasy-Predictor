@@ -60,6 +60,7 @@
   "drivers": [
    {
     "Abbreviation": "VER",
+    "DNFProb": null,
     "FantasyValue": 30.0,
     "GridPosition": 5,
     "PickCategory": "Safe",
@@ -69,6 +70,7 @@
    },
    {
     "Abbreviation": "RUS",
+    "DNFProb": null,
     "FantasyValue": 27.9,
     "GridPosition": 2,
     "PickCategory": "Safe",
@@ -78,6 +80,7 @@
    },
    {
     "Abbreviation": "ANT",
+    "DNFProb": null,
     "FantasyValue": 38.3,
     "GridPosition": 19,
     "PickCategory": "Safe",
@@ -87,6 +90,7 @@
    },
    {
     "Abbreviation": "HAM",
+    "DNFProb": null,
     "FantasyValue": 15.9,
     "GridPosition": 4,
     "PickCategory": "Value",
@@ -96,6 +100,7 @@
    },
    {
     "Abbreviation": "NOR",
+    "DNFProb": null,
     "FantasyValue": 18.7,
     "GridPosition": 8,
     "PickCategory": "Value",
@@ -105,6 +110,7 @@
    },
    {
     "Abbreviation": "GAS",
+    "DNFProb": null,
     "FantasyValue": 10.0,
     "GridPosition": 1,
     "PickCategory": "Risk",
@@ -114,6 +120,7 @@
    },
    {
     "Abbreviation": "PIA",
+    "DNFProb": null,
     "FantasyValue": 13.5,
     "GridPosition": 6,
     "PickCategory": "Risk",
@@ -123,6 +130,7 @@
    },
    {
     "Abbreviation": "COL",
+    "DNFProb": null,
     "FantasyValue": 6.6,
     "GridPosition": 7,
     "PickCategory": "Risk",
@@ -132,6 +140,7 @@
    },
    {
     "Abbreviation": "LIN",
+    "DNFProb": null,
     "FantasyValue": 8.0,
     "GridPosition": 9,
     "PickCategory": "Risk",
@@ -141,6 +150,7 @@
    },
    {
     "Abbreviation": "BOR",
+    "DNFProb": null,
     "FantasyValue": 4.9,
     "GridPosition": 10,
     "PickCategory": "Risk",
@@ -150,6 +160,7 @@
    },
    {
     "Abbreviation": "TSU",
+    "DNFProb": null,
     "FantasyValue": 10.0,
     "GridPosition": 15,
     "PickCategory": "Risk",
@@ -159,6 +170,7 @@
    },
    {
     "Abbreviation": "LAW",
+    "DNFProb": null,
     "FantasyValue": 14.3,
     "GridPosition": 22,
     "PickCategory": "Risk",
@@ -168,6 +180,7 @@
    },
    {
     "Abbreviation": "HUL",
+    "DNFProb": null,
     "FantasyValue": 1.8,
     "GridPosition": 12,
     "PickCategory": "Risk",
@@ -177,6 +190,7 @@
    },
    {
     "Abbreviation": "BEA",
+    "DNFProb": null,
     "FantasyValue": -5.4,
     "GridPosition": 11,
     "PickCategory": "Avoid",
@@ -186,6 +200,7 @@
    },
    {
     "Abbreviation": "SAI",
+    "DNFProb": null,
     "FantasyValue": -1.8,
     "GridPosition": 13,
     "PickCategory": "Avoid",
@@ -195,6 +210,7 @@
    },
    {
     "Abbreviation": "PER",
+    "DNFProb": null,
     "FantasyValue": -5.5,
     "GridPosition": 17,
     "PickCategory": "Avoid",
@@ -204,6 +220,7 @@
    },
    {
     "Abbreviation": "OCO",
+    "DNFProb": null,
     "FantasyValue": -5.4,
     "GridPosition": 14,
     "PickCategory": "Avoid",
@@ -213,6 +230,7 @@
    },
    {
     "Abbreviation": "ALB",
+    "DNFProb": null,
     "FantasyValue": -0.1,
     "GridPosition": 20,
     "PickCategory": "Risk",
@@ -222,6 +240,7 @@
    },
    {
     "Abbreviation": "BOT",
+    "DNFProb": null,
     "FantasyValue": -9.1,
     "GridPosition": 16,
     "PickCategory": "Avoid",
