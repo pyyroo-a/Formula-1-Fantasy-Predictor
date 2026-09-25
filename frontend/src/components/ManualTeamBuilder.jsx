@@ -14,6 +14,18 @@ const SELECT_CLS = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-w
 const BTN_CLS = "w-full p-2.5 bg-pw-red hover:bg-[#ff7676] text-white text-sm font-semibold transition disabled:bg-white/10 disabled:text-pw-muted disabled:cursor-not-allowed";
 const HEAD_CLS = "text-xs text-pw-muted tracking-[0.08em] mb-3";
 
+// From 2026 your fantasy team value grows as your drivers get more expensive, so
+// most people end up with more than the base 100M. We keep your number in the
+// browser because it's personal to you, unlike the locked teams which are shared
+// and live in the snapshots. Falls back to 100 if nothing is saved.
+function readSavedBudget() {
+  try {
+    const saved = parseFloat(localStorage.getItem("pitwall_budget"));
+    if (Number.isFinite(saved) && saved > 0) return saved;
+  } catch {}
+  return BUDGET;
+}
+
 function SelectedDriverSlot({ driver, isCaptain, onRemove }) {
   const accent = teamAccent(driver.TeamName);
   const badge = CAT_BADGE[driver.PickCategory] || "text-pw-muted bg-white/5";
@@ -161,10 +173,25 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
     else if (selectedConstructors.length < 2) setSelectedConstructors(prev => [...prev, constructor]);
   };
 
+  const [budget, setBudget] = useState(readSavedBudget);
+  // kept as text as well, so you can clear the box and type without it fighting you
+  const [budgetText, setBudgetText] = useState(() => String(readSavedBudget()));
+
+  const onBudgetChange = (text) => {
+    setBudgetText(text);
+    const n = parseFloat(text);
+    if (Number.isFinite(n) && n > 0) {
+      setBudget(n);
+      try { localStorage.setItem("pitwall_budget", String(n)); } catch {}
+    }
+  };
+  // if you leave the box empty or with junk in it, snap it back to the last good number
+  const onBudgetBlur = () => setBudgetText(String(budget));
+
   const totalCost = selectedDrivers.reduce((s, d) => s + d.Price, 0)
     + selectedConstructors.reduce((s, c) => s + c.price, 0);
-  const remaining = BUDGET - totalCost;
-  const overBudget = totalCost > BUDGET;
+  const remaining = budget - totalCost;
+  const overBudget = totalCost > budget;
   const teamComplete = selectedDrivers.length === 5 && selectedConstructors.length === 2;
   const myScore = selectedDrivers.reduce((s, d) => s + d.FantasyValue, 0)
     + selectedConstructors.reduce((s, c) => s + c.score, 0);
@@ -177,7 +204,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
     : scoreVsOptimal >= 90 ? "Excellent"
     : scoreVsOptimal >= 70 ? "Good"
     : scoreVsOptimal >= 50 ? "Average" : "Weak";
-  const budgetPct = Math.min((totalCost / BUDGET) * 100, 100);
+  const budgetPct = Math.min((totalCost / budget) * 100, 100);
   const barColor = overBudget ? "bg-pw-red" : budgetPct > 90 ? "bg-pw-risk" : "bg-pw-safe";
   const driverCategoryCounts = selectedDrivers.reduce((acc, d) => {
     acc[d.PickCategory] = (acc[d.PickCategory] || 0) + 1;
@@ -238,10 +265,27 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
       {pool && (
         <div className="space-y-6">
           <div className="bg-pw-panel2 border border-white/[0.06] p-3">
+            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-white/[0.06]">
+              <label htmlFor="pitwall-budget" className="text-[10.5px] text-pw-muted tracking-[0.05em]">YOUR BUDGET</label>
+              <div className="flex items-center gap-1">
+                <span className="text-[12px] text-pw-muted">$</span>
+                <input
+                  id="pitwall-budget"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={budgetText}
+                  onChange={(e) => onBudgetChange(e.target.value)}
+                  onBlur={onBudgetBlur}
+                  className="w-20 px-2 py-1 bg-pw-panel text-white text-[12px] text-right border border-white/10 outline-none focus:border-pw-red/50"
+                />
+                <span className="text-[12px] text-pw-muted">M</span>
+              </div>
+            </div>
             <div className="flex justify-between text-[12px] mb-2">
               <span className="text-pw-muted">Spent: <span className={`font-semibold ${overBudget ? "text-pw-red" : "text-white"}`}>${totalCost.toFixed(1)}M</span></span>
               <span className="text-pw-muted">Remaining: <span className={`font-semibold ${overBudget ? "text-pw-red" : "text-pw-safe"}`}>
-                {overBudget ? `-$${(totalCost - BUDGET).toFixed(1)}M` : `$${remaining.toFixed(1)}M`}
+                {overBudget ? `-$${(totalCost - budget).toFixed(1)}M` : `$${remaining.toFixed(1)}M`}
               </span></span>
             </div>
             <div className="h-1.5 bg-white/10 overflow-hidden">
