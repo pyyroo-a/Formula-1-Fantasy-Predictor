@@ -12,3 +12,8 @@ PREVIOUS_SEASON = SEASON - 1
 def results_path(year: int = SEASON) -> str:
     """Where a season's race results CSV lives."""
     return f"data/processed/race_results_{year}.csv"
+
+
+def sprint_results_path(year: int = SEASON) -> str:
+    """Sprint race results. Kept apart from the main results, see src/fetch_results.py."""
+    return f"data/processed/sprint_results_{year}.csv"

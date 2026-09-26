@@ -104,3 +104,86 @@ def update_season_results(year: int, path: str) -> list:
         print(f"Saved {len(added)} new race(s) to {path}")
 
     return added
+
+
+# ---------------------------------------------------------------------------
+# Sprint weekends
+#
+# A sprint weekend has TWO races that score fantasy points: the sprint on
+# Saturday and the main race on Sunday. We keep the sprint in its own file
+# because everything else in the project assumes one row per driver per race,
+# so mixing them into the main results would quietly break the model, the dnf
+# work and the backtest.
+#
+# The sprint GridPosition comes from sprint qualifying, which happens BEFORE
+# the fantasy deadline, so unlike the main race we actually know it when picking.
+# ---------------------------------------------------------------------------
+
+def is_sprint_event(event) -> bool:
+    return "sprint" in str(event.get("EventFormat", "")).lower()
+
+
+def fetch_sprint_results(year: int, event_name: str) -> pd.DataFrame:
+    """Same shape as fetch_race_results, but for the sprint."""
+    event = fastf1.get_event(year, event_name)
+    if not is_sprint_event(event):
+        raise ValueError(f"{event_name} is not a sprint weekend")
+
+    session = event.get_session("Sprint")
+    session.load(laps=False, telemetry=False, weather=False, messages=False)
+
+    cols = ["Abbreviation", "FullName", "TeamName", "GridPosition", "Position", "Status"]
+    results = session.results[cols].copy()
+    results["RaceName"] = event.EventName
+    results["RoundNumber"] = int(event.RoundNumber)
+    results["Year"] = year
+
+    results["Position"] = pd.to_numeric(results["Position"], errors="coerce")
+    results["GridPosition"] = pd.to_numeric(results["GridPosition"], errors="coerce")
+    results["Status"] = results["Status"].apply(_normalize_status)
+    results = normalize_team_names(results)
+
+    if results["Position"].notna().sum() == 0:
+        raise ValueError(f"'{event_name}' sprint is not classified yet.")
+    return results
+
+
+def update_sprint_results(year: int, path: str) -> list:
+    """
+    Adds any finished sprints that aren't in the sprint file yet.
+    Returns the race names it added.
+    """
+    schedule = fastf1.get_event_schedule(year, include_testing=False)
+
+    if os.path.exists(path):
+        existing = pd.read_csv(path)
+        existing_rounds = set(existing["RoundNumber"].astype(int).unique())
+    else:
+        existing = pd.DataFrame()
+        existing_rounds = set()
+
+    now = pd.Timestamp.now(tz="UTC")
+    added = []
+
+    for _, event in schedule.sort_values("RoundNumber").iterrows():
+        round_num = int(event["RoundNumber"])
+        if round_num in existing_rounds or not is_sprint_event(event):
+            continue
+        # the sprint runs before the main race, so use the race date as a safe "is it over"
+        race_date = event["Session5Date"]
+        if pd.isna(race_date) or pd.Timestamp(race_date) > now:
+            continue
+        try:
+            results = fetch_sprint_results(year, event["EventName"])
+            existing = pd.concat([existing, results], ignore_index=True)
+            added.append(event["EventName"])
+            print(f"Loaded sprint: {event['EventName']} (Round {round_num})")
+        except Exception as e:
+            print(f"Could not load sprint for {event['EventName']}: {e}")
+
+    if added:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        existing.to_csv(path, index=False)
+        print(f"Saved {len(added)} sprint(s) to {path}")
+
+    return added

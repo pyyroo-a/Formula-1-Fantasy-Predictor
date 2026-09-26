@@ -2,10 +2,45 @@ import pandas as pd
 from itertools import combinations
 import numpy as np
 from src.circuit_profiles import get_circuit_profile, overtaking_scale, quali_scale
+from src.fetch_practice import is_sprint_weekend
 
 # Real F1 Fantasy points scales
 RACE_POINTS = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1}
 QUALI_POINTS = {1: 10, 2: 9, 3: 8, 4: 7, 5: 6, 6: 5, 7: 4, 8: 3, 9: 2, 10: 1}
+
+# A sprint weekend scores a second time, on the Saturday sprint. Only the top 8
+# score, places gained or lost count the same as the race, and a retirement costs
+# -10 instead of -20. There are no sprint qualifying points, because the fantasy
+# deadline falls after sprint qualifying, so you already know that result.
+#
+# Note: a disqualification is meant to be -20, but our data collapses every
+# non-finish into "DNF", so a DQ is treated as a retirement here. It is rare.
+SPRINT_POINTS = {1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1}
+SPRINT_DNF_PENALTY = -10
+
+# Should a FORECAST add expected sprint points on a sprint weekend? Measured, not
+# guessed. Backtest over the 4 sprint weekends of 2026 (points per race):
+#     baseline (FP1 input, no sprint points)      113.0
+#     + sprint points only                        113.0   (changed no picks at all)
+#     + sprint quali input only                   143.2
+#     + both                                      135.8   (Canada 150 -> 120)
+# So it does nothing alone and makes things worse alongside the good input. Same
+# shape as DNF_WEIGHT: it pumps up drivers already predicted in the top 8, which
+# pushes the optimiser off the cheap picks it earns its points from.
+# The real sprint points still count in the TRUTH, see sprint_score.
+PREDICT_SPRINT_POINTS = False
+
+
+def sprint_score(grid_position, position, status) -> float:
+    """Fantasy points one driver took from a sprint: finishing points plus places gained."""
+    if status not in ("Finished", "Lapped") or pd.isna(position):
+        return float(SPRINT_DNF_PENALTY)
+    pos = int(position)
+    points = SPRINT_POINTS.get(pos, 0)
+    if not pd.isna(grid_position):
+        # sprint grid comes from sprint qualifying, same +1 / -1 per place as the race
+        points += int(grid_position) - pos
+    return float(points)
 
 def calculate_gainer_score(
     midfield: pd.DataFrame,
@@ -172,6 +207,17 @@ def calculate_fantasy_score(
         df["QualifyingScore"] +
         df["DNFPenalty"]
     )
+
+    # A sprint weekend pays out twice, so a driver is worth more there than the
+    # same driver at a normal weekend. We only add this when scoring a FORECAST:
+    # when scoring a real result the sprint points come from the actual sprint
+    # (see sprint_score), and adding them here too would double count.
+    #
+    # We don't add places gained in the sprint, because our predicted order IS the
+    # sprint grid estimate, so the predicted gain is zero for everyone anyway.
+    if PREDICT_SPRINT_POINTS and pos_col == "Predicted" and race_name and is_sprint_weekend(race_name):
+        df["SprintPoints"] = pos.map(SPRINT_POINTS).fillna(0).astype(float)
+        df["FantasyValue"] = df["FantasyValue"] + df["SprintPoints"]
 
     # Keep PositionChange as alias for backward compat
     df["PositionChange"] = raw_overtake

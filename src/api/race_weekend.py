@@ -21,6 +21,7 @@ from src.pipeline import predict_upcoming_race
 from src.snapshots import commit_to_github, find_snapshot, latest_snapshot, save_snapshot
 from src.weekend import (
     build_finish_predictions,
+    load_grid,
     build_snapshot,
     evaluate_team_chips,
     final_practice_session,
@@ -47,6 +48,25 @@ def _next_race(schedule, now):
         if pd.Timestamp(race_date) > now:
             return event
     return None
+
+
+def _weekend_grid(race_name: str, final_session: str):
+    """
+    Best order available right now for the live preview.
+
+    Sprint weekend: sprint qualifying, because the deadline is the sprint race so
+    that session has already run. Normal weekend: FP3, working back to FP1.
+    Returns (df, session_used), or (None, None) if nothing has been published.
+    """
+    if final_session == "SQ":
+        try:
+            return load_grid(race_name, "SQ"), "SQ"
+        except Exception:
+            # sprint quali not out yet, FP1 is better than nothing
+            df, used, _ = first_available_practice(SEASON, race_name, ["FP1"])
+            return df, used
+    df, used, _ = first_available_practice(SEASON, race_name, fallback_sessions(final_session))
+    return df, used
 
 
 def _team_payload(snap: dict, **extra) -> dict:
@@ -108,8 +128,7 @@ def get_weekend_team():
         raise HTTPException(status_code=503, detail="Prices not available")
 
     final_session = final_practice_session(upcoming)
-    practice_df, session_used, _ = first_available_practice(
-        SEASON, race_name, fallback_sessions(final_session))
+    practice_df, session_used = _weekend_grid(race_name, final_session)
 
     if practice_df is None:
         # no practice yet, so we say the weekend isn't live. the site then keeps
@@ -332,8 +351,7 @@ def get_weekend_finishes():
         }
 
     final_session = final_practice_session(upcoming)
-    practice_df, session_used, _ = first_available_practice(
-        SEASON, race_name, fallback_sessions(final_session))
+    practice_df, session_used = _weekend_grid(race_name, final_session)
 
     if practice_df is None:
         # this weekend has no practice data yet, so keep showing the last race's

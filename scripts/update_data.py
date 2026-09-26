@@ -11,8 +11,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import pandas as pd
-from src.config import SEASON, results_path
-from src.fetch_results import update_season_results
+from src.config import SEASON, results_path, sprint_results_path
+from src.fetch_results import update_season_results, update_sprint_results
 from src.fetch_prices import save_prices, save_price_history
 
 CSV_PATH = results_path()
@@ -23,6 +23,14 @@ if added:
     print(f"::notice::Added {len(added)} new race(s): {', '.join(added)}")
 else:
     print("::notice::No new races to add.")
+
+# sprint weekends score points twice, so we keep those results too
+try:
+    sprints = update_sprint_results(SEASON, sprint_results_path())
+    if sprints:
+        print(f"::notice::Added {len(sprints)} new sprint(s): {', '.join(sprints)}")
+except Exception as e:
+    print(f"::warning::Could not update sprint results: {e}")
 
 # Refresh prices for the upcoming round = latest completed round + 1.
 # The F1 Fantasy feed publishes the next round's prices right after a race.

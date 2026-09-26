@@ -10,13 +10,18 @@ import numpy as np
 import pandas as pd
 
 from src.data_loader import load_dataset
-from src.config import SEASON, PREVIOUS_SEASON, results_path
+from src.config import SEASON, PREVIOUS_SEASON, results_path, sprint_results_path
 from src.features import build_features
 from src.models import prepare_data, train_model, predict, shrink_to_grid
-from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS
+from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS, sprint_score
 from src.circuit_profiles import get_blend_weights
 from src.fetch_prices import fetch_prices
-from src.fetch_practice import fallback_sessions, first_available_practice, is_sprint_weekend
+from src.fetch_practice import (
+    fallback_sessions,
+    first_available_practice,
+    get_sprint_quali_grid,
+    is_sprint_weekend,
+)
 from src.dnf import DNFModel
 
 MIN_HISTORY_ROUNDS = 2  # need some 2026 form before predictions mean anything
@@ -135,15 +140,27 @@ def _predict_race(
     return upcoming
 
 
-def _actual_driver_points(target_raw: pd.DataFrame) -> dict[str, float]:
-    """True F1 Fantasy points each driver scored, from the real result."""
+def _actual_driver_points(target_raw: pd.DataFrame, sprint_raw: pd.DataFrame | None = None) -> dict[str, float]:
+    """
+    True F1 Fantasy points each driver scored, from the real result.
+
+    On a sprint weekend the Saturday sprint scores as well, so those points are
+    added on top. Without this the backtest simply can't see a third of what was
+    on offer at those weekends.
+    """
     scored = target_raw.copy()
     scored = scored.drop(columns=["Predicted"], errors="ignore")  # force actual Position
     scored = calculate_fantasy_score(scored, scale_by_circuit=False)
-    return dict(zip(scored["Abbreviation"], scored["FantasyValue"]))
+    points = dict(zip(scored["Abbreviation"], scored["FantasyValue"]))
+
+    if sprint_raw is not None and not sprint_raw.empty:
+        for _, r in sprint_raw.iterrows():
+            points[r["Abbreviation"]] = points.get(r["Abbreviation"], 0.0) + sprint_score(
+                r["GridPosition"], r["Position"], r["Status"])
+    return points
 
 
-def _actual_constructor_points(target_raw: pd.DataFrame) -> dict[str, float]:
+def _actual_constructor_points(target_raw: pd.DataFrame, sprint_raw: pd.DataFrame | None = None) -> dict[str, float]:
     """
     True constructor points: both drivers' race+overtake points, plus the
     qualifying bonus (+3 both in Q3, +1 both in Q2).
@@ -166,6 +183,12 @@ def _actual_constructor_points(target_raw: pd.DataFrame) -> dict[str, float]:
                 pts += 3
             elif all(g <= 15 for g in grids):
                 pts += 1
+
+        # a constructor scores both its cars in the sprint too
+        if sprint_raw is not None and not sprint_raw.empty:
+            for _, r in sprint_raw[sprint_raw["TeamName"] == team].iterrows():
+                pts += sprint_score(r["GridPosition"], r["Position"], r["Status"])
+
         out[team] = pts
     return out
 
@@ -231,6 +254,12 @@ def run_backtest(
     fallback_prices = fallback_prices or {"drivers": {}, "constructors": {}}
     price_cache: dict[int, dict] = {}
 
+    # sprint results live in their own file, see src/fetch_results.py
+    try:
+        sprint_results = load_dataset(sprint_results_path())
+    except Exception:
+        sprint_results = None
+
     rounds = sorted(df_current["RoundNumber"].unique())
     races = []
 
@@ -253,8 +282,16 @@ def run_backtest(
         practice_df = None
         session_used = None
         if use_practice:
-            sessions = ["FP1"] if is_sprint_weekend(race_name) else fallback_sessions("FP3")
-            practice_df, session_used, _ = first_available_practice(SEASON, race_name, sessions)
+            if is_sprint_weekend(race_name):
+                # the deadline is after sprint qualifying, so use that real order.
+                # FP1 is the fallback if sprint quali can't be loaded
+                try:
+                    practice_df, session_used = get_sprint_quali_grid(SEASON, race_name), "SQ"
+                except Exception:
+                    practice_df, session_used, _ = first_available_practice(SEASON, race_name, ["FP1"])
+            else:
+                practice_df, session_used, _ = first_available_practice(
+                    SEASON, race_name, fallback_sessions("FP3"))
             if practice_df is None:
                 races.append({
                     "race_name": race_name, "round": int(rnd),
@@ -268,8 +305,9 @@ def run_backtest(
             races.append({"race_name": race_name, "round": int(rnd), "error": str(e)})
             continue
 
-        driver_pts = _actual_driver_points(target_raw)
-        constructor_pts = _actual_constructor_points(target_raw)
+        sprint_raw = sprint_results[sprint_results["RoundNumber"] == rnd] if sprint_results is not None else None
+        driver_pts = _actual_driver_points(target_raw, sprint_raw)
+        constructor_pts = _actual_constructor_points(target_raw, sprint_raw)
 
         # Retirement risk, fit on history only so no future information leaks in.
         dnf_probs = None

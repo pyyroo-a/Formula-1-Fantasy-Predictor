@@ -18,7 +18,7 @@ import fastf1
 
 from src.pipeline import predict_upcoming_race
 from src.fantasy import build_budget_team, build_budget_teams, get_race_pool
-from src.fetch_practice import get_practice_grid
+from src.fetch_practice import get_practice_grid, get_sprint_quali_grid
 from src.dnf import DNFModel, USE_DNF_RISK
 from src.data_loader import load_dataset
 from src.config import SEASON, PREVIOUS_SEASON, results_path
@@ -30,7 +30,8 @@ HIGH_ATTRITION_CIRCUITS = {
 }
 
 # how FastF1's schedule names each session
-SESSION_NAMES = {"FP1": "Practice 1", "FP2": "Practice 2", "FP3": "Practice 3", "Q": "Qualifying"}
+SESSION_NAMES = {"FP1": "Practice 1", "FP2": "Practice 2", "FP3": "Practice 3",
+                 "SQ": "Sprint Qualifying", "SPRINT": "Sprint", "Q": "Qualifying"}
 
 # practice sessions are an hour long. we never treat one as over before that, so we
 # can't lock on half a session even if some timing data already shows up
@@ -39,13 +40,16 @@ PRACTICE_LENGTH = pd.Timedelta(minutes=60)
 
 def final_practice_session(event) -> str:
     """
-    The last practice session before the fantasy deadline, so the one we lock on.
+    The last session we can see before the fantasy deadline, so the one we lock on.
 
-    Sprint weekends only have FP1, normal weekends go up to FP3. We read it from
-    FastF1's EventFormat, same as is_sprint_weekend() in src/fetch_practice.py.
+    Normal weekend: FP3, because the deadline is qualifying.
+    Sprint weekend: SPRINT QUALIFYING, because the deadline is the sprint race, so
+    sprint quali has already run by then. That is a real timed order instead of a
+    guess from one practice hour, and it measured much better: over the 4 sprint
+    weekends of 2026 the backtest went from 113.0 to 143.2 points per race.
     """
     fmt = str(event.get("EventFormat", "conventional")).lower()
-    return "FP1" if "sprint" in fmt else "FP3"
+    return "SQ" if "sprint" in fmt else "FP3"
 
 
 def session_start_utc(event, session: str):
@@ -67,6 +71,16 @@ def session_finished(event, session: str, now) -> bool:
     return start is not None and now >= start + PRACTICE_LENGTH
 
 
+def load_grid(race_name: str, session: str, year: int = SEASON):
+    """
+    The pace order we build a weekend from: sprint qualifying on a sprint weekend,
+    otherwise a practice session.
+    """
+    if session == "SQ":
+        return get_sprint_quali_grid(year, race_name)
+    return get_practice_grid(year, race_name, session)
+
+
 def session_published(race_name: str, session: str, year: int = SEASON) -> bool:
     """
     Asks F1's timing server directly whether a session's lap data is out yet.
@@ -76,7 +90,7 @@ def session_published(race_name: str, session: str, year: int = SEASON) -> bool:
     can never get mixed up. That mix up is what hid the failed locks at Madring: every
     run said "not available yet" even though the data had been out for hours.
     """
-    ses = fastf1.get_session(year, race_name, session)
+    ses = fastf1.get_session(year, race_name, SESSION_NAMES.get(session, session))
     url = f"https://livetiming.formula1.com{ses.api_path}TimingData.jsonStream"
     r = requests.head(url, timeout=15, allow_redirects=True)
     return r.status_code == 200
@@ -262,7 +276,7 @@ def build_snapshot(event, prices: dict, source: str = "auto", note: str | None =
     rnd = int(event["RoundNumber"])
     session = final_practice_session(event)
 
-    practice = get_practice_grid(year, race_name, session)
+    practice = load_grid(race_name, session, year)
     table = predict_upcoming_race(practice)
     dnf_probs = upcoming_dnf_probs(table, race_name)
 
