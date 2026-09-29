@@ -5,7 +5,15 @@ import pandas as pd
 # attrition:  probability a car fails to finish (DNF risk)
 # These are validated and can be overridden by compute_historical_overtaking().
 CIRCUIT_PROFILES = {
-    "Bahrain Grand Prix":          {"overtaking": 7, "attrition": 0.10},
+    # Sakhir, which was the Bahrain GP up to 2025. Kept so past races still score
+    # with the right rating, see src/race_names.py.
+    "Sakhir Grand Prix":           {"overtaking": 7, "attrition": 0.10},
+    # In 2026 the Bahrain GP is held in Malaysia (Kuala Lumpur, so Sepang), which
+    # is a wide track with long straights and several passing places, in serious
+    # heat. Overtaking rated the same as Sakhir but attrition bumped for the heat.
+    # Estimate with no race data behind it, check it after the race the same way
+    # we will with Madring.
+    "Bahrain Grand Prix":          {"overtaking": 7, "attrition": 0.13},
     "Saudi Arabian Grand Prix":    {"overtaking": 6, "attrition": 0.18},
     "Australian Grand Prix":       {"overtaking": 5, "attrition": 0.12},
     "Japanese Grand Prix":         {"overtaking": 4, "attrition": 0.08},
