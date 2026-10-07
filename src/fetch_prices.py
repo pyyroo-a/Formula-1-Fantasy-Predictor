@@ -21,19 +21,50 @@ def fetch_prices(race_id: int) -> dict:
     resp = httpx.get(url)
     resp.raise_for_status()
 
-    items = resp.json()["Data"]["Value"]
+    return parse_price_feed(resp.json()["Data"]["Value"])
 
-    drivers = {}
-    constructors = {}
+
+def parse_price_feed(items: list[dict]) -> dict:
+    """
+    Turns the raw feed rows into the two price dicts.
+
+    The catch: when a driver changes team mid-season the feed KEEPS the old pairing
+    as a second row with the same TLA, marked IsActive 0 and frozen at the price it
+    had back then. So we can get LAW twice, and the stale row can come last:
+
+        LAW   9.3  IsActive 1  Liam Lawson  Racing Bulls      <- the real one
+        LAW  15.1  IsActive 0  Liam Lawson  Red Bull Racing   <- old pairing
+
+    This used to be a plain dict assignment, so last row won and rounds 15, 16 and
+    17 all stored Lawson at 15.1 instead of 9.7, 9.1 and 9.3. Rounds 12 to 14 were
+    only right by luck, the active row happened to be last.
+
+    So an active row always beats an inactive one, whatever the order. But we don't
+    just filter the inactive ones out: IsActive describes the CURRENT roster, not
+    who raced in that round, so in an old round's feed a driver who has since moved
+    has no active row at all (Hadjar in round 12). Dropping those would punch holes
+    in price_history. An inactive row is therefore still used when it's all we have.
+
+    Side effect we're living with for now: a driver who has left the grid entirely
+    keeps his last price (Tsunoda at 9.7 from round 15 on). He has no practice laps
+    so he never reaches a team, he just sits in the price list.
+    """
+    drivers: dict[str, float] = {}
+    constructors: dict[str, float] = {}
+    driver_active: dict[str, bool] = {}
 
     for item in items:
         price = float(item["Value"])
+        active = str(item.get("IsActive")) == "1"
+
         if item["PositionName"] == "DRIVER":
             tla = item["DriverTLA"]
-            drivers[tla] = price
+            # first row for this driver, or the first ACTIVE one, wins
+            if tla not in drivers or (active and not driver_active[tla]):
+                drivers[tla] = price
+                driver_active[tla] = active
         elif item["PositionName"] == "CONSTRUCTOR":
-            team = item["FUllName"]
-            constructors[team] = price
+            constructors[item["FUllName"]] = price
 
     return {"drivers": drivers, "constructors": constructors}
 
