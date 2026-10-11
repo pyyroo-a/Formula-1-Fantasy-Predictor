@@ -33,6 +33,12 @@ from src.weekend import (
 
 router = APIRouter()
 
+# only one snapshot build at a time, and we remember how the last one went so the
+# next call (or you, with curl) can see if something failed
+_snapshot_build_lock = threading.Lock()
+
+_last_snapshot_result: dict = {}
+
 
 def _load_schedule():
     fastf1.Cache.enable_cache("data/cache")
@@ -86,8 +92,54 @@ def _team_payload(snap: dict, **extra) -> dict:
     }
 
 
+def should_self_lock(race_name: str, session_used: str | None, final_session: str) -> bool:
+    """
+    Whether a provisional view should save itself as this weekend's snapshot.
+
+    Why this exists: the provisional prediction was worked out fresh on every
+    request and never written down, so it only became permanent if something else
+    saved a snapshot. When the scheduler missed (Bahrain round 16, Singapore round
+    17) the weekend disappeared the moment the race started, because the "upcoming
+    race" moved on and the site fell back to the newest snapshot it still had,
+    which was an older race. Hence the predictions that "kept changing".
+
+    So once a provisional is built from the session we lock on, it saves itself and
+    stops being provisional. Guards, which are the same ones POST /snapshot/auto
+    uses, so a page view can never save something the scheduler would refuse:
+
+      * only the FINAL session counts. An earlier session standing in (FP1 while
+        sprint quali isn't out) measured worse, so freezing that would make the
+        saved answer worse than waiting a few hours for the real one.
+      * never if this weekend already has a snapshot. A locked weekend never changes.
+      * never once the results are in our data, or the "prediction" saw the answers.
+
+    LOCK_ON_VIEW=0 switches it off without a redeploy.
+    """
+    if os.getenv("LOCK_ON_VIEW", "1") != "1":
+        return False
+    if not session_used or session_used != final_session:
+        return False
+    if find_snapshot(race_name):
+        return False
+    if results_already_in_data(race_name):
+        return False
+    return True
+
+
+def _start_snapshot_build(event, background_tasks: BackgroundTasks) -> bool:
+    """
+    Kicks off the real snapshot build in the background, the same one /snapshot/auto
+    runs, so there is only one way a snapshot ever gets made. Returns False if a
+    build is already running, in which case we just leave it to finish.
+    """
+    if not _snapshot_build_lock.acquire(blocking=False):
+        return False
+    background_tasks.add_task(_build_and_save_snapshot, event)
+    return True
+
+
 @router.get("/weekend-team")
-def get_weekend_team():
+def get_weekend_team(background_tasks: BackgroundTasks):
     """
     The team for the current race weekend.
 
@@ -139,6 +191,11 @@ def get_weekend_team():
             "days_until": days_until,
             "message": f"No practice data yet, the team locks once {final_session} is published",
         }
+
+    # the session we lock on is out, so save this weekend instead of recomputing it
+    # forever and losing it when the race starts. see should_self_lock
+    if should_self_lock(race_name, session_used, final_session):
+        _start_snapshot_build(upcoming, background_tasks)
 
     try:
         upcoming_table = predict_upcoming_race(practice_df)
@@ -301,7 +358,7 @@ def _held_finishes() -> dict | None:
 
 
 @router.get("/weekend-finishes")
-def get_weekend_finishes():
+def get_weekend_finishes(background_tasks: BackgroundTasks):
     """
     Predicted finishing order for the race weekend. For the F1 Predict game mode,
     separate from fantasy team building.
@@ -364,6 +421,9 @@ def get_weekend_finishes():
             "predictions": None,
         }
 
+    if should_self_lock(race_name, session_used, final_session):
+        _start_snapshot_build(upcoming, background_tasks)
+
     try:
         table = predict_upcoming_race(practice_df).copy()
     except Exception as e:
@@ -379,14 +439,6 @@ def get_weekend_finishes():
         "days_until": days_until,
         "predictions": build_finish_predictions(table),
     }
-
-
-# only one snapshot build at a time, and we remember how the last one went so the
-# next call (or you, with curl) can see if something failed
-_snapshot_build_lock = threading.Lock()
-
-
-_last_snapshot_result: dict = {}
 
 
 def _build_and_save_snapshot(event):

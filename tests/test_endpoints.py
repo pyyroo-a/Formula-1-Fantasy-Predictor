@@ -184,3 +184,53 @@ def test_snapshot_auto_states(client, golden, at, monkeypatch, tmp_path, snapsho
 def test_backtest_hidden_in_production(client, monkeypatch):
     monkeypatch.delenv("BACKTEST_ENABLED", raising=False)
     assert client.get("/backtest").status_code == 404
+
+
+# ---- locking the weekend from a page view --------------------------------------
+#
+# Bahrain and Singapore both vanished off the site because nothing ever saved them.
+# The provisional view was recomputed on every request, so the moment the race
+# started and the "upcoming race" moved on, the weekend was gone and the site fell
+# back to an older snapshot. So when a provisional is built from the session we
+# lock on, it now saves itself instead of being thrown away.
+#
+# These only test the DECISION. The build itself hits the network, so it stays out.
+
+import json as _json
+
+from src.api.race_weekend import should_self_lock
+
+# Singapore results aren't in data/processed yet, Bahrain's are. That's what makes
+# one of these lockable and the other refused.
+UNRACED = "Singapore Grand Prix"
+RACED = "Bahrain Grand Prix"
+
+
+def test_self_lock_when_provisional_came_from_the_final_session(empty_snapshots):
+    assert should_self_lock(UNRACED, session_used="SQ", final_session="SQ") is True
+
+
+def test_no_self_lock_from_an_earlier_session(empty_snapshots):
+    # FP1 standing in because sprint quali isn't published yet. FP1 is a worse
+    # predictor, so freezing it would make the saved answer worse than waiting.
+    assert should_self_lock(UNRACED, session_used="FP1", final_session="SQ") is False
+
+
+def test_no_self_lock_without_a_session(empty_snapshots):
+    assert should_self_lock(UNRACED, session_used=None, final_session="FP3") is False
+
+
+def test_no_self_lock_once_the_results_are_known(empty_snapshots):
+    # same guard /snapshot/auto has: never build a prediction that saw the answers
+    assert should_self_lock(RACED, session_used="FP3", final_session="FP3") is False
+
+
+def test_no_self_lock_when_the_weekend_is_already_locked(empty_snapshots):
+    snap = {"year": 2026, "round": 17, "race_name": UNRACED, "teams": [], "finishes": []}
+    (empty_snapshots / "2026_R17_singapore_grand_prix.json").write_text(_json.dumps(snap))
+    assert should_self_lock(UNRACED, session_used="SQ", final_session="SQ") is False
+
+
+def test_self_lock_can_be_switched_off(empty_snapshots, monkeypatch):
+    monkeypatch.setenv("LOCK_ON_VIEW", "0")
+    assert should_self_lock(UNRACED, session_used="SQ", final_session="SQ") is False

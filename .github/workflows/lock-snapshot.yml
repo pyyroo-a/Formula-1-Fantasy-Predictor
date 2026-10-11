@@ -1,0 +1,68 @@
+name: Lock Weekend Snapshot
+
+# Backup for the weekend lock, because cron-job.org kept failing: it gives up on a
+# request after 30s and Render's free tier takes ~53s to wake from sleep, so the
+# call never landed. Two weekends were lost that way (Bahrain round 16, Singapore
+# round 17). Here we can just wait for the cold start instead of working around it.
+#
+# This only pokes the endpoint. All the "is it time yet" logic lives in
+# POST /snapshot/auto, which checks the final session has finished AND is published
+# on livetiming, that the weekend has no snapshot yet, and refuses outright if the
+# race results are already in our data. Calling it when there is nothing to do is
+# free, it answers "idle" or "waiting" and stops.
+
+on:
+  schedule:
+    # every 30 min Friday and Saturday: sprint weekends lock on Friday's sprint
+    # qualifying, normal weekends on Saturday's FP3
+    - cron: "*/30 * * * 5,6"
+    # Sunday morning catch-up for anything that slipped through overnight
+    - cron: "*/30 0-10 * * 0"
+  workflow_dispatch: # and a Run workflow button for when you want to force it
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the backend to lock this weekend
+        env:
+          SNAPSHOT_SECRET: ${{ secrets.SNAPSHOT_SECRET }}
+          BACKEND: https://formula-1-fantasy-predictor.onrender.com
+        run: |
+          if [ -z "$SNAPSHOT_SECRET" ]; then
+            echo "::error::SNAPSHOT_SECRET isn't set as a repository secret, so the call would just 401."
+            exit 1
+          fi
+
+          # --max-time 180 is the whole point: it covers Render waking up.
+          # --retry-all-errors retries the connection errors you get mid-wake.
+          code=$(curl -sS -o response.json -w '%{http_code}' \
+            --max-time 180 --retry 3 --retry-delay 15 --retry-all-errors \
+            -X POST "$BACKEND/snapshot/auto" \
+            -H "X-Snapshot-Secret: $SNAPSHOT_SECRET")
+
+          echo "HTTP $code"
+          cat response.json || true
+          echo
+
+          # put the answer in the run summary so you can see what happened without
+          # opening the logs
+          {
+            echo "### Snapshot lock"
+            echo ""
+            echo "HTTP \`$code\`"
+            echo ""
+            echo '```json'
+            cat response.json || true
+            echo ""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # "idle" and "waiting" are normal, they just mean there's nothing to lock
+          # right now. Only a real HTTP failure should go red.
+          case "$code" in
+            2*) ;;
+            000) echo "::error::No answer from the backend within 180s."; exit 1 ;;
+            401) echo "::error::401, the repo secret doesn't match SNAPSHOT_SECRET on Render."; exit 1 ;;
+            *) echo "::error::snapshot/auto returned HTTP $code"; exit 1 ;;
+          esac
