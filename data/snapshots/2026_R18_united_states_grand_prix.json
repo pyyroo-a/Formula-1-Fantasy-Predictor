@@ -1,0 +1,515 @@
+{
+  "year": 2026,
+  "race_name": "United States Grand Prix",
+  "round": 18,
+  "session_used": "FP3",
+  "locked_at": "2026-10-24T19:18:29.516434+00:00",
+  "source": "auto",
+  "built_after_quali_start": false,
+  "teams": [
+    {
+      "drivers": [
+        {
+          "Abbreviation": "LEC",
+          "TeamName": "Ferrari",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 38.0,
+          "Price": 24.1,
+          "PickCategory": "Safe",
+          "DNFProb": 0.078
+        },
+        {
+          "Abbreviation": "HAM",
+          "TeamName": "Ferrari",
+          "GridPosition": 2,
+          "Predicted": 1.9,
+          "FantasyValue": 29.7,
+          "Price": 24.4,
+          "PickCategory": "Safe",
+          "DNFProb": 0.054
+        },
+        {
+          "Abbreviation": "HUL",
+          "TeamName": "Audi",
+          "GridPosition": 8,
+          "Predicted": 8.2,
+          "FantasyValue": 7.9,
+          "Price": 6.6,
+          "PickCategory": "Risk",
+          "DNFProb": 0.16
+        },
+        {
+          "Abbreviation": "GAS",
+          "TeamName": "Alpine",
+          "GridPosition": 9,
+          "Predicted": 9.2,
+          "FantasyValue": 4.6,
+          "Price": 10.2,
+          "PickCategory": "Risk",
+          "DNFProb": 0.117
+        },
+        {
+          "Abbreviation": "BOT",
+          "TeamName": "Cadillac",
+          "GridPosition": 22,
+          "Predicted": 20.0,
+          "FantasyValue": -3.7,
+          "Price": 3.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.503
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Ferrari",
+          "price": 28.2,
+          "score": 71.2,
+          "dnf_risk": 0.127,
+          "double_dnf_risk": 0.004
+        },
+        {
+          "name": "Cadillac",
+          "price": 3.0,
+          "score": -3.7,
+          "dnf_risk": 0.503,
+          "double_dnf_risk": 0.503
+        }
+      ],
+      "total_cost": 99.5,
+      "budget_remaining": 0.5,
+      "total_score": 144.0,
+      "boost_pick": {
+        "Abbreviation": "LEC",
+        "TeamName": "Ferrari",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 38.0,
+        "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "HAM",
+          "HUL"
+        ]
+      },
+      "chips": {
+        "my_team_score": 135.4,
+        "limitless": {
+          "gain": 112.2,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 8.6,
+          "recommendation": "HOLD"
+        },
+        "x3_boost": {
+          "gain": 38.0,
+          "target": "LEC",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "BOT",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "gain": 43.8,
+          "points_at_risk": 43.8,
+          "expected_dnfs": 0.91,
+          "is_high_attrition": false,
+          "reason": "About 0.9 expected retirements across your 5 drivers and 1.0 across your constructors' 4 cars. BOT also projected P16 or worse (-5 each).",
+          "recommendation": "PLAY"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    },
+    {
+      "drivers": [
+        {
+          "Abbreviation": "LEC",
+          "TeamName": "Ferrari",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 38.0,
+          "Price": 24.1,
+          "PickCategory": "Safe",
+          "DNFProb": 0.078
+        },
+        {
+          "Abbreviation": "HAM",
+          "TeamName": "Ferrari",
+          "GridPosition": 2,
+          "Predicted": 1.9,
+          "FantasyValue": 29.7,
+          "Price": 24.4,
+          "PickCategory": "Safe",
+          "DNFProb": 0.054
+        },
+        {
+          "Abbreviation": "HUL",
+          "TeamName": "Audi",
+          "GridPosition": 8,
+          "Predicted": 8.2,
+          "FantasyValue": 7.9,
+          "Price": 6.6,
+          "PickCategory": "Risk",
+          "DNFProb": 0.16
+        },
+        {
+          "Abbreviation": "BOR",
+          "TeamName": "Audi",
+          "GridPosition": 13,
+          "Predicted": 13.2,
+          "FantasyValue": 0.0,
+          "Price": 7.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.169
+        },
+        {
+          "Abbreviation": "BEA",
+          "TeamName": "Haas F1 Team",
+          "GridPosition": 14,
+          "Predicted": 14.2,
+          "FantasyValue": 0.0,
+          "Price": 6.4,
+          "PickCategory": "Risk",
+          "DNFProb": 0.233
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Ferrari",
+          "price": 28.2,
+          "score": 71.2,
+          "dnf_risk": 0.127,
+          "double_dnf_risk": 0.004
+        },
+        {
+          "name": "Cadillac",
+          "price": 3.0,
+          "score": -3.7,
+          "dnf_risk": 0.503,
+          "double_dnf_risk": 0.503
+        }
+      ],
+      "total_cost": 99.7,
+      "budget_remaining": 0.3,
+      "total_score": 143.1,
+      "boost_pick": {
+        "Abbreviation": "LEC",
+        "TeamName": "Ferrari",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 38.0,
+        "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "HAM",
+          "HUL"
+        ]
+      },
+      "chips": {
+        "my_team_score": 134.5,
+        "limitless": {
+          "gain": 113.1,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 9.5,
+          "recommendation": "HOLD"
+        },
+        "x3_boost": {
+          "gain": 38.0,
+          "target": "LEC",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "BOR",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "gain": 34.4,
+          "points_at_risk": 34.4,
+          "expected_dnfs": 0.69,
+          "is_high_attrition": false,
+          "reason": "About 0.7 expected retirements across your 5 drivers and 1.0 across your constructors' 4 cars.",
+          "recommendation": "PLAY"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    },
+    {
+      "drivers": [
+        {
+          "Abbreviation": "LEC",
+          "TeamName": "Ferrari",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 38.0,
+          "Price": 24.1,
+          "PickCategory": "Safe",
+          "DNFProb": 0.078
+        },
+        {
+          "Abbreviation": "ANT",
+          "TeamName": "Mercedes",
+          "GridPosition": 3,
+          "Predicted": 2.8,
+          "FantasyValue": 25.4,
+          "Price": 27.1,
+          "PickCategory": "Safe",
+          "DNFProb": 0.061
+        },
+        {
+          "Abbreviation": "HUL",
+          "TeamName": "Audi",
+          "GridPosition": 8,
+          "Predicted": 8.2,
+          "FantasyValue": 7.9,
+          "Price": 6.6,
+          "PickCategory": "Risk",
+          "DNFProb": 0.16
+        },
+        {
+          "Abbreviation": "BEA",
+          "TeamName": "Haas F1 Team",
+          "GridPosition": 14,
+          "Predicted": 14.2,
+          "FantasyValue": 0.0,
+          "Price": 6.4,
+          "PickCategory": "Risk",
+          "DNFProb": 0.233
+        },
+        {
+          "Abbreviation": "BOT",
+          "TeamName": "Cadillac",
+          "GridPosition": 22,
+          "Predicted": 20.0,
+          "FantasyValue": -3.7,
+          "Price": 3.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.503
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Ferrari",
+          "price": 28.2,
+          "score": 71.2,
+          "dnf_risk": 0.127,
+          "double_dnf_risk": 0.004
+        },
+        {
+          "name": "Aston Martin",
+          "price": 4.5,
+          "score": 0.0,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        }
+      ],
+      "total_cost": 99.9,
+      "budget_remaining": 0.1,
+      "total_score": 138.8,
+      "boost_pick": {
+        "Abbreviation": "LEC",
+        "TeamName": "Ferrari",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 38.0,
+        "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "ANT",
+          "HUL"
+        ]
+      },
+      "chips": {
+        "my_team_score": 122.3,
+        "limitless": {
+          "gain": 125.3,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 21.7,
+          "recommendation": "CONSIDER"
+        },
+        "x3_boost": {
+          "gain": 38.0,
+          "target": "LEC",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "BOT",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "gain": 45.9,
+          "points_at_risk": 45.9,
+          "expected_dnfs": 1.03,
+          "is_high_attrition": false,
+          "reason": "About 1.0 expected retirements across your 5 drivers and 1.0 across your constructors' 4 cars. BOT also projected P16 or worse (-5 each).",
+          "recommendation": "PLAY"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    }
+  ],
+  "finishes": [
+    {
+      "abbreviation": "LEC",
+      "team": "Ferrari",
+      "model_pos": 1,
+      "baseline_pos": 1,
+      "delta": 0
+    },
+    {
+      "abbreviation": "VER",
+      "team": "Red Bull Racing",
+      "model_pos": 2,
+      "baseline_pos": 4,
+      "delta": 2
+    },
+    {
+      "abbreviation": "ANT",
+      "team": "Mercedes",
+      "model_pos": 3,
+      "baseline_pos": 3,
+      "delta": 0
+    },
+    {
+      "abbreviation": "NOR",
+      "team": "McLaren",
+      "model_pos": 4,
+      "baseline_pos": 5,
+      "delta": 1
+    },
+    {
+      "abbreviation": "HAM",
+      "team": "Ferrari",
+      "model_pos": 5,
+      "baseline_pos": 2,
+      "delta": -3
+    },
+    {
+      "abbreviation": "PIA",
+      "team": "McLaren",
+      "model_pos": 6,
+      "baseline_pos": 7,
+      "delta": 1
+    },
+    {
+      "abbreviation": "HUL",
+      "team": "Audi",
+      "model_pos": 7,
+      "baseline_pos": 8,
+      "delta": 1
+    },
+    {
+      "abbreviation": "RUS",
+      "team": "Mercedes",
+      "model_pos": 8,
+      "baseline_pos": 6,
+      "delta": -2
+    },
+    {
+      "abbreviation": "LAW",
+      "team": "Racing Bulls",
+      "model_pos": 9,
+      "baseline_pos": 11,
+      "delta": 2
+    },
+    {
+      "abbreviation": "HAD",
+      "team": "Red Bull Racing",
+      "model_pos": 10,
+      "baseline_pos": 10,
+      "delta": 0
+    },
+    {
+      "abbreviation": "GAS",
+      "team": "Alpine",
+      "model_pos": 11,
+      "baseline_pos": 9,
+      "delta": -2
+    },
+    {
+      "abbreviation": "COL",
+      "team": "Alpine",
+      "model_pos": 12,
+      "baseline_pos": 15,
+      "delta": 3
+    },
+    {
+      "abbreviation": "BEA",
+      "team": "Haas F1 Team",
+      "model_pos": 13,
+      "baseline_pos": 14,
+      "delta": 1
+    },
+    {
+      "abbreviation": "ALO",
+      "team": "Aston Martin",
+      "model_pos": 14,
+      "baseline_pos": 16,
+      "delta": 2
+    },
+    {
+      "abbreviation": "LIN",
+      "team": "Racing Bulls",
+      "model_pos": 15,
+      "baseline_pos": 12,
+      "delta": -3
+    },
+    {
+      "abbreviation": "OCO",
+      "team": "Haas F1 Team",
+      "model_pos": 16,
+      "baseline_pos": 17,
+      "delta": 1
+    },
+    {
+      "abbreviation": "STR",
+      "team": "Aston Martin",
+      "model_pos": 17,
+      "baseline_pos": 18,
+      "delta": 1
+    },
+    {
+      "abbreviation": "BOR",
+      "team": "Audi",
+      "model_pos": 18,
+      "baseline_pos": 13,
+      "delta": -5
+    },
+    {
+      "abbreviation": "SAI",
+      "team": "Williams",
+      "model_pos": 19,
+      "baseline_pos": 19,
+      "delta": 0
+    },
+    {
+      "abbreviation": "ALB",
+      "team": "Williams",
+      "model_pos": 20,
+      "baseline_pos": 20,
+      "delta": 0
+    },
+    {
+      "abbreviation": "PER",
+      "team": "Cadillac",
+      "model_pos": 21,
+      "baseline_pos": 21,
+      "delta": 0
+    },
+    {
+      "abbreviation": "BOT",
+      "team": "Cadillac",
+      "model_pos": 22,
+      "baseline_pos": 22,
+      "delta": 0
+    }
+  ]
+}
