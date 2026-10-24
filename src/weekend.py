@@ -13,12 +13,11 @@ wouldn't match what the site showed. So they all go through build_snapshot() her
 """
 
 import pandas as pd
-import requests
-import fastf1
 
 from src.pipeline import predict_upcoming_race
 from src.fantasy import build_budget_team, build_budget_teams, get_race_pool
-from src.fetch_practice import get_practice_grid, get_sprint_quali_grid
+from src import openf1
+from src.fetch_practice import _session_start_utc, get_practice_grid, get_sprint_quali_grid
 from src.dnf import DNFModel, USE_DNF_RISK
 from src.data_loader import load_dataset
 from src.config import SEASON, PREVIOUS_SEASON, results_path
@@ -83,17 +82,26 @@ def load_grid(race_name: str, session: str, year: int = SEASON):
 
 def session_published(race_name: str, session: str, year: int = SEASON) -> bool:
     """
-    Asks F1's timing server directly whether a session's lap data is out yet.
+    Whether a session's lap data is out yet.
 
     We check this BEFORE trying to build. That way "not published yet" (normal, just
-    try again in 10 minutes) and "published but loading it failed" (an actual problem)
+    try again later) and "published but loading it failed" (an actual problem)
     can never get mixed up. That mix up is what hid the failed locks at Madring: every
     run said "not available yet" even though the data had been out for hours.
+
+    This used to ask F1's timing server directly, but that has answered 401 to
+    everything since F1 added logins in October 2026, so every call said "not
+    published" and the automatic lock could never fire. Now we ask OpenF1, the same
+    place the build gets its laps (src/openf1.py). Same rule as before: if OpenF1 is
+    down or switched off it raises instead of saying False, so a broken source shows
+    up as an error and not as "waiting" all weekend.
     """
-    ses = fastf1.get_session(year, race_name, SESSION_NAMES.get(session, session))
-    url = f"https://livetiming.formula1.com{ses.api_path}TimingData.jsonStream"
-    r = requests.head(url, timeout=15, allow_redirects=True)
-    return r.status_code == 200
+    start = _session_start_utc(year, race_name, SESSION_NAMES.get(session, session))
+    try:
+        openf1.openf1_grid(year, race_name, session, start)
+    except openf1.NotPublishedYet:
+        return False
+    return True
 
 
 def results_already_in_data(race_name: str, year: int = SEASON) -> bool:

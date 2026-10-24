@@ -200,9 +200,10 @@ import json as _json
 
 from src.api.race_weekend import should_self_lock
 
-# Singapore results aren't in data/processed yet, Bahrain's are. That's what makes
-# one of these lockable and the other refused.
-UNRACED = "Singapore Grand Prix"
+# UNRACED is made up so its results can never land in data/processed. This used to
+# be Singapore, which broke the moment the Monday job added Singapore's results.
+# RACED is a real race whose results are in, which is what makes it refused.
+UNRACED = "Test Grand Prix"
 RACED = "Bahrain Grand Prix"
 
 
@@ -226,8 +227,8 @@ def test_no_self_lock_once_the_results_are_known(empty_snapshots):
 
 
 def test_no_self_lock_when_the_weekend_is_already_locked(empty_snapshots):
-    snap = {"year": 2026, "round": 17, "race_name": UNRACED, "teams": [], "finishes": []}
-    (empty_snapshots / "2026_R17_singapore_grand_prix.json").write_text(_json.dumps(snap))
+    snap = {"year": 2026, "round": 99, "race_name": UNRACED, "teams": [], "finishes": []}
+    (empty_snapshots / "2026_R99_test_grand_prix.json").write_text(_json.dumps(snap))
     assert should_self_lock(UNRACED, session_used="SQ", final_session="SQ") is False
 
 

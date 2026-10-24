@@ -10,6 +10,8 @@ To make that work, every answer has to be the same each run, so:
   - prices come from saved files in tests/fixtures/ instead of the live F1 feed
   - "now" is a pretend time we pick for each test, not the real clock
   - the app's startup (which downloads new results and prices) doesn't run
+  - OpenF1 is switched off, so practice comes from the FastF1 cache like it always
+    did (the OpenF1 code has its own offline tests in test_openf1.py)
 
 Run the tests:            python -m pytest
 Re-record after a change you MEANT to make:   UPDATE_GOLDEN=1 python -m pytest
@@ -31,6 +33,9 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = ROOT / "tests" / "fixtures"
 GOLDEN = ROOT / "tests" / "golden"
+
+# no network in the golden tests. test_openf1.py turns it back on with fakes
+os.environ["USE_OPENF1"] = "0"
 
 # the app reads data/... with relative paths, so run everything from the repo root
 os.chdir(ROOT)

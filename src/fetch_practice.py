@@ -4,6 +4,7 @@ from functools import lru_cache
 import fastf1
 import pandas as pd
 
+from src import openf1
 from src.config import SEASON
 from src.team_names import normalize_team_names
 
@@ -69,6 +70,36 @@ def first_available_practice(year: int, race_name: str, sessions: list[str]):
     return None, None, last_error
 
 
+def _session_start_utc(year: int, race_name: str, session_name: str):
+    """When a session starts (UTC) per FastF1's schedule, which still loads fine. None if unknown."""
+    try:
+        return fastf1.get_event(year, race_name).get_session_date(session_name, utc=True)
+    except Exception:
+        return None
+
+
+def _openf1_then_fastf1(year: int, race_name: str, session: str, fastf1_loader):
+    """
+    OpenF1 first, FastF1 as the backup. See src/openf1.py for why.
+
+    Not the other way round because FastF1 now takes ~8s to fail on any session it
+    doesn't already have cached (it tries every endpoint and gets a 401 each time),
+    and the live preview tries FP3, FP2 and FP1 in turn, so that was ~23s of dead
+    requests per page view. FastF1 is still the backup because its cache works
+    offline for old sessions, which keeps backtests going if OpenF1 is down.
+
+    If OpenF1 says the session isn't over yet we stop there. FastF1 can't have it
+    either, and asking would just cost the 8s.
+    """
+    start = _session_start_utc(year, race_name, openf1.SESSION_NAMES.get(session, session))
+    try:
+        return openf1.openf1_grid(year, race_name, session, start)
+    except openf1.NotPublishedYet:
+        raise
+    except openf1.OpenF1Unavailable:
+        return fastf1_loader()
+
+
 def get_sprint_quali_grid(year: int, race_name: str) -> pd.DataFrame:
     """
     Grid estimate from sprint qualifying. Same shape as get_practice_grid.
@@ -78,9 +109,18 @@ def get_sprint_quali_grid(year: int, race_name: str) -> pd.DataFrame:
     order instead of guessing from one practice hour. Measured over the 5 sprint
     weekends of 2026, against the real race grid: 1.90 places off, vs 2.52 for FP1.
 
-    We rank by fastest lap from the session, the same way we do for practice,
-    because FastF1 does not give finishing positions or Q1/Q2/Q3 times for this
-    session, only the laps.
+    We rank by fastest lap from the session, the same way we do for practice.
+    """
+    return _openf1_then_fastf1(year, race_name, "SQ",
+                               lambda: _fastf1_sprint_quali_grid(year, race_name))
+
+
+def _fastf1_sprint_quali_grid(year: int, race_name: str) -> pd.DataFrame:
+    """
+    The FastF1 version, now only the backup.
+
+    FastF1 does not give finishing positions or Q1/Q2/Q3 times for this session,
+    only the laps.
     """
     event = fastf1.get_event(year, race_name)
     sess = event.get_session("Sprint Qualifying")
@@ -120,13 +160,20 @@ def get_practice_grid(year: int, race_name: str, session: str = "FP3") -> pd.Dat
     """
     if is_sprint_weekend(race_name, year):
         session = "FP1"
+    return _openf1_then_fastf1(year, race_name, session,
+                               lambda: _fastf1_practice_grid(year, race_name, session))
 
+
+def _fastf1_practice_grid(year: int, race_name: str, session: str) -> pd.DataFrame:
+    """The FastF1 version, now only the backup. Works for sessions in data/cache."""
     event = fastf1.get_event(year, race_name)
     sess = event.get_session(session)
     sess.load(laps=True, telemetry=False, weather=False, messages=False)
 
     laps = sess.laps[["Driver", "Team", "LapTime"]].copy()
     laps = laps.dropna(subset=["LapTime"])
+    if laps.empty:
+        raise ValueError(f"{session} for {race_name} has no lap times")
 
     fastest = (
         laps.groupby("Driver")["LapTime"]
