@@ -1,18 +1,9 @@
 import { useState, useEffect } from "react";
 import { API } from "../api";
-import { DRIVER_NAMES, BUDGET, teamAccent } from "../constants";
+import { BUDGET, CAT_BADGE } from "../constants";
+import { INPUT_CLS, PRIMARY_BTN_CLS, SECTION_HEAD_CLS } from "../styles";
 import SessionSchedule from "./SessionSchedule";
-
-const CAT_BADGE = {
-  Safe:  "text-pw-safe bg-pw-safe/10",
-  Value: "text-pw-rain bg-pw-rain/10",
-  Risk:  "text-pw-risk bg-pw-risk/10",
-  Avoid: "text-pw-red bg-pw-red/10",
-};
-
-const SELECT_CLS = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";
-const BTN_CLS = "w-full p-2.5 bg-pw-red hover:bg-[#ff7676] text-white text-sm font-semibold transition disabled:bg-white/10 disabled:text-pw-muted disabled:cursor-not-allowed";
-const HEAD_CLS = "text-xs text-pw-muted tracking-[0.08em] mb-3";
+import { SelectedDriverSlot, SelectedConstructorSlot, PoolDriverCard, PoolConstructorCard } from "./ManualTeamParts";
 
 // From 2026 your fantasy team value grows as your drivers get more expensive, so
 // most people end up with more than the base 100M. We keep your number in the
@@ -24,85 +15,6 @@ function readSavedBudget() {
     if (Number.isFinite(saved) && saved > 0) return saved;
   } catch {}
   return BUDGET;
-}
-
-function SelectedDriverSlot({ driver, isCaptain, onRemove }) {
-  const accent = teamAccent(driver.TeamName);
-  const badge = CAT_BADGE[driver.PickCategory] || "text-pw-muted bg-white/5";
-  return (
-    <div className={`flex items-center gap-3 px-3 py-2.5 bg-pw-panel2 border-l-2 ${isCaptain ? "ring-1 ring-pw-risk/40" : ""}`} style={{ borderColor: accent }}>
-      <p className="flex-1 min-w-0 text-[12.5px] text-white truncate">
-        {isCaptain && <span className="text-pw-risk font-bold mr-1">C</span>}
-        {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
-        <span className="text-pw-muted"> · {driver.TeamName}</span>
-      </p>
-      <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{(driver.PickCategory || "").toUpperCase()}</span>
-      <span className="text-[12px] text-white w-14 text-right flex-shrink-0">${driver.Price?.toFixed(1)}M</span>
-      <button onClick={onRemove} className="text-pw-muted hover:text-pw-red text-sm flex-shrink-0 transition">✕</button>
-    </div>
-  );
-}
-
-function SelectedConstructorSlot({ constructor: c, onRemove }) {
-  const accent = teamAccent(c.name);
-  return (
-    <div className="flex items-center gap-3 px-3 py-2.5 bg-pw-panel2 border-l-2" style={{ borderColor: accent }}>
-      <span className="flex-1 text-[12.5px] text-white truncate">{c.name} <span className="text-pw-muted">· Constructor</span></span>
-      <span className="text-[12px] text-white flex-shrink-0">${c.price?.toFixed(1)}M</span>
-      <button onClick={onRemove} className="text-pw-muted hover:text-pw-red text-sm flex-shrink-0 transition">✕</button>
-    </div>
-  );
-}
-
-function PoolDriverCard({ driver, isSelected, canAdd, onToggle }) {
-  const accent = teamAccent(driver.TeamName);
-  const dimmed = !isSelected && !canAdd;
-  const badge = CAT_BADGE[driver.PickCategory] || "text-pw-muted bg-white/5";
-  return (
-    <button
-      onClick={onToggle}
-      disabled={dimmed}
-      className={`text-left w-full px-3 py-2.5 border-l-2 transition ${
-        isSelected ? "bg-pw-panel ring-1 ring-white/20"
-        : dimmed ? "bg-pw-panel2/50 opacity-40 cursor-not-allowed"
-        : "bg-pw-panel2 hover:bg-pw-panel cursor-pointer"
-      }`}
-      style={{ borderColor: accent }}
-    >
-      <div className="flex items-center gap-2">
-        <div className="flex-1 min-w-0">
-          <p className="text-[12.5px] text-white truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation} <span className="text-pw-muted">· {driver.TeamName}</span></p>
-          <p className="text-[10px] text-pw-muted mt-0.5">Grid P{Math.round(driver.GridPosition)} · Pred P{Math.round(driver.Predicted)} · {driver.FantasyValue?.toFixed(2)}</p>
-        </div>
-        <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{(driver.PickCategory || "").toUpperCase()}</span>
-        <span className="text-[12px] text-white w-14 text-right flex-shrink-0">${driver.Price?.toFixed(1)}M</span>
-      </div>
-      {isSelected && <p className="text-[9.5px] text-pw-muted/60 mt-1 text-right">Click to remove</p>}
-    </button>
-  );
-}
-
-function PoolConstructorCard({ constructor: c, isSelected, canAdd, onToggle }) {
-  const accent = teamAccent(c.name);
-  const dimmed = !isSelected && !canAdd;
-  return (
-    <button
-      onClick={onToggle}
-      disabled={dimmed}
-      className={`text-left w-full px-3 py-2 border-l-2 transition flex justify-between items-center gap-2 ${
-        isSelected ? "bg-pw-panel ring-1 ring-white/20"
-        : dimmed ? "bg-pw-panel2/50 opacity-40 cursor-not-allowed"
-        : "bg-pw-panel2 hover:bg-pw-panel cursor-pointer"
-      }`}
-      style={{ borderColor: accent }}
-    >
-      <div className="min-w-0">
-        <p className="text-[12px] text-white truncate">{c.name}</p>
-        <p className="text-[9.5px] text-pw-muted mt-0.5">{c.score?.toFixed(2)}</p>
-      </div>
-      <span className="text-[12px] text-white flex-shrink-0">${c.price?.toFixed(1)}M</span>
-    </button>
-  );
 }
 
 export default function ManualTeamBuilder({ upcomingRaces }) {
@@ -224,7 +136,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
           if (race) fetchSessions(race);
           else setSessions(null);
         }}
-        className={`${SELECT_CLS} mb-3`}
+        className={`${INPUT_CLS} mb-3`}
       >
         <option value="">Select an upcoming race</option>
         {upcomingRaces.map(r => (
@@ -241,7 +153,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
         <button
           onClick={loadPool}
           disabled={sessions && !anySessionAvailable}
-          className={`${BTN_CLS} mb-4`}
+          className={`${PRIMARY_BTN_CLS} mb-4`}
         >
           {sessions && !anySessionAvailable ? "No practice data yet, check back after FP1" : "Load Driver Pool"}
         </button>
@@ -296,7 +208,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
 
           {teamComplete && (
             <div className="bg-pw-panel2 border border-white/[0.06] p-4">
-              <p className={HEAD_CLS}>TEAM SUMMARY</p>
+              <p className={SECTION_HEAD_CLS}>TEAM SUMMARY</p>
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
                   <p className="text-[10px] text-pw-muted mb-1">MY SCORE</p>
@@ -325,7 +237,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
           )}
 
           <div>
-            <p className={HEAD_CLS}>YOUR DRIVERS ({selectedDrivers.length}/5)</p>
+            <p className={SECTION_HEAD_CLS}>YOUR DRIVERS ({selectedDrivers.length}/5)</p>
             <div className="grid grid-cols-1 gap-2 mb-4">
               {selectedDrivers.length === 0
                 ? <p className="text-pw-muted/70 text-xs text-center py-4 border border-dashed border-white/10">Click drivers below to add them</p>
@@ -345,7 +257,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
                   })()
               }
             </div>
-            <p className={HEAD_CLS}>YOUR CONSTRUCTORS ({selectedConstructors.length}/2)</p>
+            <p className={SECTION_HEAD_CLS}>YOUR CONSTRUCTORS ({selectedConstructors.length}/2)</p>
             <div className="grid grid-cols-1 gap-2 mb-6">
               {selectedConstructors.length === 0
                 ? <p className="text-pw-muted/70 text-xs text-center py-4 border border-dashed border-white/10">Click constructors below to add them</p>
@@ -355,7 +267,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
           </div>
 
           <div>
-            <p className={HEAD_CLS}>AVAILABLE DRIVERS</p>
+            <p className={SECTION_HEAD_CLS}>AVAILABLE DRIVERS</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {pool.drivers.map(driver => (
                 <PoolDriverCard
@@ -370,7 +282,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
           </div>
 
           <div>
-            <p className={HEAD_CLS}>AVAILABLE CONSTRUCTORS</p>
+            <p className={SECTION_HEAD_CLS}>AVAILABLE CONSTRUCTORS</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {pool.constructors.map(c => (
                 <PoolConstructorCard

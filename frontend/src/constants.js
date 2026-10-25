@@ -73,3 +73,11 @@ export function teamAccent(teamName) {
   }
   return "#6b7280";
 }
+
+// Colours for the Safe / Value / Risk / Avoid pick badges
+export const CAT_BADGE = {
+  Safe:  "text-pw-safe bg-pw-safe/10",
+  Value: "text-pw-rain bg-pw-rain/10",
+  Risk:  "text-pw-risk bg-pw-risk/10",
+  Avoid: "text-pw-red bg-pw-red/10",
+};

@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { API } from "./api";
 import CountdownWidget from "./components/CountdownWidget";
 import Overview from "./components/Overview";
-import RaceResultsTable from "./components/RaceResultsTable";
-import QualifyingTable from "./components/QualifyingTable";
-import PracticeTable from "./components/PracticeTable";
-import { TeamStatGrid, BudgetDriverCard, ConstructorCard, BoostPickCard } from "./components/BudgetTeam";
+import RaceResultsTab from "./components/racedata/RaceResultsTab";
+import PracticeTab from "./components/racedata/PracticeTab";
+import QualifyingTab from "./components/racedata/QualifyingTab";
+import TeamOptimizerTab from "./components/myteam/TeamOptimizerTab";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
 import PredictedFinishes from "./components/PredictedFinishes";
 import Backtest from "./components/Backtest";
+import { cacheTeam, readCachedTeam, pickNewer } from "./teamCache";
+import { useRaceResults, usePractice, useQualifying, useBudgetTeams } from "./hooks/useRaceData";
 
 // import.meta.env.DEV is true under `npm run dev` and false in a production
 // build, so the Backtest tab never ships to the deployed site.
@@ -35,29 +37,6 @@ const RACEDATA_TABS = [
   ...(IS_DEV ? [{ id: "backtest", label: "BACKTEST" }] : []),
 ];
 
-// Writes a team payload to this device's cache, ignoring quota/private-mode errors.
-function cacheTeam(d) {
-  try { localStorage.setItem("pitwall_last_team", JSON.stringify(d)); } catch {}
-}
-
-// Picks between this device's cached team and the backend's, by race round.
-//
-// The cache can legitimately be ahead of the backend for a few hours after a
-// race, before the results are published, so the backend does not simply always
-// win. But on a tie, or when either round is unknown, the BACKEND wins: it is the
-// one answer every device shares, and a cached team that cannot prove it is newer
-// is exactly the stale copy this whole comparison exists to get rid of.
-//
-// The unknown case is not hypothetical. Payloads cached before the `round` field
-// existed have no round at all.
-function pickNewer(cached, fromServer) {
-  if (!cached) return fromServer;
-  if (!fromServer) return cached;
-  const rc = Number.isFinite(cached.round) ? cached.round : -1;
-  const rs = Number.isFinite(fromServer.round) ? fromServer.round : -1;
-  return rc > rs ? cached : fromServer;
-}
-
 function App() {
   const [section, setSection] = useState("overview");
   const [myTeamTab, setMyTeamTab] = useState("budget");
@@ -79,10 +58,7 @@ function App() {
   // Dutch GP team while the laptop showed Monza: whichever race you happened to
   // last open the site on is the team that device kept, forever. It is now only
   // a starting point, reconciled against the backend below.
-  const [lastTeam, setLastTeam] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("pitwall_last_team") || "null"); }
-    catch { return null; }
-  });
+  const [lastTeam, setLastTeam] = useState(readCachedTeam);
 
   // The backend's answer for "what was the last team?". Always fetched between
   // races now, not just when the local cache is empty.
@@ -93,30 +69,12 @@ function App() {
   const [finishesLoading, setFinishesLoading] = useState(true);
   const [finishesError, setFinishesError] = useState(null);
 
-  // Race Results tab
-  const [resultsRace, setResultsRace] = useState("");
-  const [raceResults, setRaceResults] = useState(null);
-  const [resultsLoading, setResultsLoading] = useState(false);
-  const [resultsError, setResultsError] = useState(null);
-
-  // Practice tab
-  const [practiceRace, setPracticeRace] = useState("");
-  const [practiceData, setPracticeData] = useState(null);   // { session, available_sessions, results }
-  const [practiceLoading, setPracticeLoading] = useState(false);
-  const [practiceError, setPracticeError] = useState(null);
-
-  // Qualifying tab
-  const [qualRace, setQualRace] = useState("");
-  const [qualResults, setQualResults] = useState(null);
-  const [qualLoading, setQualLoading] = useState(false);
-  const [qualError, setQualError] = useState(null);
-
-  // Budget Team tab
-  const [budgetRace, setBudgetRace] = useState("");
-  const [budgetTeams, setBudgetTeams] = useState(null);
-  const [activeTeam, setActiveTeam] = useState(0);
-  const [budgetLoading, setBudgetLoading] = useState(false);
-  const [budgetError, setBudgetError] = useState(null);
+  // Race Data tabs and the Team Optimizer. The state stays up here in App (see
+  // hooks/useRaceData.js) so switching tabs doesn't forget the race you picked.
+  const results = useRaceResults();
+  const practice = usePractice();
+  const qualifying = useQualifying();
+  const budget = useBudgetTeams();
 
   useEffect(() => {
     fetch(`${API}/races`).then(r => r.json()).then(setRaces).catch(() => {});
@@ -144,68 +102,6 @@ function App() {
       .catch(e => setFinishesError(e.message || "Failed to load predicted finishes."))
       .finally(() => setFinishesLoading(false));
   }, []);
-
-  const fetchRaceResults = async (raceName) => {
-    if (!raceName) return;
-    setResultsLoading(true); setResultsError(null); setRaceResults(null);
-    try {
-      const res = await fetch(`${API}/race-results`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: raceName }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setRaceResults(data);
-    } catch (e) { setResultsError(e.message || "Failed to load race results."); }
-    setResultsLoading(false);
-  };
-
-  // session = "" lets the backend auto-pick the final practice session that ran
-  // (FP3 normally, FP1 on sprint weekends), and tell us which sessions exist.
-  const fetchPractice = async (raceName, session = "") => {
-    if (!raceName) return;
-    setPracticeLoading(true); setPracticeError(null);
-    try {
-      const res = await fetch(`${API}/practice-results`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: raceName, session }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setPracticeData(data);
-    } catch (e) { setPracticeError(e.message || "Failed to load practice data."); setPracticeData(null); }
-    setPracticeLoading(false);
-  };
-
-  const fetchQualifying = async () => {
-    if (!qualRace) return;
-    setQualLoading(true); setQualError(null); setQualResults(null);
-    try {
-      const res = await fetch(`${API}/qualifying-results`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: qualRace }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setQualResults(data);
-    } catch (e) { setQualError(e.message || "Failed to load qualifying data."); }
-    setQualLoading(false);
-  };
-
-  const fetchBudgetTeam = async () => {
-    if (!budgetRace) return;
-    setBudgetLoading(true); setBudgetError(null); setBudgetTeams(null); setActiveTeam(0);
-    try {
-      const res = await fetch(`${API}/predict-budget`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: budgetRace, budget: 100.0 }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setBudgetTeams(data.teams);
-    } catch (e) { setBudgetError(e.message || "Failed to build budget team."); }
-    setBudgetLoading(false);
-  };
 
   // Derived mode keeps the existing content blocks working unchanged.
   const mode = section === "myteam" ? myTeamTab : raceDataTab;
@@ -235,11 +131,6 @@ function App() {
   }, [heldTeam, lastTeam]);
   const held = !!(weekendData && !weekendData.active && heldTeam);
   const overviewWeekend = (weekendData && !weekendData.active) ? (heldTeam || weekendData) : weekendData;
-
-  // Shared pit-wall form styling.
-  const inputCls = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";
-  const primaryBtn = "w-full p-2.5 bg-pw-red hover:bg-[#ff7676] text-white text-sm font-semibold transition disabled:bg-white/10 disabled:text-pw-muted disabled:cursor-not-allowed";
-  const sectionHead = "text-xs text-pw-muted tracking-[0.08em] mb-3";
 
   const subTabs = section === "myteam" ? MYTEAM_TABS : section === "racedata" ? RACEDATA_TABS : null;
   const activeSubTab = section === "myteam" ? myTeamTab : raceDataTab;
@@ -312,175 +203,10 @@ function App() {
               <PredictedFinishes data={finishes} loading={finishesLoading} error={finishesError} />
             )}
 
-            {mode === "results" && section === "racedata" && (
-              <>
-                <select
-                  value={resultsRace}
-                  onChange={e => { setResultsRace(e.target.value); fetchRaceResults(e.target.value); }}
-                  className={`${inputCls} mb-4`}
-                >
-                  <option value="">Select a completed race</option>
-                  {races.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-                {resultsLoading && <p className="text-pw-muted text-sm text-center">Loading results…</p>}
-                {resultsError && <p className="text-pw-red text-sm text-center">{resultsError}</p>}
-                {raceResults && (
-                  <div>
-                    <p className={sectionHead}>{resultsRace?.toUpperCase()} · FINAL CLASSIFICATION</p>
-                    <RaceResultsTable results={raceResults} />
-                  </div>
-                )}
-              </>
-            )}
-
-            {mode === "practice" && section === "racedata" && (
-              <>
-                <select
-                  value={practiceRace}
-                  onChange={e => {
-                    const r = e.target.value;
-                    setPracticeRace(r); setPracticeData(null); setPracticeError(null);
-                    if (r) fetchPractice(r);
-                  }}
-                  className={`${inputCls} mb-3`}
-                >
-                  <option value="">Select a race</option>
-                  {races.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-
-                {/* Session switcher: only the sessions that actually ran this weekend */}
-                {practiceData?.available_sessions?.length > 0 && (
-                  <div className="flex gap-0.5 mb-4">
-                    {practiceData.available_sessions.map(s => (
-                      <button
-                        key={s}
-                        onClick={() => fetchPractice(practiceRace, s)}
-                        disabled={practiceLoading}
-                        className={`px-4 py-2 text-[11px] font-medium transition ${
-                          practiceData.session === s
-                            ? "bg-pw-red text-white"
-                            : "bg-pw-panel2 text-pw-muted hover:text-white"
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {practiceLoading && (
-                  <div className="text-center mb-4">
-                    <p className="text-pw-muted text-sm">Fetching practice pace…</p>
-                    <p className="text-pw-muted/60 text-xs mt-1">May take 15 to 30 seconds on first load</p>
-                  </div>
-                )}
-                {practiceError && <p className="text-pw-red text-sm text-center mb-4">{practiceError}</p>}
-                {practiceData?.results?.length > 0 && !practiceLoading && (
-                  <div>
-                    <p className={sectionHead}>{practiceRace?.toUpperCase()} · {practiceData.session} PACE</p>
-                    <PracticeTable results={practiceData.results} />
-                  </div>
-                )}
-              </>
-            )}
-
-            {mode === "qualifying" && section === "racedata" && (
-              <>
-                <select
-                  value={qualRace}
-                  onChange={e => { setQualRace(e.target.value); setQualResults(null); setQualError(null); }}
-                  className={`${inputCls} mb-3`}
-                >
-                  <option value="">Select a completed race</option>
-                  {races.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-                {qualRace && !qualResults && !qualLoading && (
-                  <button onClick={fetchQualifying} className={`${primaryBtn} mb-4`}>
-                    Load Qualifying Results
-                  </button>
-                )}
-                {qualLoading && (
-                  <div className="text-center mb-4">
-                    <p className="text-pw-muted text-sm">Fetching qualifying data from FastF1…</p>
-                    <p className="text-pw-muted/60 text-xs mt-1">May take 15 to 30 seconds on first load</p>
-                  </div>
-                )}
-                {qualError && <p className="text-pw-red text-sm text-center mb-4">{qualError}</p>}
-                {qualResults && (
-                  <div>
-                    <p className={sectionHead}>{qualRace?.toUpperCase()} · QUALIFYING</p>
-                    <QualifyingTable results={qualResults} />
-                  </div>
-                )}
-              </>
-            )}
-
-            {mode === "budget" && section === "myteam" && (
-              <>
-                <p className="text-pw-muted text-sm text-center mb-4">
-                  Generates 3 high-scoring lineups within $100M, pick whichever suits your strategy.
-                </p>
-                <select
-                  value={budgetRace}
-                  onChange={e => { setBudgetRace(e.target.value); setBudgetTeams(null); setActiveTeam(0); }}
-                  className={`${inputCls} mb-3`}
-                >
-                  <option value="">Select a race</option>
-                  {races.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-                <button
-                  onClick={fetchBudgetTeam}
-                  disabled={!budgetRace || budgetLoading}
-                  className={primaryBtn}
-                >
-                  {budgetLoading ? "Solving…" : "Build Optimal Teams"}
-                </button>
-                {budgetError && <p className="mt-4 text-pw-red text-sm text-center">{budgetError}</p>}
-                {budgetTeams && budgetTeams.length > 0 && (() => {
-                  const team = budgetTeams[activeTeam];
-                  return (
-                    <div className="mt-6">
-                      {/* Team switcher */}
-                      <div className="flex gap-0.5 mb-4">
-                        {budgetTeams.map((t, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setActiveTeam(i)}
-                            className={`flex-1 py-2 text-[11px] font-medium transition ${
-                              activeTeam === i
-                                ? "bg-pw-red text-white"
-                                : "bg-pw-panel2 text-pw-muted hover:text-white"
-                            }`}
-                          >
-                            TEAM {i + 1}
-                            <span className={`block text-[10px] mt-0.5 ${activeTeam === i ? "text-white/70" : "text-pw-muted/70"}`}>
-                              {t.total_score?.toFixed(1)} pts · ${t.total_cost}M
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-
-                      <TeamStatGrid used={team.total_cost} remaining={team.budget_remaining} score={team.total_score} />
-                      <BoostPickCard pick={team.boost_pick} />
-                      <p className={sectionHead}>DRIVERS</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-5">
-                        {team.drivers.map((driver, i) => (
-                          <BudgetDriverCard
-                            key={i}
-                            driver={driver}
-                            isCaptain={driver.Abbreviation === team.boost_pick?.Abbreviation}
-                          />
-                        ))}
-                      </div>
-                      <p className={sectionHead}>CONSTRUCTORS</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {team.constructors.map((c, i) => <ConstructorCard key={i} constructor={c} />)}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </>
-            )}
+            {mode === "results" && section === "racedata" && <RaceResultsTab races={races} results={results} />}
+            {mode === "practice" && section === "racedata" && <PracticeTab races={races} practice={practice} />}
+            {mode === "qualifying" && section === "racedata" && <QualifyingTab races={races} qualifying={qualifying} />}
+            {mode === "budget" && section === "myteam" && <TeamOptimizerTab races={races} budget={budget} />}
 
             {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} />}
             {mode === "chips" && section === "myteam" && <ChipAdvisor upcomingRaces={upcomingRaces} />}

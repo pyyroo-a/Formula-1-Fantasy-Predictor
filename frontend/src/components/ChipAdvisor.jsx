@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { API } from "../api";
 import { DRIVER_NAMES, CHIP_META, REC_STYLE, teamAccent } from "../constants";
+import { INPUT_CLS } from "../styles";
 
 const ALL_DRIVERS = [
   "VER","NOR","PIA","LEC","HAM","RUS","SAI","ALO","STR","GAS",
@@ -12,7 +13,6 @@ const ALL_CONSTRUCTORS = [
   "Alpine","Williams","RB F1 Team","Audi","Haas","Cadillac",
 ];
 
-const SELECT_CLS = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";
 const HEAD_CLS = "text-xs text-pw-muted tracking-[0.08em]";
 
 function ChipCard({ chipKey, data }) {
@@ -127,7 +127,7 @@ export default function ChipAdvisor({ upcomingRaces }) {
       <select
         value={raceName}
         onChange={e => { setRaceName(e.target.value); setResult(null); }}
-        className={`${SELECT_CLS} mb-5`}
+        className={`${INPUT_CLS} mb-5`}
       >
         <option value="">Select race</option>
         {(upcomingRaces || []).map(r => (
