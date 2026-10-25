@@ -7,3 +7,9 @@ data/cache/
 .ipynb_checkpoints/
 frontend/.env.local
 frontend/node_modules/
+
+# Claude's scratch folder (brainstorm mockups, plan ledger)
+.superpowers/
+
+# which windows are open in obsidian on this laptop, nobody else needs it
+Fantasy Predictor/.obsidian/workspace*.json

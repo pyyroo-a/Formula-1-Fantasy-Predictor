@@ -36,7 +36,7 @@ WHAT IT COMPARES
              measure here is the error the live app actually suffers.
 
 Run:  python scripts/measure_grid_error.py [--year 2026]
-Out:  results/grid_error_<year>.csv   (one row per driver per race)
+Out:  archive/results/grid_error_<year>.csv   (one row per driver per race)
 """
 
 import argparse
@@ -127,8 +127,8 @@ def main(year: int):
         sys.exit("No races could be measured.")
 
     df = pd.concat(rows, ignore_index=True)
-    os.makedirs("results", exist_ok=True)
-    out = f"results/grid_error_{year}.csv"
+    os.makedirs("archive/results", exist_ok=True)
+    out = f"archive/results/grid_error_{year}.csv"
     df.to_csv(out, index=False)
 
     races = df["RaceName"].nunique()
