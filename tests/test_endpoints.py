@@ -6,7 +6,7 @@ somewhere, which is exactly what we're trying to catch.
 """
 import pytest
 
-import src.api.race_weekend as race_weekend
+import src.api.weekend_lock as weekend_lock
 from conftest import (
     BAKU_THURSDAY,
     SAT_MADRING_BEFORE_QUALI,
@@ -179,7 +179,7 @@ def test_snapshot_auto_states(client, golden, at, monkeypatch, tmp_path, snapsho
         snapshots(*UP_TO_MADRING)
     if name == "waiting_before_fp3":
         # Baku's results are in the data now, pretend they aren't so this keeps testing "waiting"
-        monkeypatch.setattr(race_weekend, "results_already_in_data", lambda race: False)
+        monkeypatch.setattr(weekend_lock, "results_already_in_data", lambda race: False)
     at(when)
     golden(f"snapshot_auto_{name}",
            client.post("/snapshot/auto?dry_run=true", headers={"X-Snapshot-Secret": "test-secret"}))
@@ -239,3 +239,38 @@ def test_no_self_lock_when_the_weekend_is_already_locked(empty_snapshots):
 def test_self_lock_can_be_switched_off(empty_snapshots, monkeypatch):
     monkeypatch.setenv("LOCK_ON_VIEW", "0")
     assert should_self_lock(UNRACED, session_used="SQ", final_session="SQ") is False
+
+
+# ---- the weekend endpoints still hang together after being split into files ----
+
+EXPECTED_ROUTES = {("GET", "/weekend-team"), ("GET", "/last-team"),
+                   ("GET", "/weekend-finishes"), ("POST", "/snapshot/auto")}
+
+
+def test_weekend_routes_are_all_registered(client):
+    have = {(m, r.path) for r in client.app.routes for m in getattr(r, "methods", [])}
+    assert EXPECTED_ROUTES <= have
+
+
+def test_snapshot_auto_reports_the_last_failed_build(client, at, monkeypatch, empty_snapshots):
+    # _last_snapshot_result gets reassigned with `global`, so if another file ever
+    # imports it by name it'd be stuck at {} and the Action would never see failures
+    lock = weekend_lock
+    monkeypatch.setenv("SNAPSHOT_SECRET", "test-secret")
+    monkeypatch.setattr(lock, "fetch_prices", lambda rnd: {"drivers": {"LEC": 24.1}})
+
+    def boom(*a, **k):
+        raise RuntimeError("boom")
+    monkeypatch.setattr(lock, "build_snapshot", boom)
+    monkeypatch.setattr(lock, "_last_snapshot_result", {})
+    monkeypatch.setattr(lock, "results_already_in_data", lambda race: False)
+
+    lock._snapshot_build_lock.acquire()
+    lock._build_and_save_snapshot({"EventName": "Test Grand Prix", "RoundNumber": 99})
+
+    at(BAKU_THURSDAY)  # a "waiting" answer, which carries last_result
+    r = client.post("/snapshot/auto", headers={"X-Snapshot-Secret": "test-secret"}).json()
+    assert r["status"] == "waiting"
+    assert r["last_result"]["status"] == "error"
+    assert r["last_result"]["detail"] == "boom"
+    assert not lock._snapshot_build_lock.locked()
