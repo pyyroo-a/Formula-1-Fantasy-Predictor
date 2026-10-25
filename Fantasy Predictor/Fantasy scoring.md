@@ -73,9 +73,11 @@ constructors (about +10 for both in Q3, check the 2026 rules) and pit stop point
 3. Keep the best 50, then pick 3 that differ by at least 2 drivers each. Loose on
    purpose: if a driver is clearly the best pick he can be in all 3 teams.
 
-`build_budget_team` (one team, used for `/predict-budget` and the chip maths) and
-`get_race_pool` (every driver and constructor, for the Manual Team page) share the
-same scoring helpers, so there's one copy of it.
+`build_budget_teams` is also what `/predict-budget` (the Team Optimizer page) uses.
+`build_budget_team` (one team, only for the chip maths: the best legal team and the
+best team with no budget cap) and `get_race_pool` (every driver and constructor, for
+the Manual Team page and the chip checks) share the same scoring helpers, so there's
+one copy of it.
 
 ## The 2x pick
 

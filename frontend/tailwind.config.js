@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // PitWall "race engineering" palette — near-black panels, red accent.
+        // PitWall "race engineering" palette: near-black panels, red accent.
         pw: {
           bg:     "#05070c", // page background
           panel:  "#0a0d14", // card / panel surface

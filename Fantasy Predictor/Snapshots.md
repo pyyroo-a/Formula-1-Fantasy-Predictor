@@ -56,7 +56,8 @@ What `/snapshot/auto` answers:
 | 401 / 503 | wrong secret / `SNAPSHOT_SECRET` not set on Render |
 | 502 | couldn't check OpenF1. A real problem, not a wait (see the Madring lesson in [Gotchas](Gotchas.md)) |
 
-Most answers include `last_result`, the last build attempt and its error if it failed.
+The `idle`, `waiting` and `started` answers include `last_result`: the last build
+attempt and its error if it failed. The others (`dry_run` included) don't.
 
 ## One time setup (already done, here in case it needs redoing)
 
@@ -76,8 +77,8 @@ delete now the Action has locked a real weekend (US GP 2026).
 
 ## If a weekend didn't lock
 
-Check `/weekend-team` on the backend. `"locked": true` means fine. If not, look at the
-Action's runs on GitHub, or the dry run's `last_result`. Then lock it from the laptop,
-see [How-tos](How-tos.md). It has to happen before the Monday job adds the results.
+Check `/weekend-team` on the backend. `"locked": true` means fine. If not, open the
+Action's runs on GitHub: each run's summary shows what `/snapshot/auto` answered,
+including `last_result` when it's there. Then lock it from the laptop, see [How-tos](How-tos.md). It has to happen before the Monday job adds the results.
 
 Related: [Race weekend flow](Race%20weekend%20flow.md), [API](API.md), [How-tos](How-tos.md), [Gotchas](Gotchas.md)

@@ -10,11 +10,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-SCAN = ["src", "scripts", "tests", "frontend/src", "docs", "Fantasy Predictor", ".github"]
-FILES = ["main.py", "README.md", "Dockerfile", "frontend/index.html", "frontend/README.md",
-         ".dockerignore", ".gitignore", ".env.example"]
+# all of frontend/, not just src/, so the root configs (tailwind, vite, eslint) get checked too
+SCAN = ["src", "scripts", "tests", "frontend", "docs", "Fantasy Predictor", ".github"]
+FILES = ["main.py", "README.md", "Dockerfile", ".dockerignore", ".gitignore", ".env.example"]
 SUFFIXES = {".py", ".js", ".jsx", ".css", ".md", ".yml", ".yaml", ".html", ".json", ".txt"}
-SKIP = {ROOT / "tests" / "golden", ROOT / "tests" / "fixtures"}
+# generated, and full of other people's text
+SKIP_NAMES = {"package-lock.json"}
+SKIP = {ROOT / "tests" / "golden", ROOT / "tests" / "fixtures",
+        ROOT / "frontend" / "node_modules", ROOT / "frontend" / "dist"}
 
 DASHES = (chr(0x2014), chr(0x2013))
 
@@ -27,7 +30,7 @@ def _files():
         for path in base.rglob("*"):
             if not path.is_file() or path.suffix not in SUFFIXES:
                 continue
-            if "__pycache__" in path.parts or any(s in path.parents for s in SKIP):
+            if "__pycache__" in path.parts or path.name in SKIP_NAMES or any(s in path.parents for s in SKIP):
                 continue
             yield path
     for name in FILES:
