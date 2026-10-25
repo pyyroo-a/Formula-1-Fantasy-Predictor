@@ -6,6 +6,7 @@ somewhere, which is exactly what we're trying to catch.
 """
 import pytest
 
+import src.api.race_weekend as race_weekend
 from conftest import (
     BAKU_THURSDAY,
     SAT_MADRING_BEFORE_QUALI,
@@ -176,6 +177,9 @@ def test_snapshot_auto_states(client, golden, at, monkeypatch, tmp_path, snapsho
         monkeypatch.setenv("SNAPSHOT_DIR", str(tmp_path))
     else:
         snapshots(*UP_TO_MADRING)
+    if name == "waiting_before_fp3":
+        # Baku's results are in the data now, pretend they aren't so this keeps testing "waiting"
+        monkeypatch.setattr(race_weekend, "results_already_in_data", lambda race: False)
     at(when)
     golden(f"snapshot_auto_{name}",
            client.post("/snapshot/auto?dry_run=true", headers={"X-Snapshot-Secret": "test-secret"}))

@@ -15,7 +15,7 @@
    "FantasyValue": 30.6,
    "GridPosition": 2,
    "PickCategory": "Safe",
-   "Predicted": 1.99,
+   "Predicted": 1.96,
    "TeamName": "Ferrari"
   },
   {
@@ -28,17 +28,8 @@
    "TeamName": "McLaren"
   },
   {
-   "Abbreviation": "LAW",
-   "Explanation": "Value Pick: starts P7, predicted P7, averages 3.3 position gains \u2014 strong upside",
-   "FantasyValue": 11.6,
-   "GridPosition": 7,
-   "PickCategory": "Value",
-   "Predicted": 7.13,
-   "TeamName": "Red Bull Racing"
-  },
-  {
    "Abbreviation": "RUS",
-   "Explanation": "Value Pick: starts P6, predicted P6, averages 0.3 position gains \u2014 strong upside",
+   "Explanation": "Value Pick: starts P6, predicted P6, averages 5.1 position gains \u2014 strong upside",
    "FantasyValue": 15.0,
    "GridPosition": 6,
    "PickCategory": "Value",
@@ -46,13 +37,22 @@
    "TeamName": "Mercedes"
   },
   {
-   "Abbreviation": "HUL",
-   "Explanation": "Avoid: starts P8, predicted P8, low position gain history averaging 1.2",
-   "FantasyValue": 8.2,
-   "GridPosition": 8,
-   "PickCategory": "Avoid",
-   "Predicted": 8.21,
-   "TeamName": "Audi"
+   "Abbreviation": "LAW",
+   "Explanation": "Value Pick: starts P7, predicted P7, averages 1.8 position gains \u2014 strong upside",
+   "FantasyValue": 11.6,
+   "GridPosition": 7,
+   "PickCategory": "Value",
+   "Predicted": 7.13,
+   "TeamName": "Red Bull Racing"
+  },
+  {
+   "Abbreviation": "COL",
+   "Explanation": "Risk Pick: starts p11, predicted P11, inconsistent but -0.2 positions of potential upside",
+   "FantasyValue": 0.0,
+   "GridPosition": 11,
+   "PickCategory": "Risk",
+   "Predicted": 11.19,
+   "TeamName": "Alpine"
   }
  ],
  "status": 200

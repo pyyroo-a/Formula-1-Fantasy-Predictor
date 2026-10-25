@@ -6,7 +6,7 @@ import pandas as pd
 
 import src.fetch_practice as fp
 import src.fetch_prices as fetch_prices_mod
-from src.config import PREVIOUS_SEASON, SEASON, results_path
+from src.config import PREVIOUS_SEASON, SEASON, results_path, sprint_results_path
 
 
 def test_fallback_sessions_order():
@@ -43,10 +43,13 @@ def test_first_available_when_nothing_loads(monkeypatch):
     assert err == "FP1 missing"  # the last error, like the old loops kept
 
 
-def test_config():
+def test_config(monkeypatch):
+    # Render and the Monday job don't set PROCESSED_DIR, they must keep using the real data
+    monkeypatch.delenv("PROCESSED_DIR", raising=False)
     assert PREVIOUS_SEASON == SEASON - 1
     assert results_path() == f"data/processed/race_results_{SEASON}.csv"
     assert results_path(2025) == "data/processed/race_results_2025.csv"
+    assert sprint_results_path(2026) == "data/processed/sprint_results_2026.csv"
 
 
 # ---- price feed parsing ---------------------------------------------------------
@@ -104,3 +107,10 @@ def test_price_feed_reads_constructors():
     prices = fetch_prices_mod.parse_price_feed(items)
     assert prices["constructors"]["Racing Bulls"] == 15.9
     assert "Racing Bulls" not in prices["drivers"]
+
+
+def test_results_path_follows_processed_dir(monkeypatch):
+    # the tests point this at a frozen copy, so a new race landing can't change the goldens
+    monkeypatch.setenv("PROCESSED_DIR", "somewhere/else")
+    assert results_path(2026) == "somewhere/else/race_results_2026.csv"
+    assert sprint_results_path(2026) == "somewhere/else/sprint_results_2026.csv"

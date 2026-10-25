@@ -2,18 +2,6 @@
  "body": [
   {
    "is_sprint": false,
-   "race_name": "Azerbaijan Grand Prix"
-  },
-  {
-   "is_sprint": false,
-   "race_name": "Bahrain Grand Prix"
-  },
-  {
-   "is_sprint": true,
-   "race_name": "Singapore Grand Prix"
-  },
-  {
-   "is_sprint": false,
    "race_name": "United States Grand Prix"
   },
   {

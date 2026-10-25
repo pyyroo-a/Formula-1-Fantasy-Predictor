@@ -1,0 +1,111 @@
+Abbreviation,FullName,TeamName,GridPosition,Position,Status,RaceName,RoundNumber,Year
+RUS,George Russell,Mercedes,1.0,1.0,Finished,Chinese Grand Prix,2,2026
+LEC,Charles Leclerc,Ferrari,6.0,2.0,Finished,Chinese Grand Prix,2,2026
+HAM,Lewis Hamilton,Ferrari,4.0,3.0,Finished,Chinese Grand Prix,2,2026
+NOR,Lando Norris,McLaren,3.0,4.0,Finished,Chinese Grand Prix,2,2026
+ANT,Kimi Antonelli,Mercedes,2.0,5.0,Finished,Chinese Grand Prix,2,2026
+PIA,Oscar Piastri,McLaren,5.0,6.0,Finished,Chinese Grand Prix,2,2026
+LAW,Liam Lawson,Racing Bulls,13.0,7.0,Finished,Chinese Grand Prix,2,2026
+BEA,Oliver Bearman,Haas F1 Team,9.0,8.0,Finished,Chinese Grand Prix,2,2026
+VER,Max Verstappen,Red Bull Racing,8.0,9.0,Finished,Chinese Grand Prix,2,2026
+OCO,Esteban Ocon,Haas F1 Team,12.0,10.0,Finished,Chinese Grand Prix,2,2026
+GAS,Pierre Gasly,Alpine,7.0,11.0,Finished,Chinese Grand Prix,2,2026
+SAI,Carlos Sainz,Williams,17.0,12.0,Finished,Chinese Grand Prix,2,2026
+BOR,Gabriel Bortoleto,Audi,14.0,13.0,Finished,Chinese Grand Prix,2,2026
+COL,Franco Colapinto,Alpine,16.0,14.0,Finished,Chinese Grand Prix,2,2026
+HAD,Isack Hadjar,Red Bull Racing,10.0,15.0,Finished,Chinese Grand Prix,2,2026
+ALB,Alexander Albon,Williams,22.0,16.0,Finished,Chinese Grand Prix,2,2026
+ALO,Fernando Alonso,Aston Martin,18.0,17.0,Finished,Chinese Grand Prix,2,2026
+STR,Lance Stroll,Aston Martin,19.0,18.0,Finished,Chinese Grand Prix,2,2026
+PER,Sergio Perez,Cadillac,21.0,19.0,Finished,Chinese Grand Prix,2,2026
+HUL,Nico Hulkenberg,Audi,11.0,20.0,DNF,Chinese Grand Prix,2,2026
+BOT,Valtteri Bottas,Cadillac,20.0,21.0,DNF,Chinese Grand Prix,2,2026
+LIN,Arvid Lindblad,Racing Bulls,15.0,22.0,DNF,Chinese Grand Prix,2,2026
+NOR,Lando Norris,McLaren,1.0,1.0,Finished,Miami Grand Prix,4,2026
+PIA,Oscar Piastri,McLaren,3.0,2.0,Finished,Miami Grand Prix,4,2026
+LEC,Charles Leclerc,Ferrari,4.0,3.0,Finished,Miami Grand Prix,4,2026
+RUS,George Russell,Mercedes,6.0,4.0,Finished,Miami Grand Prix,4,2026
+VER,Max Verstappen,Red Bull Racing,5.0,5.0,Finished,Miami Grand Prix,4,2026
+ANT,Kimi Antonelli,Mercedes,2.0,6.0,Finished,Miami Grand Prix,4,2026
+HAM,Lewis Hamilton,Ferrari,7.0,7.0,Finished,Miami Grand Prix,4,2026
+GAS,Pierre Gasly,Alpine,10.0,8.0,Finished,Miami Grand Prix,4,2026
+HAD,Isack Hadjar,Red Bull Racing,9.0,9.0,Finished,Miami Grand Prix,4,2026
+COL,Franco Colapinto,Alpine,8.0,10.0,Finished,Miami Grand Prix,4,2026
+OCO,Esteban Ocon,Haas F1 Team,16.0,11.0,Finished,Miami Grand Prix,4,2026
+BEA,Oliver Bearman,Haas F1 Team,13.0,12.0,Finished,Miami Grand Prix,4,2026
+SAI,Carlos Sainz,Williams,14.0,13.0,Finished,Miami Grand Prix,4,2026
+LAW,Liam Lawson,Racing Bulls,15.0,14.0,Finished,Miami Grand Prix,4,2026
+ALO,Fernando Alonso,Aston Martin,20.0,15.0,Finished,Miami Grand Prix,4,2026
+PER,Sergio Perez,Cadillac,17.0,16.0,Finished,Miami Grand Prix,4,2026
+STR,Lance Stroll,Aston Martin,21.0,17.0,Finished,Miami Grand Prix,4,2026
+ALB,Alexander Albon,Williams,18.0,18.0,Finished,Miami Grand Prix,4,2026
+BOT,Valtteri Bottas,Cadillac,19.0,19.0,Finished,Miami Grand Prix,4,2026
+HUL,Nico Hulkenberg,Audi,12.0,20.0,DNF,Miami Grand Prix,4,2026
+LIN,Arvid Lindblad,Racing Bulls,22.0,21.0,DNF,Miami Grand Prix,4,2026
+BOR,Gabriel Bortoleto,Audi,11.0,22.0,DNF,Miami Grand Prix,4,2026
+RUS,George Russell,Mercedes,1.0,1.0,Finished,Canadian Grand Prix,5,2026
+NOR,Lando Norris,McLaren,3.0,2.0,Finished,Canadian Grand Prix,5,2026
+ANT,Kimi Antonelli,Mercedes,2.0,3.0,Finished,Canadian Grand Prix,5,2026
+PIA,Oscar Piastri,McLaren,4.0,4.0,Finished,Canadian Grand Prix,5,2026
+LEC,Charles Leclerc,Ferrari,6.0,5.0,Finished,Canadian Grand Prix,5,2026
+HAM,Lewis Hamilton,Ferrari,5.0,6.0,Finished,Canadian Grand Prix,5,2026
+VER,Max Verstappen,Red Bull Racing,7.0,7.0,Finished,Canadian Grand Prix,5,2026
+LIN,Arvid Lindblad,Racing Bulls,9.0,8.0,Finished,Canadian Grand Prix,5,2026
+COL,Franco Colapinto,Alpine,13.0,9.0,Finished,Canadian Grand Prix,5,2026
+SAI,Carlos Sainz,Williams,10.0,10.0,Finished,Canadian Grand Prix,5,2026
+LAW,Liam Lawson,Racing Bulls,18.0,11.0,Finished,Canadian Grand Prix,5,2026
+BOR,Gabriel Bortoleto,Audi,12.0,12.0,Finished,Canadian Grand Prix,5,2026
+OCO,Esteban Ocon,Haas F1 Team,14.0,13.0,Finished,Canadian Grand Prix,5,2026
+PER,Sergio Perez,Cadillac,16.0,14.0,Finished,Canadian Grand Prix,5,2026
+HUL,Nico Hulkenberg,Audi,11.0,15.0,Finished,Canadian Grand Prix,5,2026
+STR,Lance Stroll,Aston Martin,17.0,16.0,Lapped,Canadian Grand Prix,5,2026
+BOT,Valtteri Bottas,Cadillac,21.0,17.0,Lapped,Canadian Grand Prix,5,2026
+BEA,Oliver Bearman,Haas F1 Team,19.0,18.0,Lapped,Canadian Grand Prix,5,2026
+ALB,Alexander Albon,Williams,22.0,19.0,Lapped,Canadian Grand Prix,5,2026
+GAS,Pierre Gasly,Alpine,20.0,20.0,Lapped,Canadian Grand Prix,5,2026
+HAD,Isack Hadjar,Red Bull Racing,8.0,21.0,Lapped,Canadian Grand Prix,5,2026
+ALO,Fernando Alonso,Aston Martin,15.0,22.0,DNF,Canadian Grand Prix,5,2026
+ANT,Kimi Antonelli,Mercedes,2.0,1.0,Finished,British Grand Prix,9,2026
+HAM,Lewis Hamilton,Ferrari,1.0,2.0,Finished,British Grand Prix,9,2026
+NOR,Lando Norris,McLaren,6.0,3.0,Finished,British Grand Prix,9,2026
+RUS,George Russell,Mercedes,5.0,4.0,Finished,British Grand Prix,9,2026
+LEC,Charles Leclerc,Ferrari,4.0,5.0,Finished,British Grand Prix,9,2026
+VER,Max Verstappen,Red Bull Racing,3.0,6.0,Finished,British Grand Prix,9,2026
+PIA,Oscar Piastri,McLaren,7.0,7.0,Finished,British Grand Prix,9,2026
+LAW,Liam Lawson,Racing Bulls,9.0,8.0,Finished,British Grand Prix,9,2026
+HAD,Isack Hadjar,Red Bull Racing,8.0,9.0,Finished,British Grand Prix,9,2026
+LIN,Arvid Lindblad,Racing Bulls,10.0,10.0,Finished,British Grand Prix,9,2026
+GAS,Pierre Gasly,Alpine,11.0,11.0,Finished,British Grand Prix,9,2026
+COL,Franco Colapinto,Alpine,14.0,12.0,Finished,British Grand Prix,9,2026
+BOR,Gabriel Bortoleto,Audi,12.0,13.0,Finished,British Grand Prix,9,2026
+BEA,Oliver Bearman,Haas F1 Team,16.0,14.0,Finished,British Grand Prix,9,2026
+HUL,Nico Hulkenberg,Audi,13.0,15.0,Finished,British Grand Prix,9,2026
+OCO,Esteban Ocon,Haas F1 Team,17.0,16.0,Finished,British Grand Prix,9,2026
+SAI,Carlos Sainz,Williams,15.0,17.0,Finished,British Grand Prix,9,2026
+ALB,Alexander Albon,Williams,22.0,18.0,Finished,British Grand Prix,9,2026
+BOT,Valtteri Bottas,Cadillac,19.0,19.0,Finished,British Grand Prix,9,2026
+ALO,Fernando Alonso,Aston Martin,20.0,20.0,Finished,British Grand Prix,9,2026
+STR,Lance Stroll,Aston Martin,21.0,21.0,Lapped,British Grand Prix,9,2026
+PER,Sergio Perez,Cadillac,18.0,22.0,Lapped,British Grand Prix,9,2026
+RUS,George Russell,Mercedes,1.0,1.0,Finished,Dutch Grand Prix,12,2026
+LEC,Charles Leclerc,Ferrari,3.0,2.0,Finished,Dutch Grand Prix,12,2026
+NOR,Lando Norris,McLaren,2.0,3.0,Finished,Dutch Grand Prix,12,2026
+ANT,Kimi Antonelli,Mercedes,5.0,4.0,Finished,Dutch Grand Prix,12,2026
+PIA,Oscar Piastri,McLaren,4.0,5.0,Finished,Dutch Grand Prix,12,2026
+VER,Max Verstappen,Red Bull Racing,6.0,6.0,Finished,Dutch Grand Prix,12,2026
+HAM,Lewis Hamilton,Ferrari,7.0,7.0,Finished,Dutch Grand Prix,12,2026
+GAS,Pierre Gasly,Alpine,8.0,8.0,Finished,Dutch Grand Prix,12,2026
+BOR,Gabriel Bortoleto,Audi,9.0,9.0,Finished,Dutch Grand Prix,12,2026
+LIN,Arvid Lindblad,Racing Bulls,10.0,10.0,Finished,Dutch Grand Prix,12,2026
+LAW,Liam Lawson,Red Bull Racing,11.0,11.0,Finished,Dutch Grand Prix,12,2026
+COL,Franco Colapinto,Alpine,13.0,12.0,Finished,Dutch Grand Prix,12,2026
+TSU,Yuki Tsunoda,Racing Bulls,12.0,13.0,Finished,Dutch Grand Prix,12,2026
+OCO,Esteban Ocon,Haas F1 Team,15.0,14.0,Finished,Dutch Grand Prix,12,2026
+BEA,Oliver Bearman,Haas F1 Team,17.0,15.0,Finished,Dutch Grand Prix,12,2026
+ALB,Alexander Albon,Williams,16.0,16.0,Finished,Dutch Grand Prix,12,2026
+STR,Lance Stroll,Aston Martin,18.0,17.0,Finished,Dutch Grand Prix,12,2026
+ALO,Fernando Alonso,Aston Martin,22.0,18.0,Finished,Dutch Grand Prix,12,2026
+BOT,Valtteri Bottas,Cadillac,19.0,19.0,Lapped,Dutch Grand Prix,12,2026
+SAI,Carlos Sainz,Williams,21.0,20.0,Lapped,Dutch Grand Prix,12,2026
+PER,Sergio Perez,Cadillac,20.0,21.0,Lapped,Dutch Grand Prix,12,2026
+HUL,Nico Hulkenberg,Audi,14.0,22.0,Lapped,Dutch Grand Prix,12,2026

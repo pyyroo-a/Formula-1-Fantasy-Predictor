@@ -2,23 +2,23 @@
  "body": {
   "active": true,
   "held": true,
-  "race_name": "Spanish Grand Prix",
-  "round": 14,
+  "race_name": "Singapore Grand Prix",
+  "round": 17,
   "session_used": "RACE",
   "team": {
    "boost_pick": {
-    "Abbreviation": "ANT",
-    "FantasyValue": 38.8,
-    "GridPosition": 2,
+    "Abbreviation": "VER",
+    "FantasyValue": 41.0,
+    "GridPosition": 1,
     "Predicted": 1.0,
-    "TeamName": "Mercedes",
+    "TeamName": "Red Bull Racing",
     "alternatives": [
      "LAW",
-     "COL"
+     "HUL"
     ],
-    "reason": "Starting P2 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
+    "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
    },
-   "budget_remaining": 0.0,
+   "budget_remaining": 0.8,
    "constructors": [
     {
      "dnf_risk": null,
@@ -28,168 +28,83 @@
      "score": 0.0
     },
     {
-     "dnf_risk": 0.154,
-     "double_dnf_risk": 0.006,
-     "name": "Mercedes",
-     "price": 33.2,
-     "score": 61.5
+     "dnf_risk": 0.138,
+     "double_dnf_risk": 0.005,
+     "name": "Ferrari",
+     "price": 27.2,
+     "score": 51.5
     }
    ],
    "drivers": [
     {
-     "Abbreviation": "ANT",
-     "DNFProb": 0.067,
-     "FantasyValue": 38.8,
-     "GridPosition": 2,
-     "PickCategory": "Safe",
-     "Predicted": 1.0,
-     "Price": 26.3,
-     "TeamName": "Mercedes"
-    },
-    {
-     "Abbreviation": "COL",
-     "DNFProb": 0.074,
-     "FantasyValue": 4.8,
-     "GridPosition": 9,
+     "Abbreviation": "HAD",
+     "DNFProb": 0.272,
+     "FantasyValue": 10.0,
+     "GridPosition": 22,
      "PickCategory": "Risk",
-     "Predicted": 8.6,
-     "Price": 10.4,
-     "TeamName": "Alpine"
+     "Predicted": 6.7,
+     "Price": 14.5,
+     "TeamName": "Red Bull Racing"
     },
     {
      "Abbreviation": "HUL",
-     "DNFProb": 0.217,
-     "FantasyValue": 4.4,
-     "GridPosition": 11,
+     "DNFProb": 0.185,
+     "FantasyValue": 10.0,
+     "GridPosition": 10,
      "PickCategory": "Risk",
-     "Predicted": 9.3,
+     "Predicted": 7.2,
      "Price": 4.2,
      "TeamName": "Audi"
     },
     {
      "Abbreviation": "LAW",
-     "DNFProb": 0.108,
-     "FantasyValue": 14.6,
+     "DNFProb": 0.096,
+     "FantasyValue": 11.6,
      "GridPosition": 8,
      "PickCategory": "Risk",
-     "Predicted": 5.8,
+     "Predicted": 7.0,
      "Price": 14.9,
-     "TeamName": "Red Bull Racing"
+     "TeamName": "Racing Bulls"
     },
     {
      "Abbreviation": "LIN",
-     "DNFProb": 0.12,
-     "FantasyValue": 4.6,
-     "GridPosition": 10,
+     "DNFProb": 0.098,
+     "FantasyValue": 0.0,
+     "GridPosition": 9,
      "PickCategory": "Risk",
-     "Predicted": 9.1,
+     "Predicted": 13.4,
      "Price": 8.0,
      "TeamName": "Racing Bulls"
+    },
+    {
+     "Abbreviation": "VER",
+     "DNFProb": 0.087,
+     "FantasyValue": 41.0,
+     "GridPosition": 1,
+     "PickCategory": "Safe",
+     "Predicted": 1.0,
+     "Price": 27.4,
+     "TeamName": "Red Bull Racing"
     }
    ],
-   "total_cost": 100.0,
-   "total_score": 128.7
+   "total_cost": 99.2,
+   "total_score": 124.1
   },
   "teams": [
    {
     "boost_pick": {
-     "Abbreviation": "ANT",
-     "FantasyValue": 38.8,
-     "GridPosition": 2,
-     "Predicted": 1.0,
-     "TeamName": "Mercedes",
-     "alternatives": [
-      "LAW",
-      "COL"
-     ],
-     "reason": "Starting P2 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
-    },
-    "budget_remaining": 0.0,
-    "constructors": [
-     {
-      "dnf_risk": null,
-      "double_dnf_risk": null,
-      "name": "Cadillac",
-      "price": 3.0,
-      "score": 0.0
-     },
-     {
-      "dnf_risk": 0.154,
-      "double_dnf_risk": 0.006,
-      "name": "Mercedes",
-      "price": 33.2,
-      "score": 61.5
-     }
-    ],
-    "drivers": [
-     {
-      "Abbreviation": "ANT",
-      "DNFProb": 0.067,
-      "FantasyValue": 38.8,
-      "GridPosition": 2,
-      "PickCategory": "Safe",
-      "Predicted": 1.0,
-      "Price": 26.3,
-      "TeamName": "Mercedes"
-     },
-     {
-      "Abbreviation": "COL",
-      "DNFProb": 0.074,
-      "FantasyValue": 4.8,
-      "GridPosition": 9,
-      "PickCategory": "Risk",
-      "Predicted": 8.6,
-      "Price": 10.4,
-      "TeamName": "Alpine"
-     },
-     {
-      "Abbreviation": "HUL",
-      "DNFProb": 0.217,
-      "FantasyValue": 4.4,
-      "GridPosition": 11,
-      "PickCategory": "Risk",
-      "Predicted": 9.3,
-      "Price": 4.2,
-      "TeamName": "Audi"
-     },
-     {
-      "Abbreviation": "LAW",
-      "DNFProb": 0.108,
-      "FantasyValue": 14.6,
-      "GridPosition": 8,
-      "PickCategory": "Risk",
-      "Predicted": 5.8,
-      "Price": 14.9,
-      "TeamName": "Red Bull Racing"
-     },
-     {
-      "Abbreviation": "LIN",
-      "DNFProb": 0.12,
-      "FantasyValue": 4.6,
-      "GridPosition": 10,
-      "PickCategory": "Risk",
-      "Predicted": 9.1,
-      "Price": 8.0,
-      "TeamName": "Racing Bulls"
-     }
-    ],
-    "total_cost": 100.0,
-    "total_score": 128.7
-   },
-   {
-    "boost_pick": {
-     "Abbreviation": "NOR",
-     "FantasyValue": 39.0,
+     "Abbreviation": "VER",
+     "FantasyValue": 41.0,
      "GridPosition": 1,
-     "Predicted": 1.4,
-     "TeamName": "McLaren",
+     "Predicted": 1.0,
+     "TeamName": "Red Bull Racing",
      "alternatives": [
       "LAW",
-      "COL"
+      "HUL"
      ],
      "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
     },
-    "budget_remaining": 1.2,
+    "budget_remaining": 0.8,
     "constructors": [
      {
       "dnf_risk": null,
@@ -199,82 +114,167 @@
       "score": 0.0
      },
      {
-      "dnf_risk": 0.154,
-      "double_dnf_risk": 0.006,
-      "name": "Mercedes",
-      "price": 33.2,
-      "score": 61.5
+      "dnf_risk": 0.138,
+      "double_dnf_risk": 0.005,
+      "name": "Ferrari",
+      "price": 27.2,
+      "score": 51.5
      }
     ],
     "drivers": [
      {
-      "Abbreviation": "BEA",
-      "DNFProb": 0.355,
-      "FantasyValue": 1.4,
+      "Abbreviation": "HAD",
+      "DNFProb": 0.272,
+      "FantasyValue": 10.0,
       "GridPosition": 22,
       "PickCategory": "Risk",
-      "Predicted": 15.3,
-      "Price": 6.4,
-      "TeamName": "Haas F1 Team"
-     },
-     {
-      "Abbreviation": "COL",
-      "DNFProb": 0.074,
-      "FantasyValue": 4.8,
-      "GridPosition": 9,
-      "PickCategory": "Risk",
-      "Predicted": 8.6,
-      "Price": 10.4,
-      "TeamName": "Alpine"
+      "Predicted": 6.7,
+      "Price": 14.5,
+      "TeamName": "Red Bull Racing"
      },
      {
       "Abbreviation": "HUL",
-      "DNFProb": 0.217,
-      "FantasyValue": 4.4,
-      "GridPosition": 11,
+      "DNFProb": 0.185,
+      "FantasyValue": 10.0,
+      "GridPosition": 10,
       "PickCategory": "Risk",
-      "Predicted": 9.3,
+      "Predicted": 7.2,
       "Price": 4.2,
       "TeamName": "Audi"
      },
      {
       "Abbreviation": "LAW",
-      "DNFProb": 0.108,
-      "FantasyValue": 14.6,
+      "DNFProb": 0.096,
+      "FantasyValue": 11.6,
       "GridPosition": 8,
       "PickCategory": "Risk",
-      "Predicted": 5.8,
+      "Predicted": 7.0,
       "Price": 14.9,
-      "TeamName": "Red Bull Racing"
+      "TeamName": "Racing Bulls"
      },
      {
-      "Abbreviation": "NOR",
-      "DNFProb": 0.09,
-      "FantasyValue": 39.0,
+      "Abbreviation": "LIN",
+      "DNFProb": 0.098,
+      "FantasyValue": 0.0,
+      "GridPosition": 9,
+      "PickCategory": "Risk",
+      "Predicted": 13.4,
+      "Price": 8.0,
+      "TeamName": "Racing Bulls"
+     },
+     {
+      "Abbreviation": "VER",
+      "DNFProb": 0.087,
+      "FantasyValue": 41.0,
       "GridPosition": 1,
       "PickCategory": "Safe",
-      "Predicted": 1.4,
-      "Price": 26.7,
-      "TeamName": "McLaren"
+      "Predicted": 1.0,
+      "Price": 27.4,
+      "TeamName": "Red Bull Racing"
      }
     ],
-    "total_cost": 98.8,
-    "total_score": 125.7
+    "total_cost": 99.2,
+    "total_score": 124.1
    },
    {
     "boost_pick": {
-     "Abbreviation": "NOR",
-     "FantasyValue": 39.0,
-     "GridPosition": 1,
-     "Predicted": 1.4,
-     "TeamName": "McLaren",
+     "Abbreviation": "LEC",
+     "FantasyValue": 32.4,
+     "GridPosition": 2,
+     "Predicted": 2.5,
+     "TeamName": "Ferrari",
      "alternatives": [
       "LAW",
-      "LIN"
+      "HUL"
+     ],
+     "reason": "Starting P2 (Q3), predicted P2 \u2014 front row, qualifying points already banked, safest 2x"
+    },
+    "budget_remaining": 1.4,
+    "constructors": [
+     {
+      "dnf_risk": 0.185,
+      "double_dnf_risk": 0.185,
+      "name": "Audi",
+      "price": 8.0,
+      "score": 10.0
+     },
+     {
+      "dnf_risk": 0.138,
+      "double_dnf_risk": 0.005,
+      "name": "Ferrari",
+      "price": 27.2,
+      "score": 51.5
+     }
+    ],
+    "drivers": [
+     {
+      "Abbreviation": "GAS",
+      "DNFProb": 0.101,
+      "FantasyValue": 1.6,
+      "GridPosition": 7,
+      "PickCategory": "Risk",
+      "Predicted": 12.6,
+      "Price": 12.2,
+      "TeamName": "Alpine"
+     },
+     {
+      "Abbreviation": "HUL",
+      "DNFProb": 0.185,
+      "FantasyValue": 10.0,
+      "GridPosition": 10,
+      "PickCategory": "Risk",
+      "Predicted": 7.2,
+      "Price": 4.2,
+      "TeamName": "Audi"
+     },
+     {
+      "Abbreviation": "LAW",
+      "DNFProb": 0.096,
+      "FantasyValue": 11.6,
+      "GridPosition": 8,
+      "PickCategory": "Risk",
+      "Predicted": 7.0,
+      "Price": 14.9,
+      "TeamName": "Racing Bulls"
+     },
+     {
+      "Abbreviation": "LEC",
+      "DNFProb": 0.084,
+      "FantasyValue": 32.4,
+      "GridPosition": 2,
+      "PickCategory": "Safe",
+      "Predicted": 2.5,
+      "Price": 24.1,
+      "TeamName": "Ferrari"
+     },
+     {
+      "Abbreviation": "LIN",
+      "DNFProb": 0.098,
+      "FantasyValue": 0.0,
+      "GridPosition": 9,
+      "PickCategory": "Risk",
+      "Predicted": 13.4,
+      "Price": 8.0,
+      "TeamName": "Racing Bulls"
+     }
+    ],
+    "total_cost": 98.6,
+    "total_score": 117.1
+   },
+   {
+    "boost_pick": {
+     "Abbreviation": "VER",
+     "FantasyValue": 41.0,
+     "GridPosition": 1,
+     "Predicted": 1.0,
+     "TeamName": "Red Bull Racing",
+     "alternatives": [
+      "LAW",
+      "HUL"
      ],
      "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
     },
-    "budget_remaining": 0.5,
+    "budget_remaining": 1.6,
     "constructors": [
      {
       "dnf_risk": null,
@@ -284,67 +284,67 @@
       "score": 0.0
      },
      {
-      "dnf_risk": 0.154,
-      "double_dnf_risk": 0.006,
-      "name": "Mercedes",
-      "price": 33.2,
-      "score": 61.5
+      "dnf_risk": 0.138,
+      "double_dnf_risk": 0.005,
+      "name": "Ferrari",
+      "price": 27.2,
+      "score": 51.5
      }
     ],
     "drivers": [
      {
-      "Abbreviation": "HUL",
-      "DNFProb": 0.217,
-      "FantasyValue": 4.4,
-      "GridPosition": 11,
+      "Abbreviation": "GAS",
+      "DNFProb": 0.101,
+      "FantasyValue": 1.6,
+      "GridPosition": 7,
       "PickCategory": "Risk",
-      "Predicted": 9.3,
+      "Predicted": 12.6,
+      "Price": 12.2,
+      "TeamName": "Alpine"
+     },
+     {
+      "Abbreviation": "HUL",
+      "DNFProb": 0.185,
+      "FantasyValue": 10.0,
+      "GridPosition": 10,
+      "PickCategory": "Risk",
+      "Predicted": 7.2,
       "Price": 4.2,
       "TeamName": "Audi"
      },
      {
       "Abbreviation": "LAW",
-      "DNFProb": 0.108,
-      "FantasyValue": 14.6,
+      "DNFProb": 0.096,
+      "FantasyValue": 11.6,
       "GridPosition": 8,
       "PickCategory": "Risk",
-      "Predicted": 5.8,
+      "Predicted": 7.0,
       "Price": 14.9,
-      "TeamName": "Red Bull Racing"
-     },
-     {
-      "Abbreviation": "LIN",
-      "DNFProb": 0.12,
-      "FantasyValue": 4.6,
-      "GridPosition": 10,
-      "PickCategory": "Risk",
-      "Predicted": 9.1,
-      "Price": 8.0,
       "TeamName": "Racing Bulls"
-     },
-     {
-      "Abbreviation": "NOR",
-      "DNFProb": 0.09,
-      "FantasyValue": 39.0,
-      "GridPosition": 1,
-      "PickCategory": "Safe",
-      "Predicted": 1.4,
-      "Price": 26.7,
-      "TeamName": "McLaren"
      },
      {
       "Abbreviation": "OCO",
-      "DNFProb": 0.127,
-      "FantasyValue": 1.2,
-      "GridPosition": 13,
+      "DNFProb": 0.105,
+      "FantasyValue": 0.0,
+      "GridPosition": 12,
       "PickCategory": "Risk",
-      "Predicted": 11.8,
+      "Predicted": 11.9,
       "Price": 9.5,
       "TeamName": "Haas F1 Team"
+     },
+     {
+      "Abbreviation": "VER",
+      "DNFProb": 0.087,
+      "FantasyValue": 41.0,
+      "GridPosition": 1,
+      "PickCategory": "Safe",
+      "Predicted": 1.0,
+      "Price": 27.4,
+      "TeamName": "Red Bull Racing"
      }
     ],
-    "total_cost": 99.5,
-    "total_score": 125.3
+    "total_cost": 98.4,
+    "total_score": 115.7
    }
   ]
  },

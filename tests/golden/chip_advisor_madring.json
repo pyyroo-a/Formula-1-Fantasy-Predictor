@@ -9,7 +9,7 @@
     "riskiest_driver": "BEA"
    },
    "limitless": {
-    "gain": 127.2,
+    "gain": 125.7,
     "recommendation": "PLAY",
     "team": {
      "boost_pick": {
@@ -29,7 +29,7 @@
       {
        "name": "McLaren",
        "price": 31.6,
-       "score": 52.5
+       "score": 51.0
       },
       {
        "name": "Mercedes",
@@ -79,26 +79,26 @@
        "FantasyValue": 18.4,
        "GridPosition": 5,
        "PickCategory": "Value",
-       "Predicted": 5.0,
+       "Predicted": 4.9,
        "Price": 27.4,
        "TeamName": "Red Bull Racing"
       }
      ],
      "total_cost": 193.3,
-     "total_score": 247.0
+     "total_score": 245.5
     }
    },
    "my_team_score": 119.8,
    "no_negative": {
-    "expected_dnfs": 0.71,
-    "gain": 24.5,
+    "expected_dnfs": 0.66,
+    "gain": 23.3,
     "is_high_attrition": false,
-    "points_at_risk": 24.5,
+    "points_at_risk": 23.3,
     "reason": "About 0.7 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
     "recommendation": "HEDGE"
    },
    "wildcard": {
-    "gain": 7.5,
+    "gain": 6.5,
     "optimal_team": {
      "boost_pick": {
       "Abbreviation": "ANT",
@@ -112,7 +112,7 @@
       ],
       "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
      },
-     "budget_remaining": 0.0,
+     "budget_remaining": 1.2,
      "constructors": [
       {
        "name": "Audi",
@@ -120,9 +120,9 @@
        "score": 13.6
       },
       {
-       "name": "McLaren",
-       "price": 31.6,
-       "score": 52.5
+       "name": "Mercedes",
+       "price": 33.2,
+       "score": 58.5
       }
      ],
      "drivers": [
@@ -154,15 +154,6 @@
        "TeamName": "Audi"
       },
       {
-       "Abbreviation": "BOR",
-       "FantasyValue": 2.4,
-       "GridPosition": 10,
-       "PickCategory": "Risk",
-       "Predicted": 10.2,
-       "Price": 8.6,
-       "TeamName": "Audi"
-      },
-      {
        "Abbreviation": "BEA",
        "FantasyValue": 0.0,
        "GridPosition": 13,
@@ -170,10 +161,19 @@
        "Predicted": 13.2,
        "Price": 6.4,
        "TeamName": "Haas F1 Team"
+      },
+      {
+       "Abbreviation": "ALB",
+       "FantasyValue": -4.6,
+       "GridPosition": 22,
+       "PickCategory": "Risk",
+       "Predicted": 20.0,
+       "Price": 5.8,
+       "TeamName": "Williams"
       }
      ],
-     "total_cost": 100.0,
-     "total_score": 127.3
+     "total_cost": 98.8,
+     "total_score": 126.3
     },
     "recommendation": "HOLD"
    },

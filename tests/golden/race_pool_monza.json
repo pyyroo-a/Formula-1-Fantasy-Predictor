@@ -64,7 +64,7 @@
     "FantasyValue": 30.0,
     "GridPosition": 5,
     "PickCategory": "Safe",
-    "Predicted": 2.5,
+    "Predicted": 2.4,
     "Price": 27.4,
     "TeamName": "Red Bull Racing"
    },
@@ -174,7 +174,7 @@
     "FantasyValue": 14.3,
     "GridPosition": 22,
     "PickCategory": "Risk",
-    "Predicted": 11.3,
+    "Predicted": 11.2,
     "Price": 14.9,
     "TeamName": "Red Bull Racing"
    },
@@ -224,7 +224,7 @@
     "FantasyValue": -5.4,
     "GridPosition": 14,
     "PickCategory": "Avoid",
-    "Predicted": 16.7,
+    "Predicted": 16.6,
     "Price": 9.5,
     "TeamName": "Haas F1 Team"
    },

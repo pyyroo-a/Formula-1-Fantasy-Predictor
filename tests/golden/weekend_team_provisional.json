@@ -23,27 +23,27 @@
     ],
     "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
    },
-   "budget_remaining": 0.0,
+   "budget_remaining": 1.2,
    "chips": {
     "autopilot": {
      "recommendation": "SAVE"
     },
     "final_fix": {
      "recommendation": "POST-QUALI",
-     "riskiest_driver": "BEA"
+     "riskiest_driver": "ALB"
     },
     "limitless": {
-     "gain": 127.2,
+     "gain": 126.7,
      "recommendation": "PLAY"
     },
-    "my_team_score": 119.8,
+    "my_team_score": 118.8,
     "no_negative": {
-     "expected_dnfs": 0.71,
-     "gain": 24.5,
+     "expected_dnfs": 0.98,
+     "gain": 33.7,
      "is_high_attrition": false,
-     "points_at_risk": 24.5,
-     "reason": "About 0.7 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
-     "recommendation": "HEDGE"
+     "points_at_risk": 33.7,
+     "reason": "About 1.0 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars. ALB also projected P16 or worse (-5 each).",
+     "recommendation": "PLAY"
     },
     "wildcard": {
      "gain": 7.5,
@@ -57,24 +57,24 @@
    },
    "constructors": [
     {
-     "dnf_risk": 0.281,
+     "dnf_risk": 0.276,
      "double_dnf_risk": 0.022,
      "name": "Audi",
      "price": 8.0,
      "score": 13.6
     },
     {
-     "dnf_risk": 0.202,
-     "double_dnf_risk": 0.011,
-     "name": "McLaren",
-     "price": 31.6,
-     "score": 52.5
+     "dnf_risk": 0.15,
+     "double_dnf_risk": 0.005,
+     "name": "Mercedes",
+     "price": 33.2,
+     "score": 58.5
     }
    ],
    "drivers": [
     {
      "Abbreviation": "ANT",
-     "DNFProb": 0.062,
+     "DNFProb": 0.053,
      "FantasyValue": 39.0,
      "GridPosition": 1,
      "PickCategory": "Safe",
@@ -84,7 +84,7 @@
     },
     {
      "Abbreviation": "LAW",
-     "DNFProb": 0.101,
+     "DNFProb": 0.089,
      "FantasyValue": 11.6,
      "GridPosition": 7,
      "PickCategory": "Risk",
@@ -94,7 +94,7 @@
     },
     {
      "Abbreviation": "HUL",
-     "DNFProb": 0.179,
+     "DNFProb": 0.161,
      "FantasyValue": 8.2,
      "GridPosition": 8,
      "PickCategory": "Risk",
@@ -103,28 +103,28 @@
      "TeamName": "Audi"
     },
     {
-     "Abbreviation": "BOR",
-     "DNFProb": 0.125,
-     "FantasyValue": 2.4,
-     "GridPosition": 10,
-     "PickCategory": "Risk",
-     "Predicted": 10.2,
-     "Price": 8.6,
-     "TeamName": "Audi"
-    },
-    {
      "Abbreviation": "BEA",
-     "DNFProb": 0.239,
+     "DNFProb": 0.22,
      "FantasyValue": 0.0,
      "GridPosition": 13,
      "PickCategory": "Risk",
      "Predicted": 13.2,
      "Price": 6.4,
      "TeamName": "Haas F1 Team"
+    },
+    {
+     "Abbreviation": "ALB",
+     "DNFProb": 0.457,
+     "FantasyValue": -4.6,
+     "GridPosition": 22,
+     "PickCategory": "Risk",
+     "Predicted": 20.0,
+     "Price": 5.8,
+     "TeamName": "Williams"
     }
    ],
-   "total_cost": 100.0,
-   "total_score": 127.3
+   "total_cost": 98.8,
+   "total_score": 126.3
   },
   "teams": [
    {
@@ -140,27 +140,27 @@
      ],
      "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
     },
-    "budget_remaining": 0.0,
+    "budget_remaining": 1.2,
     "chips": {
      "autopilot": {
       "recommendation": "SAVE"
      },
      "final_fix": {
       "recommendation": "POST-QUALI",
-      "riskiest_driver": "BEA"
+      "riskiest_driver": "ALB"
      },
      "limitless": {
-      "gain": 127.2,
+      "gain": 126.7,
       "recommendation": "PLAY"
      },
-     "my_team_score": 119.8,
+     "my_team_score": 118.8,
      "no_negative": {
-      "expected_dnfs": 0.71,
-      "gain": 24.5,
+      "expected_dnfs": 0.98,
+      "gain": 33.7,
       "is_high_attrition": false,
-      "points_at_risk": 24.5,
-      "reason": "About 0.7 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
-      "recommendation": "HEDGE"
+      "points_at_risk": 33.7,
+      "reason": "About 1.0 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars. ALB also projected P16 or worse (-5 each).",
+      "recommendation": "PLAY"
      },
      "wildcard": {
       "gain": 7.5,
@@ -174,24 +174,24 @@
     },
     "constructors": [
      {
-      "dnf_risk": 0.281,
+      "dnf_risk": 0.276,
       "double_dnf_risk": 0.022,
       "name": "Audi",
       "price": 8.0,
       "score": 13.6
      },
      {
-      "dnf_risk": 0.202,
-      "double_dnf_risk": 0.011,
-      "name": "McLaren",
-      "price": 31.6,
-      "score": 52.5
+      "dnf_risk": 0.15,
+      "double_dnf_risk": 0.005,
+      "name": "Mercedes",
+      "price": 33.2,
+      "score": 58.5
      }
     ],
     "drivers": [
      {
       "Abbreviation": "ANT",
-      "DNFProb": 0.062,
+      "DNFProb": 0.053,
       "FantasyValue": 39.0,
       "GridPosition": 1,
       "PickCategory": "Safe",
@@ -201,7 +201,7 @@
      },
      {
       "Abbreviation": "LAW",
-      "DNFProb": 0.101,
+      "DNFProb": 0.089,
       "FantasyValue": 11.6,
       "GridPosition": 7,
       "PickCategory": "Risk",
@@ -211,7 +211,7 @@
      },
      {
       "Abbreviation": "HUL",
-      "DNFProb": 0.179,
+      "DNFProb": 0.161,
       "FantasyValue": 8.2,
       "GridPosition": 8,
       "PickCategory": "Risk",
@@ -220,28 +220,28 @@
       "TeamName": "Audi"
      },
      {
-      "Abbreviation": "BOR",
-      "DNFProb": 0.125,
-      "FantasyValue": 2.4,
-      "GridPosition": 10,
-      "PickCategory": "Risk",
-      "Predicted": 10.2,
-      "Price": 8.6,
-      "TeamName": "Audi"
-     },
-     {
       "Abbreviation": "BEA",
-      "DNFProb": 0.239,
+      "DNFProb": 0.22,
       "FantasyValue": 0.0,
       "GridPosition": 13,
       "PickCategory": "Risk",
       "Predicted": 13.2,
       "Price": 6.4,
       "TeamName": "Haas F1 Team"
+     },
+     {
+      "Abbreviation": "ALB",
+      "DNFProb": 0.457,
+      "FantasyValue": -4.6,
+      "GridPosition": 22,
+      "PickCategory": "Risk",
+      "Predicted": 20.0,
+      "Price": 5.8,
+      "TeamName": "Williams"
      }
     ],
-    "total_cost": 100.0,
-    "total_score": 127.3
+    "total_cost": 98.8,
+    "total_score": 126.3
    },
    {
     "boost_pick": {
@@ -256,7 +256,7 @@
      ],
      "reason": "Starting P2 (Q3), predicted P2 \u2014 front row, qualifying points already banked, safest 2x"
     },
-    "budget_remaining": 1.2,
+    "budget_remaining": 0.6,
     "chips": {
      "autopilot": {
       "recommendation": "SAVE"
@@ -266,21 +266,21 @@
       "riskiest_driver": "BEA"
      },
      "limitless": {
-      "gain": 132.0,
+      "gain": 128.1,
       "recommendation": "PLAY"
      },
-     "my_team_score": 115.0,
+     "my_team_score": 117.4,
      "no_negative": {
-      "expected_dnfs": 0.78,
-      "gain": 24.7,
+      "expected_dnfs": 0.69,
+      "gain": 22.9,
       "is_high_attrition": false,
-      "points_at_risk": 24.7,
-      "reason": "About 0.8 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
+      "points_at_risk": 22.9,
+      "reason": "About 0.7 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
       "recommendation": "HEDGE"
      },
      "wildcard": {
-      "gain": 12.3,
-      "recommendation": "CONSIDER"
+      "gain": 8.9,
+      "recommendation": "HOLD"
      },
      "x3_boost": {
       "gain": 30.6,
@@ -290,7 +290,7 @@
     },
     "constructors": [
      {
-      "dnf_risk": 0.281,
+      "dnf_risk": 0.276,
       "double_dnf_risk": 0.022,
       "name": "Audi",
       "price": 8.0,
@@ -298,7 +298,7 @@
      },
      {
       "dnf_risk": 0.15,
-      "double_dnf_risk": 0.006,
+      "double_dnf_risk": 0.005,
       "name": "Mercedes",
       "price": 33.2,
       "score": 58.5
@@ -307,7 +307,7 @@
     "drivers": [
      {
       "Abbreviation": "LEC",
-      "DNFProb": 0.097,
+      "DNFProb": 0.084,
       "FantasyValue": 30.6,
       "GridPosition": 2,
       "PickCategory": "Safe",
@@ -317,7 +317,7 @@
      },
      {
       "Abbreviation": "LAW",
-      "DNFProb": 0.101,
+      "DNFProb": 0.089,
       "FantasyValue": 11.6,
       "GridPosition": 7,
       "PickCategory": "Risk",
@@ -327,7 +327,7 @@
      },
      {
       "Abbreviation": "HUL",
-      "DNFProb": 0.179,
+      "DNFProb": 0.161,
       "FantasyValue": 8.2,
       "GridPosition": 8,
       "PickCategory": "Risk",
@@ -336,28 +336,28 @@
       "TeamName": "Audi"
      },
      {
+      "Abbreviation": "BOR",
+      "DNFProb": 0.138,
+      "FantasyValue": 2.4,
+      "GridPosition": 10,
+      "PickCategory": "Risk",
+      "Predicted": 10.2,
+      "Price": 8.6,
+      "TeamName": "Audi"
+     },
+     {
       "Abbreviation": "BEA",
-      "DNFProb": 0.239,
+      "DNFProb": 0.22,
       "FantasyValue": 0.0,
       "GridPosition": 13,
       "PickCategory": "Risk",
       "Predicted": 13.2,
       "Price": 6.4,
       "TeamName": "Haas F1 Team"
-     },
-     {
-      "Abbreviation": "LIN",
-      "DNFProb": 0.159,
-      "FantasyValue": 0.0,
-      "GridPosition": 14,
-      "PickCategory": "Risk",
-      "Predicted": 14.2,
-      "Price": 8.0,
-      "TeamName": "Racing Bulls"
      }
     ],
-    "total_cost": 98.8,
-    "total_score": 122.5
+    "total_cost": 99.4,
+    "total_score": 124.9
    },
    {
     "boost_pick": {
@@ -372,7 +372,7 @@
      ],
      "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
     },
-    "budget_remaining": 1.3,
+    "budget_remaining": 2.9,
     "chips": {
      "autopilot": {
       "recommendation": "SAVE"
@@ -382,20 +382,20 @@
       "riskiest_driver": "COL"
      },
      "limitless": {
-      "gain": 132.8,
+      "gain": 131.3,
       "recommendation": "PLAY"
      },
      "my_team_score": 114.2,
      "no_negative": {
-      "expected_dnfs": 0.61,
-      "gain": 21.4,
+      "expected_dnfs": 0.7,
+      "gain": 23.1,
       "is_high_attrition": false,
-      "points_at_risk": 21.4,
-      "reason": "About 0.6 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
+      "points_at_risk": 23.1,
+      "reason": "About 0.7 expected retirements across your 5 drivers and 0.5 across your constructors' 4 cars.",
       "recommendation": "HEDGE"
      },
      "wildcard": {
-      "gain": 13.1,
+      "gain": 12.1,
       "recommendation": "CONSIDER"
      },
      "x3_boost": {
@@ -406,7 +406,7 @@
     },
     "constructors": [
      {
-      "dnf_risk": 0.281,
+      "dnf_risk": 0.276,
       "double_dnf_risk": 0.022,
       "name": "Audi",
       "price": 8.0,
@@ -414,7 +414,7 @@
      },
      {
       "dnf_risk": 0.15,
-      "double_dnf_risk": 0.006,
+      "double_dnf_risk": 0.005,
       "name": "Mercedes",
       "price": 33.2,
       "score": 58.5
@@ -423,7 +423,7 @@
     "drivers": [
      {
       "Abbreviation": "ANT",
-      "DNFProb": 0.062,
+      "DNFProb": 0.053,
       "FantasyValue": 39.0,
       "GridPosition": 1,
       "PickCategory": "Safe",
@@ -433,7 +433,7 @@
      },
      {
       "Abbreviation": "HUL",
-      "DNFProb": 0.179,
+      "DNFProb": 0.161,
       "FantasyValue": 8.2,
       "GridPosition": 8,
       "PickCategory": "Risk",
@@ -443,7 +443,7 @@
      },
      {
       "Abbreviation": "BOR",
-      "DNFProb": 0.125,
+      "DNFProb": 0.138,
       "FantasyValue": 2.4,
       "GridPosition": 10,
       "PickCategory": "Risk",
@@ -453,7 +453,7 @@
      },
      {
       "Abbreviation": "COL",
-      "DNFProb": 0.086,
+      "DNFProb": 0.131,
       "FantasyValue": 0.0,
       "GridPosition": 11,
       "PickCategory": "Risk",
@@ -462,17 +462,17 @@
       "TeamName": "Alpine"
      },
      {
-      "Abbreviation": "LIN",
-      "DNFProb": 0.159,
+      "Abbreviation": "BEA",
+      "DNFProb": 0.22,
       "FantasyValue": 0.0,
-      "GridPosition": 14,
+      "GridPosition": 13,
       "PickCategory": "Risk",
-      "Predicted": 14.2,
-      "Price": 8.0,
-      "TeamName": "Racing Bulls"
+      "Predicted": 13.2,
+      "Price": 6.4,
+      "TeamName": "Haas F1 Team"
      }
     ],
-    "total_cost": 98.7,
+    "total_cost": 97.1,
     "total_score": 121.7
    }
   ]

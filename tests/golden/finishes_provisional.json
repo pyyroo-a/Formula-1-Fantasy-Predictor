@@ -13,18 +13,18 @@
     "team": "Mercedes"
    },
    {
-    "abbreviation": "LEC",
-    "baseline_pos": 2,
-    "delta": 0,
-    "model_pos": 2,
-    "team": "Ferrari"
-   },
-   {
     "abbreviation": "VER",
     "baseline_pos": 5,
-    "delta": 2,
-    "model_pos": 3,
+    "delta": 3,
+    "model_pos": 2,
     "team": "Red Bull Racing"
+   },
+   {
+    "abbreviation": "LEC",
+    "baseline_pos": 2,
+    "delta": -1,
+    "model_pos": 3,
+    "team": "Ferrari"
    },
    {
     "abbreviation": "NOR",
@@ -34,11 +34,11 @@
     "team": "McLaren"
    },
    {
-    "abbreviation": "RUS",
-    "baseline_pos": 6,
-    "delta": 1,
+    "abbreviation": "PIA",
+    "baseline_pos": 3,
+    "delta": -2,
     "model_pos": 5,
-    "team": "Mercedes"
+    "team": "McLaren"
    },
    {
     "abbreviation": "LAW",
@@ -48,11 +48,11 @@
     "team": "Red Bull Racing"
    },
    {
-    "abbreviation": "PIA",
-    "baseline_pos": 3,
-    "delta": -4,
+    "abbreviation": "RUS",
+    "baseline_pos": 6,
+    "delta": -1,
     "model_pos": 7,
-    "team": "McLaren"
+    "team": "Mercedes"
    },
    {
     "abbreviation": "HUL",
@@ -76,53 +76,53 @@
     "team": "Ferrari"
    },
    {
-    "abbreviation": "LIN",
-    "baseline_pos": 14,
-    "delta": 3,
-    "model_pos": 11,
-    "team": "Racing Bulls"
-   },
-   {
     "abbreviation": "OCO",
     "baseline_pos": 12,
-    "delta": 0,
+    "delta": 1,
+    "model_pos": 11,
+    "team": "Haas F1 Team"
+   },
+   {
+    "abbreviation": "BEA",
+    "baseline_pos": 13,
+    "delta": 1,
     "model_pos": 12,
     "team": "Haas F1 Team"
    },
    {
-    "abbreviation": "BOR",
-    "baseline_pos": 10,
-    "delta": -3,
+    "abbreviation": "LIN",
+    "baseline_pos": 14,
+    "delta": 1,
     "model_pos": 13,
-    "team": "Audi"
-   },
-   {
-    "abbreviation": "STR",
-    "baseline_pos": 19,
-    "delta": 5,
-    "model_pos": 14,
-    "team": "Aston Martin"
+    "team": "Racing Bulls"
    },
    {
     "abbreviation": "TSU",
     "baseline_pos": 15,
-    "delta": 0,
-    "model_pos": 15,
+    "delta": 1,
+    "model_pos": 14,
     "team": "Racing Bulls"
    },
    {
     "abbreviation": "GAS",
     "baseline_pos": 16,
-    "delta": 0,
-    "model_pos": 16,
+    "delta": 1,
+    "model_pos": 15,
     "team": "Alpine"
    },
    {
-    "abbreviation": "BEA",
-    "baseline_pos": 13,
-    "delta": -4,
+    "abbreviation": "STR",
+    "baseline_pos": 19,
+    "delta": 3,
+    "model_pos": 16,
+    "team": "Aston Martin"
+   },
+   {
+    "abbreviation": "ALO",
+    "baseline_pos": 17,
+    "delta": 0,
     "model_pos": 17,
-    "team": "Haas F1 Team"
+    "team": "Aston Martin"
    },
    {
     "abbreviation": "SAI",
@@ -132,11 +132,11 @@
     "team": "Williams"
    },
    {
-    "abbreviation": "ALO",
-    "baseline_pos": 17,
-    "delta": -2,
+    "abbreviation": "BOR",
+    "baseline_pos": 10,
+    "delta": -9,
     "model_pos": 19,
-    "team": "Aston Martin"
+    "team": "Audi"
    },
    {
     "abbreviation": "PER",

@@ -12,13 +12,15 @@ To make that work, every answer has to be the same each run, so:
   - the app's startup (which downloads new results and prices) doesn't run
   - OpenF1 is switched off, so practice comes from the FastF1 cache like it always
     did (the OpenF1 code has its own offline tests in test_openf1.py)
+  - race results come from a frozen copy in tests/fixtures/processed/ instead of
+    data/processed/, which the Monday job changes every week. Before this the goldens
+    went stale after every race even though no code had changed
 
 Run the tests:            python -m pytest
 Re-record after a change you MEANT to make:   UPDATE_GOLDEN=1 python -m pytest
 
-Heads up: the golden files also depend on the race data in data/processed/. When the
-Monday job adds a new race, some answers change (e.g. /races gets longer). That's
-expected. Pull the new data, check nothing ELSE changed, then re-record.
+If a test ever needs a newer race, copy data/processed/*.csv over the frozen copy on
+purpose, check only race data moved in the goldens, then re-record.
 """
 import importlib
 import json
@@ -36,6 +38,9 @@ GOLDEN = ROOT / "tests" / "golden"
 
 # no network in the golden tests. test_openf1.py turns it back on with fakes
 os.environ["USE_OPENF1"] = "0"
+
+# frozen race results, see the docstring. relative because we chdir to ROOT below
+os.environ["PROCESSED_DIR"] = "tests/fixtures/processed"
 
 # the app reads data/... with relative paths, so run everything from the repo root
 os.chdir(ROOT)
