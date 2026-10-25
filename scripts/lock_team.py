@@ -2,7 +2,7 @@
 Backup way to lock a race weekend: builds its snapshot on your own laptop.
 
 Normally you don't need this. POST /snapshot/auto on Render does it by itself once
-final practice is published (see docs/SNAPSHOTS.md). Use this if that didn't happen,
+final practice is published (see "Fantasy Predictor/Snapshots.md"). Use this if that didn't happen,
 for example the scheduler was switched off or the GitHub token expired.
 
 It builds exactly the same snapshot the automatic one would, then saves it into

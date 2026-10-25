@@ -72,7 +72,7 @@ def predict(model: XGBRegressor, X_test: pd.DataFrame) -> np.ndarray:
 # ~2.4 places of error. It amplifies that noise rather than correcting it.
 #
 # Raise this above 0.0 only when a backtest run shows the model beating the
-# FP3-order baseline. See docs/MODEL.md.
+# FP3-order baseline. See "Fantasy Predictor/Decisions and evidence.md".
 SHRINK_TO_GRID = 0.0
 
 

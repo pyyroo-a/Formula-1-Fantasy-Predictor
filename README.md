@@ -4,6 +4,8 @@ An ML-powered F1 Fantasy assistant that predicts race outcomes, builds optimal t
 
 **Live:** [formula-1-fantasy-predictor.vercel.app](https://formula-1-fantasy-predictor.vercel.app)
 
+**How it all works, in detail:** my notes in [`Fantasy Predictor/`](Fantasy%20Predictor/README.md), an Obsidian vault that reads fine on GitHub too. Start with [Start here](Fantasy%20Predictor/README.md).
+
 ## Motivation
 
 F1 Fantasy is deceptively hard. The sport is chaotic: a consistent midfield driver can suddenly shine at a specific circuit, or a front-runner can qualify on pole and finish P8. Plain statistics aren't enough. PitWall combines historical rolling form, grid position analysis, live practice session data, and F1 Fantasy pricing to capture both the predictable and the unpredictable sides of F1.
@@ -25,13 +27,13 @@ The **Prices Sidebar** is always visible on the right, it shows current F1 Fanta
 ## How Predictions Work
 
 1. Historical race results (2025 + completed 2026 rounds, 2026 weighted 5×) train an XGBoost model
-2. For upcoming races, live practice session data is fetched from FastF1 to estimate grid positions
+2. For upcoming races, practice laps come from OpenF1 (FastF1 as the backup) to estimate grid positions
 3. Each driver's recent rolling form is merged with their practice pace
 4. The raw prediction is blended with FP3 pace, teammate gap, and circuit history, **the blend weights change per circuit** (see below)
 5. Predicted finishing positions are converted into **real F1 Fantasy points** (FantasyValue)
 6. Budget optimisation searches all valid 5-driver + 2-constructor combinations and returns the 3 best mutually-distinct teams under $100M
 
-Full detail on the scoring system and circuit profiles: **[`docs/MODEL.md`](docs/MODEL.md)**
+Full detail: [Model](Fantasy%20Predictor/Model.md) and [Fantasy scoring](Fantasy%20Predictor/Fantasy%20scoring.md). Heads up: the ML blend is measured and kept for display, but right now the predicted finish we score is the practice order, see [Handling Uncertainty](#handling-uncertainty).
 
 ### Circuit-Aware Predictions
 
@@ -325,58 +327,32 @@ Fastest Lap (+10) and Driver of the Day (+10) are deliberately excluded, they ca
 ## Project Structure
 
 ```
-pitwall/
-├── frontend/
-│   ├── public/
-│   │   └── drivers/              # Driver headshots (ABBR.avif, one per driver)
+├── Fantasy Predictor/             # my notes (Obsidian vault): how everything works and why
+├── frontend/                      # React + Vite site, see Fantasy Predictor/Frontend.md
+│   ├── public/drivers/            # driver headshots (CODE.avif)
 │   └── src/
-│       ├── App.jsx               # Thin shell: layout, top-level state, tab switching
-│       ├── constants.js          # DRIVER_NAMES, TEAM_COLORS, CHIP_META, REC_STYLE, etc.
-│       └── components/
-│           ├── DriverAvatar.jsx       # Headshot with abbreviation fallback
-│           ├── CountdownWidget.jsx    # Race name + live countdown
-│           ├── SessionSchedule.jsx    # FP1/FP2/FP3 availability dots
-│           ├── WeekendTeamWidget.jsx  # Auto-shows optimal team near race weekend
-│           ├── RaceResultsTable.jsx   # Completed race results with position change
-│           ├── QualifyingTable.jsx    # Q1/Q2/Q3 results with Q3 highlight
-│           ├── BudgetTeam.jsx         # BudgetBar, BudgetDriverCard, ConstructorCard
-│           ├── ManualTeamBuilder.jsx  # Pick-your-own team with scoring vs optimal
-│           ├── ChipAdvisor.jsx        # Chip PLAY/CONSIDER/HOLD recommendations
-│           └── PricesSidebar.jsx      # Sticky sidebar: prices + vs-last-round changes
+│       ├── App.jsx                # shell: header, tabs, shared fetches
+│       ├── hooks/useRaceData.js   # state + fetching for the Race Data tabs and Team Optimizer
+│       ├── styles.js, constants.js, teamCache.js
+│       └── components/            # Overview, Manual Team, Chip Advisor, racedata/, myteam/, ...
 ├── src/
-│   ├── data_loader.py
-│   ├── features.py
-│   ├── fantasy.py                 # Real F1 Fantasy scoring + budget team solver
-│   ├── circuit_profiles.py        # Per-circuit overtaking ratings + blend weights
-│   ├── dnf.py                     # P(retirement) per driver, used to price risk
-│   ├── championship_form.py
-│   ├── models.py
-│   ├── pipeline.py
-│   ├── fetch_practice.py
-│   ├── fetch_prices.py            # Fetches current + previous round prices, diffs them
-│   ├── fetch_results.py
-│   ├── weekend.py                 # Builds a race weekend: teams, chips, DNF, finishes
-│   └── snapshots.py               # Saves and reads weekend snapshots, commits them to GitHub
-├── scripts/
-│   ├── update_data.py             # Called by the GitHub Actions cron
-│   ├── measure_grid_error.py      # Practice-order vs real-grid error (see Handling Uncertainty)
-│   ├── measure_dnf.py             # Walk-forward validation of the DNF model
-│   └── lock_team.py               # Backup: build a weekend snapshot on your laptop
-├── .github/workflows/
-│   └── update-race-data.yml       # Auto-fetches new race results every Monday
-├── docs/
-│   ├── MODEL.md                   # Scoring system + circuit profiles in detail
-│   └── SNAPSHOTS.md               # How weekends get locked automatically, plus setup steps
+│   ├── api/                       # one file per group of endpoints (race_weekend, finishes, weekend_lock, ...)
+│   ├── pipeline.py, models.py, features.py   # the ML part
+│   ├── fantasy.py                 # F1 Fantasy scoring + the team solver
+│   ├── circuit_profiles.py        # overtaking ratings per circuit
+│   ├── dnf.py                     # chance of retiring per driver
+│   ├── openf1.py, fetch_practice.py, fetch_results.py, fetch_prices.py
+│   ├── weekend.py                 # builds a race weekend: teams, chips, DNF, finishes
+│   └── snapshots.py               # saves weekend snapshots and commits them to GitHub
+├── scripts/                       # update_data.py (Monday job), lock_team.py, measure_*.py
+├── tests/                         # golden endpoint tests + helpers, frozen data in fixtures/
 ├── data/
-│   ├── cache/                     # FastF1 HTTP cache
-│   ├── snapshots/                 # One saved file per race weekend: teams, chips, DNF, finishes
-│   └── processed/
-│       ├── race_results_2025.csv
-│       └── race_results_2026.csv
-├── main.py
-├── ROADMAP.md
-├── requirements.txt
-└── .env.example
+│   ├── snapshots/                 # one saved file per race weekend
+│   └── processed/                 # race and sprint results per season
+├── archive/                       # old notebooks and results from model v1 to v4
+├── docs/superpowers/              # design docs and plans for bigger pieces of work
+├── .github/workflows/             # Monday data job + the weekend lock
+└── main.py
 ```
 
 ## API Endpoints
@@ -440,13 +416,11 @@ The free instance sleeps after 15 minutes idle, so the first request after a qui
 
 ## Automation
 
-A GitHub Actions cron (`.github/workflows/update-race-data.yml`) runs every Monday at 06:00 UTC, fetches any newly completed races via FastF1, and commits the updated CSV. Render auto-deploys on push, so the model retrains on fresh data without any manual step.
+Two GitHub Actions:
+
+- `.github/workflows/update-race-data.yml` runs every Monday at 06:00 UTC, fetches any newly completed races via FastF1, refreshes prices, and commits. Render auto-deploys on push, so the model retrains on fresh data without any manual step.
+- `.github/workflows/lock-snapshot.yml` calls `POST /snapshot/auto` every 30 minutes over race weekends, so each weekend gets locked after final practice. See [Snapshots](Fantasy%20Predictor/Snapshots.md).
 
 ## Planned
 
-See **[`ROADMAP.md`](ROADMAP.md)** for the full list. Next up:
-
-- Sports betting odds integration, market-implied finishing order as an extra signal
-- Session health signal, detect car issues from FP3 lap counts vs teammate
-- Weather as an ML feature
-- APScheduler background job to auto-fetch practice data as sessions finish
+See the [Roadmap](Fantasy%20Predictor/Roadmap.md). Next up after the cleanup: scoring every locked team with the game's real points against simple no-model picks, constructor scoring that follows the game's rules (pit stops included), and a transfer planner for your own team.

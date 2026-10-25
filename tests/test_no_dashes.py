@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 SCAN = ["src", "scripts", "tests", "frontend/src", "docs", "Fantasy Predictor", ".github"]
 FILES = ["main.py", "README.md", "Dockerfile", "frontend/index.html", "frontend/README.md",
-         ".dockerignore", ".gitignore"]
+         ".dockerignore", ".gitignore", ".env.example"]
 SUFFIXES = {".py", ".js", ".jsx", ".css", ".md", ".yml", ".yaml", ".html", ".json", ".txt"}
 SKIP = {ROOT / "tests" / "golden", ROOT / "tests" / "fixtures"}
 

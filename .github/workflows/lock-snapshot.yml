@@ -6,8 +6,8 @@ name: Lock Weekend Snapshot
 # round 17). Here we can just wait for the cold start instead of working around it.
 #
 # This only pokes the endpoint. All the "is it time yet" logic lives in
-# POST /snapshot/auto, which checks the final session has finished AND is published
-# on livetiming, that the weekend has no snapshot yet, and refuses outright if the
+# POST /snapshot/auto, which checks the final session has finished AND OpenF1 has
+# its laps, that the weekend has no snapshot yet, and refuses outright if the
 # race results are already in our data. Calling it when there is nothing to do is
 # free, it answers "idle" or "waiting" and stops.
 
