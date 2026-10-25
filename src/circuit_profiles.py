@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Per-circuit profiles for the 2026 F1 calendar.
-# overtaking: 1–10 scale (1 = Monaco, 10 = Brazil/Monza)
+# overtaking: 1 to 10 scale (1 = Monaco, 10 = Brazil/Monza)
 # attrition:  probability a car fails to finish (DNF risk)
 # These are validated and can be overridden by compute_historical_overtaking().
 CIRCUIT_PROFILES = {
@@ -53,7 +53,7 @@ _NEUTRAL = {"overtaking": 5, "attrition": 0.10}
 
 def compute_historical_overtaking(df: pd.DataFrame) -> dict[str, float]:
     """
-    Derives an overtaking score (1–10) per circuit from historical race data
+    Derives an overtaking score (1 to 10) per circuit from historical race data
     by computing mean absolute position change per driver per race.
     Returns a dict of {race_name: computed_overtaking_score}.
     """
@@ -74,7 +74,7 @@ def compute_historical_overtaking(df: pd.DataFrame) -> dict[str, float]:
     if max_chg == min_chg:
         return {r: 5.0 for r in circuit_avg.index}
 
-    # Normalize to 1–9 range (leave room for Monaco=1 and Brazil=9 as anchors)
+    # Normalize to 1 to 9 range (leave room for Monaco=1 and Brazil=9 as anchors)
     normalized = 1 + ((circuit_avg - min_chg) / (max_chg - min_chg)) * 8
     return normalized.round(1).to_dict()
 
@@ -99,7 +99,7 @@ def get_circuit_profile(race_name: str, historical_df: pd.DataFrame | None = Non
 
 def overtaking_scale(rating: int | float) -> float:
     """
-    Converts a 1–10 overtaking rating into a multiplier for OvertakeBonus.
+    Converts a 1 to 10 overtaking rating into a multiplier for OvertakeBonus.
     Neutral (5) → 1.0x. Brazil (9) → 1.8x. Monaco (1) → 0.2x.
     """
     return round(rating / 5.0, 2)
@@ -107,7 +107,7 @@ def overtaking_scale(rating: int | float) -> float:
 
 def quali_scale(rating: int | float) -> float:
     """
-    Converts a 1–10 overtaking rating into a qualifying score weight multiplier.
+    Converts a 1 to 10 overtaking rating into a qualifying score weight multiplier.
     Low overtaking = qualifying matters more.
     Monaco (1) → 1.9x. Spa (8) → 1.2x. Brazil (9) → 1.1x.
     """
@@ -133,5 +133,5 @@ def get_blend_weights(race_name: str) -> dict[str, float]:
         # Neutral
         return {"model": 0.55, "practice": 0.20, "teammate": 0.10, "circuit": 0.15}
     else:
-        # High overtaking: Spa, Brazil, Monza — model + pace drives the pick
+        # High overtaking (Spa, Brazil, Monza): model + pace drives the pick
         return {"model": 0.60, "practice": 0.25, "teammate": 0.10, "circuit": 0.05}

@@ -26,11 +26,11 @@ export default function PracticeTable({ results }) {
               className="flex-1 min-w-0 text-[12.5px] text-white truncate border-l-2 pl-2.5"
               style={{ borderColor: accent }}
             >
-              {row.FullName} <span className="text-pw-muted">— {row.TeamName}</span>
+              {row.FullName} <span className="text-pw-muted">· {row.TeamName}</span>
             </div>
             <div className="flex gap-3 flex-shrink-0 text-right text-[11px]">
               <span className={`w-20 ${i === 0 ? "text-pw-risk font-bold" : "text-white"}`}>{row.LapTime}</span>
-              <span className="w-14 text-pw-muted">{i === 0 ? "—" : `+${row.GapToPole.toFixed(3)}`}</span>
+              <span className="w-14 text-pw-muted">{i === 0 ? "-" : `+${row.GapToPole.toFixed(3)}`}</span>
             </div>
           </div>
         );

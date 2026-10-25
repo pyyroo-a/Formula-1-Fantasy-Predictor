@@ -5,7 +5,7 @@ function PositionChange({ change, status }) {
   if (change === null || change === undefined) return null;
   if (change > 0) return <span className="text-pw-safe font-semibold">+{change}</span>;
   if (change < 0) return <span className="text-pw-red font-semibold">{change}</span>;
-  return <span className="text-pw-muted">—</span>;
+  return <span className="text-pw-muted">-</span>;
 }
 
 export default function RaceResultsTable({ results }) {
@@ -27,7 +27,7 @@ export default function RaceResultsTable({ results }) {
               className="flex-1 min-w-0 text-[12.5px] text-white truncate border-l-2 pl-2.5"
               style={{ borderColor: accent }}
             >
-              {row.FullName} <span className="text-pw-muted">— {row.TeamName}</span>
+              {row.FullName} <span className="text-pw-muted">· {row.TeamName}</span>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0 text-[11px] text-right">
               {!isDNF && row.GridPosition != null && (

@@ -19,9 +19,9 @@ function chipContext(key, chip) {
         ? `Post-qualifying swap · watch ${DRIVER_NAMES[chip.riskiest_driver] || chip.riskiest_driver}`
         : "Use after qualifying";
     case "no_negative":
-      return chip.is_high_attrition ? "High-attrition circuit — worth hedging" : "Low attrition risk here";
+      return chip.is_high_attrition ? "High-attrition circuit, worth hedging" : "Low attrition risk here";
     case "autopilot":
-      return "Save it — PitWall already optimises your captain";
+      return "Save it, PitWall already optimises your captain";
     default:
       return null;
   }

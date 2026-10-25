@@ -497,14 +497,15 @@ def auto_snapshot(
     """
     Locks the current race weekend into a snapshot, all by itself.
 
-    cron-job.org calls this every 10 minutes on Fridays and Saturdays. Each call
+    The GitHub Action (.github/workflows/lock-snapshot.yml) calls this every 30
+    minutes over the race weekend. Each call
     basically checks: is a race weekend live, is its final practice over and
     published, and does it still not have a snapshot? If yes, it builds one in the
     background, saves it here so the site uses it straight away, and commits it to
     GitHub so it survives restarts and redeploys.
 
     It answers straight away and builds in the background, because building takes
-    longer than cron-job.org is willing to wait for a reply.
+    longer than the Action is willing to wait for a reply.
 
     Calling it a lot is fine, it does nothing once the snapshot exists. It needs the
     X-Snapshot-Secret header to match SNAPSHOT_SECRET so random people can't trigger

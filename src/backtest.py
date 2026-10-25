@@ -40,7 +40,7 @@ def _predict_race(
     from practice pace (the real grid does not exist at the fantasy deadline),
     and the full model/practice/teammate/circuit blend is used.
 
-    Without it, there is no practice signal — the FP3-pace and teammate-gap
+    Without it, there is no practice signal: the FP3-pace and teammate-gap
     terms are dropped and the remaining weights renormalised. That variant
     hands the model the real grid, which production never has.
     """
@@ -60,7 +60,7 @@ def _predict_race(
     if practice_df is not None:
         # Production path: practice pace supplies the estimated grid and the
         # driver pool. Actual finishing positions are attached only so the
-        # caller can score afterwards — they never reach the model.
+        # caller can score afterwards, they never reach the model.
         actuals = target_raw[["Abbreviation", "Position", "Status"]]
         upcoming = practice_df.merge(actuals, on="Abbreviation", how="left")
         upcoming["Position"] = upcoming["Position"].fillna(20.0)
@@ -132,7 +132,7 @@ def _predict_race(
 
     blended = shrink_to_grid(blended, upcoming["GridPosition"])
 
-    # Clip to the real field size (22 in 2026), not 20 — see pipeline.py
+    # Clip to the real field size (22 in 2026), not 20, see pipeline.py
     field_size = max(len(upcoming), int(upcoming["GridPosition"].max()))
 
     upcoming["Position"] = actual_position
@@ -234,7 +234,7 @@ def run_backtest(
     Replays every completed 2026 race and reports what the model would have scored.
 
     use_practice=True is the honest test: grid is estimated from FP3 pace exactly
-    as production does, and the baseline is "pick by FP3 order" — a strategy you
+    as production does, and the baseline is "pick by FP3 order", a strategy you
     could actually have played, since the fantasy deadline falls before qualifying.
 
     use_practice=False hands the model the real qualifying grid and benchmarks it
@@ -270,7 +270,7 @@ def run_backtest(
         target_raw = df_current[df_current["RoundNumber"] == rnd].copy()
         race_name = target_raw["RaceName"].iloc[0]
 
-        # Everything before this race — and nothing from it
+        # Everything before this race, and nothing from it
         history_raw = pd.concat(
             [df_previous, df_current[df_current["RoundNumber"] < rnd]], ignore_index=True
         )
@@ -326,7 +326,7 @@ def run_backtest(
                                          dnf_probs=dnf_probs, dnf_weight=dnf_weight)
 
         # Baseline: same optimiser, same information, no model. In practice mode
-        # that means "pick by FP3 order" — genuinely playable before the deadline.
+        # that means "pick by FP3 order", genuinely playable before the deadline.
         grid_table = predicted.copy()
         grid_table["Predicted"] = grid_table["GridPosition"].astype(float)
         baseline_teams = build_budget_teams(grid_table, race_name, prices, budget=100.0)

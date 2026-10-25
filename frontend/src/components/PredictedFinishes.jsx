@@ -3,7 +3,7 @@ import DriverAvatar from "./DriverAvatar";
 
 function DeltaBadge({ delta }) {
   if (delta === 0) {
-    return <span className="text-gray-500 text-xs">—</span>;
+    return <span className="text-gray-500 text-xs">-</span>;
   }
   const up = delta > 0; // model expects a better finish than practice order
   return (
@@ -31,7 +31,7 @@ export default function PredictedFinishes({ data, loading, error }) {
     return (
       <div className="text-center py-10">
         <p className="text-gray-400 text-sm">Loading predicted finishes…</p>
-        <p className="text-gray-600 text-xs mt-1">May take 15–30 seconds while FastF1 loads practice data</p>
+        <p className="text-gray-600 text-xs mt-1">May take 15 to 30 seconds while the practice data loads</p>
       </div>
     );
   }
@@ -147,7 +147,7 @@ export default function PredictedFinishes({ data, loading, error }) {
 
       <p className="text-gray-600 text-xs mt-4 leading-relaxed">
         Heads up: in backtesting, the plain practice-pace order beat the model. Both are shown so
-        you can judge which is closer each weekend — treat the model column as an experiment.
+        you can judge which is closer each weekend, treat the model column as an experiment.
       </p>
     </div>
   );

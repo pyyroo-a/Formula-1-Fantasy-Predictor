@@ -64,7 +64,7 @@ def add_results_flags(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def add_driver_dominance(df: pd.DataFrame) -> pd.DataFrame:
-    """Win rate and podium rate over last 5 races — captures in-season dominance like Antonelli."""
+    """Win rate and podium rate over last 5 races, captures in-season dominance like Antonelli."""
     df = df.copy()
 
     df["Win"] = (df["Position"] == 1).astype(int)
@@ -85,7 +85,7 @@ def add_driver_dominance(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def add_team_form(df: pd.DataFrame) -> pd.DataFrame:
-    """Team's average finishing position over the last 3 races — penalises consistently poor teams."""
+    """Team's average finishing position over the last 3 races, penalises consistently poor teams."""
     df = df.copy()
 
     team_race_avg = (

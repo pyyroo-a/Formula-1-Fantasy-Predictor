@@ -34,7 +34,7 @@ function SelectedDriverSlot({ driver, isCaptain, onRemove }) {
       <p className="flex-1 min-w-0 text-[12.5px] text-white truncate">
         {isCaptain && <span className="text-pw-risk font-bold mr-1">C</span>}
         {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
-        <span className="text-pw-muted"> — {driver.TeamName}</span>
+        <span className="text-pw-muted"> · {driver.TeamName}</span>
       </p>
       <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{(driver.PickCategory || "").toUpperCase()}</span>
       <span className="text-[12px] text-white w-14 text-right flex-shrink-0">${driver.Price?.toFixed(1)}M</span>
@@ -47,7 +47,7 @@ function SelectedConstructorSlot({ constructor: c, onRemove }) {
   const accent = teamAccent(c.name);
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 bg-pw-panel2 border-l-2" style={{ borderColor: accent }}>
-      <span className="flex-1 text-[12.5px] text-white truncate">{c.name} <span className="text-pw-muted">— Constructor</span></span>
+      <span className="flex-1 text-[12.5px] text-white truncate">{c.name} <span className="text-pw-muted">· Constructor</span></span>
       <span className="text-[12px] text-white flex-shrink-0">${c.price?.toFixed(1)}M</span>
       <button onClick={onRemove} className="text-pw-muted hover:text-pw-red text-sm flex-shrink-0 transition">✕</button>
     </div>
@@ -71,7 +71,7 @@ function PoolDriverCard({ driver, isSelected, canAdd, onToggle }) {
     >
       <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-[12.5px] text-white truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation} <span className="text-pw-muted">— {driver.TeamName}</span></p>
+          <p className="text-[12.5px] text-white truncate">{DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation} <span className="text-pw-muted">· {driver.TeamName}</span></p>
           <p className="text-[10px] text-pw-muted mt-0.5">Grid P{Math.round(driver.GridPosition)} · Pred P{Math.round(driver.Predicted)} · {driver.FantasyValue?.toFixed(2)}</p>
         </div>
         <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{(driver.PickCategory || "").toUpperCase()}</span>
@@ -200,7 +200,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
     : scoreVsOptimal >= 90 ? "text-pw-safe"
     : scoreVsOptimal >= 70 ? "text-pw-risk"
     : "text-pw-red";
-  const qualityLabel = !teamComplete ? "—"
+  const qualityLabel = !teamComplete ? "-"
     : scoreVsOptimal >= 90 ? "Excellent"
     : scoreVsOptimal >= 70 ? "Good"
     : scoreVsOptimal >= 50 ? "Average" : "Weak";
@@ -233,7 +233,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
       </select>
 
       {selectedRace && selectedIsSprint && (
-        <p className="text-pw-risk text-sm mb-3 text-center">Sprint weekend — will use FP1 data</p>
+        <p className="text-pw-risk text-sm mb-3 text-center">Sprint weekend, will use FP1 data</p>
       )}
       {selectedRace && sessions && <SessionSchedule sessions={sessions} />}
 
@@ -243,7 +243,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
           disabled={sessions && !anySessionAvailable}
           className={`${BTN_CLS} mb-4`}
         >
-          {sessions && !anySessionAvailable ? "No practice data yet — check back after FP1" : "Load Driver Pool"}
+          {sessions && !anySessionAvailable ? "No practice data yet, check back after FP1" : "Load Driver Pool"}
         </button>
       )}
 
@@ -291,7 +291,7 @@ export default function ManualTeamBuilder({ upcomingRaces }) {
             <div className="h-1.5 bg-white/10 overflow-hidden">
               <div className={`h-full transition-all ${barColor}`} style={{ width: `${budgetPct}%` }} />
             </div>
-            {overBudget && <p className="text-pw-red text-[10.5px] mt-2 text-center">Over budget — remove a pick to fix this</p>}
+            {overBudget && <p className="text-pw-red text-[10.5px] mt-2 text-center">Over budget, remove a pick to fix this</p>}
           </div>
 
           {teamComplete && (

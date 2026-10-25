@@ -3,7 +3,7 @@ Weekly refresh: fetches any completed 2026 races not yet in the CSV and appends
 them, then refreshes F1 Fantasy prices for the upcoming round.
 
 Prints a summary for the GitHub Actions log. A price-fetch failure is caught so
-it can never fail the race-data update — the two are independent.
+it can never fail the race-data update, the two are independent.
 """
 import sys
 import os

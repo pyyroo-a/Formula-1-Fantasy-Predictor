@@ -12,7 +12,7 @@ import PredictedFinishes from "./components/PredictedFinishes";
 import Backtest from "./components/Backtest";
 
 // import.meta.env.DEV is true under `npm run dev` and false in a production
-// build — so the Backtest tab never ships to the deployed site.
+// build, so the Backtest tab never ships to the deployed site.
 const IS_DEV = import.meta.env.DEV;
 
 const NAV = [
@@ -88,7 +88,7 @@ function App() {
   // races now, not just when the local cache is empty.
   const [heldFallback, setHeldFallback] = useState(null);
 
-  // Predicted finishes — fetched once, shared by Overview live-card + Insights.
+  // Predicted finishes, fetched once, shared by Overview live-card + Insights.
   const [finishes, setFinishes] = useState(null);
   const [finishesLoading, setFinishesLoading] = useState(true);
   const [finishesError, setFinishesError] = useState(null);
@@ -348,7 +348,7 @@ function App() {
                   {races.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
 
-                {/* Session switcher — only the sessions that actually ran this weekend */}
+                {/* Session switcher: only the sessions that actually ran this weekend */}
                 {practiceData?.available_sessions?.length > 0 && (
                   <div className="flex gap-0.5 mb-4">
                     {practiceData.available_sessions.map(s => (
@@ -370,8 +370,8 @@ function App() {
 
                 {practiceLoading && (
                   <div className="text-center mb-4">
-                    <p className="text-pw-muted text-sm">Fetching practice pace from FastF1…</p>
-                    <p className="text-pw-muted/60 text-xs mt-1">May take 15–30 seconds on first load</p>
+                    <p className="text-pw-muted text-sm">Fetching practice pace…</p>
+                    <p className="text-pw-muted/60 text-xs mt-1">May take 15 to 30 seconds on first load</p>
                   </div>
                 )}
                 {practiceError && <p className="text-pw-red text-sm text-center mb-4">{practiceError}</p>}
@@ -402,7 +402,7 @@ function App() {
                 {qualLoading && (
                   <div className="text-center mb-4">
                     <p className="text-pw-muted text-sm">Fetching qualifying data from FastF1…</p>
-                    <p className="text-pw-muted/60 text-xs mt-1">May take 15–30 seconds on first load</p>
+                    <p className="text-pw-muted/60 text-xs mt-1">May take 15 to 30 seconds on first load</p>
                   </div>
                 )}
                 {qualError && <p className="text-pw-red text-sm text-center mb-4">{qualError}</p>}
@@ -418,7 +418,7 @@ function App() {
             {mode === "budget" && section === "myteam" && (
               <>
                 <p className="text-pw-muted text-sm text-center mb-4">
-                  Generates 3 high-scoring lineups within $100M — pick whichever suits your strategy.
+                  Generates 3 high-scoring lineups within $100M, pick whichever suits your strategy.
                 </p>
                 <select
                   value={budgetRace}

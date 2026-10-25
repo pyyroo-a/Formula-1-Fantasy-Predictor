@@ -49,7 +49,7 @@ def run_pipeline() -> pd.DataFrame:
     fantasy_table = build_fantasy_table(df_current, predictions)
 
     # Compute this season's championship standings from the completed race data
-    # and use them to fine-tune predictions — drivers leading the title
+    # and use them to fine-tune predictions: drivers leading the title
     # get a small boost, backmarkers get a small penalty.
     form_df = compute_championship_form(df_current)
     fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=0.15)
@@ -94,7 +94,7 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     upcoming["GridvsForm"] = upcoming["GridPosition"] - upcoming["Rolling3Average"]
     upcoming["FormTrend"] = upcoming["Rolling3Average"] - upcoming["PreviousPosition"]
 
-    # Dummy position column so prepare_data works — not used in prediction
+    # Dummy position column so prepare_data works, not used in prediction
     upcoming["Position"] = 10.0
     upcoming["Status"] = "Finished"
 
@@ -108,7 +108,7 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     fantasy_table = build_fantasy_table(upcoming, base_predictions)
 
     # --- Practice pace signal ---
-    # Convert GapToPole (seconds) into a 1–20 position-scale estimate.
+    # Convert GapToPole (seconds) into a 1 to 20 position-scale estimate.
     # A driver on pole (gap=0) maps to P1; the slowest maps to P20.
     if "GapToPole" in upcoming.columns:
         max_gap = upcoming["GapToPole"].max()
@@ -155,7 +155,7 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     # The model's genuine forecast, BEFORE we shrink it toward the grid.
     # When SHRINK_TO_GRID = 0 the shrink collapses `Predicted` onto the grid
     # (the practice-order baseline), so this pre-shrink column is the only place
-    # the model's own opinion survives — used by the Predicted Finishes view to
+    # the model's own opinion survives, used by the Predicted Finishes view to
     # compare the model against the baseline. It does NOT feed fantasy scoring.
     fantasy_table["ModelPredicted"] = np.clip(blended, 1, field_size).round(2)
 
@@ -163,7 +163,7 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     # blended result back toward the grid slot before scoring.
     blended = shrink_to_grid(blended, upcoming["GridPosition"])
 
-    # Clip to the actual field size, not a hardcoded 20 — 2026 runs 22 cars.
+    # Clip to the actual field size, not a hardcoded 20, 2026 runs 22 cars.
     # Clipping to 20 would cap a P22 starter's predicted finish at P20 and
     # hand them a phantom +2 overtake bonus for going nowhere.
     blended = np.clip(blended, 1, field_size)

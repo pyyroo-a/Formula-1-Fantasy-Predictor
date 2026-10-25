@@ -27,12 +27,12 @@ export default function QualifyingTable({ results }) {
               className="flex-1 min-w-0 text-[12.5px] text-white truncate border-l-2 pl-2.5"
               style={{ borderColor: accent }}
             >
-              {row.FullName} <span className="text-pw-muted">— {row.TeamName}</span>
+              {row.FullName} <span className="text-pw-muted">· {row.TeamName}</span>
             </div>
             <div className="flex gap-2 flex-shrink-0 text-right text-[11px]">
-              <span className={`w-16 ${inQ3 ? "text-pw-risk" : inQ2 ? "text-white" : "text-pw-muted"}`}>{row.Q1 ?? "—"}</span>
-              <span className={`w-16 ${inQ3 ? "text-pw-risk" : inQ2 ? "text-white" : "text-pw-muted/60"}`}>{row.Q2 ?? "—"}</span>
-              <span className={`w-16 ${inQ3 ? "text-pw-risk font-bold" : "text-pw-muted/60"}`}>{row.Q3 ?? "—"}</span>
+              <span className={`w-16 ${inQ3 ? "text-pw-risk" : inQ2 ? "text-white" : "text-pw-muted"}`}>{row.Q1 ?? "-"}</span>
+              <span className={`w-16 ${inQ3 ? "text-pw-risk" : inQ2 ? "text-white" : "text-pw-muted/60"}`}>{row.Q2 ?? "-"}</span>
+              <span className={`w-16 ${inQ3 ? "text-pw-risk font-bold" : "text-pw-muted/60"}`}>{row.Q3 ?? "-"}</span>
             </div>
           </div>
         );

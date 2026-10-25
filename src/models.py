@@ -59,7 +59,7 @@ def predict(model: XGBRegressor, X_test: pd.DataFrame) -> np.ndarray:
 # How far a predicted position is allowed to stray from the estimated grid.
 # 1.0 = trust the model fully, 0.0 = use the grid estimate as-is.
 #
-# Currently 0.0 — the model's adjustments were measured to be net harmful.
+# Currently 0.0, the model's adjustments were measured to be net harmful.
 #
 # Faithful backtest (run_backtest(use_practice=True), 8 races of 2026), where
 # both sides get FP3-estimated grid and the same optimiser:

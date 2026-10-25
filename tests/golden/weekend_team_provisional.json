@@ -21,7 +21,7 @@
      "LAW",
      "HUL"
     ],
-    "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
+    "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x"
    },
    "budget_remaining": 1.2,
    "chips": {
@@ -138,7 +138,7 @@
       "LAW",
       "HUL"
      ],
-     "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
+     "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x"
     },
     "budget_remaining": 1.2,
     "chips": {
@@ -254,7 +254,7 @@
       "LAW",
       "HUL"
      ],
-     "reason": "Starting P2 (Q3), predicted P2 \u2014 front row, qualifying points already banked, safest 2x"
+     "reason": "Starting P2 (Q3), predicted P2: front row, qualifying points already banked, safest 2x"
     },
     "budget_remaining": 0.6,
     "chips": {
@@ -370,7 +370,7 @@
       "HUL",
       "BOR"
      ],
-     "reason": "Starting P1 (Q3), predicted P1 \u2014 front row, qualifying points already banked, safest 2x"
+     "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x"
     },
     "budget_remaining": 2.9,
     "chips": {

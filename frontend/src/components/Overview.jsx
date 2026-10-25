@@ -32,7 +32,7 @@ function PriceDelta({ change }) {
   );
 }
 
-// The landing dashboard — weather, weekend lineup, prices, live predicted finish.
+// The landing dashboard: weather, weekend lineup, prices, live predicted finish.
 export default function Overview({ nextRace, weekendData, held = false, weekendActiveTeam, setWeekendActiveTeam, priceChanges, finishes }) {
   const teams = weekendData?.teams?.length ? weekendData.teams : (weekendData?.team ? [weekendData.team] : []);
   const activeIdx = Math.min(weekendActiveTeam, teams.length - 1);
@@ -104,7 +104,7 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
                       className="flex-1 text-[12.5px] text-white truncate border-l-2 pl-2.5"
                       style={{ borderColor: teamAccent(d.TeamName) }}
                     >
-                      {shortName(d.Abbreviation)} <span className="text-pw-muted">— {d.TeamName}</span>
+                      {shortName(d.Abbreviation)} <span className="text-pw-muted">· {d.TeamName}</span>
                     </div>
                     <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm ${badge}`}>{(d.PickCategory || "").toUpperCase()}</span>
                     {/* chance this driver retires. just for info, it doesn't change the picks */}
@@ -113,7 +113,7 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
                   </div>
                 );
               })}
-              {/* Constructors — horizontal pair, drivers stay vertical above */}
+              {/* Constructors: horizontal pair, drivers stay vertical above */}
               <div className="grid grid-cols-2 gap-2 mt-2.5">
                 {(team.constructors || []).map(c => (
                   <div
@@ -194,7 +194,7 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
                 >
                   <span>P{p.model_pos} · {DRIVER_NAMES[p.abbreviation]?.split(" ").slice(-1)[0] || p.abbreviation}</span>
                   {p.delta === 0
-                    ? <span className="text-pw-muted">—</span>
+                    ? <span className="text-pw-muted">-</span>
                     : <span className={p.delta > 0 ? "text-pw-safe" : "text-pw-red"}>{p.delta > 0 ? "▲" : "▼"}{Math.abs(p.delta)}</span>}
                 </div>
               ))}

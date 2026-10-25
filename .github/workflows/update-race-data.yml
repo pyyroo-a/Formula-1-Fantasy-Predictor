@@ -2,7 +2,7 @@ name: Update Race Data
 
 on:
   schedule:
-    # Every Monday at 06:00 UTC — safely after Sunday race results are available
+    # Every Monday at 06:00 UTC, safely after Sunday race results are available
     - cron: "0 6 * * 1"
   workflow_dispatch: # also lets you trigger it manually from GitHub
 

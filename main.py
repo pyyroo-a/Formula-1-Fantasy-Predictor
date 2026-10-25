@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
     state.fantasy_table = run_pipeline()
     print(f"Pipeline loaded with {len(state.fantasy_table)} rows")
 
-    # Load prices for the UPCOMING round (latest completed + 1) — that's what the
+    # Load prices for the UPCOMING round (latest completed + 1), that's what the
     # fantasy game charges for this weekend's team. The old code loaded the latest
     # *completed* round instead, which is why weekend budgets came out stale (and
     # it overwrote prices.json back to the old round on every restart). Fall back
@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
             print(f"Prices loaded for round {target}")
             break
         except Exception as e:
-            print(f"Warning: could not fetch prices for round {target} — {e}")
+            print(f"Warning: could not fetch prices for round {target}: {e}")
             state.current_prices = {"drivers": {}, "constructors": {}}
 
     try:
@@ -56,7 +56,7 @@ async def lifespan(app: FastAPI):
         state.price_changes = fetch_price_changes(change_round)
         print(f"Price changes loaded (round {change_round} vs {change_round - 1})")
     except Exception as e:
-        print(f"Warning: could not fetch price changes — {e}")
+        print(f"Warning: could not fetch price changes: {e}")
         state.price_changes = {"drivers": {}, "constructors": {}}
 
     try:
@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
         state.race_schedule = fastf1.get_event_schedule(SEASON, include_testing=False)
         print(f"Race schedule loaded: {len(state.race_schedule)} events")
     except Exception as e:
-        print(f"Warning: could not load race schedule — {e}")
+        print(f"Warning: could not load race schedule: {e}")
         state.race_schedule = None
 
     yield

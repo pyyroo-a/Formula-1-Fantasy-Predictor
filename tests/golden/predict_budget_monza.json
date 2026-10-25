@@ -11,7 +11,7 @@
      "alternatives": [
       "COL"
      ],
-     "reason": "Starting P9 (Q3), predicted P8 \u2014 made Q3 so qualifying points secured, good 2x candidate"
+     "reason": "Starting P9 (Q3), predicted P8: made Q3 so qualifying points secured, good 2x candidate"
     },
     "budget_remaining": 0.0,
     "constructors": [
@@ -95,7 +95,7 @@
      "alternatives": [
       "BOR"
      ],
-     "reason": "Starting P9 (Q3), predicted P8 \u2014 made Q3 so qualifying points secured, good 2x candidate"
+     "reason": "Starting P9 (Q3), predicted P8: made Q3 so qualifying points secured, good 2x candidate"
     },
     "budget_remaining": 0.2,
     "constructors": [
@@ -177,7 +177,7 @@
      "Predicted": 5.7,
      "TeamName": "Alpine",
      "alternatives": [],
-     "reason": "Starting P1 (Q3), predicted P6 \u2014 front row, qualifying points already banked, safest 2x"
+     "reason": "Starting P1 (Q3), predicted P6: front row, qualifying points already banked, safest 2x"
     },
     "budget_remaining": 0.4,
     "constructors": [

@@ -15,7 +15,7 @@ def get_backtest(refresh: bool = False):
     Replays completed 2026 races with the model trained only on prior races,
     and compares its picks against a grid-order baseline.
 
-    Local analysis tool — disabled unless BACKTEST_ENABLED=true. It retrains the
+    Local analysis tool, disabled unless BACKTEST_ENABLED=true. It retrains the
     model once per race (~1-2 min of CPU), so leaving it open in production would
     let anyone stall the backend. Result is cached in memory after the first run.
     """

@@ -128,7 +128,7 @@ def qualifying_score(grid_pos: float) -> float:
 # Charging the full expected penalty pushes the optimiser off cheap deep-field
 # drivers, which is exactly where the budget solver earns its points. The risk
 # estimate itself is sound (see src/dnf.py, it beats a flat rate on 11 of 12
-# races) — it is using it as a points deduction that fails.
+# races), it is using it as a points deduction that fails.
 DNF_WEIGHT = 0.0
 
 
@@ -143,7 +143,7 @@ def calculate_fantasy_score(
     Computes real F1 Fantasy points per driver.
 
     scale_by_circuit weights the overtake/qualifying components by how hard the
-    circuit is to overtake at. That is a *prediction* device — it tilts picks
+    circuit is to overtake at. That is a *prediction* device, it tilts picks
     toward qualifiers at Monaco and climbers at Spa. Pass False to score an
     actual result, where the game's true unscaled points are what count.
 
@@ -156,7 +156,7 @@ def calculate_fantasy_score(
 
     dnf_weight controls how much of that expected penalty is actually charged.
     At 0.0 the probabilities are attached to the output for display but change no
-    score, which is the shipped default — see DNF_WEIGHT for why.
+    score, which is the shipped default, see DNF_WEIGHT for why.
     """
     df = df.copy()
 
@@ -200,7 +200,7 @@ def calculate_fantasy_score(
     else:
         df["DNFPenalty"] = df.get("DNF", pd.Series(0, index=df.index)) * -20
 
-    # FL (+10) and DOTD (+10) excluded — cannot predict reliably pre-race
+    # FL (+10) and DOTD (+10) excluded, cannot predict reliably pre-race
     df["FantasyValue"] = (
         df["RacePoints"] +
         df["OvertakeBonus"] +
@@ -300,7 +300,7 @@ def generate_explanations(team: pd.DataFrame) -> pd.DataFrame:
             return f"Safe Pick: starts P{grid}, predicted P{predicted}, consistent top finisher"
         
         elif row["PickCategory"] == "Value":
-            return f"Value Pick: starts P{grid}, predicted P{predicted}, averages {avg_change} position gains — strong upside"
+            return f"Value Pick: starts P{grid}, predicted P{predicted}, averages {avg_change} position gains, strong upside"
         
         elif row["PickCategory"] == "Risk":
             return f"Risk Pick: starts p{grid}, predicted P{predicted}, inconsistent but {gap} positions of potential upside"
@@ -317,10 +317,10 @@ def pick_boost_driver(drivers: list) -> dict:
     Recommends which driver to give the 2x points boost to.
 
     Scoring: FantasyValue is the main factor (highest expected score = best doubling target).
-    A small safety bonus is added for drivers starting from the top 6 — they have less
+    A small safety bonus is added for drivers starting from the top 6, they have less
     DNF risk, so the double is less likely to be wasted.
     """
-    # Never waste the 2x on a Q1 driver — only consider Q3 qualifiers (P1-10).
+    # Never waste the 2x on a Q1 driver, only consider Q3 qualifiers (P1-10).
     # Fall back to the full list only if no Q3 drivers are in the team.
     q3_drivers = [d for d in drivers if d["GridPosition"] <= 10]
     candidates = q3_drivers if q3_drivers else drivers
@@ -344,13 +344,13 @@ def pick_boost_driver(drivers: list) -> dict:
     gain = round(grid - pick["Predicted"], 1)
 
     if grid <= 3:
-        reason = f"Starting P{grid} (Q3), predicted P{predicted} — front row, qualifying points already banked, safest 2x"
+        reason = f"Starting P{grid} (Q3), predicted P{predicted}: front row, qualifying points already banked, safest 2x"
     elif grid <= 10:
-        reason = f"Starting P{grid} (Q3), predicted P{predicted} — made Q3 so qualifying points secured, good 2x candidate"
+        reason = f"Starting P{grid} (Q3), predicted P{predicted}: made Q3 so qualifying points secured, good 2x candidate"
     elif gain >= 3:
-        reason = f"Starting P{grid}, predicted P{predicted} — no Q3 drivers in team, best available with +{gain} position gain expected"
+        reason = f"Starting P{grid}, predicted P{predicted}: no Q3 drivers in team, best available with +{gain} position gain expected"
     else:
-        reason = f"Predicted P{predicted} — highest expected score available for the 2x boost"
+        reason = f"Predicted P{predicted}, highest expected score available for the 2x boost"
 
     alternatives = [s["Abbreviation"] for s in scored[1:3]]
 

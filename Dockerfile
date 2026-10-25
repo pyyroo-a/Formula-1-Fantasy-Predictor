@@ -29,5 +29,5 @@ RUN mkdir -p data/cache data/processed
 
 EXPOSE 8080
 
-# Shell form so $PORT is expanded at runtime — Render injects its own port.
+# Shell form so $PORT is expanded at runtime, Render injects its own port.
 CMD uvicorn main:app --host 0.0.0.0 --port $PORT

@@ -55,7 +55,7 @@ export default function Backtest() {
 
       {loading && (
         <p className="text-gray-600 text-xs text-center mt-2">
-          Retrains the model once per race — takes 1–2 minutes.
+          Retrains the model once per race, takes 1 to 2 minutes.
         </p>
       )}
       {error && <p className="mt-4 text-red-400 text-sm text-center">{error}</p>}
@@ -96,7 +96,7 @@ export default function Backtest() {
                 : `Simply picking the best team by qualifying position scores ${Math.abs(s.avg_delta)} more points per race. The model is not yet adding value over the grid.`}
             </p>
             <p className="text-gray-500 text-xs mt-2">
-              Best-of-three averages {s.avg_best_of_three} — the ceiling if you always picked
+              Best-of-three averages {s.avg_best_of_three}, the ceiling if you always picked
               the strongest of the three generated teams.
             </p>
           </div>
@@ -183,8 +183,8 @@ export default function Backtest() {
 
           <p className="text-xs text-gray-600 mt-4 leading-relaxed">
             <strong className="text-gray-500">Caveat:</strong> practice data isn't replayed, so the
-            backtest runs without the FP3-pace and teammate-gap signals the live model uses —
-            it blends form and circuit history only. Grid positions are taken as known, which
+            backtest runs without the FP3-pace and teammate-gap signals the live model uses.
+            It blends form and circuit history only. Grid positions are taken as known, which
             flatters both the model and the baseline equally.
           </p>
         </div>

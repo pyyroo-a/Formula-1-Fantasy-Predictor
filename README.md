@@ -6,7 +6,7 @@ An ML-powered F1 Fantasy assistant that predicts race outcomes, builds optimal t
 
 ## Motivation
 
-F1 Fantasy is deceptively hard. The sport is chaotic — a consistent midfield driver can suddenly shine at a specific circuit, or a front-runner can qualify on pole and finish P8. Plain statistics aren't enough. PitWall combines historical rolling form, grid position analysis, live practice session data, and F1 Fantasy pricing to capture both the predictable and the unpredictable sides of F1.
+F1 Fantasy is deceptively hard. The sport is chaotic: a consistent midfield driver can suddenly shine at a specific circuit, or a front-runner can qualify on pole and finish P8. Plain statistics aren't enough. PitWall combines historical rolling form, grid position analysis, live practice session data, and F1 Fantasy pricing to capture both the predictable and the unpredictable sides of F1.
 
 ## What It Does
 
@@ -14,20 +14,20 @@ F1 Fantasy is deceptively hard. The sport is chaotic — a consistent midfield d
 |-----|-------------|
 | **Race Results** | Actual finishing order for any completed 2026 race with position changes (P5 → P2, +3) |
 | **Qualifying** | Full qualifying session results with Q1 / Q2 / Q3 times |
-| **Budget Team** | Three ML-optimised lineups (5 drivers + 2 constructors) within a $100M budget, with a team switcher — F1 Fantasy allows up to 3 entries |
+| **Budget Team** | Three ML-optimised lineups (5 drivers + 2 constructors) within a $100M budget, with a team switcher, F1 Fantasy allows up to 3 entries |
 | **Manual Team** | Build your own team for an upcoming race using live practice session data, scored against the optimal |
 | **Chip Advisor** | Enter your current F1 Fantasy squad and get a PLAY / CONSIDER / HOLD recommendation for each chip |
 
-The **Weekend Team Widget** auto-activates within 5 days of a race — it detects the current weekend, fetches the best available practice session (FP3 → FP2 → FP1), and shows the optimal team without you having to do anything.
+The **Weekend Team Widget** auto-activates within 5 days of a race, it detects the current weekend, fetches the best available practice session (FP3 → FP2 → FP1), and shows the optimal team without you having to do anything.
 
-The **Prices Sidebar** is always visible on the right — it shows current F1 Fantasy prices for every driver and constructor, with arrows indicating whether each price went up or down compared to last round.
+The **Prices Sidebar** is always visible on the right, it shows current F1 Fantasy prices for every driver and constructor, with arrows indicating whether each price went up or down compared to last round.
 
 ## How Predictions Work
 
 1. Historical race results (2025 + completed 2026 rounds, 2026 weighted 5×) train an XGBoost model
 2. For upcoming races, live practice session data is fetched from FastF1 to estimate grid positions
 3. Each driver's recent rolling form is merged with their practice pace
-4. The raw prediction is blended with FP3 pace, teammate gap, and circuit history — **the blend weights change per circuit** (see below)
+4. The raw prediction is blended with FP3 pace, teammate gap, and circuit history, **the blend weights change per circuit** (see below)
 5. Predicted finishing positions are converted into **real F1 Fantasy points** (FantasyValue)
 6. Budget optimisation searches all valid 5-driver + 2-constructor combinations and returns the 3 best mutually-distinct teams under $100M
 
@@ -35,7 +35,7 @@ Full detail on the scoring system and circuit profiles: **[`docs/MODEL.md`](docs
 
 ### Circuit-Aware Predictions
 
-Every circuit is rated 1–10 for overtaking difficulty, which changes both the blend and the scoring:
+Every circuit is rated 1 to 10 for overtaking difficulty, which changes both the blend and the scoring:
 
 | Circuit type | Example | Blend shifts toward | Scoring effect |
 |---|---|---|---|
@@ -45,7 +45,7 @@ Every circuit is rated 1–10 for overtaking difficulty, which changes both the 
 
 This means at Monaco the optimiser naturally prefers front-row qualifiers, and at Spa or Brazil it favours value picks starting further back who can climb.
 
-Practice session availability is shown directly in the Manual Team tab — green dot means data is ready, otherwise the expected session time is displayed so you know exactly when to come back. The session picker auto-fallbacks FP3 → FP2 → FP1 and always shows which session the predictions are based on.
+Practice session availability is shown directly in the Manual Team tab, green dot means data is ready, otherwise the expected session time is displayed so you know exactly when to come back. The session picker auto-fallbacks FP3 → FP2 → FP1 and always shows which session the predictions are based on.
 
 ## Handling Uncertainty
 
@@ -203,8 +203,8 @@ Every driver and every constructor now carries its retirement risk on the card.
 Constructors get two numbers, because a constructor scores **both** its cars and so
 carries double the exposure of any single driver:
 
-- **1+ car out** — the chance of losing at least one car
-- **both out** — the chance of losing the pair
+- **1+ car out**: the chance of losing at least one car
+- **both out**: the chance of losing the pair
 
 Monza 2026 is why this exists. Aston Martin was picked as a constructor and both cars
 retired, which is a swing of roughly 40 points on that pick alone. The model could not
@@ -254,12 +254,12 @@ PitWall analyses all 6 F1 Fantasy chips against your squad and the upcoming race
 
 | Chip | Logic |
 |------|-------|
-| **Limitless** | Removes budget cap — compares uncapped optimal team vs your squad |
+| **Limitless** | Removes budget cap, compares uncapped optimal team vs your squad |
 | **Wildcard** | Scores if a full squad rebuild would gain significantly over your current team |
 | **3× Boost** | Scores if your best predicted driver is significantly ahead of the field (2× → 3×) |
 | **Final Fix** | Flags your weakest scorer as a swap candidate after qualifying |
 | **No Negative** | Recommends for high-attrition circuits (Monaco, Singapore, Baku, etc.) |
-| **Auto Pilot** | Always SAVE — PitWall already does this better |
+| **Auto Pilot** | Always SAVE, PitWall already does this better |
 
 Each chip gets a **PLAY / CONSIDER / HOLD / SAVE** verdict with an expected xP gain.
 
@@ -271,12 +271,12 @@ Each chip gets a **PLAY / CONSIDER / HOLD / SAVE** verdict with an expected xP g
 | PreviousPosition | Last race finish |
 | PositionChange | Positions gained/lost per race |
 | AveragePositionChange | Rolling 3-race average of position gains |
-| Consistency | Std deviation of position change — lower = more consistent |
-| GridvsForm | Starting position vs recent average — detects overperformance potential |
-| FormTrend | Rolling average vs previous race — captures momentum |
+| Consistency | Std deviation of position change, lower = more consistent |
+| GridvsForm | Starting position vs recent average, detects overperformance potential |
+| FormTrend | Rolling average vs previous race, captures momentum |
 | Top10Finish | Binary: points finish |
 | Top5Finish | Binary: strong finish |
-| WinRate | Wins over the last 5 races — captures in-season dominance |
+| WinRate | Wins over the last 5 races, captures in-season dominance |
 | PodiumRate | Podiums over the last 5 races |
 | TeamAvgPosition | Team's average finish over its last 3 races |
 | FantasyValue | **Real F1 Fantasy points** for the predicted result (see below) |
@@ -298,28 +298,28 @@ FantasyValue = RacePoints + OvertakeBonus + QualifyingScore + DNFPenalty
 
 Constructors score the sum of both their drivers, plus **+3 if both cars reach Q3** (or +1 for Q2), plus a top-team bonus so Mercedes/Ferrari are correctly favoured.
 
-Fastest Lap (+10) and Driver of the Day (+10) are deliberately excluded — they can't be predicted reliably before a race.
+Fastest Lap (+10) and Driver of the Day (+10) are deliberately excluded, they can't be predicted reliably before a race.
 
 ## Model
 
 - **Algorithm**: XGBoost Regressor (`n_estimators=200, learning_rate=0.05, max_depth=4`)
 - **Training data**: 2025 season + completed 2026 rounds, with **2026 weighted 5×** so current car pace dominates. Updated automatically on startup.
 - **Target**: Finishing position
-- **Blend**: model / FP3 pace / teammate gap / circuit history — weights vary per circuit
-- **Pick categories**: Safe (top 3 predicted) / Value / Risk / Avoid — based on FantasyValue quartiles
+- **Blend**: model / FP3 pace / teammate gap / circuit history, weights vary per circuit
+- **Pick categories**: Safe (top 3 predicted) / Value / Risk / Avoid, based on FantasyValue quartiles
 
 ## Tech Stack
 
 **Backend**
 - Python, FastAPI, Uvicorn
 - XGBoost, scikit-learn, Pandas, NumPy
-- FastF1 — live race schedule, practice session data, qualifying results
-- Public F1 Fantasy API — driver and constructor prices
+- FastF1, live race schedule, practice session data, qualifying results
+- Public F1 Fantasy API, driver and constructor prices
 
 **Frontend**
 - React + Vite
 - Tailwind CSS
-- Component-based architecture — each feature in its own file under `frontend/src/components/`
+- Component-based architecture, each feature in its own file under `frontend/src/components/`
 - Driver headshots per card (`.avif`), team colour accents on every card
 
 ## Project Structure
@@ -392,7 +392,7 @@ pitwall/
 | POST | `/qualifying-results` | Q1/Q2/Q3 times for a race |
 | POST | `/race-sessions` | FP1/FP2/FP3 schedule + availability for a race |
 | POST | `/predict` | ML prediction for an upcoming race |
-| POST | `/predict-budget` | Three optimal teams within $100M budget — returns `{ "teams": [...] }` |
+| POST | `/predict-budget` | Three optimal teams within $100M budget, returns `{ "teams": [...] }` |
 | POST | `/snapshot/auto` | Locks the current weekend into a snapshot once final practice is published (needs `X-Snapshot-Secret`) |
 | POST | `/upcoming-race-pool` | Driver + constructor pool for manual team builder |
 | POST | `/chip-advisor` | Chip recommendations for a given squad |
@@ -410,7 +410,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Wait for `Pipeline loaded with X rows` in the terminal before using the app. Startup takes ~10–20 seconds as it fetches any new race results and trains the model.
+Wait for `Pipeline loaded with X rows` in the terminal before using the app. Startup takes ~10 to 20 seconds as it fetches any new race results and trains the model.
 
 **Frontend**
 ```bash
@@ -434,7 +434,7 @@ In production, set `CORS_ORIGINS` to your deployed frontend URL.
 - **Frontend** → Vercel (set root directory to `frontend/`)
 - **Backend** → Render (Docker runtime, builds the root `Dockerfile`, binds `$PORT`)
 - Set `CORS_ORIGINS` in the Render dashboard to the Vercel deployment URL
-- Set `VITE_API_URL` on Vercel to the Render URL, then redeploy — Vite bakes env vars in at build time
+- Set `VITE_API_URL` on Vercel to the Render URL, then redeploy, Vite bakes env vars in at build time
 
 The free instance sleeps after 15 minutes idle, so the first request after a quiet spell pays a cold start.
 
@@ -446,7 +446,7 @@ A GitHub Actions cron (`.github/workflows/update-race-data.yml`) runs every Mond
 
 See **[`ROADMAP.md`](ROADMAP.md)** for the full list. Next up:
 
-- Sports betting odds integration — market-implied finishing order as an extra signal
-- Session health signal — detect car issues from FP3 lap counts vs teammate
+- Sports betting odds integration, market-implied finishing order as an extra signal
+- Session health signal, detect car issues from FP3 lap counts vs teammate
 - Weather as an ML feature
 - APScheduler background job to auto-fetch practice data as sessions finish

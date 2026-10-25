@@ -40,14 +40,14 @@ def compute_championship_form(results_df: pd.DataFrame) -> pd.DataFrame:
     # Assign championship position (1 = leader, 2 = second, etc.)
     standings["ChampPosition"] = standings.index + 1
 
-    # Normalise points to a 0–1 scale.
+    # Normalise points to a 0 to 1 scale.
     # The leader gets 1.0; a driver with 0 points gets 0.0.
     # We use max points as the denominator so everything is relative to the leader.
     max_points = standings["ChampPoints"].max()
     if max_points > 0:
         standings["FormSignal"] = (standings["ChampPoints"] / max_points).round(4)
     else:
-        # No races completed yet — give everyone an equal neutral signal
+        # No races completed yet, give everyone an equal neutral signal
         standings["FormSignal"] = 0.5
 
     return standings[["Abbreviation", "ChampPoints", "ChampPosition", "FormSignal"]]
@@ -92,10 +92,10 @@ def apply_championship_signal(
     # Multiply by 3 to scale to a max ±1.5 position shift, then apply weight.
     df["ChampAdjustment"] = (0.5 - df["FormSignal"]) * 3 * weight
 
-    # Apply the adjustment and clip to the valid 1–20 position range.
+    # Apply the adjustment and clip to the valid 1 to 20 position range.
     df["Predicted"] = np.clip(df["Predicted"] + df["ChampAdjustment"], 1, 20).round(2)
 
-    # Drop the intermediate adjustment column — it's not needed downstream.
+    # Drop the intermediate adjustment column, it's not needed downstream.
     df = df.drop(columns=["ChampAdjustment"])
 
     return df
