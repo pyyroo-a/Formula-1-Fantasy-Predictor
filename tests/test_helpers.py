@@ -3,7 +3,9 @@ Small checks for the shared helpers. The backtest and measure_grid_error use the
 too but aren't covered by the endpoint tests, so the helpers get their own.
 """
 import pandas as pd
+import pytest
 
+import src.fantasy as fantasy
 import src.fetch_practice as fp
 import src.fetch_prices as fetch_prices_mod
 from src.config import PREVIOUS_SEASON, SEASON, results_path, sprint_results_path
@@ -114,3 +116,22 @@ def test_results_path_follows_processed_dir(monkeypatch):
     monkeypatch.setenv("PROCESSED_DIR", "somewhere/else")
     assert results_path(2026) == "somewhere/else/race_results_2026.csv"
     assert sprint_results_path(2026) == "somewhere/else/sprint_results_2026.csv"
+
+
+def test_constructor_scores_keep_the_avoid_quirk_for_now():
+    # the team builders drop Avoid drivers before adding up constructors, the pool
+    # doesn't. project 2 fixes this with measurement, the cleanup must not move it
+    df = pd.DataFrame({
+        "TeamName": ["Cadillac", "Cadillac", "Ferrari", "Ferrari"],
+        "Abbreviation": ["PER", "BOT", "LEC", "HAM"],
+        "FantasyValue": [-5.1, -3.7, 38.0, 29.7],
+        "PickCategory": ["Avoid", "Risk", "Safe", "Safe"],
+        "GridPosition": [21, 22, 1, 2],
+    })
+    prices = {"Cadillac": 3.0, "Ferrari": 28.2}
+    builder = fantasy._constructor_scores(df, prices, drop_avoid=True, with_bonus=True)
+    pool = fantasy._constructor_scores(df, prices, drop_avoid=False, with_bonus=False)
+    assert builder["Cadillac"] == pytest.approx(-3.7)   # Bottas only, one car so no Q bonus
+    assert pool["Cadillac"] == pytest.approx(-8.8)
+    assert builder["Ferrari"] == pytest.approx(70.7)    # both in Q3: +3, no TeamAvgPosition: +0
+    assert pool["Ferrari"] == pytest.approx(67.7)

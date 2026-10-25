@@ -365,32 +365,32 @@ def pick_boost_driver(drivers: list) -> dict:
     }
 
 
-def build_budget_team(
+def _priced_race_table(
     fantasy_table: pd.DataFrame,
     race_name: str,
     prices: dict,
-    budget: float = 100.0,
-    min_safe: int = 1,
     dnf_probs: dict | None = None,
     dnf_weight: float = DNF_WEIGHT,
-) -> dict:
+) -> tuple[pd.DataFrame, set[str]]:
+    """
+    The race's drivers scored, priced and sorted into pick categories. The team
+    builders and the pool all start from this, so there's only one copy of it.
+
+    Returns (race_df, safe_abbrevs). Avoid drivers are still in race_df, each
+    caller decides what to do with them.
+    """
     race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
     race_df = calculate_fantasy_score(race_df, race_name=race_name,
                                       dnf_probs=dnf_probs, dnf_weight=dnf_weight)
-
     race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
     race_df = race_df.reset_index(drop=True)
 
-    driver_prices = prices.get("drivers", {})
-    constructor_prices = prices.get("constructors", {})
-
-    race_df["Price"] = race_df["Abbreviation"].map(driver_prices)
+    race_df["Price"] = race_df["Abbreviation"].map(prices.get("drivers", {}))
     race_df = race_df.dropna(subset=["Price"])
 
     # Safe = top 3 predicted finishers (lowest Predicted value)
     safe_abbrevs = set(race_df.nsmallest(3, "Predicted")["Abbreviation"].tolist())
 
-    # Assign pick category so we can tag results and filter avoid-tier
     avoid_threshold = race_df["FantasyValue"].quantile(0.25)
     value_threshold = race_df["FantasyValue"].quantile(0.75)
 
@@ -404,26 +404,46 @@ def build_budget_team(
         return "Risk"
 
     race_df["PickCategory"] = race_df.apply(_category, axis=1)
+    return race_df, safe_abbrevs
 
-    # Remove avoid-tier drivers from the candidate pool
-    race_df = race_df[race_df["PickCategory"] != "Avoid"]
 
-    # Constructor score = sum of both drivers' FantasyValue — you get points from both cars
-    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
+def _constructor_scores(
+    race_df: pd.DataFrame,
+    constructor_prices: dict,
+    *,
+    drop_avoid: bool,
+    with_bonus: bool,
+) -> dict[str, float]:
+    """
+    Constructor score = sum of both drivers' FantasyValue, since you get points from
+    both cars. With with_bonus, plus the Q2/Q3 bonus (+1 if both cars reach Q2, +3 if
+    both reach Q3) and a small top team bonus.
+
+    The two flags are there because the callers don't agree, and the cleanup kept
+    that on purpose so no prediction moved. Project 2 sorts it out with measurement:
+      * the team builders use drop_avoid=True, so an Avoid driver's points vanish
+        from his constructor (US GP: Cadillac -3.7 on Bottas alone, both cars -8.8)
+      * the pool uses with_bonus=False, so the chip check sees different constructor
+        scores than the team builder does
+    """
+    if drop_avoid:
+        race_df = race_df[race_df["PickCategory"] != "Avoid"]
+
+    sums = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
+    if not with_bonus:
+        return {team: round(sums.get(team, 0.0), 3) for team in constructor_prices}
 
     team_avg_pos = (
         race_df.groupby("TeamName")["TeamAvgPosition"].mean().to_dict()
         if "TeamAvgPosition" in race_df.columns else {}
     )
+    grids_by_team = race_df.groupby("TeamName")["GridPosition"].apply(list).to_dict()
 
-    # Q2/Q3 bonus: +1 if both cars reach Q2, +3 if both reach Q3
-    driver_grids_by_team = race_df.groupby("TeamName")["GridPosition"].apply(list).to_dict()
-
-    def _constructor_bonus(team):
+    def _bonus(team):
         avg = team_avg_pos.get(team, 10.0)
         top_team = 1.5 if avg <= 4 else (0.5 if avg <= 7 else 0.0)
 
-        grids = driver_grids_by_team.get(team, [])
+        grids = grids_by_team.get(team, [])
         if len(grids) >= 2:
             if all(g <= 10 for g in grids):
                 q_bonus = 3  # both in Q3
@@ -436,12 +456,46 @@ def build_budget_team(
 
         return top_team + q_bonus
 
+    return {team: round(sums.get(team, 0.0) + _bonus(team), 3) for team in constructor_prices}
+
+
+def _driver_out(d: dict, with_dnf: bool) -> dict:
+    """One driver the way the API returns it."""
+    out = {
+        "Abbreviation": d["Abbreviation"],
+        "TeamName": d["TeamName"],
+        "GridPosition": int(d["GridPosition"]),
+        "Predicted": round(d["Predicted"], 1),
+        "FantasyValue": round(d["FantasyValue"], 3),
+        "Price": d["Price"],
+        "PickCategory": d["PickCategory"],
+    }
+    if with_dnf:
+        # None when dnf risk wasn't worked out (e.g. a race that already happened)
+        out["DNFProb"] = round(d["DNFProb"], 3) if "DNFProb" in d else None
+    return out
+
+
+def build_budget_team(
+    fantasy_table: pd.DataFrame,
+    race_name: str,
+    prices: dict,
+    budget: float = 100.0,
+    min_safe: int = 1,
+    dnf_probs: dict | None = None,
+    dnf_weight: float = DNF_WEIGHT,
+) -> dict:
+    race_df, safe_abbrevs = _priced_race_table(fantasy_table, race_name, prices,
+                                               dnf_probs=dnf_probs, dnf_weight=dnf_weight)
+    constructor_prices = prices.get("constructors", {})
+
+    # Remove avoid-tier drivers from the candidate pool
+    race_df = race_df[race_df["PickCategory"] != "Avoid"]
+
+    # drop_avoid takes them out of the constructor sums too, see _constructor_scores
+    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=True, with_bonus=True)
     constructors = [
-        {
-            "name": team,
-            "price": price,
-            "score": round(constructor_scores.get(team, 0.0) + _constructor_bonus(team), 3),
-        }
+        {"name": team, "price": price, "score": scores[team]}
         for team, price in constructor_prices.items()
     ]
 
@@ -475,18 +529,7 @@ def build_budget_team(
             if total_score > best_score:
                 best_score = total_score
                 best_team = {
-                    "drivers": [
-                        {
-                            "Abbreviation": d["Abbreviation"],
-                            "TeamName": d["TeamName"],
-                            "GridPosition": int(d["GridPosition"]),
-                            "Predicted": round(d["Predicted"], 1),
-                            "FantasyValue": round(d["FantasyValue"], 3),
-                            "Price": d["Price"],
-                            "PickCategory": d["PickCategory"],
-                        }
-                        for d in driver_combo
-                    ],
+                    "drivers": [_driver_out(d, with_dnf=False) for d in driver_combo],
                     "constructors": [
                         {
                             "name": c["name"],
@@ -522,56 +565,13 @@ def build_budget_teams(
     min_driver_diff drivers). Runs the full combinations solver once and keeps
     a pool of top candidates, then greedily picks diverse teams from that pool.
     """
-    race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df, race_name=race_name,
-                                      dnf_probs=dnf_probs, dnf_weight=dnf_weight)
-    race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
-    race_df = race_df.reset_index(drop=True)
-
-    driver_prices = prices.get("drivers", {})
+    race_df, safe_abbrevs = _priced_race_table(fantasy_table, race_name, prices,
+                                               dnf_probs=dnf_probs, dnf_weight=dnf_weight)
     constructor_prices = prices.get("constructors", {})
-
-    race_df["Price"] = race_df["Abbreviation"].map(driver_prices)
-    race_df = race_df.dropna(subset=["Price"])
-
-    safe_abbrevs = set(race_df.nsmallest(3, "Predicted")["Abbreviation"].tolist())
-    avoid_threshold = race_df["FantasyValue"].quantile(0.25)
-    value_threshold = race_df["FantasyValue"].quantile(0.75)
-
-    def _category(row):
-        if row["Abbreviation"] in safe_abbrevs:
-            return "Safe"
-        if row["FantasyValue"] >= value_threshold:
-            return "Value"
-        if row["FantasyValue"] <= avoid_threshold:
-            return "Avoid"
-        return "Risk"
-
-    race_df["PickCategory"] = race_df.apply(_category, axis=1)
     race_df = race_df[race_df["PickCategory"] != "Avoid"]
 
-    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
-    team_avg_pos = (
-        race_df.groupby("TeamName")["TeamAvgPosition"].mean().to_dict()
-        if "TeamAvgPosition" in race_df.columns else {}
-    )
-
-    driver_grids_by_team = race_df.groupby("TeamName")["GridPosition"].apply(list).to_dict()
-
-    def _constructor_bonus(team):
-        avg = team_avg_pos.get(team, 10.0)
-        top_team = 1.5 if avg <= 4 else (0.5 if avg <= 7 else 0.0)
-        grids = driver_grids_by_team.get(team, [])
-        if len(grids) >= 2:
-            if all(g <= 10 for g in grids):
-                q_bonus = 3
-            elif all(g <= 15 for g in grids):
-                q_bonus = 1
-            else:
-                q_bonus = 0
-        else:
-            q_bonus = 0
-        return top_team + q_bonus
+    # drop_avoid takes them out of the constructor sums too, see _constructor_scores
+    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=True, with_bonus=True)
 
     # Retirement risk per constructor. A constructor scores BOTH its cars, so it
     # carries double the exposure of a single driver: Aston Martin losing both
@@ -600,9 +600,9 @@ def build_budget_teams(
         constructors.append({
             "name": team,
             "price": price,
-            "score": round(constructor_scores.get(team, 0.0) + _constructor_bonus(team), 3),
+            "score": scores[team],
             "dnf_risk": any_out,        # P(at least one car retires)
-            "double_dnf_risk": both_out,  # P(both cars retire) — the Monza scenario
+            "double_dnf_risk": both_out,  # P(both cars retire), the Monza scenario
         })
 
     drivers_list = race_df.to_dict("records")
@@ -631,19 +631,7 @@ def build_budget_teams(
             )
 
             team_dict = {
-                "drivers": [
-                    {
-                        "Abbreviation": d["Abbreviation"],
-                        "TeamName": d["TeamName"],
-                        "GridPosition": int(d["GridPosition"]),
-                        "Predicted": round(d["Predicted"], 1),
-                        "FantasyValue": round(d["FantasyValue"], 3),
-                        "Price": d["Price"],
-                        "PickCategory": d["PickCategory"],
-                        "DNFProb": round(d["DNFProb"], 3) if "DNFProb" in d else None,
-                    }
-                    for d in driver_combo
-                ],
+                "drivers": [_driver_out(d, with_dnf=True) for d in driver_combo],
                 "constructors": [
                     {
                         "name": c["name"], "price": c["price"], "score": c["score"],
@@ -692,101 +680,19 @@ def get_race_pool(
     dnf_probs: dict | None = None,
     dnf_weight: float = DNF_WEIGHT,
 ) -> dict:
-    """Returns all drivers + constructors for a race with prices and categories — used by the manual team builder."""
-    race_df = fantasy_table[fantasy_table["RaceName"] == race_name].copy()
-    race_df = calculate_fantasy_score(race_df, race_name=race_name,
-                                      dnf_probs=dnf_probs, dnf_weight=dnf_weight)
-    race_df["GridGap"] = race_df["GridPosition"] - race_df["Predicted"]
-    race_df = race_df.reset_index(drop=True)
-
-    driver_prices = prices.get("drivers", {})
+    """Returns all drivers + constructors for a race with prices and categories, used by the manual team builder."""
+    race_df, _ = _priced_race_table(fantasy_table, race_name, prices,
+                                    dnf_probs=dnf_probs, dnf_weight=dnf_weight)
     constructor_prices = prices.get("constructors", {})
 
-    race_df["Price"] = race_df["Abbreviation"].map(driver_prices)
-    race_df = race_df.dropna(subset=["Price"])
+    # no Avoid drop and no Q bonus here, unlike the team builders, see _constructor_scores
+    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=False, with_bonus=False)
 
-    safe_abbrevs = set(race_df.nsmallest(3, "Predicted")["Abbreviation"].tolist())
-    avoid_threshold = race_df["FantasyValue"].quantile(0.25)
-    value_threshold = race_df["FantasyValue"].quantile(0.75)
-
-    def _category(row):
-        if row["Abbreviation"] in safe_abbrevs:
-            return "Safe"
-        if row["FantasyValue"] >= value_threshold:
-            return "Value"
-        if row["FantasyValue"] <= avoid_threshold:
-            return "Avoid"
-        return "Risk"
-
-    race_df["PickCategory"] = race_df.apply(_category, axis=1)
-
-    # Constructor score = sum of both drivers' FantasyValue — you get points from both cars
-    constructor_scores = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
-
-    drivers = [
-        {
-            "Abbreviation": d["Abbreviation"],
-            "TeamName": d["TeamName"],
-            "GridPosition": int(d["GridPosition"]),
-            "Predicted": round(d["Predicted"], 1),
-            "FantasyValue": round(d["FantasyValue"], 3),
-            "Price": d["Price"],
-            "PickCategory": d["PickCategory"],
-            # None when dnf risk wasn't worked out (e.g. a race that already happened)
-            "DNFProb": round(d["DNFProb"], 3) if "DNFProb" in d else None,
-        }
-        for d in race_df.sort_values("Predicted").to_dict("records")
-    ]
+    drivers = [_driver_out(d, with_dnf=True) for d in race_df.sort_values("Predicted").to_dict("records")]
 
     constructors = sorted(
-        [
-            {"name": t, "price": p, "score": round(constructor_scores.get(t, 0.0), 3)}
-            for t, p in constructor_prices.items()
-        ],
+        [{"name": t, "price": p, "score": scores[t]} for t, p in constructor_prices.items()],
         key=lambda c: -c["score"],
     )
 
     return {"drivers": drivers, "constructors": constructors}
-
-
-def evaluate_fantasy_picks(
-        fantasy_table: pd.DataFrame,
-        w_avg_position_change: float = 0.1,
-        w_predicted: float = 0.1,
-        w_confidence: float = 0.1,
-        w_grid_gap: float = 0.4
-) -> pd.DataFrame:
-    results = []
-    races = fantasy_table["RaceName"].unique()
-
-    for race in races:
-        team = build_fantasy_team(
-            fantasy_table,
-            race,
-            w_avg_position_change=w_avg_position_change,
-            w_predicted=w_predicted,
-            w_confidence=w_confidence,
-            w_grid_gap=w_grid_gap
-        )
-
-        total_picks = len(team)
-        top5_hits = (team["Position"] <= 5).sum()
-        top10_hits = (team["Position"] <= 10).sum()
-        avg_finish = team["Position"].mean()
-        avg_position_gain = team["PositionChange"].mean()
-        dnf_count = (team["Status"] != "Finished").sum() if "Status" in team.columns else 0
-
-        results.append({
-            "RaceName": race,
-            "Total Picks": total_picks,
-            "Top 5 Hits": int(top5_hits),
-            "Top 5 Hit Rate": round(top5_hits / total_picks, 2),
-            "Top 10 Hits": int(top10_hits),
-            "Top 10 Hit Rate": round(top10_hits / total_picks, 2),
-            "Avg Finish": round(avg_finish, 2),
-            "Avg Position Gain": round(avg_position_gain, 2),
-            "DNF Count": int(dnf_count)
-        })
-
-    return pd.DataFrame(results)
-
