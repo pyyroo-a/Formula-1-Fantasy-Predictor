@@ -6,6 +6,10 @@ import numpy as np
 POINTS_MAP = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10,
               6: 8,  7: 6,  8: 4,  9: 2,  10: 1}
 
+# how hard the standings nudge pushes, used by the live pipeline AND the backtest replay
+# so the two can't drift apart (they did once, the replay skipped this completely)
+CHAMPIONSHIP_WEIGHT = 0.15
+
 
 def compute_championship_form(results_df: pd.DataFrame) -> pd.DataFrame:
     """

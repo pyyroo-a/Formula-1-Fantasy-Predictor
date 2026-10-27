@@ -5,7 +5,7 @@ from src.data_loader import load_dataset
 from src.config import SEASON, PREVIOUS_SEASON, results_path
 from src.features import build_features
 from src.models import prepare_data, train_model, predict, build_fantasy_table, shrink_to_grid
-from src.championship_form import compute_championship_form, apply_championship_signal
+from src.championship_form import CHAMPIONSHIP_WEIGHT, compute_championship_form, apply_championship_signal
 from src.circuit_profiles import get_blend_weights
 
 
@@ -52,7 +52,7 @@ def run_pipeline() -> pd.DataFrame:
     # and use them to fine-tune predictions: drivers leading the title
     # get a small boost, backmarkers get a small penalty.
     form_df = compute_championship_form(df_current)
-    fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=0.15)
+    fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=CHAMPIONSHIP_WEIGHT)
 
     return fantasy_table
 
@@ -173,7 +173,7 @@ def predict_upcoming_race(practice_df: pd.DataFrame) -> pd.DataFrame:
     # Apply championship standings signal on top of the blended prediction.
     # We use all historical + 2026 data so the standings reflect the full season so far.
     form_df = compute_championship_form(df_history[df_history["Year"] == df_history["Year"].max()])
-    fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=0.15)
+    fantasy_table = apply_championship_signal(fantasy_table, form_df, weight=CHAMPIONSHIP_WEIGHT)
 
     # Compute scoring columns from blended predictions
     fantasy_table["PositionChange"] = fantasy_table["GridPosition"] - fantasy_table["Predicted"]

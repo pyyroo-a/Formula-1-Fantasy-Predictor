@@ -23,6 +23,12 @@ from src.fetch_practice import (
     is_sprint_weekend,
 )
 from src.dnf import DNFModel
+from src.championship_form import (
+    CHAMPIONSHIP_WEIGHT,
+    apply_championship_signal,
+    compute_championship_form,
+)
+from src.official_points import team_points
 
 MIN_HISTORY_ROUNDS = 2  # need some 2026 form before predictions mean anything
 
@@ -61,16 +67,20 @@ def _predict_race(
         # Production path: practice pace supplies the estimated grid and the
         # driver pool. Actual finishing positions are attached only so the
         # caller can score afterwards, they never reach the model.
-        actuals = target_raw[["Abbreviation", "Position", "Status"]]
+        actuals = target_raw[["Abbreviation", "Position"]]
         upcoming = practice_df.merge(actuals, on="Abbreviation", how="left")
         upcoming["Position"] = upcoming["Position"].fillna(20.0)
-        upcoming["Status"] = upcoming["Status"].fillna("Finished")
         upcoming = upcoming.merge(latest_form, on="Abbreviation", how="left")
     else:
         # Merge onto the raw target rows so drivers who DNF'd are still included.
         # build_features() drops non-finishers, and excluding them here would hide
         # every -20 the optimiser walked into.
         upcoming = target_raw.merge(latest_form, on="Abbreviation", how="left")
+
+    # nobody has retired yet at the deadline, same as live. this used to carry the
+    # REAL race Status, so the scoring handed real retirements their -20 before the
+    # race and the replay dodged them (US GP: Bottas, Colapinto, Bearman)
+    upcoming["Status"] = "Finished"
 
     upcoming["PreviousPosition"] = upcoming["PreviousPosition"].fillna(10.0)
     upcoming["AveragePositionChange"] = upcoming["AveragePositionChange"].fillna(0.0)
@@ -137,7 +147,10 @@ def _predict_race(
 
     upcoming["Position"] = actual_position
     upcoming["Predicted"] = np.clip(blended, 1, field_size).round(2)
-    return upcoming
+
+    # the same standings nudge live adds on top, from this season's races before this one
+    form = compute_championship_form(history[history["Year"] == history["Year"].max()])
+    return apply_championship_signal(upcoming, form, weight=CHAMPIONSHIP_WEIGHT)
 
 
 def _actual_driver_points(target_raw: pd.DataFrame, sprint_raw: pd.DataFrame | None = None) -> dict[str, float]:
@@ -211,6 +224,35 @@ def _score_team(team: dict, driver_pts: dict, constructor_pts: dict) -> float:
     return round(total, 1)
 
 
+def _graded_by_referee(team: dict, round_points: dict) -> float:
+    """What a lineup really scored, the game's own points (src/official_points.py)."""
+    if not team:
+        return 0.0
+    return team_points(
+        [d["Abbreviation"] for d in team["drivers"]],
+        [c["name"] for c in team["constructors"]],
+        (team.get("boost_pick") or {}).get("Abbreviation"),
+        round_points,
+    )
+
+
+def deadline_grid(race_name: str):
+    """
+    The order PitWall would have seen at the deadline: FP3 (or FP2, FP1 if it's
+    missing), or sprint quali on sprint weekends since the deadline comes after it.
+    Returns (grid, session used), or (None, None) if nothing loads.
+    """
+    if is_sprint_weekend(race_name):
+        # FP1 is the fallback if sprint quali can't be loaded
+        try:
+            return get_sprint_quali_grid(SEASON, race_name), "SQ"
+        except Exception:
+            grid, used, _ = first_available_practice(SEASON, race_name, ["FP1"])
+            return grid, used
+    grid, used, _ = first_available_practice(SEASON, race_name, fallback_sessions("FP3"))
+    return grid, used
+
+
 def _prices_for_round(round_number: int, fallback: dict, cache: dict) -> dict:
     if round_number in cache:
         return cache[round_number]
@@ -229,6 +271,7 @@ def run_backtest(
     use_practice: bool = True,
     use_dnf_risk: bool = False,
     dnf_weight: float = 1.0,
+    official: dict[int, dict] | None = None,
 ) -> dict:
     """
     Replays every completed 2026 race and reports what the model would have scored.
@@ -247,6 +290,11 @@ def run_backtest(
     is how much of the expected penalty to charge; this defaults to the full 1.0
     here rather than to the shipped DNF_WEIGHT, because the point of the flag is
     to measure the effect rather than to reproduce production.
+
+    official is the game's own points per round (load_official_points). When it's
+    given, every score is the real one from the feed instead of our own version of the
+    rules, and the round's prices come from the same saved feed. A round that isn't in
+    it gets official_missing and no scores at all, never a 0.
     """
     df_previous = load_dataset(results_path(PREVIOUS_SEASON))
     df_current = load_dataset(results_path(SEASON))
@@ -275,23 +323,18 @@ def run_backtest(
             [df_previous, df_current[df_current["RoundNumber"] < rnd]], ignore_index=True
         )
 
-        prices = _prices_for_round(int(rnd), fallback_prices, price_cache)
+        official_round = official.get(int(rnd)) if official is not None else None
+        if official_round and official_round.get("prices", {}).get("drivers"):
+            prices = official_round["prices"]
+        else:
+            prices = _prices_for_round(int(rnd), fallback_prices, price_cache)
         if not prices.get("drivers"):
             continue
 
         practice_df = None
         session_used = None
         if use_practice:
-            if is_sprint_weekend(race_name):
-                # the deadline is after sprint qualifying, so use that real order.
-                # FP1 is the fallback if sprint quali can't be loaded
-                try:
-                    practice_df, session_used = get_sprint_quali_grid(SEASON, race_name), "SQ"
-                except Exception:
-                    practice_df, session_used, _ = first_available_practice(SEASON, race_name, ["FP1"])
-            else:
-                practice_df, session_used, _ = first_available_practice(
-                    SEASON, race_name, fallback_sessions("FP3"))
+            practice_df, session_used = deadline_grid(race_name)
             if practice_df is None:
                 races.append({
                     "race_name": race_name, "round": int(rnd),
@@ -305,9 +348,28 @@ def run_backtest(
             races.append({"race_name": race_name, "round": int(rnd), "error": str(e)})
             continue
 
-        sprint_raw = sprint_results[sprint_results["RoundNumber"] == rnd] if sprint_results is not None else None
-        driver_pts = _actual_driver_points(target_raw, sprint_raw)
-        constructor_pts = _actual_constructor_points(target_raw, sprint_raw)
+        if official is not None:
+            # the referee: real points from the feed, or nothing if we don't have them
+            if official_round is None:
+                driver_pts = constructor_pts = None
+            else:
+                driver_pts = {a: v["points"] for a, v in official_round["drivers"].items()}
+                constructor_pts = {c: v["points"] for c, v in official_round["constructors"].items()}
+        else:
+            sprint_raw = sprint_results[sprint_results["RoundNumber"] == rnd] if sprint_results is not None else None
+            driver_pts = _actual_driver_points(target_raw, sprint_raw)
+            constructor_pts = _actual_constructor_points(target_raw, sprint_raw)
+        missing = official is not None and official_round is None
+
+        def _grade(team):
+            if missing:
+                return None
+            if official is not None:
+                return _graded_by_referee(team, official_round)
+            return _score_team(team, driver_pts, constructor_pts)
+
+        def _actual(pts, name):
+            return None if pts is None else round(pts.get(name, 0.0), 1)
 
         # Retirement risk, fit on history only so no future information leaks in.
         dnf_probs = None
@@ -331,39 +393,39 @@ def run_backtest(
         grid_table["Predicted"] = grid_table["GridPosition"].astype(float)
         baseline_teams = build_budget_teams(grid_table, race_name, prices, budget=100.0)
 
-        model_scores = [_score_team(t, driver_pts, constructor_pts) for t in model_teams]
-        baseline_score = (
-            _score_team(baseline_teams[0], driver_pts, constructor_pts)
-            if baseline_teams else 0.0
-        )
+        model_scores = [_grade(t) for t in model_teams]
+        baseline_score = _grade(baseline_teams[0]) if baseline_teams else (None if missing else 0.0)
+        model_score = model_scores[0] if model_scores else (None if missing else 0.0)
 
         best_team = model_teams[0] if model_teams else None
         races.append({
             "race_name": race_name,
             "round": int(rnd),
             "session_used": session_used,
-            "model_score": model_scores[0] if model_scores else 0.0,
+            "official_missing": missing,
+            "model_score": model_score,
             "all_team_scores": model_scores,
-            "best_of_three": max(model_scores) if model_scores else 0.0,
+            "best_of_three": None if missing else (max(model_scores) if model_scores else 0.0),
             "baseline_score": baseline_score,
-            "delta": round((model_scores[0] if model_scores else 0.0) - baseline_score, 1),
+            "delta": None if missing else round(model_score - baseline_score, 1),
             "drivers": [
                 {
                     "Abbreviation": d["Abbreviation"],
                     "GridPosition": d["GridPosition"],
                     "Predicted": d["Predicted"],
-                    "actual_points": round(driver_pts.get(d["Abbreviation"], 0.0), 1),
+                    "actual_points": _actual(driver_pts, d["Abbreviation"]),
                     "is_boost": d["Abbreviation"] == (best_team.get("boost_pick") or {}).get("Abbreviation"),
                 }
                 for d in (best_team["drivers"] if best_team else [])
             ],
             "constructors": [
-                {"name": c["name"], "actual_points": round(constructor_pts.get(c["name"], 0.0), 1)}
+                {"name": c["name"], "actual_points": _actual(constructor_pts, c["name"])}
                 for c in (best_team["constructors"] if best_team else [])
             ],
         })
 
-    scored = [r for r in races if "error" not in r]
+    # a round without official points has no score at all, so it can't count
+    scored = [r for r in races if "error" not in r and not r.get("official_missing")]
     n = len(scored)
     summary = {
         "races_tested": n,

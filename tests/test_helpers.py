@@ -135,3 +135,128 @@ def test_constructor_scores_keep_the_avoid_quirk_for_now():
     assert pool["Cadillac"] == pytest.approx(-8.8)
     assert builder["Ferrari"] == pytest.approx(70.7)    # both in Q3: +3, no TeamAvgPosition: +0
     assert pool["Ferrari"] == pytest.approx(67.7)
+
+
+# ---- backtest graded with the game's own points ---------------------------------
+
+def _one_round_backtest(monkeypatch):
+    """
+    run_backtest on a made up season: rounds 1 and 2 are history, 3 and 4 get graded.
+    The model is stubbed out (the predicted order is just the grid) so the test is about
+    how the teams get SCORED, not how they're picked.
+    """
+    import src.backtest as backtest
+
+    teams = {"AAA": "Red", "BBB": "Red", "CCC": "Blue", "DDD": "Blue",
+             "EEE": "Green", "FFF": "Green", "GGG": "Pink", "HHH": "Pink"}
+    rows = []
+    for rnd in (1, 2, 3, 4):
+        for grid, (abbr, team) in enumerate(teams.items(), start=1):
+            rows.append({"Abbreviation": abbr, "FullName": abbr, "TeamName": team,
+                         "GridPosition": grid, "Position": grid, "Status": "Finished",
+                         "RaceName": f"Race {rnd}", "RoundNumber": rnd, "Year": SEASON})
+    current = pd.DataFrame(rows)
+    monkeypatch.setattr(backtest, "load_dataset",
+                        lambda path: current if str(SEASON) in path else current.iloc[0:0])
+
+    def fake_predict(history_raw, target_raw, race_name, practice_df=None):
+        # walk forward check while we're here: nothing from this race or later
+        assert history_raw["RoundNumber"].max() < target_raw["RoundNumber"].iloc[0]
+        out = target_raw.copy()
+        out["Predicted"] = out["GridPosition"].astype(float)
+        out["TeamAvgPosition"] = 10.0
+        return out
+    monkeypatch.setattr(backtest, "_predict_race", fake_predict)
+
+    def no_network(rnd):
+        raise AssertionError("the official file already has this round's prices")
+    monkeypatch.setattr(backtest, "fetch_prices", no_network)
+
+    prices = {"drivers": {a: 10.0 for a in teams},
+              "constructors": {t: 15.0 for t in set(teams.values())}}
+    # made up official points that our own rule maths would never give
+    official = {3: {
+        "drivers": {a: {"points": float(i * 7 % 23)} for i, a in enumerate(teams)},
+        "constructors": {t: {"points": float(len(t) * 11)} for t in set(teams.values())},
+        "prices": prices,
+    }}
+    return backtest.run_backtest(fallback_prices=prices, use_practice=False, official=official), official
+
+
+def test_backtest_scores_with_official_points(monkeypatch):
+    from src.official_points import team_points
+
+    result, official = _one_round_backtest(monkeypatch)
+    race = next(r for r in result["races"] if r["round"] == 3)
+    drivers = [d["Abbreviation"] for d in race["drivers"]]
+    boost = next(d["Abbreviation"] for d in race["drivers"] if d["is_boost"])
+    constructors = [c["name"] for c in race["constructors"]]
+    assert len(drivers) == 5 and len(constructors) == 2
+    assert race["model_score"] == team_points(drivers, constructors, boost, official[3])
+    assert race["official_missing"] is False
+
+
+def test_backtest_marks_a_round_without_official_points_missing(monkeypatch):
+    # round 4 isn't in the official file. it must show as missing, never as 0
+    result, _ = _one_round_backtest(monkeypatch)
+    race = next(r for r in result["races"] if r["round"] == 4)
+    assert race["official_missing"] is True
+    assert race["model_score"] is None and race["baseline_score"] is None
+    assert result["summary"]["races_tested"] == 1   # only round 3 counts
+
+
+# ---- the replay has to build what live builds -----------------------------------
+#
+# Found while making the scorecard (2026-10-27): the replay's locked rounds didn't match
+# the real locked teams. Two reasons. The replay skipped the championship nudge the live
+# pipeline adds, and the replay's table carried each driver's REAL race Status, so the
+# scoring gave real retirements their -20 before the race had happened. At the US GP it
+# dodged Bottas, Colapinto and Bearman, all three DNFs. Live can't know that.
+
+US_GP = "United States Grand Prix"
+
+
+def _live_and_replay(dnf: str | None = None):
+    """
+    The same made up US GP practice grid through the live pipeline and through the
+    replay, with every frozen race so far as history. dnf: a driver who "retires" in
+    the made up result the replay gets handed.
+    """
+    import src.backtest as backtest
+    from src.data_loader import load_dataset
+    from src.pipeline import predict_upcoming_race
+
+    prev = load_dataset(results_path(PREVIOUS_SEASON))
+    cur = load_dataset(results_path(SEASON))
+    entry = cur[cur["RoundNumber"] == cur["RoundNumber"].max()].sort_values("GridPosition")
+    n = len(entry)
+    practice = pd.DataFrame({
+        "Abbreviation": entry["Abbreviation"].values,
+        "TeamName": entry["TeamName"].values,
+        "GridPosition": list(range(1, n + 1)),
+        "GapToPole": [i * 0.11 for i in range(n)],
+        "GapToTeammate": [0.05 * (i % 3) for i in range(n)],
+        "RaceName": US_GP,
+    })
+    result = pd.DataFrame({
+        "Abbreviation": practice["Abbreviation"],
+        "Position": list(range(1, n + 1)),
+        "Status": ["DNF" if a == dnf else "Finished" for a in practice["Abbreviation"]],
+    })
+    live = predict_upcoming_race(practice.copy())
+    replay = backtest._predict_race(pd.concat([prev, cur], ignore_index=True), result,
+                                    US_GP, practice.copy())
+    return live.set_index("Abbreviation"), replay.set_index("Abbreviation")
+
+
+def test_replay_predicts_what_live_predicts():
+    live, replay = _live_and_replay()
+    for a in live.index:
+        assert replay.loc[a, "Predicted"] == pytest.approx(live.loc[a, "Predicted"], abs=0.01), a
+
+
+def test_replay_does_not_know_who_retires():
+    live, replay = _live_and_replay(dnf="BOT")
+    live_fv = fantasy.calculate_fantasy_score(live.reset_index(), race_name=US_GP).set_index("Abbreviation")
+    replay_fv = fantasy.calculate_fantasy_score(replay.reset_index(), race_name=US_GP).set_index("Abbreviation")
+    assert replay_fv.loc["BOT", "FantasyValue"] == pytest.approx(live_fv.loc["BOT", "FantasyValue"])

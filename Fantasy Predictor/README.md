@@ -40,6 +40,7 @@ How it works:
 
 Why it is the way it is:
 - [Decisions and evidence](Decisions%20and%20evidence.md): every measured number behind a decision, so nobody undoes one by feel
+- [Scorecard](Scorecard.md): every 2026 race graded with the game's own points, PitWall against simple picks anyone could make
 - [Gotchas](Gotchas.md): things that have bitten us before
 
 Doing things:
