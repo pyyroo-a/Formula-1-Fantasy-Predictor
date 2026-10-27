@@ -64,6 +64,22 @@ def _module(*names):
     raise ModuleNotFoundError(names)
 
 
+@pytest.fixture(autouse=True)
+def no_live_fantasy_feed(monkeypatch):
+    """
+    No test ever reaches the live F1 Fantasy feed for points or ownership. Same idea as
+    USE_OPENF1=0. Building a snapshot then behaves like the feed being down, which it
+    has to survive anyway. Tests that want feed data patch in their own fakes.
+    """
+    import src.official_points as official_points
+
+    def _blocked(*args, **kwargs):
+        raise RuntimeError("no live F1 Fantasy feed in tests")
+
+    monkeypatch.setattr(official_points, "fetch_official_points", _blocked)
+    monkeypatch.setattr(official_points, "fetch_ownership", _blocked)
+
+
 @pytest.fixture(scope="session")
 def app_state():
     """Loads the same data the app loads at startup, but from saved files."""

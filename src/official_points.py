@@ -41,9 +41,9 @@ def _points(item: dict) -> dict:
     }
 
 
-def parse_official_points(items: list[dict]) -> dict:
+def _one_row_each(items: list[dict]) -> tuple[dict[str, dict], dict[str, dict]]:
     """
-    Turns the raw feed rows into each driver's and constructor's points for that round.
+    One feed row per driver code and per constructor.
 
     Same duplicate trap as prices (see parse_price_feed): after a team move the feed keeps
     the old pairing as a second row with the same driver code. Checked on every round of
@@ -51,29 +51,63 @@ def parse_official_points(items: list[dict]) -> dict:
     row wins whatever the order.
     """
     drivers: dict[str, dict] = {}
-    driver_active: dict[str, bool] = {}
     constructors: dict[str, dict] = {}
-
     for item in items:
-        active = str(item.get("IsActive")) == "1"
         if item["PositionName"] == "DRIVER":
             tla = item["DriverTLA"]
-            if tla not in drivers or (active and not driver_active[tla]):
-                drivers[tla] = _points(item)
-                driver_active[tla] = active
+            active = str(item.get("IsActive")) == "1"
+            if tla not in drivers or (active and str(drivers[tla].get("IsActive")) != "1"):
+                drivers[tla] = item
         elif item["PositionName"] == "CONSTRUCTOR":
-            constructors[item["FUllName"]] = _points(item)
+            constructors[item["FUllName"]] = item
+    return drivers, constructors
 
-    return {"drivers": drivers, "constructors": constructors}
+
+def parse_official_points(items: list[dict]) -> dict:
+    """Turns the raw feed rows into each driver's and constructor's points for that round."""
+    drivers, constructors = _one_row_each(items)
+    return {
+        "drivers": {k: _points(v) for k, v in drivers.items()},
+        "constructors": {k: _points(v) for k, v in constructors.items()},
+    }
+
+
+def _ownership(item: dict) -> dict:
+    return {"selected_pct": _num(item.get("SelectedPercentage")),
+            "captain_pct": _num(item.get("CaptainSelectedPercentage"))}
+
+
+def parse_ownership(items: list[dict]) -> dict:
+    """
+    What share of players own (and captain) each driver and constructor.
+
+    The feed only ever shows the ownership as of right now, not what it was at a past
+    deadline. So we save it inside each weekend's snapshot when it locks, that's the only
+    way to know later what "the crowd" actually picked that weekend.
+    """
+    drivers, constructors = _one_row_each(items)
+    return {
+        "drivers": {k: _ownership(v) for k, v in drivers.items()},
+        "constructors": {k: _ownership(v) for k, v in constructors.items()},
+    }
+
+
+def _feed(round_number: int) -> list[dict]:
+    url = f"{F1_FANTASY_BASE}/feeds/drivers/{round_number}_en.json"
+    resp = httpx.get(url, timeout=30)
+    resp.raise_for_status()
+    return resp.json()["Data"]["Value"]
 
 
 def fetch_official_points(round_number: int) -> dict:
     """One round's official points from the feed, plus that round's prices."""
-    url = f"{F1_FANTASY_BASE}/feeds/drivers/{round_number}_en.json"
-    resp = httpx.get(url, timeout=30)
-    resp.raise_for_status()
-    items = resp.json()["Data"]["Value"]
+    items = _feed(round_number)
     return {**parse_official_points(items), "prices": parse_price_feed(items)}
+
+
+def fetch_ownership(round_number: int) -> dict:
+    """Ownership right now, from that round's feed."""
+    return parse_ownership(_feed(round_number))
 
 
 def is_raced(round_points: dict) -> bool:

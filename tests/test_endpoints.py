@@ -274,3 +274,39 @@ def test_snapshot_auto_reports_the_last_failed_build(client, at, monkeypatch, em
     assert r["last_result"]["status"] == "error"
     assert r["last_result"]["detail"] == "boom"
     assert not lock._snapshot_build_lock.locked()
+
+
+# ---- ownership saved at every lock ----------------------------------------------
+
+def _madring_event():
+    from src.api import state
+    s = state.race_schedule
+    return s[s["EventName"] == MADRING].iloc[0]
+
+
+def test_snapshot_saves_ownership_at_lock(client, monkeypatch):
+    from src import official_points, weekend
+    from src.api import state
+    fake = {"drivers": {"LEC": {"selected_pct": 26.0, "captain_pct": 14.0}}, "constructors": {}}
+    monkeypatch.setattr(official_points, "fetch_ownership", lambda rnd: fake)
+    snap = weekend.build_snapshot(_madring_event(), state.current_prices, source="test")
+    assert snap["ownership"] == fake
+    assert "ownership_fetched_at" in snap
+
+
+def test_snapshot_keeps_building_when_ownership_fetch_fails(client):
+    # conftest makes the feed unreachable, which is the "feed is down" case
+    from src import weekend
+    from src.api import state
+    snap = weekend.build_snapshot(_madring_event(), state.current_prices, source="test")
+    assert snap["teams"]
+    assert "ownership" not in snap
+
+
+def test_old_snapshot_without_ownership_still_serves(client, at, snapshots):
+    # R13 and R14 were locked before ownership existed
+    snapshots(*UP_TO_MADRING)
+    at(SAT_MADRING_BEFORE_QUALI)
+    r = client.get("/weekend-team")
+    assert r.status_code == 200
+    assert r.json()["locked"] is True

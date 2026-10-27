@@ -16,7 +16,7 @@ import pandas as pd
 
 from src.pipeline import predict_upcoming_race
 from src.fantasy import build_budget_team, build_budget_teams, get_race_pool
-from src import openf1
+from src import official_points, openf1
 from src.fetch_practice import _session_start_utc, get_practice_grid, get_sprint_quali_grid
 from src.dnf import DNFModel, USE_DNF_RISK
 from src.data_loader import load_dataset
@@ -322,4 +322,13 @@ def build_snapshot(event, prices: dict, source: str = "auto", note: str | None =
     }
     if note:
         snap["note"] = note
+
+    # who owns (and captains) what right now. the feed never shows past ownership, so
+    # this is the only record of what "the crowd" picked this weekend. a dead feed just
+    # means no ownership in this snapshot, the lock itself never waits on it
+    try:
+        snap["ownership"] = official_points.fetch_ownership(rnd)
+        snap["ownership_fetched_at"] = pd.Timestamp.now(tz="UTC").isoformat()
+    except Exception:
+        pass
     return snap

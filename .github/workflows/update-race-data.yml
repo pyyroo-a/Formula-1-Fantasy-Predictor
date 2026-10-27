@@ -33,7 +33,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/processed/race_results_2026.csv data/prices.json data/price_history.json
+          git add data/processed/race_results_2026.csv data/prices.json data/price_history.json data/official_points_2026.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
