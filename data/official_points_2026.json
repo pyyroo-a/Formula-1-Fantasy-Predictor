@@ -1,0 +1,4425 @@
+{
+ "1": {
+  "drivers": {
+   "GAS": {
+    "points": 11.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 6.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": -14.0,
+    "qualifying": 0.0,
+    "race": -14.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -23.0,
+    "qualifying": -5.0,
+    "race": -18.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": -20.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 13.0,
+    "qualifying": 1.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": -16.0,
+    "qualifying": 0.0,
+    "race": -16.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 29.0,
+    "qualifying": 7.0,
+    "race": 22.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 25.0,
+    "qualifying": 4.0,
+    "race": 21.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 20.0,
+    "qualifying": 0.0,
+    "race": 20.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 9.0,
+    "qualifying": 0.0,
+    "race": 9.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 21.0,
+    "qualifying": 5.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": -14.0,
+    "qualifying": 6.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 39.0,
+    "qualifying": 10.0,
+    "race": 29.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 32.0,
+    "qualifying": 9.0,
+    "race": 23.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 5.0,
+    "qualifying": 3.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 15.0,
+    "qualifying": 2.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 50.0,
+    "qualifying": -5.0,
+    "race": 55.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": -8.0,
+    "qualifying": 8.0,
+    "race": -16.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 9.0,
+    "qualifying": -5.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 96.0,
+    "qualifying": 29.0,
+    "race": 67.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 19.0,
+    "qualifying": 21.0,
+    "race": -2.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 42.0,
+    "qualifying": 8.0,
+    "race": 34.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 69.0,
+    "qualifying": 21.0,
+    "race": 48.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 22.0,
+    "qualifying": 3.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 20.0,
+    "qualifying": -4.0,
+    "race": 24.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -38.0,
+    "qualifying": -6.0,
+    "race": -32.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 34.0,
+    "qualifying": 3.0,
+    "race": 31.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 0.0,
+    "qualifying": 6.0,
+    "race": -6.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 35.0,
+    "qualifying": 15.0,
+    "race": 20.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -13.0,
+    "qualifying": -1.0,
+    "race": -12.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.0,
+    "COL": 6.2,
+    "ALO": 10.0,
+    "STR": 8.0,
+    "HUL": 6.8,
+    "BOR": 6.4,
+    "PER": 6.0,
+    "BOT": 5.9,
+    "LEC": 22.8,
+    "HAM": 22.5,
+    "BEA": 7.4,
+    "OCO": 7.3,
+    "NOR": 27.2,
+    "PIA": 25.5,
+    "RUS": 27.4,
+    "ANT": 23.2,
+    "LAW": 6.5,
+    "LIN": 6.2,
+    "VER": 27.7,
+    "HAD": 15.1,
+    "SAI": 11.8,
+    "ALB": 11.6
+   },
+   "constructors": {
+    "Mercedes": 29.3,
+    "McLaren": 28.9,
+    "Red Bull Racing": 28.2,
+    "Ferrari": 23.3,
+    "Alpine": 12.5,
+    "Williams": 12.0,
+    "Aston Martin": 10.3,
+    "Haas F1 Team": 7.4,
+    "Audi": 6.6,
+    "Racing Bulls": 6.3,
+    "Cadillac": 6.0
+   }
+  }
+ },
+ "2": {
+  "drivers": {
+   "GAS": {
+    "points": 20.0,
+    "qualifying": 4.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 18.0,
+    "qualifying": 0.0,
+    "race": 9.0,
+    "sprint": 9.0
+   },
+   "ALO": {
+    "points": -7.0,
+    "qualifying": 0.0,
+    "race": -13.0,
+    "sprint": 6.0
+   },
+   "STR": {
+    "points": -14.0,
+    "qualifying": 0.0,
+    "race": -19.0,
+    "sprint": 5.0
+   },
+   "BOR": {
+    "points": -14.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 6.0
+   },
+   "HUL": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": -3.0
+   },
+   "PER": {
+    "points": 20.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": 9.0
+   },
+   "BOT": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": -8.0
+   },
+   "LEC": {
+    "points": 51.0,
+    "qualifying": 7.0,
+    "race": 23.0,
+    "sprint": 21.0
+   },
+   "HAM": {
+    "points": 48.0,
+    "qualifying": 8.0,
+    "race": 25.0,
+    "sprint": 15.0
+   },
+   "BEA": {
+    "points": 34.0,
+    "qualifying": 1.0,
+    "race": 28.0,
+    "sprint": 5.0
+   },
+   "OCO": {
+    "points": 24.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": 9.0
+   },
+   "NOR": {
+    "points": -10.0,
+    "qualifying": 5.0,
+    "race": -20.0,
+    "sprint": 5.0
+   },
+   "PIA": {
+    "points": -7.0,
+    "qualifying": 6.0,
+    "race": -20.0,
+    "sprint": 7.0
+   },
+   "RUS": {
+    "points": 45.0,
+    "qualifying": 9.0,
+    "race": 24.0,
+    "sprint": 12.0
+   },
+   "ANT": {
+    "points": 68.0,
+    "qualifying": 10.0,
+    "race": 47.0,
+    "sprint": 11.0
+   },
+   "LIN": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": -4.0
+   },
+   "LAW": {
+    "points": 35.0,
+    "qualifying": 0.0,
+    "race": 21.0,
+    "sprint": 14.0
+   },
+   "VER": {
+    "points": 14.0,
+    "qualifying": 3.0,
+    "race": -4.0,
+    "sprint": 15.0
+   },
+   "HAD": {
+    "points": 19.0,
+    "qualifying": 2.0,
+    "race": 14.0,
+    "sprint": 3.0
+   },
+   "SAI": {
+    "points": 28.0,
+    "qualifying": 0.0,
+    "race": 16.0,
+    "sprint": 12.0
+   },
+   "ALB": {
+    "points": -7.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 13.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 115.0,
+    "qualifying": 29.0,
+    "race": 63.0,
+    "sprint": 23.0
+   },
+   "McLaren": {
+    "points": -7.0,
+    "qualifying": 21.0,
+    "race": -40.0,
+    "sprint": 12.0
+   },
+   "Red Bull Racing": {
+    "points": 45.0,
+    "qualifying": 15.0,
+    "race": 12.0,
+    "sprint": 18.0
+   },
+   "Ferrari": {
+    "points": 119.0,
+    "qualifying": 25.0,
+    "race": 58.0,
+    "sprint": 36.0
+   },
+   "Alpine": {
+    "points": 45.0,
+    "qualifying": 9.0,
+    "race": 27.0,
+    "sprint": 9.0
+   },
+   "Williams": {
+    "points": 22.0,
+    "qualifying": -1.0,
+    "race": -2.0,
+    "sprint": 25.0
+   },
+   "Aston Martin": {
+    "points": -20.0,
+    "qualifying": -1.0,
+    "race": -30.0,
+    "sprint": 11.0
+   },
+   "Haas F1 Team": {
+    "points": 65.0,
+    "qualifying": 6.0,
+    "race": 45.0,
+    "sprint": 14.0
+   },
+   "Racing Bulls": {
+    "points": 50.0,
+    "qualifying": 3.0,
+    "race": 37.0,
+    "sprint": 10.0
+   },
+   "Audi": {
+    "points": -4.0,
+    "qualifying": 3.0,
+    "race": -10.0,
+    "sprint": 3.0
+   },
+   "Cadillac": {
+    "points": 22.0,
+    "qualifying": -1.0,
+    "race": 22.0,
+    "sprint": 1.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.2,
+    "COL": 6.4,
+    "ALO": 9.4,
+    "STR": 7.4,
+    "BOR": 7.0,
+    "HUL": 6.2,
+    "PER": 5.8,
+    "BOT": 5.3,
+    "LEC": 23.1,
+    "HAM": 22.6,
+    "BEA": 8.0,
+    "OCO": 7.9,
+    "NOR": 27.1,
+    "PIA": 25.2,
+    "RUS": 27.7,
+    "ANT": 23.5,
+    "LIN": 6.8,
+    "LAW": 6.3,
+    "VER": 28.0,
+    "HAD": 14.5,
+    "SAI": 11.6,
+    "ALB": 11.4
+   },
+   "constructors": {
+    "Mercedes": 29.6,
+    "McLaren": 28.8,
+    "Red Bull Racing": 28.5,
+    "Ferrari": 23.6,
+    "Alpine": 13.1,
+    "Williams": 12.6,
+    "Aston Martin": 9.7,
+    "Haas F1 Team": 8.0,
+    "Racing Bulls": 6.9,
+    "Audi": 6.0,
+    "Cadillac": 5.4
+   }
+  }
+ },
+ "3": {
+  "drivers": {
+   "GAS": {
+    "points": 14.0,
+    "qualifying": 4.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -17.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 3.0,
+    "qualifying": 2.0,
+    "race": 1.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": 2.0,
+    "qualifying": 0.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 31.0,
+    "qualifying": 7.0,
+    "race": 24.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 19.0,
+    "qualifying": 5.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": -14.0,
+    "qualifying": 0.0,
+    "race": -14.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 9.0,
+    "qualifying": 0.0,
+    "race": 9.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 24.0,
+    "qualifying": 6.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 43.0,
+    "qualifying": 8.0,
+    "race": 35.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 27.0,
+    "qualifying": 9.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 50.0,
+    "qualifying": 10.0,
+    "race": 40.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 1.0,
+    "qualifying": 1.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 13.0,
+    "qualifying": 0.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 5.0,
+    "qualifying": 3.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": -1.0,
+    "qualifying": 0.0,
+    "race": -1.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 92.0,
+    "qualifying": 29.0,
+    "race": 63.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 25.0,
+    "qualifying": 8.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 72.0,
+    "qualifying": 24.0,
+    "race": 48.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 75.0,
+    "qualifying": 22.0,
+    "race": 53.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 25.0,
+    "qualifying": 9.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 9.0,
+    "qualifying": 1.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -12.0,
+    "qualifying": -1.0,
+    "race": -11.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": -4.0,
+    "qualifying": 1.0,
+    "race": -5.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 18.0,
+    "qualifying": 6.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 23.0,
+    "qualifying": 7.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": 5.0,
+    "qualifying": -1.0,
+    "race": 6.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.8,
+    "COL": 7.0,
+    "ALO": 8.8,
+    "STR": 6.8,
+    "BOR": 6.4,
+    "HUL": 5.6,
+    "PER": 6.4,
+    "BOT": 4.7,
+    "LEC": 23.4,
+    "HAM": 22.9,
+    "BEA": 8.6,
+    "OCO": 8.5,
+    "NOR": 26.8,
+    "PIA": 24.9,
+    "RUS": 28.0,
+    "ANT": 23.8,
+    "LIN": 7.4,
+    "LAW": 6.9,
+    "VER": 28.1,
+    "HAD": 13.9,
+    "SAI": 12.2,
+    "ALB": 10.8
+   },
+   "constructors": {
+    "Mercedes": 29.9,
+    "Red Bull Racing": 28.8,
+    "McLaren": 28.5,
+    "Ferrari": 23.9,
+    "Alpine": 13.7,
+    "Williams": 13.2,
+    "Aston Martin": 9.1,
+    "Haas F1 Team": 8.6,
+    "Racing Bulls": 7.5,
+    "Audi": 5.4,
+    "Cadillac": 5.2
+   }
+  }
+ },
+ "4": {
+  "drivers": {
+   "GAS": {
+    "points": -8.0,
+    "qualifying": 2.0,
+    "race": -15.0,
+    "sprint": 5.0
+   },
+   "COL": {
+    "points": 13.0,
+    "qualifying": 3.0,
+    "race": 12.0,
+    "sprint": -2.0
+   },
+   "ALO": {
+    "points": 20.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 10.0
+   },
+   "STR": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 10.0
+   },
+   "BOR": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": -10.0
+   },
+   "HUL": {
+    "points": -29.0,
+    "qualifying": 1.0,
+    "race": -20.0,
+    "sprint": -10.0
+   },
+   "PER": {
+    "points": 19.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": 4.0
+   },
+   "BOT": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 1.0
+   },
+   "LEC": {
+    "points": 27.0,
+    "qualifying": 8.0,
+    "race": 11.0,
+    "sprint": 8.0
+   },
+   "HAM": {
+    "points": 20.0,
+    "qualifying": 5.0,
+    "race": 11.0,
+    "sprint": 4.0
+   },
+   "BEA": {
+    "points": 6.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 3.0
+   },
+   "OCO": {
+    "points": 14.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 9.0
+   },
+   "NOR": {
+    "points": 54.0,
+    "qualifying": 7.0,
+    "race": 34.0,
+    "sprint": 13.0
+   },
+   "PIA": {
+    "points": 41.0,
+    "qualifying": 4.0,
+    "race": 28.0,
+    "sprint": 9.0
+   },
+   "RUS": {
+    "points": 42.0,
+    "qualifying": 6.0,
+    "race": 26.0,
+    "sprint": 10.0
+   },
+   "ANT": {
+    "points": 42.0,
+    "qualifying": 10.0,
+    "race": 31.0,
+    "sprint": 1.0
+   },
+   "LIN": {
+    "points": -4.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": -10.0
+   },
+   "LAW": {
+    "points": -12.0,
+    "qualifying": 0.0,
+    "race": -16.0,
+    "sprint": 4.0
+   },
+   "VER": {
+    "points": 52.0,
+    "qualifying": 9.0,
+    "race": 37.0,
+    "sprint": 6.0
+   },
+   "HAD": {
+    "points": -16.0,
+    "qualifying": -5.0,
+    "race": -14.0,
+    "sprint": 3.0
+   },
+   "SAI": {
+    "points": 19.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": 4.0
+   },
+   "ALB": {
+    "points": 20.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": 5.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 104.0,
+    "qualifying": 26.0,
+    "race": 67.0,
+    "sprint": 11.0
+   },
+   "Red Bull Racing": {
+    "points": 31.0,
+    "qualifying": 4.0,
+    "race": 18.0,
+    "sprint": 9.0
+   },
+   "McLaren": {
+    "points": 110.0,
+    "qualifying": 21.0,
+    "race": 67.0,
+    "sprint": 22.0
+   },
+   "Ferrari": {
+    "points": 57.0,
+    "qualifying": 23.0,
+    "race": 22.0,
+    "sprint": 12.0
+   },
+   "Alpine": {
+    "points": 17.0,
+    "qualifying": 15.0,
+    "race": -1.0,
+    "sprint": 3.0
+   },
+   "Williams": {
+    "points": 42.0,
+    "qualifying": 3.0,
+    "race": 30.0,
+    "sprint": 9.0
+   },
+   "Haas F1 Team": {
+    "points": 23.0,
+    "qualifying": 3.0,
+    "race": 8.0,
+    "sprint": 12.0
+   },
+   "Aston Martin": {
+    "points": 38.0,
+    "qualifying": -1.0,
+    "race": 19.0,
+    "sprint": 20.0
+   },
+   "Racing Bulls": {
+    "points": 2.0,
+    "qualifying": 3.0,
+    "race": 5.0,
+    "sprint": -6.0
+   },
+   "Audi": {
+    "points": -27.0,
+    "qualifying": 6.0,
+    "race": -3.0,
+    "sprint": -30.0
+   },
+   "Cadillac": {
+    "points": 24.0,
+    "qualifying": -1.0,
+    "race": 20.0,
+    "sprint": 5.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 13.0,
+    "COL": 7.6,
+    "ALO": 8.2,
+    "STR": 6.2,
+    "BOR": 5.8,
+    "HUL": 5.0,
+    "PER": 7.0,
+    "BOT": 4.1,
+    "LEC": 23.7,
+    "HAM": 23.2,
+    "BEA": 9.2,
+    "OCO": 9.1,
+    "NOR": 26.5,
+    "PIA": 24.6,
+    "RUS": 28.3,
+    "ANT": 24.1,
+    "LIN": 7.6,
+    "LAW": 7.5,
+    "VER": 28.2,
+    "HAD": 13.3,
+    "SAI": 12.4,
+    "ALB": 10.2
+   },
+   "constructors": {
+    "Mercedes": 30.2,
+    "Red Bull Racing": 29.1,
+    "McLaren": 28.6,
+    "Ferrari": 24.2,
+    "Alpine": 14.3,
+    "Williams": 13.8,
+    "Haas F1 Team": 9.2,
+    "Aston Martin": 8.5,
+    "Racing Bulls": 8.1,
+    "Audi": 5.6,
+    "Cadillac": 5.0
+   }
+  }
+ },
+ "5": {
+  "drivers": {
+   "GAS": {
+    "points": 16.0,
+    "qualifying": 0.0,
+    "race": 13.0,
+    "sprint": 3.0
+   },
+   "COL": {
+    "points": 25.0,
+    "qualifying": 1.0,
+    "race": 16.0,
+    "sprint": 8.0
+   },
+   "ALO": {
+    "points": -26.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": -9.0
+   },
+   "STR": {
+    "points": 11.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 3.0
+   },
+   "BOR": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 2.0
+   },
+   "HUL": {
+    "points": 1.0,
+    "qualifying": 0.0,
+    "race": 2.0,
+    "sprint": -1.0
+   },
+   "PER": {
+    "points": -11.0,
+    "qualifying": 0.0,
+    "race": -16.0,
+    "sprint": 5.0
+   },
+   "BOT": {
+    "points": 12.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": 6.0
+   },
+   "LEC": {
+    "points": 27.0,
+    "qualifying": 3.0,
+    "race": 18.0,
+    "sprint": 6.0
+   },
+   "HAM": {
+    "points": 42.0,
+    "qualifying": 6.0,
+    "race": 33.0,
+    "sprint": 3.0
+   },
+   "OCO": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 3.0
+   },
+   "BEA": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 2.0
+   },
+   "NOR": {
+    "points": 6.0,
+    "qualifying": 8.0,
+    "race": -11.0,
+    "sprint": 9.0
+   },
+   "PIA": {
+    "points": 12.0,
+    "qualifying": 7.0,
+    "race": -1.0,
+    "sprint": 6.0
+   },
+   "RUS": {
+    "points": 4.0,
+    "qualifying": 10.0,
+    "race": -15.0,
+    "sprint": 9.0
+   },
+   "ANT": {
+    "points": 62.0,
+    "qualifying": 9.0,
+    "race": 41.0,
+    "sprint": 12.0
+   },
+   "LAW": {
+    "points": 23.0,
+    "qualifying": 0.0,
+    "race": 12.0,
+    "sprint": 11.0
+   },
+   "LIN": {
+    "points": -16.0,
+    "qualifying": 2.0,
+    "race": -20.0,
+    "sprint": 2.0
+   },
+   "VER": {
+    "points": 26.0,
+    "qualifying": 5.0,
+    "race": 19.0,
+    "sprint": 2.0
+   },
+   "HAD": {
+    "points": 6.0,
+    "qualifying": 4.0,
+    "race": 12.0,
+    "sprint": -10.0
+   },
+   "SAI": {
+    "points": 11.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": -8.0,
+    "qualifying": 0.0,
+    "race": -14.0,
+    "sprint": 6.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 76.0,
+    "qualifying": 29.0,
+    "race": 26.0,
+    "sprint": 21.0
+   },
+   "Red Bull Racing": {
+    "points": 44.0,
+    "qualifying": 19.0,
+    "race": 33.0,
+    "sprint": -8.0
+   },
+   "McLaren": {
+    "points": 33.0,
+    "qualifying": 25.0,
+    "race": -7.0,
+    "sprint": 15.0
+   },
+   "Ferrari": {
+    "points": 69.0,
+    "qualifying": 19.0,
+    "race": 41.0,
+    "sprint": 9.0
+   },
+   "Alpine": {
+    "points": 46.0,
+    "qualifying": 6.0,
+    "race": 29.0,
+    "sprint": 11.0
+   },
+   "Williams": {
+    "points": 6.0,
+    "qualifying": 1.0,
+    "race": -1.0,
+    "sprint": 6.0
+   },
+   "Haas F1 Team": {
+    "points": 19.0,
+    "qualifying": 1.0,
+    "race": 13.0,
+    "sprint": 5.0
+   },
+   "Racing Bulls": {
+    "points": 22.0,
+    "qualifying": 7.0,
+    "race": 2.0,
+    "sprint": 13.0
+   },
+   "Aston Martin": {
+    "points": -14.0,
+    "qualifying": -1.0,
+    "race": -7.0,
+    "sprint": -6.0
+   },
+   "Cadillac": {
+    "points": 2.0,
+    "qualifying": -1.0,
+    "race": -8.0,
+    "sprint": 11.0
+   },
+   "Audi": {
+    "points": 11.0,
+    "qualifying": 3.0,
+    "race": 7.0,
+    "sprint": 1.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.8,
+    "COL": 8.2,
+    "ALO": 8.0,
+    "STR": 5.6,
+    "BOR": 5.2,
+    "HUL": 4.4,
+    "PER": 7.6,
+    "BOT": 3.9,
+    "LEC": 24.0,
+    "HAM": 23.5,
+    "OCO": 9.7,
+    "BEA": 9.4,
+    "NOR": 26.4,
+    "PIA": 24.7,
+    "RUS": 28.6,
+    "ANT": 24.4,
+    "LAW": 8.1,
+    "LIN": 7.0,
+    "VER": 28.3,
+    "HAD": 12.7,
+    "SAI": 13.0,
+    "ALB": 9.6
+   },
+   "constructors": {
+    "Mercedes": 30.5,
+    "Red Bull Racing": 29.2,
+    "McLaren": 28.9,
+    "Ferrari": 24.5,
+    "Alpine": 14.9,
+    "Williams": 14.4,
+    "Haas F1 Team": 9.8,
+    "Racing Bulls": 8.7,
+    "Aston Martin": 7.9,
+    "Cadillac": 5.6,
+    "Audi": 5.0
+   }
+  }
+ },
+ "6": {
+  "drivers": {
+   "GAS": {
+    "points": 12.0,
+    "qualifying": 2.0,
+    "race": 23.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 15.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -20.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": -20.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": -13.0,
+    "qualifying": 7.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 27.0,
+    "qualifying": 8.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 12.0,
+    "qualifying": 0.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": -19.0,
+    "qualifying": 0.0,
+    "race": -19.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": -17.0,
+    "qualifying": 3.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 19.0,
+    "qualifying": 4.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 0.0,
+    "qualifying": 5.0,
+    "race": -5.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 55.0,
+    "qualifying": 10.0,
+    "race": 45.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 16.0,
+    "qualifying": 1.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 21.0,
+    "qualifying": 0.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": -11.0,
+    "qualifying": 9.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 23.0,
+    "qualifying": 6.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": -3.0,
+    "qualifying": 0.0,
+    "race": -3.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 9.0,
+    "qualifying": 0.0,
+    "race": 9.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 70.0,
+    "qualifying": 25.0,
+    "race": 45.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 22.0,
+    "qualifying": 25.0,
+    "race": -7.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 17.0,
+    "qualifying": 17.0,
+    "race": -3.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 29.0,
+    "qualifying": 25.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 17.0,
+    "qualifying": 7.0,
+    "race": 23.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 9.0,
+    "qualifying": 3.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": -8.0,
+    "qualifying": -1.0,
+    "race": -7.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 42.0,
+    "qualifying": 6.0,
+    "race": 30.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -4.0,
+    "qualifying": -1.0,
+    "race": -3.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -13.0,
+    "qualifying": -1.0,
+    "race": -12.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 21.0,
+    "qualifying": 3.0,
+    "race": 18.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.2,
+    "COL": 8.8,
+    "ALO": 7.4,
+    "STR": 5.4,
+    "BOR": 5.4,
+    "HUL": 3.8,
+    "PER": 7.0,
+    "BOT": 4.5,
+    "LEC": 24.1,
+    "HAM": 23.6,
+    "OCO": 9.9,
+    "BEA": 8.8,
+    "NOR": 26.5,
+    "PIA": 25.0,
+    "RUS": 28.5,
+    "ANT": 24.7,
+    "LAW": 7.9,
+    "LIN": 6.4,
+    "VER": 28.4,
+    "HAD": 12.1,
+    "SAI": 12.8,
+    "ALB": 9.0
+   },
+   "constructors": {
+    "Mercedes": 30.8,
+    "Red Bull Racing": 29.3,
+    "McLaren": 29.2,
+    "Ferrari": 24.8,
+    "Alpine": 15.5,
+    "Williams": 15.0,
+    "Haas F1 Team": 10.4,
+    "Racing Bulls": 9.3,
+    "Aston Martin": 7.3,
+    "Cadillac": 6.2,
+    "Audi": 4.4
+   }
+  }
+ },
+ "7": {
+  "drivers": {
+   "GAS": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 9.0,
+    "qualifying": 0.0,
+    "race": 9.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": -17.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -20.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": -15.0,
+    "qualifying": 2.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": -18.0,
+    "qualifying": 0.0,
+    "race": -18.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 56.0,
+    "qualifying": 9.0,
+    "race": 47.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 0.0,
+    "qualifying": 1.0,
+    "race": -1.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 23.0,
+    "qualifying": 7.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 19.0,
+    "qualifying": 4.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 28.0,
+    "qualifying": 10.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": -4.0,
+    "qualifying": 8.0,
+    "race": -12.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 9.0,
+    "qualifying": 3.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 22.0,
+    "qualifying": 6.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 22.0,
+    "qualifying": 5.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 11.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": -16.0,
+    "qualifying": 0.0,
+    "race": -16.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 39.0,
+    "qualifying": 28.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 67.0,
+    "qualifying": 21.0,
+    "race": 46.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 59.0,
+    "qualifying": 21.0,
+    "race": 38.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 58.0,
+    "qualifying": 20.0,
+    "race": 38.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 31.0,
+    "qualifying": 3.0,
+    "race": 28.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 1.0,
+    "qualifying": 1.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 16.0,
+    "qualifying": 1.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 26.0,
+    "qualifying": 8.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -36.0,
+    "qualifying": -1.0,
+    "race": -35.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -9.0,
+    "qualifying": -1.0,
+    "race": -8.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 2.0,
+    "qualifying": 7.0,
+    "race": -5.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 11.6,
+    "COL": 9.4,
+    "ALO": 6.8,
+    "STR": 4.8,
+    "BOR": 5.6,
+    "HUL": 3.2,
+    "PER": 6.8,
+    "BOT": 3.9,
+    "HAM": 23.9,
+    "LEC": 23.8,
+    "OCO": 10.1,
+    "BEA": 8.2,
+    "NOR": 26.2,
+    "PIA": 25.1,
+    "RUS": 28.2,
+    "ANT": 25.0,
+    "LAW": 8.1,
+    "LIN": 5.8,
+    "VER": 28.3,
+    "HAD": 11.5,
+    "SAI": 12.6,
+    "ALB": 8.8
+   },
+   "constructors": {
+    "Mercedes": 31.1,
+    "McLaren": 29.5,
+    "Red Bull Racing": 29.4,
+    "Ferrari": 25.1,
+    "Alpine": 16.1,
+    "Williams": 15.6,
+    "Haas F1 Team": 10.6,
+    "Racing Bulls": 9.9,
+    "Aston Martin": 7.5,
+    "Cadillac": 6.0,
+    "Audi": 3.8
+   }
+  }
+ },
+ "8": {
+  "drivers": {
+   "GAS": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -17.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": -17.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": -17.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 27.0,
+    "qualifying": 8.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 9.0,
+    "qualifying": 9.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 1.0,
+    "qualifying": 0.0,
+    "race": 1.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 11.0,
+    "qualifying": 5.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 23.0,
+    "qualifying": 4.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 35.0,
+    "qualifying": 10.0,
+    "race": 25.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 35.0,
+    "qualifying": 7.0,
+    "race": 28.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 7.0,
+    "qualifying": 2.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 6.0,
+    "qualifying": 1.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 43.0,
+    "qualifying": 6.0,
+    "race": 37.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 15.0,
+    "qualifying": 3.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": -17.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 85.0,
+    "qualifying": 27.0,
+    "race": 58.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 49.0,
+    "qualifying": 19.0,
+    "race": 30.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 68.0,
+    "qualifying": 19.0,
+    "race": 49.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 56.0,
+    "qualifying": 27.0,
+    "race": 29.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 21.0,
+    "qualifying": 3.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": -6.0,
+    "qualifying": -1.0,
+    "race": -5.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 38.0,
+    "qualifying": 13.0,
+    "race": 25.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 13.0,
+    "qualifying": 3.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -11.0,
+    "qualifying": -1.0,
+    "race": -10.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -35.0,
+    "qualifying": -1.0,
+    "race": -34.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 15.0,
+    "qualifying": 3.0,
+    "race": 12.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.2,
+    "COL": 10.0,
+    "ALO": 6.2,
+    "STR": 4.2,
+    "BOR": 5.8,
+    "HUL": 3.0,
+    "PER": 6.2,
+    "BOT": 3.3,
+    "HAM": 24.2,
+    "LEC": 23.5,
+    "OCO": 10.3,
+    "BEA": 7.6,
+    "NOR": 25.9,
+    "PIA": 25.0,
+    "RUS": 27.9,
+    "ANT": 25.3,
+    "LAW": 8.7,
+    "LIN": 5.6,
+    "VER": 28.0,
+    "HAD": 12.1,
+    "SAI": 12.0,
+    "ALB": 8.2
+   },
+   "constructors": {
+    "Mercedes": 31.4,
+    "McLaren": 29.8,
+    "Red Bull Racing": 29.7,
+    "Ferrari": 25.4,
+    "Alpine": 16.7,
+    "Williams": 15.0,
+    "Racing Bulls": 10.5,
+    "Haas F1 Team": 10.4,
+    "Aston Martin": 6.9,
+    "Cadillac": 5.4,
+    "Audi": 4.4
+   }
+  }
+ },
+ "9": {
+  "drivers": {
+   "GAS": {
+    "points": 23.0,
+    "qualifying": 0.0,
+    "race": 18.0,
+    "sprint": 5.0
+   },
+   "COL": {
+    "points": 27.0,
+    "qualifying": 0.0,
+    "race": 20.0,
+    "sprint": 7.0
+   },
+   "ALO": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 3.0
+   },
+   "STR": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 3.0
+   },
+   "BOR": {
+    "points": 16.0,
+    "qualifying": 0.0,
+    "race": 13.0,
+    "sprint": 3.0
+   },
+   "HUL": {
+    "points": -7.0,
+    "qualifying": 0.0,
+    "race": -10.0,
+    "sprint": 3.0
+   },
+   "PER": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": -3.0
+   },
+   "BOT": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 2.0
+   },
+   "HAM": {
+    "points": 33.0,
+    "qualifying": 8.0,
+    "race": 19.0,
+    "sprint": 6.0
+   },
+   "LEC": {
+    "points": 54.0,
+    "qualifying": 9.0,
+    "race": 37.0,
+    "sprint": 8.0
+   },
+   "OCO": {
+    "points": 19.0,
+    "qualifying": 0.0,
+    "race": 13.0,
+    "sprint": 6.0
+   },
+   "BEA": {
+    "points": 13.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 6.0
+   },
+   "NOR": {
+    "points": 38.0,
+    "qualifying": 5.0,
+    "race": 19.0,
+    "sprint": 14.0
+   },
+   "PIA": {
+    "points": 19.0,
+    "qualifying": 3.0,
+    "race": 8.0,
+    "sprint": 8.0
+   },
+   "RUS": {
+    "points": 44.0,
+    "qualifying": 7.0,
+    "race": 23.0,
+    "sprint": 14.0
+   },
+   "ANT": {
+    "points": 23.0,
+    "qualifying": 10.0,
+    "race": -3.0,
+    "sprint": 16.0
+   },
+   "LAW": {
+    "points": 22.0,
+    "qualifying": 1.0,
+    "race": 15.0,
+    "sprint": 6.0
+   },
+   "LIN": {
+    "points": 18.0,
+    "qualifying": 2.0,
+    "race": 12.0,
+    "sprint": 4.0
+   },
+   "VER": {
+    "points": -3.0,
+    "qualifying": 4.0,
+    "race": -10.0,
+    "sprint": 3.0
+   },
+   "HAD": {
+    "points": 23.0,
+    "qualifying": 6.0,
+    "race": 14.0,
+    "sprint": 3.0
+   },
+   "SAI": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": -13.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 7.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 92.0,
+    "qualifying": 27.0,
+    "race": 35.0,
+    "sprint": 30.0
+   },
+   "McLaren": {
+    "points": 72.0,
+    "qualifying": 18.0,
+    "race": 32.0,
+    "sprint": 22.0
+   },
+   "Red Bull Racing": {
+    "points": 32.0,
+    "qualifying": 20.0,
+    "race": 6.0,
+    "sprint": 6.0
+   },
+   "Ferrari": {
+    "points": 92.0,
+    "qualifying": 27.0,
+    "race": 51.0,
+    "sprint": 14.0
+   },
+   "Alpine": {
+    "points": 53.0,
+    "qualifying": 1.0,
+    "race": 40.0,
+    "sprint": 12.0
+   },
+   "Williams": {
+    "points": 0.0,
+    "qualifying": 3.0,
+    "race": -10.0,
+    "sprint": 7.0
+   },
+   "Racing Bulls": {
+    "points": 55.0,
+    "qualifying": 13.0,
+    "race": 32.0,
+    "sprint": 10.0
+   },
+   "Haas F1 Team": {
+    "points": 33.0,
+    "qualifying": 1.0,
+    "race": 20.0,
+    "sprint": 12.0
+   },
+   "Aston Martin": {
+    "points": 16.0,
+    "qualifying": -1.0,
+    "race": 11.0,
+    "sprint": 6.0
+   },
+   "Audi": {
+    "points": 17.0,
+    "qualifying": 3.0,
+    "race": 8.0,
+    "sprint": 6.0
+   },
+   "Cadillac": {
+    "points": 13.0,
+    "qualifying": -1.0,
+    "race": 15.0,
+    "sprint": -1.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.8,
+    "COL": 9.8,
+    "ALO": 5.6,
+    "STR": 3.6,
+    "BOR": 6.0,
+    "HUL": 3.0,
+    "PER": 5.6,
+    "BOT": 3.0,
+    "HAM": 24.5,
+    "LEC": 23.2,
+    "OCO": 10.1,
+    "BEA": 7.0,
+    "NOR": 25.6,
+    "PIA": 24.9,
+    "RUS": 27.8,
+    "ANT": 25.4,
+    "LAW": 8.9,
+    "LIN": 6.2,
+    "VER": 27.9,
+    "HAD": 12.7,
+    "SAI": 11.4,
+    "ALB": 7.6
+   },
+   "constructors": {
+    "Mercedes": 31.7,
+    "McLaren": 30.1,
+    "Red Bull Racing": 30.0,
+    "Ferrari": 25.7,
+    "Alpine": 17.3,
+    "Williams": 14.4,
+    "Racing Bulls": 11.1,
+    "Haas F1 Team": 10.2,
+    "Aston Martin": 6.3,
+    "Audi": 5.0,
+    "Cadillac": 4.8
+   }
+  }
+ },
+ "10": {
+  "drivers": {
+   "GAS": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -19.0,
+    "qualifying": 0.0,
+    "race": -19.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 8.0,
+    "qualifying": 2.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": -17.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": 1.0,
+    "qualifying": 0.0,
+    "race": 1.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 22.0,
+    "qualifying": 5.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 39.0,
+    "qualifying": 6.0,
+    "race": 33.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 6.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 40.0,
+    "qualifying": 8.0,
+    "race": 32.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 19.0,
+    "qualifying": 4.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": -11.0,
+    "qualifying": 7.0,
+    "race": -18.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 38.0,
+    "qualifying": 10.0,
+    "race": 28.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 5.0,
+    "qualifying": 3.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 26.0,
+    "qualifying": 9.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 38.0,
+    "qualifying": 1.0,
+    "race": 37.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 42.0,
+    "qualifying": 27.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 71.0,
+    "qualifying": 22.0,
+    "race": 49.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 79.0,
+    "qualifying": 20.0,
+    "race": 59.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 71.0,
+    "qualifying": 21.0,
+    "race": 50.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 19.0,
+    "qualifying": 3.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 19.0,
+    "qualifying": 1.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 15.0,
+    "qualifying": 8.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 15.0,
+    "qualifying": 1.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -13.0,
+    "qualifying": -1.0,
+    "race": -12.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 19.0,
+    "qualifying": 7.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -17.0,
+    "qualifying": -1.0,
+    "race": -16.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 13.0,
+    "COL": 10.4,
+    "ALO": 5.0,
+    "STR": 3.0,
+    "BOR": 6.6,
+    "HUL": 3.0,
+    "PER": 5.0,
+    "BOT": 3.0,
+    "HAM": 24.8,
+    "LEC": 23.3,
+    "OCO": 10.3,
+    "BEA": 7.2,
+    "NOR": 25.7,
+    "PIA": 24.8,
+    "RUS": 28.1,
+    "ANT": 25.3,
+    "LAW": 9.5,
+    "LIN": 6.8,
+    "VER": 27.8,
+    "HAD": 13.3,
+    "SAI": 10.8,
+    "ALB": 7.0
+   },
+   "constructors": {
+    "Mercedes": 32.0,
+    "McLaren": 30.4,
+    "Red Bull Racing": 30.3,
+    "Ferrari": 26.0,
+    "Alpine": 17.9,
+    "Williams": 13.8,
+    "Racing Bulls": 11.7,
+    "Haas F1 Team": 10.8,
+    "Aston Martin": 5.7,
+    "Audi": 5.6,
+    "Cadillac": 4.2
+   }
+  }
+ },
+ "11": {
+  "drivers": {
+   "GAS": {
+    "points": 6.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": 15.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 9.0,
+    "qualifying": 1.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": -20.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": -16.0,
+    "qualifying": 0.0,
+    "race": -16.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 25.0,
+    "qualifying": 9.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 31.0,
+    "qualifying": 8.0,
+    "race": 23.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 37.0,
+    "qualifying": 10.0,
+    "race": 27.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": -11.0,
+    "qualifying": 6.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 23.0,
+    "qualifying": 4.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 28.0,
+    "qualifying": 7.0,
+    "race": 21.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 13.0,
+    "qualifying": 0.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 4.0,
+    "qualifying": 2.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 39.0,
+    "qualifying": 5.0,
+    "race": 34.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 15.0,
+    "qualifying": 3.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 2.0,
+    "qualifying": 0.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 71.0,
+    "qualifying": 21.0,
+    "race": 50.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 38.0,
+    "qualifying": 26.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 59.0,
+    "qualifying": 18.0,
+    "race": 41.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 71.0,
+    "qualifying": 27.0,
+    "race": 44.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 17.0,
+    "qualifying": 3.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 10.0,
+    "qualifying": -1.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 47.0,
+    "qualifying": 7.0,
+    "race": 40.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 10.0,
+    "qualifying": 1.0,
+    "race": 9.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 29.0,
+    "qualifying": 6.0,
+    "race": 23.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": 36.0,
+    "qualifying": 1.0,
+    "race": 35.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -37.0,
+    "qualifying": -1.0,
+    "race": -36.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.8,
+    "COL": 11.0,
+    "ALO": 5.6,
+    "STR": 3.0,
+    "BOR": 7.2,
+    "HUL": 3.0,
+    "PER": 4.4,
+    "BOT": 3.0,
+    "HAM": 24.9,
+    "LEC": 23.6,
+    "OCO": 10.5,
+    "BEA": 7.4,
+    "NOR": 25.8,
+    "PIA": 24.7,
+    "RUS": 28.0,
+    "ANT": 25.6,
+    "LAW": 9.7,
+    "LIN": 7.4,
+    "VER": 27.7,
+    "HAD": 13.9,
+    "SAI": 10.2,
+    "ALB": 6.4
+   },
+   "constructors": {
+    "Mercedes": 32.3,
+    "McLaren": 30.7,
+    "Red Bull Racing": 30.6,
+    "Ferrari": 26.3,
+    "Alpine": 18.5,
+    "Williams": 13.2,
+    "Racing Bulls": 12.3,
+    "Haas F1 Team": 11.4,
+    "Audi": 6.2,
+    "Aston Martin": 5.1,
+    "Cadillac": 3.6
+   }
+  }
+ },
+ "12": {
+  "drivers": {
+   "GAS": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 1.0
+   },
+   "COL": {
+    "points": 6.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 2.0
+   },
+   "ALO": {
+    "points": 24.0,
+    "qualifying": 0.0,
+    "race": 16.0,
+    "sprint": 8.0
+   },
+   "STR": {
+    "points": -10.0,
+    "qualifying": 0.0,
+    "race": -12.0,
+    "sprint": 2.0
+   },
+   "BOR": {
+    "points": 5.0,
+    "qualifying": 2.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": -10.0
+   },
+   "PER": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 9.0,
+    "sprint": -1.0
+   },
+   "BOT": {
+    "points": -18.0,
+    "qualifying": 0.0,
+    "race": -19.0,
+    "sprint": 1.0
+   },
+   "HAM": {
+    "points": 23.0,
+    "qualifying": 6.0,
+    "race": 15.0,
+    "sprint": 2.0
+   },
+   "LEC": {
+    "points": 39.0,
+    "qualifying": 5.0,
+    "race": 25.0,
+    "sprint": 9.0
+   },
+   "OCO": {
+    "points": -10.0,
+    "qualifying": 0.0,
+    "race": -12.0,
+    "sprint": 2.0
+   },
+   "BEA": {
+    "points": -13.0,
+    "qualifying": 0.0,
+    "race": -17.0,
+    "sprint": 4.0
+   },
+   "NOR": {
+    "points": 57.0,
+    "qualifying": 10.0,
+    "race": 37.0,
+    "sprint": 10.0
+   },
+   "PIA": {
+    "points": 21.0,
+    "qualifying": 7.0,
+    "race": 11.0,
+    "sprint": 3.0
+   },
+   "RUS": {
+    "points": 32.0,
+    "qualifying": 9.0,
+    "race": 15.0,
+    "sprint": 8.0
+   },
+   "ANT": {
+    "points": 37.0,
+    "qualifying": 8.0,
+    "race": 22.0,
+    "sprint": 7.0
+   },
+   "LAW": {
+    "points": 12.0,
+    "qualifying": 3.0,
+    "race": 9.0,
+    "sprint": 0.0
+   },
+   "TSU": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": -1.0
+   },
+   "LIN": {
+    "points": 7.0,
+    "qualifying": 1.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": -13.0,
+    "qualifying": 4.0,
+    "race": -20.0,
+    "sprint": 3.0
+   },
+   "HAD": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 3.0
+   },
+   "ALB": {
+    "points": 2.0,
+    "qualifying": 0.0,
+    "race": 1.0,
+    "sprint": 1.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 84.0,
+    "qualifying": 27.0,
+    "race": 42.0,
+    "sprint": 15.0
+   },
+   "McLaren": {
+    "points": 80.0,
+    "qualifying": 27.0,
+    "race": 40.0,
+    "sprint": 13.0
+   },
+   "Red Bull Racing": {
+    "points": 11.0,
+    "qualifying": 17.0,
+    "race": -9.0,
+    "sprint": 3.0
+   },
+   "Ferrari": {
+    "points": 74.0,
+    "qualifying": 21.0,
+    "race": 42.0,
+    "sprint": 11.0
+   },
+   "Alpine": {
+    "points": 19.0,
+    "qualifying": 3.0,
+    "race": 13.0,
+    "sprint": 3.0
+   },
+   "Williams": {
+    "points": 15.0,
+    "qualifying": 1.0,
+    "race": 10.0,
+    "sprint": 4.0
+   },
+   "Racing Bulls": {
+    "points": 22.0,
+    "qualifying": 6.0,
+    "race": 17.0,
+    "sprint": -1.0
+   },
+   "Haas F1 Team": {
+    "points": -20.0,
+    "qualifying": 1.0,
+    "race": -27.0,
+    "sprint": 6.0
+   },
+   "Audi": {
+    "points": 25.0,
+    "qualifying": 7.0,
+    "race": 28.0,
+    "sprint": -10.0
+   },
+   "Aston Martin": {
+    "points": 18.0,
+    "qualifying": -1.0,
+    "race": 9.0,
+    "sprint": 10.0
+   },
+   "Cadillac": {
+    "points": -9.0,
+    "qualifying": -1.0,
+    "race": -8.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 13.0,
+    "COL": 11.2,
+    "ALO": 6.2,
+    "STR": 3.0,
+    "BOR": 7.8,
+    "HUL": 3.0,
+    "PER": 3.8,
+    "BOT": 3.0,
+    "HAM": 25.0,
+    "LEC": 23.9,
+    "OCO": 10.7,
+    "BEA": 7.6,
+    "NOR": 26.1,
+    "PIA": 24.4,
+    "RUS": 27.9,
+    "ANT": 25.7,
+    "LAW": 14.5,
+    "TSU": 10.3,
+    "LIN": 8.0,
+    "VER": 27.6,
+    "HAD": 14.5,
+    "SAI": 10.0,
+    "ALB": 5.8
+   },
+   "constructors": {
+    "Mercedes": 32.6,
+    "McLaren": 31.0,
+    "Red Bull Racing": 30.9,
+    "Ferrari": 26.6,
+    "Alpine": 18.8,
+    "Williams": 13.0,
+    "Racing Bulls": 12.9,
+    "Haas F1 Team": 12.0,
+    "Audi": 6.8,
+    "Aston Martin": 5.7,
+    "Cadillac": 3.0
+   }
+  }
+ },
+ "13": {
+  "drivers": {
+   "GAS": {
+    "points": 14.0,
+    "qualifying": 10.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 14.0,
+    "qualifying": 3.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": -10.0,
+    "qualifying": 0.0,
+    "race": -10.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -10.0,
+    "qualifying": 0.0,
+    "race": -10.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 14.0,
+    "qualifying": 0.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 14.0,
+    "qualifying": 0.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 13.0,
+    "qualifying": 0.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 26.0,
+    "qualifying": 6.0,
+    "race": 20.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": -12.0,
+    "qualifying": 7.0,
+    "race": -19.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 10.0,
+    "qualifying": 0.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 32.0,
+    "qualifying": 2.0,
+    "race": 30.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 35.0,
+    "qualifying": 8.0,
+    "race": 27.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 33.0,
+    "qualifying": 9.0,
+    "race": 24.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 93.0,
+    "qualifying": 4.0,
+    "race": 89.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 25.0,
+    "qualifying": 0.0,
+    "race": 25.0,
+    "sprint": 0.0
+   },
+   "TSU": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 11.0,
+    "qualifying": 1.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 37.0,
+    "qualifying": 5.0,
+    "race": 32.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 14.0,
+    "qualifying": 0.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 128.0,
+    "qualifying": 23.0,
+    "race": 105.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 77.0,
+    "qualifying": 20.0,
+    "race": 57.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 69.0,
+    "qualifying": 10.0,
+    "race": 59.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 24.0,
+    "qualifying": 23.0,
+    "race": 1.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 38.0,
+    "qualifying": 23.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 33.0,
+    "qualifying": 6.0,
+    "race": 27.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 34.0,
+    "qualifying": 1.0,
+    "race": 33.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 17.0,
+    "qualifying": 3.0,
+    "race": 14.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 41.0,
+    "qualifying": 3.0,
+    "race": 38.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -21.0,
+    "qualifying": -1.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": 16.0,
+    "qualifying": -1.0,
+    "race": 17.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.4,
+    "COL": 10.6,
+    "ALO": 6.8,
+    "STR": 3.0,
+    "BOR": 8.0,
+    "HUL": 3.6,
+    "PER": 3.2,
+    "BOT": 3.0,
+    "HAM": 25.1,
+    "LEC": 24.2,
+    "OCO": 10.1,
+    "BEA": 7.0,
+    "NOR": 26.4,
+    "PIA": 24.1,
+    "RUS": 27.6,
+    "ANT": 26.0,
+    "LAW": 14.3,
+    "TSU": 9.7,
+    "LIN": 7.8,
+    "VER": 27.5,
+    "HAD": 14.5,
+    "SAI": 9.8,
+    "ALB": 5.2
+   },
+   "constructors": {
+    "Mercedes": 32.9,
+    "McLaren": 31.3,
+    "Red Bull Racing": 31.2,
+    "Ferrari": 26.9,
+    "Alpine": 18.9,
+    "Racing Bulls": 13.5,
+    "Williams": 13.2,
+    "Haas F1 Team": 11.4,
+    "Audi": 7.4,
+    "Aston Martin": 6.3,
+    "Cadillac": 3.0
+   }
+  }
+ },
+ "14": {
+  "drivers": {
+   "GAS": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 13.0,
+    "qualifying": 2.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -22.0,
+    "qualifying": -5.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 2.0,
+    "qualifying": 0.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": -18.0,
+    "qualifying": 0.0,
+    "race": -18.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": 1.0,
+    "qualifying": 0.0,
+    "race": 1.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": -13.0,
+    "qualifying": 7.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 19.0,
+    "qualifying": 6.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 5.0,
+    "qualifying": 0.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 3.0,
+    "qualifying": -5.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 23.0,
+    "qualifying": 10.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 9.0,
+    "qualifying": 4.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 27.0,
+    "qualifying": 5.0,
+    "race": 22.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 35.0,
+    "qualifying": 9.0,
+    "race": 26.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 16.0,
+    "qualifying": 3.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "TSU": {
+    "points": 1.0,
+    "qualifying": 0.0,
+    "race": 1.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 5.0,
+    "qualifying": 1.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 38.0,
+    "qualifying": 8.0,
+    "race": 30.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": -18.0,
+    "qualifying": 0.0,
+    "race": -18.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 87.0,
+    "qualifying": 24.0,
+    "race": 63.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 44.0,
+    "qualifying": 24.0,
+    "race": 20.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 59.0,
+    "qualifying": 21.0,
+    "race": 38.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 18.0,
+    "qualifying": 23.0,
+    "race": -5.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 24.0,
+    "qualifying": 7.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 13.0,
+    "qualifying": 6.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": -11.0,
+    "qualifying": 1.0,
+    "race": -12.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 11.0,
+    "qualifying": -4.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 10.0,
+    "qualifying": 3.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -17.0,
+    "qualifying": -6.0,
+    "race": -11.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -16.0,
+    "qualifying": -1.0,
+    "race": -15.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.2,
+    "COL": 10.4,
+    "ALO": 7.0,
+    "STR": 3.0,
+    "BOR": 8.6,
+    "HUL": 4.2,
+    "PER": 3.0,
+    "BOT": 3.0,
+    "HAM": 25.2,
+    "LEC": 24.1,
+    "OCO": 9.5,
+    "BEA": 6.4,
+    "NOR": 26.7,
+    "PIA": 24.0,
+    "RUS": 27.7,
+    "ANT": 26.3,
+    "LAW": 14.9,
+    "TSU": 9.9,
+    "LIN": 8.0,
+    "VER": 27.4,
+    "HAD": 14.5,
+    "SAI": 9.6,
+    "ALB": 5.8
+   },
+   "constructors": {
+    "Mercedes": 33.2,
+    "McLaren": 31.6,
+    "Red Bull Racing": 31.5,
+    "Ferrari": 27.2,
+    "Alpine": 19.2,
+    "Racing Bulls": 14.1,
+    "Williams": 13.8,
+    "Haas F1 Team": 10.8,
+    "Audi": 8.0,
+    "Aston Martin": 6.9,
+    "Cadillac": 3.0
+   }
+  }
+ },
+ "15": {
+  "drivers": {
+   "GAS": {
+    "points": -15.0,
+    "qualifying": 4.0,
+    "race": -19.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": -18.0,
+    "qualifying": 1.0,
+    "race": -19.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": -14.0,
+    "qualifying": 0.0,
+    "race": -14.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": -20.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 8.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 15.0,
+    "qualifying": 0.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 11.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": 6.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 15.0,
+    "qualifying": 5.0,
+    "race": 10.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 20.0,
+    "qualifying": 9.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 12.0,
+    "qualifying": 0.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 6.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": -11.0,
+    "qualifying": 6.0,
+    "race": -17.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 0.0,
+    "qualifying": 8.0,
+    "race": -8.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 45.0,
+    "qualifying": 10.0,
+    "race": 35.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 28.0,
+    "qualifying": 0.0,
+    "race": 28.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "TSU": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 43.0,
+    "qualifying": 3.0,
+    "race": 40.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 26.0,
+    "qualifying": 7.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 15.0,
+    "qualifying": 2.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": -16.0,
+    "qualifying": 0.0,
+    "race": -16.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 88.0,
+    "qualifying": 15.0,
+    "race": 73.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 1.0,
+    "qualifying": 24.0,
+    "race": -23.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 71.0,
+    "qualifying": 20.0,
+    "race": 51.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 45.0,
+    "qualifying": 24.0,
+    "race": 21.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": -18.0,
+    "qualifying": 15.0,
+    "race": -33.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 23.0,
+    "qualifying": 3.0,
+    "race": 20.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 6.0,
+    "qualifying": 7.0,
+    "race": -1.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 21.0,
+    "qualifying": 3.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 27.0,
+    "qualifying": -1.0,
+    "race": 28.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": -35.0,
+    "qualifying": -1.0,
+    "race": -34.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": 16.0,
+    "qualifying": -1.0,
+    "race": 17.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 12.0,
+    "COL": 10.6,
+    "ALO": 6.8,
+    "STR": 3.0,
+    "BOR": 8.4,
+    "HUL": 4.8,
+    "PER": 3.0,
+    "BOT": 3.0,
+    "HAM": 24.9,
+    "LEC": 24.0,
+    "OCO": 8.9,
+    "BEA": 5.8,
+    "NOR": 27.0,
+    "PIA": 24.1,
+    "RUS": 27.8,
+    "ANT": 26.6,
+    "LAW": 9.7,
+    "TSU": 9.7,
+    "LIN": 8.2,
+    "VER": 27.3,
+    "HAD": 14.5,
+    "SAI": 9.0,
+    "ALB": 6.4
+   },
+   "constructors": {
+    "Mercedes": 33.5,
+    "McLaren": 31.9,
+    "Red Bull Racing": 31.8,
+    "Ferrari": 27.5,
+    "Alpine": 19.5,
+    "Racing Bulls": 14.7,
+    "Williams": 14.0,
+    "Haas F1 Team": 10.2,
+    "Audi": 8.6,
+    "Aston Martin": 6.3,
+    "Cadillac": 3.0
+   }
+  }
+ },
+ "16": {
+  "drivers": {
+   "GAS": {
+    "points": 0.0,
+    "qualifying": 2.0,
+    "race": -2.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": 13.0,
+    "qualifying": 0.0,
+    "race": 13.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": 11.0,
+    "qualifying": 0.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 4.0,
+    "qualifying": 1.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 19.0,
+    "qualifying": 0.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": -20.0,
+    "qualifying": 0.0,
+    "race": -20.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 9.0,
+    "qualifying": 0.0,
+    "race": 9.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 32.0,
+    "qualifying": 9.0,
+    "race": 23.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 33.0,
+    "qualifying": 6.0,
+    "race": 27.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 12.0,
+    "qualifying": 0.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 16.0,
+    "qualifying": 5.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 29.0,
+    "qualifying": 4.0,
+    "race": 25.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": -5.0,
+    "qualifying": 3.0,
+    "race": -8.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 29.0,
+    "qualifying": 7.0,
+    "race": 22.0,
+    "sprint": 0.0
+   },
+   "TSU": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 28.0,
+    "qualifying": 0.0,
+    "race": 28.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 57.0,
+    "qualifying": 10.0,
+    "race": 47.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 25.0,
+    "qualifying": 8.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 4.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": -10.0,
+    "qualifying": 0.0,
+    "race": -10.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 39.0,
+    "qualifying": 20.0,
+    "race": 19.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 57.0,
+    "qualifying": 19.0,
+    "race": 38.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 97.0,
+    "qualifying": 28.0,
+    "race": 69.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 80.0,
+    "qualifying": 25.0,
+    "race": 55.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": 28.0,
+    "qualifying": 7.0,
+    "race": 21.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 53.0,
+    "qualifying": 3.0,
+    "race": 50.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 5.0,
+    "qualifying": 1.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": 20.0,
+    "qualifying": -1.0,
+    "race": 21.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 38.0,
+    "qualifying": 6.0,
+    "race": 32.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": 36.0,
+    "qualifying": 3.0,
+    "race": 33.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -12.0,
+    "qualifying": -1.0,
+    "race": -11.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 11.4,
+    "COL": 10.0,
+    "ALO": 6.2,
+    "STR": 3.0,
+    "BOR": 8.2,
+    "HUL": 5.4,
+    "BOT": 3.6,
+    "PER": 3.0,
+    "HAM": 24.6,
+    "LEC": 23.7,
+    "OCO": 9.1,
+    "BEA": 5.6,
+    "NOR": 26.7,
+    "PIA": 24.0,
+    "RUS": 28.1,
+    "ANT": 26.9,
+    "TSU": 9.7,
+    "LAW": 9.1,
+    "LIN": 8.8,
+    "VER": 27.6,
+    "HAD": 15.1,
+    "SAI": 8.4,
+    "ALB": 5.8
+   },
+   "constructors": {
+    "Mercedes": 33.8,
+    "McLaren": 32.2,
+    "Red Bull Racing": 32.1,
+    "Ferrari": 27.6,
+    "Alpine": 19.4,
+    "Racing Bulls": 15.3,
+    "Williams": 13.8,
+    "Haas F1 Team": 10.8,
+    "Audi": 9.2,
+    "Aston Martin": 5.7,
+    "Cadillac": 3.6
+   }
+  }
+ },
+ "17": {
+  "drivers": {
+   "GAS": {
+    "points": 3.0,
+    "qualifying": 3.0,
+    "race": -3.0,
+    "sprint": 3.0
+   },
+   "COL": {
+    "points": -28.0,
+    "qualifying": 0.0,
+    "race": -18.0,
+    "sprint": -10.0
+   },
+   "ALO": {
+    "points": 11.0,
+    "qualifying": 0.0,
+    "race": 6.0,
+    "sprint": 5.0
+   },
+   "STR": {
+    "points": -28.0,
+    "qualifying": 0.0,
+    "race": -19.0,
+    "sprint": -9.0
+   },
+   "BOR": {
+    "points": -29.0,
+    "qualifying": 0.0,
+    "race": -19.0,
+    "sprint": -10.0
+   },
+   "HUL": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 8.0,
+    "sprint": 9.0
+   },
+   "PER": {
+    "points": -9.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": -9.0
+   },
+   "BOT": {
+    "points": -11.0,
+    "qualifying": 0.0,
+    "race": -1.0,
+    "sprint": -10.0
+   },
+   "HAM": {
+    "points": 33.0,
+    "qualifying": 8.0,
+    "race": 6.0,
+    "sprint": 19.0
+   },
+   "LEC": {
+    "points": 43.0,
+    "qualifying": 9.0,
+    "race": 28.0,
+    "sprint": 6.0
+   },
+   "OCO": {
+    "points": 12.0,
+    "qualifying": 0.0,
+    "race": 4.0,
+    "sprint": 8.0
+   },
+   "BEA": {
+    "points": 18.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 15.0
+   },
+   "NOR": {
+    "points": 18.0,
+    "qualifying": 6.0,
+    "race": 14.0,
+    "sprint": -2.0
+   },
+   "PIA": {
+    "points": 6.0,
+    "qualifying": 4.0,
+    "race": 12.0,
+    "sprint": -10.0
+   },
+   "RUS": {
+    "points": 17.0,
+    "qualifying": 5.0,
+    "race": 21.0,
+    "sprint": -9.0
+   },
+   "ANT": {
+    "points": 33.0,
+    "qualifying": 7.0,
+    "race": 18.0,
+    "sprint": 8.0
+   },
+   "TSU": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 1.0,
+    "qualifying": 1.0,
+    "race": -6.0,
+    "sprint": 6.0
+   },
+   "LAW": {
+    "points": 18.0,
+    "qualifying": 2.0,
+    "race": 8.0,
+    "sprint": 8.0
+   },
+   "VER": {
+    "points": 53.0,
+    "qualifying": 10.0,
+    "race": 35.0,
+    "sprint": 8.0
+   },
+   "HAD": {
+    "points": 8.0,
+    "qualifying": -5.0,
+    "race": 22.0,
+    "sprint": -9.0
+   },
+   "SAI": {
+    "points": 13.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 10.0
+   },
+   "ALB": {
+    "points": -10.0,
+    "qualifying": 0.0,
+    "race": -1.0,
+    "sprint": -9.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 65.0,
+    "qualifying": 22.0,
+    "race": 44.0,
+    "sprint": -1.0
+   },
+   "Red Bull Racing": {
+    "points": 66.0,
+    "qualifying": 10.0,
+    "race": 57.0,
+    "sprint": -1.0
+   },
+   "McLaren": {
+    "points": 36.0,
+    "qualifying": 20.0,
+    "race": 28.0,
+    "sprint": -12.0
+   },
+   "Ferrari": {
+    "points": 91.0,
+    "qualifying": 27.0,
+    "race": 39.0,
+    "sprint": 25.0
+   },
+   "Alpine": {
+    "points": -20.0,
+    "qualifying": 8.0,
+    "race": -21.0,
+    "sprint": -7.0
+   },
+   "Racing Bulls": {
+    "points": 34.0,
+    "qualifying": 13.0,
+    "race": 7.0,
+    "sprint": 14.0
+   },
+   "Williams": {
+    "points": 6.0,
+    "qualifying": 1.0,
+    "race": 4.0,
+    "sprint": 1.0
+   },
+   "Haas F1 Team": {
+    "points": 35.0,
+    "qualifying": 3.0,
+    "race": 9.0,
+    "sprint": 23.0
+   },
+   "Audi": {
+    "points": -9.0,
+    "qualifying": 3.0,
+    "race": -11.0,
+    "sprint": -1.0
+   },
+   "Aston Martin": {
+    "points": -13.0,
+    "qualifying": -1.0,
+    "race": -8.0,
+    "sprint": -4.0
+   },
+   "Cadillac": {
+    "points": -21.0,
+    "qualifying": -1.0,
+    "race": -1.0,
+    "sprint": -19.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 10.8,
+    "COL": 9.4,
+    "ALO": 5.6,
+    "STR": 3.0,
+    "BOR": 7.6,
+    "HUL": 6.0,
+    "PER": 3.0,
+    "BOT": 3.0,
+    "HAM": 24.3,
+    "LEC": 23.8,
+    "OCO": 9.3,
+    "BEA": 5.8,
+    "NOR": 26.4,
+    "PIA": 23.7,
+    "RUS": 28.0,
+    "ANT": 27.0,
+    "TSU": 9.7,
+    "LIN": 9.4,
+    "LAW": 9.3,
+    "VER": 27.9,
+    "HAD": 15.7,
+    "SAI": 7.8,
+    "ALB": 5.2
+   },
+   "constructors": {
+    "Mercedes": 34.0,
+    "Red Bull Racing": 32.4,
+    "McLaren": 32.3,
+    "Ferrari": 27.9,
+    "Alpine": 19.1,
+    "Racing Bulls": 15.9,
+    "Williams": 13.2,
+    "Haas F1 Team": 11.4,
+    "Audi": 9.8,
+    "Aston Martin": 5.1,
+    "Cadillac": 3.0
+   }
+  }
+ },
+ "18": {
+  "drivers": {
+   "GAS": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "COL": {
+    "points": -18.0,
+    "qualifying": 0.0,
+    "race": -18.0,
+    "sprint": 0.0
+   },
+   "ALO": {
+    "points": 2.0,
+    "qualifying": 0.0,
+    "race": 2.0,
+    "sprint": 0.0
+   },
+   "STR": {
+    "points": 12.0,
+    "qualifying": 0.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "BOR": {
+    "points": 17.0,
+    "qualifying": 0.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "HUL": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "PER": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "BOT": {
+    "points": -19.0,
+    "qualifying": 0.0,
+    "race": -19.0,
+    "sprint": 0.0
+   },
+   "HAM": {
+    "points": 23.0,
+    "qualifying": 6.0,
+    "race": 17.0,
+    "sprint": 0.0
+   },
+   "LEC": {
+    "points": 53.0,
+    "qualifying": 7.0,
+    "race": 46.0,
+    "sprint": 0.0
+   },
+   "OCO": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   },
+   "BEA": {
+    "points": -13.0,
+    "qualifying": 0.0,
+    "race": -13.0,
+    "sprint": 0.0
+   },
+   "NOR": {
+    "points": 18.0,
+    "qualifying": 3.0,
+    "race": 15.0,
+    "sprint": 0.0
+   },
+   "PIA": {
+    "points": 15.0,
+    "qualifying": 4.0,
+    "race": 11.0,
+    "sprint": 0.0
+   },
+   "RUS": {
+    "points": 9.0,
+    "qualifying": 5.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "ANT": {
+    "points": 36.0,
+    "qualifying": 10.0,
+    "race": 26.0,
+    "sprint": 0.0
+   },
+   "LIN": {
+    "points": 11.0,
+    "qualifying": 2.0,
+    "race": 9.0,
+    "sprint": 0.0
+   },
+   "LAW": {
+    "points": 5.0,
+    "qualifying": 1.0,
+    "race": 4.0,
+    "sprint": 0.0
+   },
+   "TSU": {
+    "points": 0.0,
+    "qualifying": 0.0,
+    "race": 0.0,
+    "sprint": 0.0
+   },
+   "VER": {
+    "points": 27.0,
+    "qualifying": 9.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "HAD": {
+    "points": 13.0,
+    "qualifying": 8.0,
+    "race": 5.0,
+    "sprint": 0.0
+   },
+   "SAI": {
+    "points": 3.0,
+    "qualifying": 0.0,
+    "race": 3.0,
+    "sprint": 0.0
+   },
+   "ALB": {
+    "points": 7.0,
+    "qualifying": 0.0,
+    "race": 7.0,
+    "sprint": 0.0
+   }
+  },
+  "constructors": {
+   "Mercedes": {
+    "points": 57.0,
+    "qualifying": 25.0,
+    "race": 32.0,
+    "sprint": 0.0
+   },
+   "Red Bull Racing": {
+    "points": 55.0,
+    "qualifying": 27.0,
+    "race": 28.0,
+    "sprint": 0.0
+   },
+   "McLaren": {
+    "points": 58.0,
+    "qualifying": 17.0,
+    "race": 41.0,
+    "sprint": 0.0
+   },
+   "Ferrari": {
+    "points": 81.0,
+    "qualifying": 23.0,
+    "race": 58.0,
+    "sprint": 0.0
+   },
+   "Alpine": {
+    "points": -12.0,
+    "qualifying": 3.0,
+    "race": -15.0,
+    "sprint": 0.0
+   },
+   "Racing Bulls": {
+    "points": 31.0,
+    "qualifying": 13.0,
+    "race": 18.0,
+    "sprint": 0.0
+   },
+   "Williams": {
+    "points": 11.0,
+    "qualifying": -1.0,
+    "race": 12.0,
+    "sprint": 0.0
+   },
+   "Haas F1 Team": {
+    "points": -3.0,
+    "qualifying": 1.0,
+    "race": -4.0,
+    "sprint": 0.0
+   },
+   "Audi": {
+    "points": 29.0,
+    "qualifying": 3.0,
+    "race": 26.0,
+    "sprint": 0.0
+   },
+   "Aston Martin": {
+    "points": 17.0,
+    "qualifying": 1.0,
+    "race": 16.0,
+    "sprint": 0.0
+   },
+   "Cadillac": {
+    "points": -18.0,
+    "qualifying": -1.0,
+    "race": -17.0,
+    "sprint": 0.0
+   }
+  },
+  "prices": {
+   "drivers": {
+    "GAS": 10.2,
+    "COL": 8.8,
+    "ALO": 5.4,
+    "STR": 3.0,
+    "BOR": 7.0,
+    "HUL": 6.6,
+    "PER": 3.6,
+    "BOT": 3.0,
+    "HAM": 24.4,
+    "LEC": 24.1,
+    "OCO": 9.9,
+    "BEA": 6.4,
+    "NOR": 26.1,
+    "PIA": 23.4,
+    "RUS": 27.9,
+    "ANT": 27.1,
+    "LIN": 10.0,
+    "LAW": 9.9,
+    "TSU": 9.7,
+    "VER": 28.2,
+    "HAD": 16.3,
+    "SAI": 8.4,
+    "ALB": 4.6
+   },
+   "constructors": {
+    "Mercedes": 34.0,
+    "Red Bull Racing": 32.7,
+    "McLaren": 32.4,
+    "Ferrari": 28.2,
+    "Alpine": 18.8,
+    "Racing Bulls": 16.5,
+    "Williams": 12.6,
+    "Haas F1 Team": 12.0,
+    "Audi": 10.4,
+    "Aston Martin": 4.5,
+    "Cadillac": 3.0
+   }
+  }
+ }
+}
