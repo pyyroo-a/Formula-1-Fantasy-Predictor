@@ -38,8 +38,24 @@ REPORT_PATH = "Fantasy Predictor/Scorecard.md"
 COLUMNS = ["Locked", "PitWall replay", "FP3 order", "Most expensive", "Crowd", "Hindsight best"]
 SIMPLE = ["FP3 order", "Most expensive", "Crowd", "Hindsight best"]
 
-# which forecast switches in src/fantasy.py each --rules name turns on
-RULES = {"current": {}}
+# which forecast switches in src/fantasy.py each --rules name turns on. join them with +
+# to measure them together, e.g. --rules quali+bonus
+RULES = {
+    "current": {},
+    "quali": {"REAL_QUALI_RULES": True},
+    "bonus": {"REAL_CONSTRUCTOR_QUALI_BONUS": True},
+    "clip": {"CLIP_TO_REAL_FIELD": True},
+}
+
+
+def switches_for(name: str) -> dict:
+    """The switches a --rules name turns on, e.g. "quali+bonus" turns on both."""
+    switches = {}
+    for part in name.split("+"):
+        if part not in RULES:
+            raise ValueError(f"unknown rules {part!r}, pick from {sorted(RULES)}")
+        switches.update(RULES[part])
+    return switches
 
 
 @contextmanager
@@ -267,14 +283,15 @@ def render(rows: list[dict], rules_name: str, today: str) -> str:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--rules", default="current", choices=sorted(RULES))
+    ap.add_argument("--rules", default="current",
+                    help=f"one of {sorted(RULES)}, or several joined with +")
     ap.add_argument("--stdout", action="store_true", help="print instead of writing the note")
     args = ap.parse_args()
 
     official = load_official_points()
     results = load_dataset(results_path(SEASON))
 
-    with rules(**RULES[args.rules]):
+    with rules(**switches_for(args.rules)):
         replay = run_backtest(use_practice=True, official=official)
     replay_by_round = {r["round"]: r for r in replay["races"]}
 

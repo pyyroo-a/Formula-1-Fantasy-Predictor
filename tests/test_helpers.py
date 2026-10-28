@@ -260,3 +260,82 @@ def test_replay_does_not_know_who_retires():
     live_fv = fantasy.calculate_fantasy_score(live.reset_index(), race_name=US_GP).set_index("Abbreviation")
     replay_fv = fantasy.calculate_fantasy_score(replay.reset_index(), race_name=US_GP).set_index("Abbreviation")
     assert replay_fv.loc["BOT", "FantasyValue"] == pytest.approx(live_fv.loc["BOT", "FantasyValue"])
+
+
+# ---- real game rules, behind switches that start OFF (project 2, Task 4) -------
+
+def test_real_quali_rules_give_zero_from_p11(monkeypatch):
+    # the game: P1 to P10 score +10 down to +1, P11 to P20 score 0. the -5 is only
+    # for not setting a time, which we can't predict
+    monkeypatch.setattr(fantasy, "REAL_QUALI_RULES", True)
+    assert [fantasy.qualifying_score(p) for p in (1, 10, 11, 16, 22)] == [10, 1, 0, 0, 0]
+
+
+def test_old_quali_rules_unchanged_while_switched_off():
+    assert fantasy.REAL_QUALI_RULES is False
+    assert fantasy.qualifying_score(16) == -5
+
+
+def _two_car_frame(grids):
+    rows = []
+    for team, (g1, g2) in grids.items():
+        rows += [{"TeamName": team, "Abbreviation": f"{team}1", "FantasyValue": 0.0,
+                  "PickCategory": "Risk", "GridPosition": g1},
+                 {"TeamName": team, "Abbreviation": f"{team}2", "FantasyValue": 0.0,
+                  "PickCategory": "Risk", "GridPosition": g2}]
+    return pd.DataFrame(rows)
+
+
+GRIDS = {"BothQ3": (1, 2), "OneQ3": (3, 14), "BothQ2": (11, 12), "OneQ2": (12, 18), "NoneQ2": (17, 19)}
+
+
+def test_real_constructor_bonus_values(monkeypatch):
+    # the game: -1 neither in Q2, +1 one in Q2, +3 both in Q2, +5 one in Q3, +10 both in Q3
+    monkeypatch.setattr(fantasy, "REAL_CONSTRUCTOR_QUALI_BONUS", True)
+    scores = fantasy._constructor_scores(_two_car_frame(GRIDS), {t: 1.0 for t in GRIDS},
+                                         drop_avoid=False, with_bonus=True)
+    assert scores == {"BothQ3": 10, "OneQ3": 5, "BothQ2": 3, "OneQ2": 1, "NoneQ2": -1}
+
+
+def test_old_constructor_bonus_unchanged_while_switched_off():
+    assert fantasy.REAL_CONSTRUCTOR_QUALI_BONUS is False
+    scores = fantasy._constructor_scores(_two_car_frame(GRIDS), {t: 1.0 for t in GRIDS},
+                                         drop_avoid=False, with_bonus=True)
+    assert scores == {"BothQ3": 3, "OneQ3": 1, "BothQ2": 1, "OneQ2": 0, "NoneQ2": 0}
+
+
+def _chip_pool():
+    drivers = [{"Abbreviation": a, "TeamName": t, "GridPosition": g, "FantasyValue": 5.0, "DNFProb": 0.0}
+               for a, t, g in [("AAA", "Red", 3), ("BBB", "Red", 17), ("CCC", "Blue", 18),
+                               ("DDD", "Blue", 5), ("EEE", "Green", 9)]]
+    return {"drivers": drivers, "constructors": [{"name": "Red", "score": 1.0}, {"name": "Blue", "score": 1.0}]}
+
+
+def test_no_negative_ignores_back_row_with_real_quali_rules(monkeypatch):
+    from src.weekend import evaluate_team_chips
+    team = (["AAA", "BBB", "CCC", "DDD", "EEE"], ["Red", "Blue"])
+    old = evaluate_team_chips(*team, _chip_pool(), 0.0, 0.0, "Test GP")["no_negative"]
+    assert old["points_at_risk"] == 10.0          # two P16+ drivers, -5 each, the old rule
+    monkeypatch.setattr(fantasy, "REAL_QUALI_RULES", True)
+    new = evaluate_team_chips(*team, _chip_pool(), 0.0, 0.0, "Test GP")["no_negative"]
+    assert new["points_at_risk"] == 0.0           # P11 to P20 is 0 in the game, nothing at risk
+    assert "P16" not in new["reason"]
+
+
+def test_championship_nudge_keeps_p22_at_the_back_when_switched_on(monkeypatch):
+    # 2026 has 22 cars. the nudge clipped everyone to P20, so a P22 starter was
+    # "predicted" P20 and got a made up +2 overtake bonus
+    from src.championship_form import apply_championship_signal
+    table = pd.DataFrame({"Abbreviation": ["LEAD", "BACK"], "GridPosition": [1, 22],
+                          "Predicted": [1.0, 22.0]})
+    form = pd.DataFrame({"Abbreviation": ["LEAD", "BACK"], "FormSignal": [1.0, 0.0],
+                         "ChampPoints": [300, 0], "ChampPosition": [1, 2]})
+    assert fantasy.CLIP_TO_REAL_FIELD is False
+    old = apply_championship_signal(table, form).set_index("Abbreviation")
+    assert old.loc["BACK", "Predicted"] == 20.0    # the old behaviour, left alone while off
+    monkeypatch.setattr(fantasy, "CLIP_TO_REAL_FIELD", True)
+    new = apply_championship_signal(table, form).set_index("Abbreviation")
+    # 22 plus the backmarker nudge (+0.225) is clipped to the real field, P22, so no
+    # made up places gained
+    assert new.loc["BACK", "Predicted"] == 22.0
+    assert new.loc["LEAD", "Predicted"] == 1.0

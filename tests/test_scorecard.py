@@ -164,3 +164,27 @@ def test_scorecard_checks_the_replay_rebuilds_the_locked_team():
     text = sc.render([same, other, unlocked], rules_name="current", today="2026-10-27")
     assert "rebuilt the exact locked team on 1 of 2 locked weekends" in text
     assert "R18" in text.split("rebuilt the exact locked team")[1].splitlines()[0]
+
+
+def test_rules_names_turn_on_the_right_switches():
+    sc = _scorecard()
+    assert sc.switches_for("current") == {}
+    assert sc.switches_for("quali") == {"REAL_QUALI_RULES": True}
+    assert sc.switches_for("quali+bonus") == {"REAL_QUALI_RULES": True,
+                                              "REAL_CONSTRUCTOR_QUALI_BONUS": True}
+    assert sc.switches_for("clip") == {"CLIP_TO_REAL_FIELD": True}
+    try:
+        sc.switches_for("quali+nonsense")
+        assert False, "an unknown rule name should be refused"
+    except ValueError:
+        pass
+
+
+def test_rules_helper_puts_the_switches_back():
+    import src.fantasy as fantasy
+    sc = _scorecard()
+    with sc.rules(**sc.switches_for("quali+bonus+clip")):
+        assert fantasy.REAL_QUALI_RULES and fantasy.REAL_CONSTRUCTOR_QUALI_BONUS
+        assert fantasy.CLIP_TO_REAL_FIELD
+    assert not (fantasy.REAL_QUALI_RULES or fantasy.REAL_CONSTRUCTOR_QUALI_BONUS
+                or fantasy.CLIP_TO_REAL_FIELD)

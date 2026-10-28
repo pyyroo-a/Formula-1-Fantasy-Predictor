@@ -109,14 +109,55 @@ def get_position_gain_picks(midfield: pd.DataFrame) -> pd.DataFrame:
 
     return pd.concat([stable_midfield, risky_pick])
 
+# ---- the game's real rules, each behind a switch (project 2) ----------------------
+#
+# Checked against the real game on 2026-10-27, our forecast had three rules wrong. Each
+# fix is a switch that starts OFF and only gets turned on if it scores more REAL points
+# on the scorecard (scripts/scorecard.py), same idea as DNF_WEIGHT below. They're read
+# every time they're used, so the scorecard can flip them for a replay.
+
+# Qualifying: the game gives P1 to P10 +10 down to +1 and P11 to P20 nothing. The -5 is
+# only for not setting a time, which we can't predict. We used to give -5 to P16+.
+#
+# Measured 2026-10-28, scorecard replay of R3 to R18 (16 races), official points:
+#     off (what ships)    187.5 pts/race
+#     on                  175.3 pts/race   (-12.2, better on 5, worse on 9)
+#     on + real bonus     176.8 pts/race   (-10.8)
+# The right rule scores worse. Without the -5 the back row costs nothing to own, so
+# the optimiser fills up on cheap P16+ drivers: 24 of 80 picks came from P16+ with it
+# on, 8 of 80 with it off (Bahrain 212 -> 112, it took Bottas from P21 and he DNF'd).
+# The P20 clip below makes those same drivers look even better.
+REAL_QUALI_RULES = False
+
+# Constructor qualifying bonus: the game gives -1 neither car in Q2, +1 one in Q2, +3
+# both in Q2, +5 one in Q3, +10 both in Q3. We only ever gave +1 / +3.
+#
+# Measured 2026-10-28, same replay:
+#     off   187.5 pts/race
+#     on    194.3 pts/race   (+6.8, better on 1, worse on 0)
+# Only ONE race picked a different team (Monza, 147 -> 256), the other 15 were the
+# same team. So it's +6.8 from a single race, thin evidence.
+REAL_CONSTRUCTOR_QUALI_BONUS = False
+
+# The championship nudge (src/championship_form.py) clipped every prediction to P20, but
+# 2026 has 22 cars, so a P22 starter got "predicted" P20 and a made up +2 overtake bonus.
+# The locked teams picked a P22 driver on 4 of 6 weekends. On = clip to the real field.
+#
+# Measured 2026-10-28, same replay:
+#     off   187.5 pts/race
+#     on    200.4 pts/race   (+12.9, better on 5, worse on 3, same team on 8)
+# All three switches on together: 154.4 pts/race (-33.1, worse on 13 of 16).
+CLIP_TO_REAL_FIELD = False
+
+
 def qualifying_score(grid_pos: float) -> float:
     pos = int(round(grid_pos))
     if pos <= 10:
         return QUALI_POINTS.get(pos, 1)   # Q3: +10 down to +1
-    elif pos <= 15:
-        return 0                           # Q2 but not Q3: no points
+    elif pos <= 15 or REAL_QUALI_RULES:
+        return 0                           # Q2 but not Q3: no points (P11 to P20 in the real game)
     else:
-        return -5                          # Q1 knockout: -5
+        return -5                          # Q1 knockout: -5, the old rule
 
 
 # How much of a driver's expected retirement cost to charge against his predicted
@@ -407,6 +448,21 @@ def _priced_race_table(
     return race_df, safe_abbrevs
 
 
+def _real_constructor_quali_bonus(grids: list) -> int:
+    """The game's constructor qualifying bonus from where its two cars start."""
+    in_q3 = sum(1 for g in grids if g <= 10)
+    in_q2 = sum(1 for g in grids if g <= 15)
+    if in_q3 == 2:
+        return 10
+    if in_q3 == 1:
+        return 5
+    if in_q2 == 2:
+        return 3
+    if in_q2 == 1:
+        return 1
+    return -1
+
+
 def _constructor_scores(
     race_df: pd.DataFrame,
     constructor_prices: dict,
@@ -444,7 +500,9 @@ def _constructor_scores(
         top_team = 1.5 if avg <= 4 else (0.5 if avg <= 7 else 0.0)
 
         grids = grids_by_team.get(team, [])
-        if len(grids) >= 2:
+        if len(grids) >= 2 and REAL_CONSTRUCTOR_QUALI_BONUS:
+            q_bonus = _real_constructor_quali_bonus(grids)
+        elif len(grids) >= 2:
             if all(g <= 10 for g in grids):
                 q_bonus = 3  # both in Q3
             elif all(g <= 15 for g in grids):

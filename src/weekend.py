@@ -16,7 +16,7 @@ import pandas as pd
 
 from src.pipeline import predict_upcoming_race
 from src.fantasy import build_budget_team, build_budget_teams, get_race_pool
-from src import official_points, openf1
+from src import fantasy, official_points, openf1
 from src.fetch_practice import _session_start_utc, get_practice_grid, get_sprint_quali_grid
 from src.dnf import DNFModel, USE_DNF_RISK
 from src.data_loader import load_dataset
@@ -217,7 +217,8 @@ def evaluate_team_chips(
     # points your team is at risk of losing. We work that out from the real dnf
     # chances (src/dnf.py) instead of just checking a list of crashy circuits:
     #   - a retirement costs -20
-    #   - qualifying P16 or worse costs -5
+    #   - qualifying P16 or worse costs -5 (our old rule, the real game gives P11 to P20
+    #     a 0, so with REAL_QUALI_RULES on there's nothing at risk from the back row)
     # Constructors score BOTH their cars, so we count their exposure too.
     dnf_by_driver = {d["Abbreviation"]: (d.get("DNFProb") or 0.0) for d in pool["drivers"]}
     team_of = {d["Abbreviation"]: d.get("TeamName") for d in pool["drivers"]}
@@ -225,7 +226,7 @@ def evaluate_team_chips(
 
     driver_dnfs = sum(dnf_by_driver.get(a, 0.0) for a in my_drivers)
     constructor_dnfs = sum(p for a, p in dnf_by_driver.items() if team_of.get(a) in my_constructors)
-    back_row = [a for a in my_drivers if grid_of.get(a, 0) >= 16]
+    back_row = [] if fantasy.REAL_QUALI_RULES else [a for a in my_drivers if grid_of.get(a, 0) >= 16]
     points_at_risk = round((driver_dnfs + constructor_dnfs) * 20 + len(back_row) * 5, 1)
 
     is_high_attrition = race_name in HIGH_ATTRITION_CIRCUITS

@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+import src.fantasy as fantasy
+
 # Standard F1 points for finishing positions 1 through 10.
 # Drivers outside the top 10 score 0 points.
 POINTS_MAP = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10,
@@ -96,8 +98,12 @@ def apply_championship_signal(
     # Multiply by 3 to scale to a max ±1.5 position shift, then apply weight.
     df["ChampAdjustment"] = (0.5 - df["FormSignal"]) * 3 * weight
 
-    # Apply the adjustment and clip to the valid 1 to 20 position range.
-    df["Predicted"] = np.clip(df["Predicted"] + df["ChampAdjustment"], 1, 20).round(2)
+    # Apply the adjustment and clip to the valid position range. That used to be 1 to 20
+    # always, but 2026 runs 22 cars, see CLIP_TO_REAL_FIELD in src/fantasy.py
+    last = 20
+    if fantasy.CLIP_TO_REAL_FIELD and "GridPosition" in df.columns:
+        last = max(len(df), int(df["GridPosition"].max()))
+    df["Predicted"] = np.clip(df["Predicted"] + df["ChampAdjustment"], 1, last).round(2)
 
     # Drop the intermediate adjustment column, it's not needed downstream.
     df = df.drop(columns=["ChampAdjustment"])
