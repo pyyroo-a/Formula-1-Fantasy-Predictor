@@ -127,6 +127,14 @@ def _reason(swap: dict, pool: dict, session: str) -> str:
     return f"{cars(swap['out'])} to {cars(swap['in'])} in {session}"
 
 
+def _in_confidence(swap: dict, pool: dict) -> dict:
+    """How sure we are about a driver coming in (src/confidence.py). Constructors get nothing."""
+    if swap["kind"] != "driver":
+        return {}
+    d = _lookup(pool)[0].get(swap["in"], {})
+    return {"in_confidence": d.get("Confidence"), "in_confidence_reason": d.get("ConfidenceReason")}
+
+
 def _plural(n: int) -> str:
     return f"{n} transfer" if n == 1 else f"{n} transfers"
 
@@ -155,7 +163,8 @@ def transfer_ladder(current: dict, pool: dict, prices: dict, budget: float, free
         expected = round(best["expected"] - TRANSFER_HIT * paid, 3)
         rows.append({**best, "transfers": k, "paid": paid, "expected": expected,
                      "vs_keep": round(expected - keep["expected"], 3),
-                     "swaps": [{**s, "reason": _reason(s, pool, session)} for s in best["swaps"]]})
+                     "swaps": [{**s, "reason": _reason(s, pool, session), **_in_confidence(s, pool)}
+                               for s in best["swaps"]]})
 
     facts = [f"{a} isn't in this weekend's field, so they score 0 here." for a in keep["missing"]]
     real = [r for r in rows if not r.get("none")]

@@ -18,7 +18,8 @@ from src.fetch_practice import is_sprint_weekend
 from src.pipeline import predict_upcoming_race
 from src.planner import transfer_ladder
 from src.snapshots import find_snapshot
-from src.weekend import upcoming_dnf_probs
+from src.confidence import attach_confidence
+from src.weekend import upcoming_dnf_probs, weekend_confidence_for
 
 router = APIRouter()
 
@@ -38,6 +39,9 @@ def get_transfer_ladder(request: TransferLadderRequest):
     table = predict_upcoming_race(practice_df)
     pool = get_race_pool(table, request.race_name, state.current_prices,
                          dnf_probs=upcoming_dnf_probs(table, request.race_name))
+    # so each swap can say how sure we are about the driver coming in
+    pool["drivers"] = attach_confidence(pool["drivers"],
+                                        weekend_confidence_for(request.race_name, session_used, wanted))
     ladder = transfer_ladder({"drivers": request.drivers, "constructors": request.constructors},
                              pool, state.current_prices, request.budget, request.free_transfers,
                              session=session_used)

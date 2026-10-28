@@ -16,7 +16,7 @@ import pandas as pd
 
 from src.pipeline import predict_upcoming_race
 from src.fantasy import build_budget_team, build_budget_teams, get_race_pool
-from src import fantasy, official_points, openf1
+from src import confidence, fantasy, official_points, openf1
 from src.fetch_practice import _session_start_utc, get_practice_grid, get_sprint_quali_grid
 from src.dnf import DNFModel, USE_DNF_RISK
 from src.data_loader import load_dataset
@@ -117,6 +117,26 @@ def results_already_in_data(race_name: str, year: int = SEASON) -> bool:
     except Exception:
         return False
     return bool(((df["RaceName"] == race_name) & (df["Year"] == year)).any())
+
+
+def weekend_confidence_for(race_name: str, session_used: str | None, lock_session: str,
+                           year: int = SEASON) -> dict | None:
+    """
+    Each driver's confidence level and reason (src/confidence.py), or None when we
+    shouldn't show any: a preview from an earlier session than the lock one, a sprint
+    weekend while SHOW_ON_SPRINT_WEEKENDS is off, or anything going wrong. It's extra
+    info on the cards, so it never gets to break a lock or a page.
+    """
+    if session_used is None or session_used != lock_session:
+        return None
+    if lock_session == "SQ" and not confidence.SHOW_ON_SPRINT_WEEKENDS:
+        return None
+    try:
+        sessions = confidence.load_weekend_sessions(lambda s: load_grid(race_name, s, year), lock_session)
+        return confidence.weekend_confidence(sessions, lock_session)
+    except Exception as e:
+        print(f"confidence for {race_name} {lock_session} failed, showing none: {e}")
+        return None
 
 
 def upcoming_dnf_probs(upcoming_table, race_name):
@@ -307,6 +327,8 @@ def build_snapshot(event, prices: dict, source: str = "auto", note: str | None =
             [c["name"] for c in team["constructors"]],
             pool, optimal_score, limitless_score, race_name,
         )
+    # confidence goes on after the teams are built, so it can't change a pick
+    teams = confidence.attach_to_teams(teams, weekend_confidence_for(race_name, session, session, year))
 
     now = pd.Timestamp.now(tz="UTC")
     quali = session_start_utc(event, "Q")

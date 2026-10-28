@@ -13,6 +13,8 @@
   "team": {
    "boost_pick": {
     "Abbreviation": "ANT",
+    "Confidence": "medium",
+    "ConfidenceReason": "P1 in FP3. Steady all weekend and 0.166s clear of the next car. But teammate RUS was P6.",
     "FantasyValue": 39.0,
     "GridPosition": 1,
     "Predicted": 1.0,
@@ -74,6 +76,8 @@
    "drivers": [
     {
      "Abbreviation": "ANT",
+     "Confidence": "medium",
+     "ConfidenceReason": "P1 in FP3. Steady all weekend and 0.166s clear of the next car. But teammate RUS was P6.",
      "DNFProb": 0.053,
      "FantasyValue": 39.0,
      "GridPosition": 1,
@@ -84,6 +88,8 @@
     },
     {
      "Abbreviation": "LAW",
+     "Confidence": "low",
+     "ConfidenceReason": "P7 in FP3. Teammate VER P5 backs it up. But moved around between sessions (P7 to P10) and only 0.031s from the next car.",
      "DNFProb": 0.089,
      "FantasyValue": 11.6,
      "GridPosition": 7,
@@ -94,6 +100,8 @@
     },
     {
      "Abbreviation": "HUL",
+     "Confidence": "low",
+     "ConfidenceReason": "P8 in FP3. Teammate BOR P10 backs it up. But moved around between sessions (P8 to P12) and only 0.031s from the next car.",
      "DNFProb": 0.161,
      "FantasyValue": 8.2,
      "GridPosition": 8,
@@ -104,6 +112,8 @@
     },
     {
      "Abbreviation": "BOR",
+     "Confidence": "low",
+     "ConfidenceReason": "P10 in FP3. Teammate HUL P8 backs it up. But moved around between sessions (P10 to P13) and only 0.004s from the next car.",
      "DNFProb": 0.138,
      "FantasyValue": 2.4,
      "GridPosition": 10,
@@ -114,6 +124,8 @@
     },
     {
      "Abbreviation": "BEA",
+     "Confidence": "low",
+     "ConfidenceReason": "P13 in FP3. Teammate OCO P12 backs it up. But moved around between sessions (P13 to P16) and only 0.024s from the next car.",
      "DNFProb": 0.22,
      "FantasyValue": 0.0,
      "GridPosition": 13,
@@ -130,6 +142,8 @@
    {
     "boost_pick": {
      "Abbreviation": "ANT",
+     "Confidence": "medium",
+     "ConfidenceReason": "P1 in FP3. Steady all weekend and 0.166s clear of the next car. But teammate RUS was P6.",
      "FantasyValue": 39.0,
      "GridPosition": 1,
      "Predicted": 1.0,
@@ -191,6 +205,8 @@
     "drivers": [
      {
       "Abbreviation": "ANT",
+      "Confidence": "medium",
+      "ConfidenceReason": "P1 in FP3. Steady all weekend and 0.166s clear of the next car. But teammate RUS was P6.",
       "DNFProb": 0.053,
       "FantasyValue": 39.0,
       "GridPosition": 1,
@@ -201,6 +217,8 @@
      },
      {
       "Abbreviation": "LAW",
+      "Confidence": "low",
+      "ConfidenceReason": "P7 in FP3. Teammate VER P5 backs it up. But moved around between sessions (P7 to P10) and only 0.031s from the next car.",
       "DNFProb": 0.089,
       "FantasyValue": 11.6,
       "GridPosition": 7,
@@ -211,6 +229,8 @@
      },
      {
       "Abbreviation": "HUL",
+      "Confidence": "low",
+      "ConfidenceReason": "P8 in FP3. Teammate BOR P10 backs it up. But moved around between sessions (P8 to P12) and only 0.031s from the next car.",
       "DNFProb": 0.161,
       "FantasyValue": 8.2,
       "GridPosition": 8,
@@ -221,6 +241,8 @@
      },
      {
       "Abbreviation": "BOR",
+      "Confidence": "low",
+      "ConfidenceReason": "P10 in FP3. Teammate HUL P8 backs it up. But moved around between sessions (P10 to P13) and only 0.004s from the next car.",
       "DNFProb": 0.138,
       "FantasyValue": 2.4,
       "GridPosition": 10,
@@ -231,6 +253,8 @@
      },
      {
       "Abbreviation": "BEA",
+      "Confidence": "low",
+      "ConfidenceReason": "P13 in FP3. Teammate OCO P12 backs it up. But moved around between sessions (P13 to P16) and only 0.024s from the next car.",
       "DNFProb": 0.22,
       "FantasyValue": 0.0,
       "GridPosition": 13,
@@ -246,6 +270,8 @@
    {
     "boost_pick": {
      "Abbreviation": "LEC",
+     "Confidence": "low",
+     "ConfidenceReason": "P2 in FP3. Steady all weekend. But teammate HAM was P9 and only 0.023s from the next car.",
      "FantasyValue": 30.6,
      "GridPosition": 2,
      "Predicted": 2.0,
@@ -307,6 +333,8 @@
     "drivers": [
      {
       "Abbreviation": "LEC",
+      "Confidence": "low",
+      "ConfidenceReason": "P2 in FP3. Steady all weekend. But teammate HAM was P9 and only 0.023s from the next car.",
       "DNFProb": 0.084,
       "FantasyValue": 30.6,
       "GridPosition": 2,
@@ -317,6 +345,8 @@
      },
      {
       "Abbreviation": "LAW",
+      "Confidence": "low",
+      "ConfidenceReason": "P7 in FP3. Teammate VER P5 backs it up. But moved around between sessions (P7 to P10) and only 0.031s from the next car.",
       "DNFProb": 0.089,
       "FantasyValue": 11.6,
       "GridPosition": 7,
@@ -327,6 +357,8 @@
      },
      {
       "Abbreviation": "HUL",
+      "Confidence": "low",
+      "ConfidenceReason": "P8 in FP3. Teammate BOR P10 backs it up. But moved around between sessions (P8 to P12) and only 0.031s from the next car.",
       "DNFProb": 0.161,
       "FantasyValue": 8.2,
       "GridPosition": 8,
@@ -337,6 +369,8 @@
      },
      {
       "Abbreviation": "BEA",
+      "Confidence": "low",
+      "ConfidenceReason": "P13 in FP3. Teammate OCO P12 backs it up. But moved around between sessions (P13 to P16) and only 0.024s from the next car.",
       "DNFProb": 0.22,
       "FantasyValue": 0.0,
       "GridPosition": 13,
@@ -347,6 +381,8 @@
      },
      {
       "Abbreviation": "LIN",
+      "Confidence": "low",
+      "ConfidenceReason": "P14 in FP3. Teammate TSU P15 backs it up. But moved around between sessions (P4 to P14) and only 0.024s from the next car.",
       "DNFProb": 0.142,
       "FantasyValue": 0.0,
       "GridPosition": 14,
@@ -362,6 +398,8 @@
    {
     "boost_pick": {
      "Abbreviation": "ANT",
+     "Confidence": "medium",
+     "ConfidenceReason": "P1 in FP3. Steady all weekend and 0.166s clear of the next car. But teammate RUS was P6.",
      "FantasyValue": 39.0,
      "GridPosition": 1,
      "Predicted": 1.0,
@@ -423,6 +461,8 @@
     "drivers": [
      {
       "Abbreviation": "ANT",
+      "Confidence": "medium",
+      "ConfidenceReason": "P1 in FP3. Steady all weekend and 0.166s clear of the next car. But teammate RUS was P6.",
       "DNFProb": 0.053,
       "FantasyValue": 39.0,
       "GridPosition": 1,
@@ -433,6 +473,8 @@
      },
      {
       "Abbreviation": "HUL",
+      "Confidence": "low",
+      "ConfidenceReason": "P8 in FP3. Teammate BOR P10 backs it up. But moved around between sessions (P8 to P12) and only 0.031s from the next car.",
       "DNFProb": 0.161,
       "FantasyValue": 8.2,
       "GridPosition": 8,
@@ -443,6 +485,8 @@
      },
      {
       "Abbreviation": "BOR",
+      "Confidence": "low",
+      "ConfidenceReason": "P10 in FP3. Teammate HUL P8 backs it up. But moved around between sessions (P10 to P13) and only 0.004s from the next car.",
       "DNFProb": 0.138,
       "FantasyValue": 2.4,
       "GridPosition": 10,
@@ -453,6 +497,8 @@
      },
      {
       "Abbreviation": "COL",
+      "Confidence": "low",
+      "ConfidenceReason": "P11 in FP3. 0.058s clear of the next car. But teammate GAS was P16 and moved around between sessions (P11 to P15).",
       "DNFProb": 0.131,
       "FantasyValue": 0.0,
       "GridPosition": 11,
@@ -463,6 +509,8 @@
      },
      {
       "Abbreviation": "LIN",
+      "Confidence": "low",
+      "ConfidenceReason": "P14 in FP3. Teammate TSU P15 backs it up. But moved around between sessions (P4 to P14) and only 0.024s from the next car.",
       "DNFProb": 0.142,
       "FantasyValue": 0.0,
       "GridPosition": 14,

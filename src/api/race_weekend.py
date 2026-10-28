@@ -13,10 +13,12 @@ from src.api.weekend_lock import should_self_lock, start_snapshot_build  # noqa:
 from src.fantasy import build_budget_team, build_budget_teams, get_race_pool
 from src.pipeline import predict_upcoming_race
 from src.snapshots import find_snapshot, latest_snapshot
+from src.confidence import attach_to_teams
 from src.weekend import (
     evaluate_team_chips,
     final_practice_session,
     upcoming_dnf_probs,
+    weekend_confidence_for,
 )
 
 router = APIRouter()
@@ -115,6 +117,8 @@ def get_weekend_team(background_tasks: BackgroundTasks):
                     [c["name"] for c in team["constructors"]],
                     pool, optimal_score, limitless_score, race_name,
                 )
+            # after the teams are built so it can't change a pick, None before the lock session
+            teams = attach_to_teams(teams, weekend_confidence_for(race_name, session_used, final_session))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
 

@@ -363,3 +363,68 @@ def test_transfer_ladder_refuses_the_same_pick_twice(client):
     twice = [MADRING_TEAM_DRIVERS[0]] * 2 + MADRING_TEAM_DRIVERS[2:]
     assert _ladder(client, drivers=twice).status_code == 422
     assert _ladder(client, constructors=["McLaren", "McLaren"]).status_code == 422
+
+
+# ---- confidence on the picks (project 4) ----------------------------------------
+
+LEVELS = ("high", "medium", "low")
+
+
+def test_weekend_team_shows_confidence_once_the_lock_session_is_in(client, at, empty_snapshots):
+    at(SAT_MADRING_BEFORE_QUALI)
+    body = client.get("/weekend-team").json()
+    assert body["session_used"] == "FP3"
+    for team in body["teams"]:
+        for d in team["drivers"]:
+            assert d["Confidence"] in LEVELS
+            assert d["ConfidenceReason"].startswith(f"P{d['GridPosition']} in FP3.")
+        assert team["boost_pick"]["Confidence"] in LEVELS
+
+
+def test_no_confidence_on_an_earlier_session_preview(client, at, empty_snapshots, monkeypatch):
+    # the FastF1 cache has FP3 even "during" FP3, so pretend FP2 is all that's out
+    import src.api.race_weekend as race_weekend
+    from src.weekend import load_grid
+    monkeypatch.setattr(race_weekend, "weekend_grid", lambda race, final: (load_grid(race, "FP2"), "FP2"))
+    at(SAT_MADRING_BEFORE_QUALI)
+    body = client.get("/weekend-team").json()
+    assert body["session_used"] == "FP2"
+    assert all(d.get("Confidence") is None for t in body["teams"] for d in t["drivers"])
+
+
+def test_snapshot_saves_confidence_at_the_lock(client):
+    from src import weekend
+    from src.api import state
+    snap = weekend.build_snapshot(_madring_event(), state.current_prices, source="test")
+    for team in snap["teams"]:
+        assert all(d["Confidence"] in LEVELS for d in team["drivers"])
+        assert team["boost_pick"]["Confidence"] in LEVELS
+
+
+def test_confidence_failure_never_breaks_the_weekend(client, at, empty_snapshots, monkeypatch):
+    import src.confidence as confidence
+
+    def broken(*args, **kwargs):
+        raise RuntimeError("confidence blew up")
+    monkeypatch.setattr(confidence, "weekend_confidence", broken)
+    at(SAT_MADRING_BEFORE_QUALI)
+    r = client.get("/weekend-team")
+    assert r.status_code == 200
+    assert all(d["Confidence"] is None for t in r.json()["teams"] for d in t["drivers"])
+
+
+def test_transfer_ladder_swaps_carry_the_incoming_drivers_confidence(client, snapshots):
+    snapshots(*UP_TO_MADRING)
+    rows = _ladder(client).json()["rows"]
+    swaps = [s for r in rows for s in r.get("swaps", [])]
+    driver_swaps = [s for s in swaps if s["kind"] == "driver"]
+    assert driver_swaps
+    for s in driver_swaps:
+        assert s["in_confidence"] in LEVELS
+        assert s["in_confidence_reason"].startswith("P")
+    assert all("in_confidence" not in s for s in swaps if s["kind"] != "driver")
+
+
+def test_sprint_weekends_get_no_confidence_while_switched_off():
+    from src.weekend import weekend_confidence_for
+    assert weekend_confidence_for("Singapore Grand Prix", "SQ", "SQ") is None
