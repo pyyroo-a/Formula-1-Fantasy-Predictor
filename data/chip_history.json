@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-28",
+ "updated": "2026-10-29",
  "seasons": [
   2026
  ],
@@ -7,6 +7,7 @@
   {
    "track": "Austin",
    "name": "United States Grand Prix",
+   "round": 18,
    "sprint": false,
    "chips": {
     "3x": {
@@ -47,6 +48,7 @@
   {
    "track": "Baku",
    "name": "Azerbaijan Grand Prix",
+   "round": 15,
    "sprint": false,
    "chips": {
     "3x": {
@@ -87,6 +89,7 @@
   {
    "track": "Barcelona",
    "name": "Barcelona Grand Prix",
+   "round": 7,
    "sprint": false,
    "chips": {
     "3x": {
@@ -127,6 +130,7 @@
   {
    "track": "Budapest",
    "name": "Hungarian Grand Prix",
+   "round": 11,
    "sprint": false,
    "chips": {
     "3x": {
@@ -167,6 +171,7 @@
   {
    "track": "Kuala Lumpur",
    "name": "Bahrain Grand Prix",
+   "round": 16,
    "sprint": false,
    "chips": {
     "3x": {
@@ -207,6 +212,7 @@
   {
    "track": "Madrid",
    "name": "Spanish Grand Prix",
+   "round": 14,
    "sprint": false,
    "chips": {
     "3x": {
@@ -247,6 +253,7 @@
   {
    "track": "Marina Bay",
    "name": "Singapore Grand Prix",
+   "round": 17,
    "sprint": true,
    "chips": {
     "3x": {
@@ -287,6 +294,7 @@
   {
    "track": "Melbourne",
    "name": "Australian Grand Prix",
+   "round": 1,
    "sprint": false,
    "chips": {
     "3x": {
@@ -327,6 +335,7 @@
   {
    "track": "Miami Gardens",
    "name": "Miami Grand Prix",
+   "round": 4,
    "sprint": true,
    "chips": {
     "3x": {
@@ -367,6 +376,7 @@
   {
    "track": "Monaco",
    "name": "Monaco Grand Prix",
+   "round": 6,
    "sprint": false,
    "chips": {
     "3x": {
@@ -407,6 +417,7 @@
   {
    "track": "Montr\u00e9al",
    "name": "Canadian Grand Prix",
+   "round": 5,
    "sprint": true,
    "chips": {
     "3x": {
@@ -447,6 +458,7 @@
   {
    "track": "Monza",
    "name": "Italian Grand Prix",
+   "round": 13,
    "sprint": false,
    "chips": {
     "3x": {
@@ -487,6 +499,7 @@
   {
    "track": "Shanghai",
    "name": "Chinese Grand Prix",
+   "round": 2,
    "sprint": true,
    "chips": {
     "3x": {
@@ -527,6 +540,7 @@
   {
    "track": "Silverstone",
    "name": "British Grand Prix",
+   "round": 9,
    "sprint": true,
    "chips": {
     "3x": {
@@ -567,6 +581,7 @@
   {
    "track": "Spa-Francorchamps",
    "name": "Belgian Grand Prix",
+   "round": 10,
    "sprint": false,
    "chips": {
     "3x": {
@@ -607,6 +622,7 @@
   {
    "track": "Spielberg",
    "name": "Austrian Grand Prix",
+   "round": 8,
    "sprint": false,
    "chips": {
     "3x": {
@@ -647,6 +663,7 @@
   {
    "track": "Suzuka",
    "name": "Japanese Grand Prix",
+   "round": 3,
    "sprint": false,
    "chips": {
     "3x": {
@@ -687,6 +704,7 @@
   {
    "track": "Zandvoort",
    "name": "Dutch Grand Prix",
+   "round": 12,
    "sprint": true,
    "chips": {
     "3x": {

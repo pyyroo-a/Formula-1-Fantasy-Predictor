@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { API } from "../api";
 import { CHIP_META } from "../constants";
 import { fetchJson } from "../lib/api";
+import { calendarOrder } from "../lib/insights";
 import Loading, { ErrorLine } from "../ui/Loading";
 
 // Chip history (project 6): what 3x, Limitless and No Negative would really have been
@@ -65,7 +66,7 @@ export default function ChipHistory() {
 
   const byTrack = Object.fromEntries(data.tracks.map(t => [t.track, t]));
   const top = chip => new Set((data.best?.[chip]?.top || []).map(t => t.track));
-  const tracks = [...data.tracks].sort((a, b) => shortRace(a.name).localeCompare(shortRace(b.name)));
+  const tracks = calendarOrder(data.tracks);
   const whoFor = track => byTrack[track]?.chips?.["3x"]?.values?.slice(-1)[0]?.who;
 
   return (
@@ -98,38 +99,37 @@ export default function ChipHistory() {
         })}
       </div>
 
-      {/* every track as a list, so nothing scrolls sideways on a phone */}
-      <h3 className="cond font-bold text-[17px] mt-5 mb-1.5">Every track</h3>
-      <div className="bg-pw-panel rounded-xl px-3 py-1">
+      {/* every track, folded away until you want it. Calendar order, numbers only, the
+          "who" lives on the cards above */}
+      <details className="bg-pw-panel rounded-xl px-3 py-2.5 mt-4">
+        <summary className="cond font-bold text-[16px] cursor-pointer">See every track ({tracks.length})</summary>
+        <p className="text-xs text-pw-muted mt-2 leading-relaxed">
+          What each chip would really have been worth there. <b className="text-pw-text">3x</b> = the top scorer's points,{" "}
+          <b className="text-pw-text">Limitless</b> = extra over the best $100M team, <b className="text-pw-text">No Neg</b> = points
+          an average team got back. Green = one of the best 3 tracks for that chip.
+        </p>
+        <div className="grid grid-cols-[1fr_48px_64px_56px] gap-x-2 text-[11px] text-pw-muted border-b border-pw-edge pb-1 mt-2">
+          <span>Race</span><span className="text-right">3x</span><span className="text-right">Limitless</span><span className="text-right">No Neg</span>
+        </div>
         {tracks.map(t => (
-          <div key={t.track} className="py-2 border-b border-pw-line last:border-0">
-            <p className="text-[14px] font-semibold">
-              {trackLabel(t.name, t.track)}
-              {t.sprint && <span className="text-[11px] text-pw-caution ml-1.5 font-normal">sprint</span>}
-            </p>
-            <div className="grid grid-cols-3 gap-2 mt-0.5 num">
-              {CHIPS.map(c => {
-                const cell = t.chips?.[c.key] || {};
-                const values = cell.values || [];
-                return (
-                  <div key={c.key} className="min-w-0">
-                    <p className="text-[11px] text-pw-muted truncate">{c.label}</p>
-                    <p className={`text-[13px] font-bold ${top(c.key).has(t.track) ? "text-pw-safe" : ""}`}>
-                      {cell.median == null ? "-" : `${c.sign}${fmt(cell.median, c.decimals)}`}
-                    </p>
-                    {/* every season's value, with who for 3x, so a one-off is out in the open */}
-                    {values.length > 0 && (cell.seasons > 1 || c.key === "3x") && (
-                      <p className="text-[11px] text-pw-muted leading-snug">
-                        {values.map(v => `${cell.seasons > 1 ? `${v.season} ${fmt(v.value, c.decimals)} ` : ""}${v.who || ""}`.trim()).join(", ")}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+          <div key={t.track} className="grid grid-cols-[1fr_48px_64px_56px] gap-x-2 items-baseline py-1.5 border-b border-pw-line last:border-0 text-[13px] num">
+            <span className="min-w-0 truncate" title={trackLabel(t.name, t.track)}>
+              {t.round != null && <span className="text-pw-muted cond font-semibold mr-1.5">R{t.round}</span>}
+              {/* the race name is enough here, the round says where it is */}
+              {shortRace(t.name)}
+              {t.sprint && <span className="text-[11px] text-pw-caution ml-1.5">sprint</span>}
+            </span>
+            {CHIPS.map(c => {
+              const m = t.chips?.[c.key]?.median;
+              return (
+                <span key={c.key} className={`text-right font-bold ${top(c.key).has(t.track) ? "text-pw-safe" : ""}`}>
+                  {m == null ? "-" : `${c.sign}${fmt(m, c.decimals)}`}
+                </span>
+              );
+            })}
           </div>
         ))}
-      </div>
+      </details>
 
       <div className="bg-pw-panel rounded-xl px-3 py-2.5 mt-3 space-y-1">
         {OTHER_CHIPS.map(([name, text]) => (
@@ -148,7 +148,7 @@ export default function ChipHistory() {
         <p className="mt-2">
           The catch: it's one season so far, so we can't check yet if a track that was good for a chip stays good the
           next year. One season also means one weekend per track, so a one-off like a P19 to P1 win can top a list:
-          check who scored it. Green in the list = one of the best 3 tracks for that chip. Facts to weigh up, not
+          check who scored it. Facts to weigh up, not
           advice. Updated every Monday{data.updated ? ` (last ${data.updated})` : ""}.
         </p>
       </details>

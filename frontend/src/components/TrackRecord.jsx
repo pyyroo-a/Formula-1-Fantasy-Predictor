@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { API } from "../api";
 import { fetchJson } from "../lib/api";
 import { fmt1 } from "../lib/format";
-import { raceVerdict, honestLine, dotX, chartMax, pointsText } from "../lib/insights";
+import { raceVerdict, honestLine, dotX, chartMax, pointsText, nextOpenDot } from "../lib/insights";
 import Loading, { ErrorLine } from "../ui/Loading";
 
 // The track record (project 5): what PitWall's locked team 1 really scored each weekend
@@ -33,18 +33,19 @@ function Bubble({ s, value, best, x }) {
   );
 }
 
-function Dot({ s, value, best, max, open, onToggle, onHover }) {
+function Dot({ id, s, value, best, max, open, dispatch }) {
   if (value == null) return null;
   const x = dotX(value, max);
   return (
-    <span className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, zIndex: open ? 20 : undefined }}>
+    <span data-dot className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, zIndex: open ? 20 : undefined }}>
       <button
-        onClick={onToggle}
-        onMouseEnter={() => onHover(true)}
-        onMouseLeave={() => onHover(false)}
-        onFocus={() => onHover(true)}
-        onBlur={() => onHover(false)}
+        onPointerEnter={e => dispatch({ type: "enter", id, pointer: e.pointerType })}
+        onPointerLeave={e => dispatch({ type: "leave", id, pointer: e.pointerType })}
+        // a finger or pen taps, a mouse just hovers. detail 0 = Enter or Space on a keyboard
+        onPointerUp={e => { if (e.pointerType !== "mouse") dispatch({ type: "tap", id }); }}
+        onClick={e => { if (e.detail === 0) dispatch({ type: "tap", id }); }}
         aria-label={`${s.label}: ${pointsText(value)}`}
+        aria-expanded={open}
         className={`relative block w-3 h-3 rounded-full shadow-[0_0_0_2px_#141821] ${open ? "ring-2 ring-pw-text" : ""}`}
         style={{ background: s.color }}
       >
@@ -56,15 +57,12 @@ function Dot({ s, value, best, max, open, onToggle, onHover }) {
   );
 }
 
-function RaceLine({ row, series, max }) {
-  const [tapped, setTapped] = useState(null);
-  const [hovered, setHovered] = useState(null);
+function RaceLine({ row, series, max, openDot, dispatch }) {
   const c = row.cells;
   const v = raceVerdict(c);
   const shown = series.map(s => c[s.key]).filter(x => x != null);
   const lo = Math.min(...shown);
   const best = c["Hindsight best"];
-  const open = hovered || tapped;
   return (
     <div className="py-2 border-b border-pw-line last:border-0">
       <div className="flex justify-between gap-2 text-[13px] mb-1.5 sm:mb-0">
@@ -76,11 +74,10 @@ function RaceLine({ row, series, max }) {
           {best != null && <span className="absolute top-1/2 h-0.5 bg-pw-edge" style={{ left: `${dotX(lo, max)}%`, width: `${dotX(best, max) - dotX(lo, max)}%` }} />}
           {best != null && <span className="absolute top-0 h-full w-0.5 bg-pw-muted -translate-x-1/2" title={`Best possible: ${pointsText(best)}`} style={{ left: `${dotX(best, max)}%` }} />}
           {/* PitWall last so it sits on top when two dots land on the same spot */}
-          {[...series].reverse().map(s => (
-            <Dot key={s.key} s={s} value={c[s.key]} best={best} max={max} open={open === s.key}
-                 onToggle={() => setTapped(tapped === s.key ? null : s.key)}
-                 onHover={on => setHovered(on ? s.key : null)} />
-          ))}
+          {[...series].reverse().map(s => {
+            const id = `R${row.round}|${s.key}`;
+            return <Dot key={s.key} id={id} s={s} value={c[s.key]} best={best} max={max} open={openDot === id} dispatch={dispatch} />;
+          })}
         </div>
         <span className={`hidden sm:block w-40 text-right text-xs font-bold ${v.won ? "text-pw-safe" : v.won === false ? "text-pw-caution" : "text-pw-muted"}`}>{v.text}</span>
       </div>
@@ -91,6 +88,16 @@ function RaceLine({ row, series, max }) {
 export default function TrackRecord() {
   const [res, setRes] = useState(null);
   const [table, setTable] = useState(false);
+  // one open bubble for the whole chart, see nextOpenDot
+  const [openDot, dispatch] = useReducer(nextOpenDot, null);
+
+  // on a phone, tapping anywhere that isn't a dot closes the bubble
+  useEffect(() => {
+    if (!openDot) return;
+    const close = e => { if (!e.target.closest?.("[data-dot]")) dispatch({ type: "outside" }); };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [openDot]);
 
   useEffect(() => {
     let cancelled = false;
@@ -171,7 +178,7 @@ export default function TrackRecord() {
         </div>
       ) : (
         <div className="bg-pw-panel rounded-xl px-3.5 py-1">
-          {data.rows.map(r => <RaceLine key={r.round} row={r} series={series} max={max} />)}
+          {data.rows.map(r => <RaceLine key={r.round} row={r} series={series} max={max} openDot={openDot} dispatch={dispatch} />)}
           <div className="flex justify-between text-[11px] text-pw-muted py-1.5 sm:mr-[172px] num">
             {[0, 1, 2, 3].map(i => <span key={i}>{Math.round((max / 3) * i)}{i === 3 ? " pts" : ""}</span>)}
           </div>

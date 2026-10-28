@@ -97,7 +97,8 @@ def _value(v):
 def track_table(weekends: list[dict]) -> list[dict]:
     """
     One row per track: for each chip the median over the weekends that have a number,
-    each season's value (with who, for 3x) and how many seasons it's based on.
+    each season's value (with who, for 3x) and how many seasons it's based on, plus the
+    track's round in the newest season.
     weekends are {"season", "round", "track", "name", "sprint", "values"}.
     """
     by_track: dict[str, list[dict]] = {}
@@ -115,8 +116,9 @@ def track_table(weekends: list[dict]) -> list[dict]:
             nums = [v["value"] for v in vals]
             chips[chip] = {"median": round(float(pd.Series(nums).median()), 1) if nums else None,
                            "values": vals, "seasons": len({v["season"] for v in vals})}
-        rows.append({"track": track, "name": ws[-1]["name"], "sprint": any(w["sprint"] for w in ws),
-                     "chips": chips})
+        # round = where it sits in the newest season, so the page can go in calendar order
+        rows.append({"track": track, "name": ws[-1]["name"], "round": int(ws[-1]["round"]),
+                     "sprint": any(w["sprint"] for w in ws), "chips": chips})
     return rows
 
 

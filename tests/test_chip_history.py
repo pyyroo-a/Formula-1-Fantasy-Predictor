@@ -90,3 +90,14 @@ def test_sprint_rounds_come_from_the_schedule():
     schedule = pd.DataFrame({"RoundNumber": [16, 17, 18],
                              "EventFormat": ["conventional", "sprint_qualifying", "conventional"]})
     assert ch.sprint_rounds(schedule) == {17}
+
+
+def test_each_track_keeps_its_round_from_the_latest_season():
+    # so the Chips page can list tracks in calendar order. A track that moved on the
+    # calendar uses where it sits in the newest season
+    monza_25 = {**_weekend(2025, "Monza", 50.0), "round": 16}
+    monza_26 = {**_weekend(2026, "Monza", 93.0), "round": 13}
+    melbourne = {**_weekend(2026, "Melbourne", 40.0), "round": 1}
+    rows = {r["track"]: r for r in ch.track_table([monza_25, monza_26, melbourne])}
+    assert rows["Monza"]["round"] == 13
+    assert rows["Melbourne"]["round"] == 1
