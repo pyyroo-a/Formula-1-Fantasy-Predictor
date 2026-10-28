@@ -58,8 +58,6 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
 - **Re-run `scripts/confidence_grade.py` after a few races from Mexico.** The cutoffs
   were picked on R1 to R18, the new races are the honest test. Same for sprint weekends
   if we ever want them on.
-- **A simple code tour note in this vault** (I asked for it 2026-10-28): every file
-  added in projects 1 to 6 and what it does, in plain words, not all the code.
 - **After the first 2027 races:** check the CHIPS tab's "does last season predict this
   one" line has filled in, and write the numbers in Decisions and evidence.
 - **Re-test the paid transfer row** after a few more races (`scripts/planner_grade.py`).
