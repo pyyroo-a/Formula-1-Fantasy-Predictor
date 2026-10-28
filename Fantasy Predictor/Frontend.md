@@ -25,8 +25,11 @@ The header has 4 sections, and two of them have tabs:
   `pitwall_planner_teams` in localStorage, see [Planner](Planner.md)).
 - **Race Data**: Practice, Qualifying, Race Results (`components/racedata/`), plus
   Backtest when running locally only (`import.meta.env.DEV`).
-- **Insights**: predicted finishes, model vs practice order, and how they did
-  (`PredictedFinishes.jsx`).
+- **Insights**: two sub tabs. Predicted finishes, model vs practice order, and how
+  they did (`PredictedFinishes.jsx`). Track record (`TrackRecord.jsx`, project 5): what
+  PitWall's locked team 1 really scored each weekend vs copy the FP3 order, most
+  expensive, copy the crowd and the best possible, green where PitWall won, amber
+  where it lost. Reads `/track-record`.
 
 ## How it fits together
 

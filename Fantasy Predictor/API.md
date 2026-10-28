@@ -26,6 +26,7 @@ its own file under `src/api/`.
 | POST | `/predict-budget` | `teams.py` | 3 teams for any race (the Team Optimizer page) |
 | POST | `/upcoming-race-pool` | `teams.py` | every driver and constructor with points (Manual Team page) |
 | POST | `/chip-advisor` | `teams.py` | chip verdicts for your own team, see [Chips](Chips.md) |
+| GET | `/track-record` | `track_record.py` | the track record page's numbers, just serves `data/track_record_2026.json` (rebuilt by `scripts/track_record.py` in the Monday job). An empty record if the file isn't there |
 | POST | `/transfer-ladder` | `planner.py` | the transfer ladder for your own team (5 drivers, 2 constructors, budget, 1 to 3 free transfers), see [Planner](Planner.md). Driver swaps carry `in_confidence` and `in_confidence_reason` for the driver coming in |
 | POST | `/predict`, `/predict-upcoming`, `/race-pool` | `teams.py` | older endpoints the site doesn't call any more, kept for now |
 | GET | `/weekend-team` | `race_weekend.py` | this weekend's locked snapshot, or a provisional before the lock. Each driver and 2x pick has `Confidence` and `ConfidenceReason` once the lock session is in (None on earlier previews, old snapshots and sprint weekends) |

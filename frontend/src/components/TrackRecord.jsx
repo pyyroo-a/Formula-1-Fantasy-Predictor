@@ -102,8 +102,8 @@ export default function TrackRecord() {
       <p className="text-[10.5px] text-pw-muted leading-relaxed">
         Green = PitWall beat that pick that weekend, amber = it lost. Every team is at $100M with a
         2x pick, graded with the game's own points. Copy the crowd starts from Mexico, the first lock
-        that saved ownership. The fixes from 28 Oct went live after these locks, Mexico is the first
-        weekend with them. Updated every Monday after the race{data.updated ? ` (last ${data.updated})` : ""}.
+        that saved ownership. The locks up to R18 were made before the fixes from 28 Oct, Mexico (R19)
+        is the first weekend with them. Updated every Monday after the race{data.updated ? ` (last ${data.updated})` : ""}.
       </p>
     </div>
   );

@@ -56,15 +56,18 @@ Where it's going:
 
 - 2026 season, US GP (round 18) was locked automatically on FP3 by the GitHub Action.
   Mexico (round 19) is next, and its lock is the first to save ownership.
-- Projects 1 to 4 on the [Roadmap](Roadmap.md) are done. PitWall gets graded with
+- Projects 1 to 5 on the [Roadmap](Roadmap.md) are done. PitWall gets graded with
   the game's own points: 203.9 pts/race on the replay vs 190.6 for copying the FP3
   order, see the [Scorecard](Scorecard.md). The [Planner](Planner.md) is live under My
   Team: using free transfers its way beat keeping the team by 25 pts/race. On normal
   weekends, once FP3 is in, each pick on the main page and each planner swap shows a
   confidence level (high, medium, low) with a plain reason, see [Model](Model.md). Better practice inputs (best sectors, long runs) were tested and
   lost to the plain FP3 order. Plans and designs are in
-  [`docs/superpowers/`](../docs/superpowers/). Next is project 5, the track record page.
-- 183 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
+  [`docs/superpowers/`](../docs/superpowers/). The track record page (INSIGHTS > TRACK
+  RECORD) shows what the real locked teams scored, honestly: R13 to R18 PitWall 175.2
+  pts/race vs 187.0 for copying the FP3 order, but those locks were all made before the
+  28 Oct fixes. Next is project 6, chips (aimed at 2027).
+- 193 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
 - F1 put its live timing behind an F1TV login in October 2026. Practice comes from
   OpenF1 now, race results still come through FastF1 and that's fine (the 2026-10-26
   Monday job worked). See [Gotchas](Gotchas.md).

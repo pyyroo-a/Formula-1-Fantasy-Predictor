@@ -36,8 +36,12 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
    from 3 checks (teammate, moving around, tight pack), and a low confidence SAFE driver
    shows CONSIDER. High beat low on 11 of 12 weekends. Never changes a pick. Off on
    sprint weekends, it didn't hold up there. See [Model](Model.md).
-5. **Track record page.** The real points every locked team scored vs the simple
-   picks, so trust comes from results.
+5. **Track record page.** Done 2026-10-28. INSIGHTS > TRACK RECORD shows what the real
+   locked team 1 scored every locked weekend vs copy the FP3 order, most expensive, copy
+   the crowd and the best possible, in official points. Same grading code as the
+   scorecard (`src/track_record.py`), rebuilt every Monday by the Action. Honest
+   start: R13 to R18 PitWall 175.2 vs 187.0 for copying FP3 (beat it 3 of 6), all
+   locked before the 28 Oct fixes, Mexico is the first real test.
 6. **Chips.** A season chip plan by circuit, backed by history and tested on past
    seasons. The weekly check compares against the plan. Manual what ifs. Aimed at 2027,
    I have no chips left this season. See [Chips](Chips.md).
@@ -120,6 +124,8 @@ All the numbers: [Decisions and evidence](Decisions%20and%20evidence.md).
 
 ## Done
 
+- 2026-10-28: project 5. The track record page, `scripts/track_record.py` in the Monday
+  job, `/track-record`, the scorecard's grading shared in `src/track_record.py`.
 - 2026-10-28: project 4. Ideal lap and long runs measured and dropped, confidence levels
   with reasons on the main page teams and the planner's swaps, CONSIDER for a shaky
   Safe driver, `scripts/confidence_grade.py`.

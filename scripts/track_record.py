@@ -33,7 +33,12 @@ def main():
     results = pd.read_csv(results_path(SEASON))
     rounds = [(int(rnd), g["RaceName"].iloc[0], list(g["Abbreviation"]))
               for rnd, g in results.groupby("RoundNumber")]
-    rows = build_rows(load_official_points(), rounds, deadline_grid, find_snapshot)
+    # last run's rows, so a weekend whose practice won't load this time keeps its old row
+    previous = {}
+    if os.path.exists(OUT):
+        with open(OUT, encoding="utf-8") as f:
+            previous = {r["round"]: r for r in json.load(f).get("rows", [])}
+    rows = build_rows(load_official_points(), rounds, deadline_grid, find_snapshot, previous)
     record = {"updated": date.today().isoformat(), "rows": rows, "summary": summarise(rows)}
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(record, f, indent=1)

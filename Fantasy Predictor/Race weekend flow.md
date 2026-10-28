@@ -49,7 +49,9 @@ session that runs before the deadline as its best guess of the order:
    to an older race.
 6. **Monday 06:00 UTC.** `.github/workflows/update-race-data.yml` runs
    `scripts/update_data.py`: adds the new race and sprint results to
-   `data/processed/`, refreshes prices for the next round, commits. Render redeploys
+   `data/processed/`, refreshes prices for the next round, then
+   `scripts/track_record.py` rebuilds `data/track_record_2026.json` for the track
+   record page, and it all gets committed. Render redeploys
    and retrains on the new data. Predicted finishes now show the real results next
    to them, with how many places off we were.
 7. **Once results are in the data**, nothing will ever build a snapshot for that race

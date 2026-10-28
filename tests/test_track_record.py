@@ -81,3 +81,18 @@ def test_summary_averages_only_races_with_a_number():
     assert s["Locked"] == {"avg": 83.3, "races": 3}
     assert s["FP3 order"] == {"avg": 85.0, "races": 2, "beaten": 1, "of": 2}
     assert s["Crowd"] == {"avg": None, "races": 0, "beaten": 0, "of": 0}
+
+
+def test_failed_grid_keeps_the_previous_row():
+    # final review: a network blip on a Monday must not quietly turn an old weekend's
+    # FP3 order into "-" and shift the averages, so the last good row stays
+    good = _build({18: POINTS}, {"Test GP": LOCKED})[0]
+    again = tr.build_rows({18: POINTS}, [(18, "Test GP", ENTRY)], lambda race: (None, None),
+                          lambda race: LOCKED, previous={18: good})
+    assert again == [good]
+
+
+def test_failed_grid_with_nothing_before_still_shows_the_rest():
+    rows = tr.build_rows({18: POINTS}, [(18, "Test GP", ENTRY)], lambda race: (None, None),
+                         lambda race: LOCKED, previous={})
+    assert rows[0]["cells"]["FP3 order"] is None and rows[0]["cells"]["Locked"] == 137.0

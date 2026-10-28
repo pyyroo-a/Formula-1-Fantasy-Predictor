@@ -85,12 +85,18 @@ def grade_simple(round_points: dict, prices: dict, grid, snapshot: dict | None,
     return cells, why, teams
 
 
-def build_rows(official: dict, rounds: list, load_grid, find_snapshot) -> list[dict]:
+def build_rows(official: dict, rounds: list, load_grid, find_snapshot,
+               previous: dict | None = None) -> list[dict]:
     """
     One row per weekend PitWall really locked AND that has official points. rounds is
     [(round, race, entry)], load_grid(race) gives (grid, session used) like
     deadline_grid, find_snapshot(race) the locked snapshot or None.
+
+    previous is last run's rows by round. If a weekend's practice won't load this time
+    (OpenF1 having a moment on a Monday), its last good row stays, so a network blip
+    can't quietly rewrite an old result.
     """
+    previous = previous or {}
     rows = []
     for rnd, race, entry in rounds:
         snapshot = find_snapshot(race)
@@ -98,6 +104,9 @@ def build_rows(official: dict, rounds: list, load_grid, find_snapshot) -> list[d
         if not snapshot or not round_points:
             continue
         grid, _ = load_grid(race)
+        if grid is None and rnd in previous:
+            rows.append(previous[rnd])
+            continue
         cells, why, _ = grade_simple(round_points, round_points.get("prices") or {}, grid, snapshot, entry)
         rows.append({"round": rnd, "race": race, "cells": cells, "why": why})
     return rows

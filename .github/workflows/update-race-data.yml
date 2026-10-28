@@ -32,6 +32,8 @@ jobs:
       # the track record page reads this file, so it updates itself every Monday.
       # same grading as the scorecard, see scripts/track_record.py
       - name: Rebuild the track record
+        # if this breaks, the new race results still get committed below
+        continue-on-error: true
         run: python scripts/track_record.py
 
       - name: Commit and push if data changed
