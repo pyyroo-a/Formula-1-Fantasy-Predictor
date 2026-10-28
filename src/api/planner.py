@@ -39,9 +39,14 @@ def get_transfer_ladder(request: TransferLadderRequest):
     table = predict_upcoming_race(practice_df)
     pool = get_race_pool(table, request.race_name, state.current_prices,
                          dnf_probs=upcoming_dnf_probs(table, request.race_name))
-    # so each swap can say how sure we are about the driver coming in
-    pool["drivers"] = attach_confidence(pool["drivers"],
-                                        weekend_confidence_for(request.race_name, session_used, wanted))
+    # so each swap can say how sure we are about the driver coming in. Once the weekend
+    # is locked it's the snapshot's version (None on snapshots from before project 4),
+    # so the planner always agrees with the main page. Before that, worked out live
+    if snap:
+        conf = snap.get("confidence") if session_used == lock_session else None
+    else:
+        conf = weekend_confidence_for(request.race_name, session_used, wanted)
+    pool["drivers"] = attach_confidence(pool["drivers"], conf)
     ladder = transfer_ladder({"drivers": request.drivers, "constructors": request.constructors},
                              pool, state.current_prices, request.budget, request.free_transfers,
                              session=session_used)

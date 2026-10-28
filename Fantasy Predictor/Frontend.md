@@ -43,7 +43,12 @@ The header has 4 sections, and two of them have tabs:
 - `styles.js`: the shared form classes (inputs, the red button, section headings).
 - `constants.js`: driver names, team colours, chip info, badge colours.
 - `components/BudgetTeam.jsx`: the driver, constructor, 2x and stats cards the team
-  views share.
+  views share, plus `ConfidencePill` and `ConfidenceReason` (project 4).
+- `confidence.js`: the confidence legend line, and `displayCategory`, which shows a
+  Safe driver with low confidence as CONSIDER. Display only, the driver is still Safe.
+  The main page teams (`Overview.jsx`) and the planner's swaps use these. No
+  confidence on a driver means no pill and no reason line. (One small change for
+  everyone: long names on the main page now wrap on a phone instead of getting cut off.)
 - `public/drivers/<CODE>.avif`: driver headshots.
 
 ## Checking a change

@@ -29,11 +29,13 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
    with expected points, the practice reason for every swap and facts instead of
    orders. Free transfers its way beat keeping the team by 25.2 pts/race on real points.
    The paid (-10) row lost to free only, so it's switched off. Chips plug in later.
-4. **Better practice data, plus confidence and reasons.** I watched Max top sector 2 in
-   FP3 at the US GP while the model only saw he was P4 on lap time. Add best sectors
-   (the ideal lap), long runs vs quali runs (OpenF1 stints and tyres), all three
-   sessions. Aimed at the race finish and fantasy points, not the quali order. Then each
-   pick gets a real confidence level and reason.
+4. **Better practice data, plus confidence and reasons.** Done 2026-10-28. Started from
+   Max topping sector 2 in Austin FP3 while the model saw P4. Measured first: the ideal
+   lap and FP2 long runs both lost to the plain FP3 order on fantasy points, so they're
+   out. Every pick now gets a confidence level (high, medium, low) and a plain reason,
+   from 3 checks (teammate, moving around, tight pack), and a low confidence SAFE driver
+   shows CONSIDER. High beat low on 11 of 12 weekends. Never changes a pick. Off on
+   sprint weekends, it didn't hold up there. See [Model](Model.md).
 5. **Track record page.** The real points every locked team scored vs the simple
    picks, so trust comes from results.
 6. **Chips.** A season chip plan by circuit, backed by history and tested on past
@@ -48,6 +50,9 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
 
 ## Open tasks
 
+- **Re-run `scripts/confidence_grade.py` after a few races from Mexico.** The cutoffs
+  were picked on R1 to R18, the new races are the honest test. Same for sprint weekends
+  if we ever want them on.
 - **Re-test the paid transfer row** after a few more races (`scripts/planner_grade.py`).
   It lost by 4 pts/race over 3 hits, a small sample.
 
@@ -88,6 +93,10 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
   forecast (Open-Meteo).
 - **Per track trust weighting:** how much to trust practice pace per track type.
 - **Strategy modes:** a "max points" vs safer toggle.
+- **Let confidence steer something,** like keeping the 2x off a low confidence driver.
+  Its own switch, off until it wins on the scorecard in official points.
+- **A 2x card on the main page.** The main page never shows the 2x pick, only the Team
+  Optimizer does. For the redesign.
 - **AI agents:** discussed and deliberately kept out of the core, which is plain
   numbers. Narrow fits only, like turning session reports or Reddit text into
   structured signals.
@@ -102,6 +111,8 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
   count pit stops. The official F1 Fantasy feed has the real points for free.
 - Discounting the overtake bonus: no consistent gain.
 - FP2 + FP3 combined on normal weekends: worse than FP3 alone.
+- The ideal lap (best sectors) instead of fastest lap: worse on fantasy points, 9 of 12.
+- FP2 long run pace instead of, or mixed with, the FP3 order: worse on 9 of 11.
 - A background scheduler inside the app to fetch practice: replaced by the snapshot
   lock and the GitHub Action.
 
@@ -109,6 +120,9 @@ All the numbers: [Decisions and evidence](Decisions%20and%20evidence.md).
 
 ## Done
 
+- 2026-10-28: project 4. Ideal lap and long runs measured and dropped, confidence levels
+  with reasons on the main page teams and the planner's swaps, CONSIDER for a shaky
+  Safe driver, `scripts/confidence_grade.py`.
 - 2026-10-28: project 3. The transfer planner: the ladder maths, the real points grade,
   `/transfer-ladder`, and the PLANNER page with 3 saved teams.
 - 2026-10-28: project 2. The points referee (official points for every round), ownership

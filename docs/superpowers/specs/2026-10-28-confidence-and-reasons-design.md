@@ -11,7 +11,7 @@ places off between a driver's practice rank and their real rank:
 
 | Idea | Result | Verdict |
 |---|---|---|
-| Ideal lap (best S1 + S2 + S3) instead of fastest lap, 18 rounds | fantasy points 4.23 places off vs 3.90 now on FP3 weekends, worse on 9 of 12 | dropped |
+| Ideal lap (best S1 + S2 + S3) instead of fastest lap | fantasy points 4.23 places off vs 4.14 now over all 18 rounds (worse on 11), 4.04 vs 3.90 on the 12 FP3 weekends (worse on 9) | dropped |
 | FP2 long run pace instead of the FP3 order, 11 FP3 weekends | fantasy points 3.51 vs 3.03, worse on 9 of 11. Half and half 3.22, worse on 7 | dropped |
 
 (Austin side note: in OpenF1's FP3 data Hamilton had the fastest sector 2, 37.550,

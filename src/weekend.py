@@ -328,7 +328,8 @@ def build_snapshot(event, prices: dict, source: str = "auto", note: str | None =
             pool, optimal_score, limitless_score, race_name,
         )
     # confidence goes on after the teams are built, so it can't change a pick
-    teams = confidence.attach_to_teams(teams, weekend_confidence_for(race_name, session, session, year))
+    conf = weekend_confidence_for(race_name, session, session, year)
+    teams = confidence.attach_to_teams(teams, conf)
 
     now = pd.Timestamp.now(tz="UTC")
     quali = session_start_utc(event, "Q")
@@ -343,6 +344,9 @@ def build_snapshot(event, prices: dict, source: str = "auto", note: str | None =
         "built_after_quali_start": bool(quali is not None and now > quali),
         "teams": teams,
         "finishes": build_finish_predictions(table),
+        # every driver's level, not just the picked ones, so the planner can read the
+        # locked version instead of working out a fresh one that might not match
+        "confidence": conf,
     }
     if note:
         snap["note"] = note

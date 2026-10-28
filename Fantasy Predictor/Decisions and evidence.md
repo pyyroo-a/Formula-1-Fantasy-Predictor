@@ -56,6 +56,35 @@ PitWall's R3 team at $100M, official points, -10 per paid transfer:
 Free transfers passed, so the [Planner](Planner.md) shipped. The paid row failed, so it's
 off and the page only states what a paid transfer costs.
 
+## Project 4: better inputs and confidence (measured 2026-10-28)
+
+First we tried to beat the FP3 order with better practice inputs. Places between a
+driver's practice rank and their real rank, 2026 (quick read only checks, the scripts
+are in the project 4 session notes, not the repo):
+
+| Idea | Fantasy points, places off | vs FP3 order now | Verdict |
+|---|---:|---:|---|
+| Ideal lap (best S1 + S2 + S3), FP3 weekends | 4.04 | 3.90, ideal worse on 9 of 12 | dropped |
+| FP2 long run pace (best stint median, 6+ clean laps), 11 FP3 weekends | 3.51 | 3.03, long runs worse on 9 | dropped |
+| Half FP3 order, half long runs | 3.22 | 3.03, worse on 7 | dropped |
+
+Long runs are patchy too (Spa: 2 of 22 did one), and fuel loads can't be seen for free.
+
+What did work is telling solid FP3 spots from shaky ones, see [Model](Model.md). Graded
+with `python scripts/confidence_grade.py` (rows in `archive/results/confidence_rows_2026.csv`):
+
+| Normal weekends (12) | Driver weekends | Places off, fantasy points | Within 2 places | Places off, finish |
+|---|---:|---:|---:|---:|
+| High | 53 | 3.02 | 51% | 1.11 |
+| Medium | 86 | 3.59 | 48% | 1.87 |
+| Low | 122 | 4.51 | 30% | 2.09 |
+
+High beat low on fantasy points on 11 of 12 weekends. Sprint weekends (6, locked on
+sprint quali): high 4.81, medium 4.30, low 4.78, high beat low on only 3 of 6, so
+`SHOW_ON_SPRINT_WEEKENDS` is off. Heads up: the cutoffs (2 places, 1.5, 0.05s) were
+picked near the middle of this same data, so Mexico onwards is the honest test. It
+doesn't change picks, so there's no points scorecard number for it.
+
 ## Switched off earlier (old backtest, see the heads up)
 
 | Switch | Value | Evidence |

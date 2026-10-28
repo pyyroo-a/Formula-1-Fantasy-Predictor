@@ -82,11 +82,36 @@ races. It's shown on every card but **doesn't change any score** (`DNF_WEIGHT = 
 in `src/fantasy.py`), see [Decisions and evidence](Decisions%20and%20evidence.md).
 Chips use it though, see [Chips](Chips.md).
 
+## Confidence on each pick
+
+Project 4. The FP3 order is right on average, but some FP3 spots are solid and some are
+flukes. `src/confidence.py` gives every driver a level once the lock session is in,
+from three checks, each failed one is a flag:
+
+- **Teammate doesn't back it up:** more than 2 places from them in the lock session.
+- **Moved around:** the sample std of their rank across FP1, FP2 and FP3 is above 1.5.
+- **Tight pack:** under 0.05s from the nearest car on lap time.
+
+0 flags = high, 1 = medium, 2 or more = low. A check we can't do (no teammate time,
+only one session) counts as passed and the reason says so. Every level comes with a
+plain sentence with the real numbers, e.g. "P4 in FP3. But teammate HAD was P10, moved
+around between sessions (P2 to P5) and only 0.046s from the next car." On the cards a
+top 3 (Safe) driver with low confidence shows CONSIDER instead of SAFE.
+
+It **never changes a pick**, it gets added after the teams are built. Saved in the
+snapshot at the lock (the picked drivers, plus every driver's level under `confidence`,
+which the planner reads once the weekend is locked so it always matches the main page). Nothing on earlier session previews, on old snapshots, or on
+sprint weekends (`SHOW_ON_SPRINT_WEEKENDS = False`, it didn't hold up there). High
+means "trust this spot more", never "safe": even high lands within 2 places of its
+fantasy points rank only half the time. Numbers in [Decisions and evidence](Decisions%20and%20evidence.md).
+
 ## Known weak spots
 
-- One fastest lap per driver is a noisy summary. Max topped sector 2 in FP3 at the
-  US GP 2026 but was only P4 on lap time. Best sectors, long runs and all three
-  sessions are project 4 on the [Roadmap](Roadmap.md).
+- One fastest lap per driver is a noisy summary, but the obvious fixes lost: the ideal
+  lap (best sectors) and FP2 long runs both did worse than the plain FP3 order on
+  fantasy points, see [Decisions and evidence](Decisions%20and%20evidence.md). (Max at
+  the US GP: in OpenF1's FP3 data Hamilton had the fastest sector 2, and Max's ideal lap
+  was P4, same as his lap time.) Confidence tells you which FP3 spots to trust instead.
 - A red flagged session ranks people on 1 or 2 laps (Madring FP3: Hamilton 2 laps P9).
 - No weather, no car problem detection.
 

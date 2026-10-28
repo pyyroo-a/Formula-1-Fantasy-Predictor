@@ -413,16 +413,43 @@ def test_confidence_failure_never_breaks_the_weekend(client, at, empty_snapshots
     assert all(d["Confidence"] is None for t in r.json()["teams"] for d in t["drivers"])
 
 
-def test_transfer_ladder_swaps_carry_the_incoming_drivers_confidence(client, snapshots):
-    snapshots(*UP_TO_MADRING)
+def _ladder_swaps(client):
     rows = _ladder(client).json()["rows"]
     swaps = [s for r in rows for s in r.get("swaps", [])]
-    driver_swaps = [s for s in swaps if s["kind"] == "driver"]
+    return [s for s in swaps if s["kind"] == "driver"], [s for s in swaps if s["kind"] != "driver"]
+
+
+def test_transfer_ladder_swaps_carry_the_incoming_drivers_confidence(client, empty_snapshots):
+    # FP3 is in but nobody has locked yet, so it's worked out live like the main page
+    driver_swaps, others = _ladder_swaps(client)
     assert driver_swaps
     for s in driver_swaps:
         assert s["in_confidence"] in LEVELS
         assert s["in_confidence_reason"].startswith("P")
-    assert all("in_confidence" not in s for s in swaps if s["kind"] != "driver")
+    assert all("in_confidence" not in s for s in others)
+
+
+def test_transfer_ladder_reads_confidence_from_the_locked_snapshot(client, empty_snapshots):
+    # final review: once a weekend is locked the planner has to say exactly what the
+    # snapshot says, never a fresh live version that could disagree with the main page
+    from src import weekend
+    from src.api import state
+    from src.snapshots import save_snapshot
+    snap = weekend.build_snapshot(_madring_event(), state.current_prices, source="test")
+    assert snap["confidence"]
+    snap["confidence"] = {a: {**c, "reason": "from the snapshot"} for a, c in snap["confidence"].items()}
+    save_snapshot(snap, force=True)
+    driver_swaps, _ = _ladder_swaps(client)
+    assert driver_swaps
+    assert all(s["in_confidence_reason"] == "from the snapshot" for s in driver_swaps)
+
+
+def test_transfer_ladder_shows_no_confidence_on_an_old_snapshot(client, snapshots):
+    # R14 was locked before project 4, so like the main page there's no label
+    snapshots(*UP_TO_MADRING)
+    driver_swaps, _ = _ladder_swaps(client)
+    assert driver_swaps
+    assert all(s["in_confidence"] is None for s in driver_swaps)
 
 
 def test_sprint_weekends_get_no_confidence_while_switched_off():
