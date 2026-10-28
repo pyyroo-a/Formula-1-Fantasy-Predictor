@@ -80,7 +80,7 @@ export default function TeamPicker({ drivers, constructors, picked, onToggleDriv
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">{sortDrivers(drivers, sort).map(driverCard)}</div>
       )}
 
-      <h3 className="cond font-bold text-[17px] mt-4 mb-2">Constructors <span className="text-xs text-pw-muted font-normal">pick 2, A to Z</span></h3>
+      <h3 className="cond font-bold text-[17px] mt-4 mb-2">Constructors <span className="text-xs text-pw-muted font-normal">pick 2</span></h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
         {sortConstructors(constructors).map(c => {
           const on = picked.constructors.includes(c.name);
