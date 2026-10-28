@@ -1,61 +1,26 @@
 import { DRIVER_NAMES, teamAccent } from "../constants";
+import { finishLine } from "../lib/overview";
 import DriverAvatar from "./DriverAvatar";
+import Loading, { ErrorLine } from "../ui/Loading";
 
-function DeltaBadge({ delta }) {
-  if (delta === 0) {
-    return <span className="text-gray-500 text-xs">-</span>;
-  }
-  const up = delta > 0; // model expects a better finish than practice order
-  return (
-    <span className={`text-xs font-semibold ${up ? "text-green-400" : "text-red-400"}`}>
-      {up ? "▲" : "▼"} {Math.abs(delta)}
-    </span>
-  );
-}
-
-// what actually happened in the race. green means the model was within a place,
-// so you can quickly scan how it did
-function ActualCell({ p }) {
-  if (p.actual_pos != null) {
-    const off = Math.abs(p.model_pos - p.actual_pos);
-    return <span className={off <= 1 ? "text-green-400 font-semibold" : "text-white"}>P{p.actual_pos}</span>;
-  }
-  if (p.actual_status) return <span className="text-red-400 text-xs">DNF</span>;
-  return <span className="text-gray-600">?</span>;
-}
+const STATE_TAG = {
+  held: ["Held", "bg-[#1E1A10] text-pw-caution"],
+  locked: ["Locked", "bg-[#163222] text-pw-safe"],
+  provisional: ["Provisional", "bg-[#141B2C] text-pw-info"],
+};
 
 // Controlled: App owns the /weekend-finishes fetch and shares it with the
-// Overview live-card, so this component just renders whatever it's handed.
+// Overview, so this component just renders whatever it's handed.
 export default function PredictedFinishes({ data, loading, error }) {
-  if (loading) {
-    return (
-      <div className="text-center py-10">
-        <p className="text-gray-400 text-sm">Loading predicted finishes…</p>
-        <p className="text-gray-600 text-xs mt-1">May take 15 to 30 seconds while the practice data loads</p>
-      </div>
-    );
-  }
+  if (loading) return <Loading text="Loading predicted finishes. The free server can take up to 30 seconds to wake up." rows={5} />;
+  if (error) return <ErrorLine text={error} />;
 
-  if (error) {
-    return <p className="text-red-400 text-sm text-center py-10">{error}</p>;
-  }
-
-  // No active weekend, or too far out
-  if (!data?.active) {
+  // no live weekend, or too far out
+  if (!data?.active || !data.predictions) {
     return (
-      <div className="text-center py-10">
-        <p className="text-gray-300 text-sm">{data?.message || "No active race weekend."}</p>
-        {data?.race_name && <p className="text-gray-600 text-xs mt-1">Next up: {data.race_name}</p>}
-      </div>
-    );
-  }
-
-  // Active weekend but practice data not out yet
-  if (!data.predictions) {
-    return (
-      <div className="text-center py-10">
-        <p className="text-gray-300 text-sm">{data.message}</p>
-        <p className="text-gray-600 text-xs mt-1">{data.race_name}</p>
+      <div className="py-8">
+        <p className="text-sm">{data?.message || "No race weekend live right now."}</p>
+        {data?.race_name && <p className="text-xs text-pw-muted mt-1">{data.active ? data.race_name : `Next up: ${data.race_name}`}</p>}
       </div>
     );
   }
@@ -67,87 +32,66 @@ export default function PredictedFinishes({ data, loading, error }) {
   const acc = data.accuracy;
   const modelWon = acc && acc.model_mae < acc.baseline_mae;
   const baselineWon = acc && acc.baseline_mae < acc.model_mae;
+  const tag = held ? STATE_TAG.held : data.locked ? STATE_TAG.locked : data.provisional ? STATE_TAG.provisional : null;
 
   return (
     <div>
-      <p className="text-gray-400 text-sm text-center mb-1">
-        {held && <span className="bg-pw-risk text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider mr-2">HELD</span>}
-        {!held && data.locked && <span className="bg-pw-safe text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider mr-2">LOCKED</span>}
-        {!held && data.provisional && <span className="bg-pw-rain text-black text-[9px] font-black px-1.5 py-0.5 rounded-sm tracking-wider mr-2">PROVISIONAL</span>}
-        {held ? "What we predicted for " : "Predicted finishing order for "}
-        <span className="text-white font-semibold">{data.race_name}</span>
-      </p>
-      <p className="text-gray-600 text-xs text-center mb-5">
-        For F1 Predict · based on {data.session_used} pace · not used for fantasy picks
-      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        {tag && <span className={`text-[11px] font-extrabold px-1.5 py-0.5 rounded ${tag[1]}`}>{tag[0]}</span>}
+        <h1 className="cond-x font-extrabold text-[30px] sm:text-[36px] leading-none">
+          {held ? "What we predicted for the " : "Predicted finish for the "}{data.race_name}
+        </h1>
+      </div>
+      <p className="text-xs text-pw-muted mt-1.5 mb-3">From {data.session_used} pace. For F1 Predict, not used for the fantasy picks.</p>
 
       {/* predicted vs actual summary, only once the race has happened */}
       {held && (hasActual && acc ? (
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs mb-5 border border-gray-800 py-3 px-2">
-          <span className="text-gray-400">
-            Model off by <span className={modelWon ? "text-green-400 font-semibold" : "text-white font-semibold"}>{acc.model_mae}</span> places on avg
-          </span>
-          <span className="text-gray-400">
-            Practice order off by <span className={baselineWon ? "text-green-400 font-semibold" : "text-white font-semibold"}>{acc.baseline_mae}</span>
-          </span>
-          <span className="text-gray-600">{acc.finishers} finishers compared, DNFs left out</span>
+        <div className="grid grid-cols-2 gap-2 mb-3 num">
+          <div className={`bg-pw-panel rounded-xl px-3 py-2 ${modelWon ? "ring-1 ring-pw-safe/50" : ""}`}>
+            <p className="text-xs text-pw-muted">Model off by, on average</p>
+            <p className={`cond-x font-extrabold text-2xl ${modelWon ? "text-pw-safe" : ""}`}>{acc.model_mae} places</p>
+          </div>
+          <div className={`bg-pw-panel rounded-xl px-3 py-2 ${baselineWon ? "ring-1 ring-pw-safe/50" : ""}`}>
+            <p className="text-xs text-pw-muted">Practice order off by</p>
+            <p className={`cond-x font-extrabold text-2xl ${baselineWon ? "text-pw-safe" : ""}`}>{acc.baseline_mae} places</p>
+          </div>
+          <p className="col-span-2 text-xs text-pw-muted">{acc.finishers} finishers compared, DNFs left out.</p>
         </div>
       ) : (
-        <p className="text-gray-500 text-xs text-center mb-5">
-          Actual results show up here once they are published, usually the day after the race.
-        </p>
+        <p className="text-xs text-pw-muted mb-3">The real results show up here once they're published, usually the day after the race.</p>
       ))}
 
-      {/* Legend */}
-      <div className="flex items-center justify-center gap-4 text-xs text-gray-500 mb-4">
-        <span><span className="text-white">Model</span> = our forecast</span>
-        <span><span className="text-white">Practice</span> = pace-order baseline</span>
-        <span>Δ = model vs practice</span>
+      <p className="text-xs text-pw-muted mb-1">
+        Predicted spot on the left, practice order under the name{hasActual ? ", real finish on the right, green means within 1 place" : ""}.
+      </p>
+      <div className="bg-pw-panel rounded-xl px-3 py-1">
+        {data.predictions.map(p => {
+          const line = finishLine(p, hasActual);
+          return (
+            <div key={p.abbreviation} className="flex items-center gap-2.5 py-1.5 border-b border-pw-line last:border-0">
+              <span className="w-9 cond font-bold text-[17px] text-pw-muted num">{line.spot}</span>
+              <span className="w-1 h-8 rounded-sm flex-shrink-0" style={{ background: teamAccent(p.team) }} />
+              <DriverAvatar abbreviation={p.abbreviation} size="sm" />
+              <div className="flex-1 min-w-0">
+                <p className="cond font-semibold text-[16px] leading-tight truncate">{DRIVER_NAMES[p.abbreviation] || p.abbreviation}</p>
+                <p className="text-xs text-pw-muted num">
+                  practice order P{p.baseline_pos}
+                  {p.delta !== 0 && <span className={`ml-1.5 ${p.delta > 0 ? "text-pw-safe" : "text-pw-low"}`}>{p.delta > 0 ? "▲" : "▼"}{Math.abs(p.delta)}</span>}
+                </p>
+              </div>
+              {line.finished && (
+                <span className={`flex-shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full num ${line.close ? "bg-[#163222] text-pw-safe" : "bg-pw-edge text-pw-muted"}`}>
+                  {line.finished}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-700">
-              <th className="text-left py-2 pl-2 w-14">Model</th>
-              <th className="text-left py-2">Driver</th>
-              {hasActual && <th className="text-center py-2 w-16">Actual</th>}
-              <th className="text-center py-2 w-20">Practice</th>
-              <th className="text-center py-2 w-16">Δ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.predictions.map((p) => (
-              <tr key={p.abbreviation} className="border-b border-gray-800 hover:bg-gray-800/40">
-                <td className="py-2 pl-2">
-                  <span className="text-white font-bold">P{p.model_pos}</span>
-                </td>
-                <td className="py-2">
-                  <div className="flex items-center gap-2">
-                    <DriverAvatar abbreviation={p.abbreviation} size="sm" />
-                    <div className="min-w-0">
-                      <span className="text-white font-medium">{p.abbreviation}</span>
-                      <span
-                        className="ml-2 text-gray-500 text-xs border-l-2 pl-2"
-                        style={{ borderColor: teamAccent(p.team) }}
-                      >
-                        {DRIVER_NAMES[p.abbreviation] || p.team}
-                      </span>
-                    </div>
-                  </div>
-                </td>
-                {hasActual && <td className="text-center py-2"><ActualCell p={p} /></td>}
-                <td className="text-center py-2 text-gray-400">P{p.baseline_pos}</td>
-                <td className="text-center py-2"><DeltaBadge delta={p.delta} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <p className="text-gray-600 text-xs mt-4 leading-relaxed">
-        Heads up: in backtesting, the plain practice-pace order beat the model. Both are shown so
-        you can judge which is closer each weekend, treat the model column as an experiment.
+      <p className="text-xs text-pw-muted mt-3 leading-relaxed max-w-[70ch]">
+        Heads up: in backtesting, the plain practice order beat the model. Both are shown so you can judge which
+        is closer each weekend, treat the model as an experiment. The arrow is the model vs the practice order.
       </p>
     </div>
   );

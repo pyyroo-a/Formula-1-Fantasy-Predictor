@@ -1,109 +1,163 @@
 import { useEffect, useState } from "react";
 import { API } from "../api";
+import { fetchJson } from "../lib/api";
+import { fmt1 } from "../lib/format";
+import { raceVerdict, honestLine, dotX, chartMax, pointsText } from "../lib/insights";
+import Loading, { ErrorLine } from "../ui/Loading";
 
 // The track record (project 5): what PitWall's locked team 1 really scored each weekend
 // vs simple picks anyone could make, in the game's official points. The numbers come
 // from data/track_record_2026.json, rebuilt by the Monday job with the scorecard's code.
+// Colours checked for colourblind eyes on the panel colour (dataviz validator).
 
-const PICKS = [
-  { key: "FP3 order",      label: "COPY THE FP3 ORDER" },
-  { key: "Most expensive", label: "MOST EXPENSIVE" },
-  { key: "Crowd",          label: "COPY THE CROWD" },
+const SERIES = [
+  { key: "Locked",         label: "PitWall",           color: "#F0504F" },
+  { key: "FP3 order",      label: "Copy the FP3 order", color: "#5B8DEF" },
+  { key: "Most expensive", label: "Most expensive team", color: "#B08A22" },
+  { key: "Crowd",          label: "Copy the crowd",    color: "#A274E0" },
 ];
+const shortRace = name => name.replace(/ Grand Prix$/, " GP");
 
-const fmt = v => (v == null ? "-" : Number.isInteger(v) ? String(v) : v.toFixed(1));
-const shortRace = name => name.replace(/ Grand Prix$/, "");
-
-function Tile({ label, value, sub, accent }) {
+function Dot({ s, value, max, onPick, picked }) {
+  if (value == null) return null;
   return (
-    <div className="bg-pw-panel2 px-3 py-3 text-center">
-      <p className="text-[9.5px] text-pw-muted tracking-[0.05em]">{label}</p>
-      {/* averages always get one decimal so 187.0 and 175.2 line up */}
-      <p className={`text-lg font-extrabold mt-1 ${accent ? "text-pw-red" : "text-white"}`}>{value == null ? "-" : value.toFixed(1)}</p>
-      <p className="text-[9.5px] text-pw-muted mt-0.5">{sub}</p>
+    <button
+      onClick={onPick}
+      title={`${s.label}: ${pointsText(value)}`}
+      aria-label={`${s.label}: ${pointsText(value)}`}
+      className={`absolute top-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_2px_#141821] ${picked ? "ring-2 ring-pw-text" : ""}`}
+      style={{ left: `${dotX(value, max)}%`, background: s.color }}
+    >
+      {/* a bigger invisible target so a thumb can hit it */}
+      <span className="absolute -inset-2" />
+    </button>
+  );
+}
+
+function RaceLine({ row, series, max }) {
+  const [picked, setPicked] = useState(null);
+  const c = row.cells;
+  const v = raceVerdict(c);
+  const shown = series.map(s => c[s.key]).filter(x => x != null);
+  const lo = Math.min(...shown);
+  const best = c["Hindsight best"];
+  const pick = series.find(s => s.key === picked);
+  return (
+    <div className="py-2 border-b border-pw-line last:border-0">
+      <div className="flex justify-between gap-2 text-[13px] mb-1.5 sm:mb-0">
+        <span>R{row.round} {shortRace(row.race)}</span>
+        <span className={`sm:hidden text-xs font-bold ${v.won ? "text-pw-safe" : v.won === false ? "text-pw-caution" : "text-pw-muted"}`}>{v.text}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 h-5">
+          {best != null && <span className="absolute top-1/2 h-0.5 bg-pw-edge" style={{ left: `${dotX(lo, max)}%`, width: `${dotX(best, max) - dotX(lo, max)}%` }} />}
+          {best != null && <span className="absolute top-0 h-full w-0.5 bg-pw-muted -translate-x-1/2" title={`Best possible: ${pointsText(best)}`} style={{ left: `${dotX(best, max)}%` }} />}
+          {/* PitWall last so it sits on top when two dots land on the same spot */}
+          {[...series].reverse().map(s => (
+            <Dot key={s.key} s={s} value={c[s.key]} max={max} picked={picked === s.key} onPick={() => setPicked(picked === s.key ? null : s.key)} />
+          ))}
+        </div>
+        <span className={`hidden sm:block w-40 text-right text-xs font-bold ${v.won ? "text-pw-safe" : v.won === false ? "text-pw-caution" : "text-pw-muted"}`}>{v.text}</span>
+      </div>
+      {pick && <p className="text-xs text-pw-muted mt-1 num">{pick.label}: {pointsText(c[pick.key])}, best possible {pointsText(best)}</p>}
     </div>
   );
 }
 
-// green = PitWall beat this pick that weekend, amber = it lost, a tie is just white
-function cellTone(locked, pick) {
-  if (locked == null || pick == null || locked === pick) return "text-white";
-  return locked > pick ? "text-pw-safe" : "text-pw-risk";
-}
-
 export default function TrackRecord() {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [res, setRes] = useState(null);
+  const [table, setTable] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/track-record`)
-      .then(r => (r.ok ? r.json() : Promise.reject(new Error(`status ${r.status}`))))
-      .then(setData)
-      .catch(e => setError(e.message));
+    let cancelled = false;
+    fetchJson(`${API}/track-record`).then(r => { if (!cancelled) setRes(r); });
+    return () => { cancelled = true; };
   }, []);
 
-  if (error) return <p className="text-pw-red text-xs">Couldn't load the track record ({error}).</p>;
-  if (!data) return <p className="text-pw-muted text-xs">Loading the track record...</p>;
-  if (!data.rows?.length) return <p className="text-pw-muted text-xs">No locked weekends graded yet.</p>;
+  if (!res) return <Loading text="Loading the track record..." rows={4} />;
+  if (!res.ok) return <ErrorLine text={`Couldn't load the track record. ${res.error}`} />;
+  const data = res.data;
+  if (!data.rows?.length) return <p className="text-pw-muted text-sm">No locked weekends graded yet.</p>;
 
   const s = data.summary || {};
-  const pw = s["Locked"] || {};
-  // crowd only gets a tile once it has races (ownership is saved from Mexico on)
-  const tiles = PICKS.filter(p => (s[p.key]?.races || 0) > 0);
+  // crowd only shows once it has races (ownership is saved from Mexico on)
+  const series = SERIES.filter(x => x.key === "Locked" || (s[x.key]?.races || 0) > 0);
+  const picks = series.filter(x => x.key !== "Locked");
+  const max = chartMax(data.rows);
 
   return (
-    <div className="space-y-4">
-      <p className="text-[10.5px] tracking-[0.05em] text-pw-muted">
-        TRACK RECORD · what PitWall's locked team really scored, vs simple picks anyone could make
+    <div>
+      <h1 className="cond-x font-extrabold text-[30px] sm:text-[36px] leading-none">How PitWall's locked teams really did</h1>
+      <p className="text-sm text-[#C3C8D2] mt-2 mb-4 max-w-[68ch] leading-relaxed">
+        Graded with the game's own points, every team at $100M with a 2x pick.{" "}
+        {honestLine(s)} The locks up to R18 were made before the fixes from 28 Oct, Mexico (R19) is the first
+        weekend with them.
       </p>
 
-      <div className="pw-hairgrid grid grid-cols-2 sm:grid-cols-4 gap-px border border-white/[0.06] bg-white/[0.06]">
-        <Tile label="PITWALL (TEAM 1)" value={pw.avg} sub={`pts per race, ${pw.races} races`} accent />
-        {tiles.map(p => (
-          <Tile key={p.key} label={p.label} value={s[p.key].avg}
-                sub={`PitWall beat it ${s[p.key].beaten} of ${s[p.key].of}`} />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 num">
+        {series.map(x => (
+          <div key={x.key} className="bg-pw-panel rounded-xl px-3 py-2.5">
+            <p className="flex items-center gap-1.5 text-xs text-pw-muted"><i className="w-2.5 h-2.5 rounded-full" style={{ background: x.color }} />{x.label}</p>
+            <p className="cond-x font-extrabold text-[28px] leading-tight">{fmt1(s[x.key]?.avg)}</p>
+            <p className="text-xs text-pw-muted">
+              {x.key === "Locked" ? `pts a race, ${s.Locked?.races} races` : `PitWall beat it ${s[x.key].beaten} of ${s[x.key].of}`}
+            </p>
+          </div>
         ))}
-        <Tile label="BEST POSSIBLE" value={s["Hindsight best"]?.avg} sub="in hindsight, the ceiling" />
+        <div className="bg-pw-panel rounded-xl px-3 py-2.5">
+          <p className="flex items-center gap-1.5 text-xs text-pw-muted"><i className="w-0.5 h-3 bg-pw-muted" />Best possible</p>
+          <p className="cond-x font-extrabold text-[28px] leading-tight">{fmt1(s["Hindsight best"]?.avg)}</p>
+          <p className="text-xs text-pw-muted">only known after the race</p>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-[11.5px]">
-          <thead>
-            <tr className="text-[9.5px] text-pw-muted tracking-[0.05em] border-b border-white/10">
-              <th className="text-left py-2 pr-2 font-normal">RACE</th>
-              <th className="text-right py-2 px-2 font-normal">PITWALL</th>
-              <th className="text-right py-2 px-2 font-normal">FP3 ORDER</th>
-              <th className="text-right py-2 px-2 font-normal">MOST EXPENSIVE</th>
-              <th className="text-right py-2 px-2 font-normal">CROWD</th>
-              <th className="text-right py-2 pl-2 font-normal">BEST POSSIBLE</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.rows.map(r => {
-              const c = r.cells;
-              return (
-                <tr key={r.round} className="border-b border-white/[0.05]">
-                  <td className="py-2 pr-2 text-white whitespace-nowrap">R{r.round} {shortRace(r.race)}</td>
-                  <td className="py-2 px-2 text-right text-pw-red font-bold">{fmt(c["Locked"])}</td>
-                  {PICKS.map(p => (
-                    <td key={p.key} className={`py-2 px-2 text-right ${cellTone(c["Locked"], c[p.key])}`}
-                        title={c[p.key] == null ? r.why?.[p.key] : undefined}>
-                      {fmt(c[p.key])}
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-pw-muted">
+          {series.map(x => <span key={x.key} className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full" style={{ background: x.color }} />{x.label}</span>)}
+          <span className="inline-flex items-center gap-1"><i className="w-0.5 h-3 bg-pw-muted" />Best possible</span>
+          <span>Tap a dot for its number</span>
+        </div>
+        <button onClick={() => setTable(!table)} className="text-xs underline text-pw-muted hover:text-pw-text">{table ? "Show as a chart" : "Show as a table"}</button>
+      </div>
+
+      {table ? (
+        <div className="bg-pw-panel rounded-xl px-3 py-2 overflow-x-auto">
+          <table className="w-full text-[13px] num">
+            <thead>
+              <tr className="text-xs text-pw-muted border-b border-pw-edge">
+                <th className="text-left py-1.5 font-normal">Race</th>
+                {series.map(x => <th key={x.key} className="text-right py-1.5 px-1.5 font-normal">{x.label.replace("Copy the ", "").replace(" team", "")}</th>)}
+                <th className="text-right py-1.5 pl-1.5 font-normal">Best</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.rows.map(r => (
+                <tr key={r.round} className="border-b border-pw-line last:border-0">
+                  <td className="py-1.5 whitespace-nowrap">R{r.round} {shortRace(r.race)}</td>
+                  {series.map(x => (
+                    <td key={x.key} className={`text-right py-1.5 px-1.5 ${x.key === "Locked" ? "text-pw-red font-bold" : ""}`} title={r.cells[x.key] == null ? r.why?.[x.key] : undefined}>
+                      {pointsText(r.cells[x.key])}
                     </td>
                   ))}
-                  <td className="py-2 pl-2 text-right text-pw-muted">{fmt(c["Hindsight best"])}</td>
+                  <td className="text-right py-1.5 pl-1.5 text-pw-muted">{pointsText(r.cells["Hindsight best"])}</td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="bg-pw-panel rounded-xl px-3.5 py-1">
+          {data.rows.map(r => <RaceLine key={r.round} row={r} series={series} max={max} />)}
+          <div className="flex justify-between text-[11px] text-pw-muted py-1.5 sm:mr-[172px] num">
+            {[0, 1, 2, 3].map(i => <span key={i}>{Math.round((max / 3) * i)}{i === 3 ? " pts" : ""}</span>)}
+          </div>
+        </div>
+      )}
 
-      <p className="text-[10.5px] text-pw-muted leading-relaxed">
-        Green = PitWall beat that pick that weekend, amber = it lost. Every team is at $100M with a
-        2x pick, graded with the game's own points. Copy the crowd starts from Mexico, the first lock
-        that saved ownership. The locks up to R18 were made before the fixes from 28 Oct, Mexico (R19)
-        is the first weekend with them. Updated every Monday after the race{data.updated ? ` (last ${data.updated})` : ""}.
+      <p className="text-xs text-pw-muted leading-relaxed mt-3">
+        {picks.some(p => p.key === "Crowd") ? "" : "Copy the crowd shows from Mexico on, the first lock that saved ownership. "}
+        The result on each line compares PitWall with copying the FP3 order. Updated every Monday after the
+        race{data.updated ? ` (last ${data.updated})` : ""}.
       </p>
     </div>
   );
