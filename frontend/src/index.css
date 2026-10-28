@@ -5,18 +5,32 @@
 :root { color-scheme: dark; }
 
 html, body, #root {
-  background: #05070c;
+  background: #0F1217;
 }
 
 body {
   margin: 0;
-  color: #fff;
-  font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  color: #E9ECF1;
+  font-family: Archivo, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* numbers line up in columns everywhere */
+.num { font-variant-numeric: tabular-nums; }
+
+/* Archivo's narrow widths, for names, numbers and headings */
+.cond { font-stretch: 75%; }
+.cond-x { font-stretch: 62%; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Hairline grid: 1px gaps show the tinted background through as thin dividers. */
-.pw-hairgrid { background: rgba(255, 92, 92, 0.15); }
+:focus-visible { outline: 2px solid #FF4D4D; outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Hairline grid: 1px gaps show the background through as thin dividers. Only the
+   pages that haven't been redesigned yet still use it */
+.pw-hairgrid { background: #232833; }

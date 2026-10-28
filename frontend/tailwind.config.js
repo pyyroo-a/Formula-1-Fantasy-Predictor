@@ -7,20 +7,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        // PitWall "race engineering" palette: near-black panels, red accent.
+        // PitWall's timing tower look (the 2026 redesign). One red accent, the rest
+        // stays quiet so the numbers do the talking
         pw: {
-          bg:     "#05070c", // page background
-          panel:  "#0a0d14", // card / panel surface
-          panel2: "#0b0e14", // header / alt surface
-          red:    "#ff5c5c", // primary accent
-          muted:  "#828a99", // secondary text / labels
-          safe:   "#4ade80", // safe pick / positive
-          risk:   "#eab308", // risky pick / caution
-          rain:   "#5b93ff", // rain / info
+          bg:      "#0F1217", // page
+          panel:   "#141821", // panels and cards
+          panel2:  "#141821", // old name, same as panel
+          raised:  "#181C24", // switchers, input boxes, stat boxes
+          line:    "#1E232C", // row dividers
+          edge:    "#232833", // borders
+          text:    "#E9ECF1", // main text
+          muted:   "#8B93A3", // small text and labels
+          red:     "#FF4D4D", // the accent: logo, active tab, 2x, best step, buttons
+          safe:    "#5BE38A", // high confidence, PLAY, gains
+          risk:    "#F2C94C", // medium confidence, CONSIDER (old name)
+          caution: "#F2C94C",
+          low:     "#FF7A7A", // low confidence, places lost, transfers out
+          rain:    "#7FA6FF", // info, AFTER QUALI (old name)
+          info:    "#7FA6FF",
         },
       },
       fontFamily: {
-        mono: ["ui-monospace", "Menlo", "Monaco", "Consolas", "Liberation Mono", "monospace"],
+        sans: ["Archivo", "system-ui", "sans-serif"],
       },
     },
   },

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { API } from "../api";
 
-// State and fetching for the Race Data tabs and the Team Optimizer. These get
+// State and fetching for the Race Data tabs. These get
 // called in App, not inside the tabs, on purpose: a tab unmounts when you switch
 // away from it, and keeping the state up in App is what makes your picked race
 // still be there when you come back.
@@ -83,33 +83,5 @@ export function useQualifying() {
   return {
     qualRace, setQualRace, qualResults, setQualResults,
     qualLoading, qualError, setQualError, fetchQualifying,
-  };
-}
-
-export function useBudgetTeams() {
-  const [budgetRace, setBudgetRace] = useState("");
-  const [budgetTeams, setBudgetTeams] = useState(null);
-  const [activeTeam, setActiveTeam] = useState(0);
-  const [budgetLoading, setBudgetLoading] = useState(false);
-  const [budgetError, setBudgetError] = useState(null);
-
-  const fetchBudgetTeam = async () => {
-    if (!budgetRace) return;
-    setBudgetLoading(true); setBudgetError(null); setBudgetTeams(null); setActiveTeam(0);
-    try {
-      const res = await fetch(`${API}/predict-budget`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: budgetRace, budget: 100.0 }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setBudgetTeams(data.teams);
-    } catch (e) { setBudgetError(e.message || "Failed to build budget team."); }
-    setBudgetLoading(false);
-  };
-
-  return {
-    budgetRace, setBudgetRace, budgetTeams, setBudgetTeams, activeTeam, setActiveTeam,
-    budgetLoading, budgetError, fetchBudgetTeam,
   };
 }

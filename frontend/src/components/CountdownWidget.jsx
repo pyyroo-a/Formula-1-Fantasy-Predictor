@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-// Compact "T-MINUS  DD:HH:MM:SS" clock for the header, matching the pit-wall look.
+// The countdown to the next race in the header, "Race in 3d 02:14:09".
 export default function CountdownWidget({ nextRace }) {
   const [timeLeft, setTimeLeft] = useState(null);
 
@@ -26,14 +26,14 @@ export default function CountdownWidget({ nextRace }) {
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
-    <div className="flex items-center gap-2.5">
-      <span className="text-[12px] tracking-widest text-pw-muted">T-MINUS</span>
+    <div className="flex items-baseline gap-2 flex-shrink-0">
+      <span className="text-xs text-pw-muted">{timeLeft ? "Race in" : ""}</span>
       {timeLeft ? (
-        <span className="text-pw-red font-bold text-base sm:text-lg tabular-nums tracking-tight">
-          {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
+        <span className="cond-x font-bold text-xl text-pw-red num">
+          {timeLeft.days}d {pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
         </span>
       ) : (
-        <span className="text-pw-safe font-bold text-sm">LIGHTS OUT</span>
+        <span className="text-pw-safe font-bold text-sm">Lights out</span>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import { DRIVER_NAMES, teamAccent } from "../constants";
 import { displayCategory } from "../confidence";
+import { ConfidencePill, ConfidenceReason } from "../ui/Confidence";
 
 const CAT_BADGE = {
   Safe:  "text-pw-safe bg-pw-safe/10",
@@ -10,28 +11,9 @@ const CAT_BADGE = {
   Consider: "text-pw-risk bg-pw-risk/10 ring-1 ring-pw-risk/60",
 };
 
-const CONF_STYLE = {
-  high:   "text-pw-safe border-pw-safe/60",
-  medium: "text-pw-risk border-pw-risk/60",
-  low:    "text-pw-red border-pw-red/60",
-};
-
-// HIGH / MEDIUM / LOW CONFIDENCE, how much to trust this driver's practice spot.
-// Nothing when there's no level (previews, old snapshots, sprint weekends).
-export function ConfidencePill({ level }) {
-  if (!level) return null;
-  return (
-    <span className={`text-[9px] px-1.5 py-px border rounded-full whitespace-nowrap ${CONF_STYLE[level] || ""}`}>
-      {level.toUpperCase()} CONFIDENCE
-    </span>
-  );
-}
-
-// the plain reason under the name, always showing (mockup option A)
-export function ConfidenceReason({ text }) {
-  if (!text) return null;
-  return <p className="text-[10.5px] text-pw-muted mt-0.5 leading-relaxed whitespace-normal">{text}</p>;
-}
+// the pill and the reason moved to ui/Confidence.jsx in the redesign, kept here so
+// old imports still work
+export { ConfidencePill, ConfidenceReason };
 
 // 3-cell hairline stat grid: BUDGET USED · REMAINING · PROJECTED PTS.
 export function TeamStatGrid({ used, remaining, score }) {

@@ -5,7 +5,6 @@ import Overview from "./components/Overview";
 import RaceResultsTab from "./components/racedata/RaceResultsTab";
 import PracticeTab from "./components/racedata/PracticeTab";
 import QualifyingTab from "./components/racedata/QualifyingTab";
-import TeamOptimizerTab from "./components/myteam/TeamOptimizerTab";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
 import TransferPlanner from "./components/myteam/TransferPlanner";
@@ -14,43 +13,45 @@ import TrackRecord from "./components/TrackRecord";
 import ChipHistory from "./components/ChipHistory";
 import Backtest from "./components/Backtest";
 import { cacheTeam, readCachedTeam, pickNewer } from "./teamCache";
-import { useRaceResults, usePractice, useQualifying, useBudgetTeams } from "./hooks/useRaceData";
+import { useRaceResults, usePractice, useQualifying } from "./hooks/useRaceData";
+import ErrorBoundary from "./ui/ErrorBoundary";
 
 // import.meta.env.DEV is true under `npm run dev` and false in a production
 // build, so the Backtest tab never ships to the deployed site.
 const IS_DEV = import.meta.env.DEV;
 
 const NAV = [
-  { id: "overview", label: "OVERVIEW" },
-  { id: "myteam",   label: "MY TEAM" },
-  { id: "racedata", label: "RACE DATA" },
-  { id: "insights", label: "INSIGHTS" },
+  { id: "overview", label: "Overview" },
+  { id: "myteam",   label: "My team" },
+  { id: "racedata", label: "Race data" },
+  { id: "insights", label: "Insights" },
 ];
 
+// the Team Optimizer got dropped in the redesign: old races at today's prices wasn't
+// this weekend's answer or what you could have scored. /predict-budget is still there
 const MYTEAM_TABS = [
-  { id: "budget", label: "TEAM OPTIMIZER" },
-  { id: "manual", label: "MANUAL TEAM" },
-  { id: "chips",  label: "CHIP ADVISOR" },
-  { id: "planner", label: "PLANNER" },
+  { id: "manual", label: "Manual team" },
+  { id: "planner", label: "Garage" },
+  { id: "chips",  label: "Chip advisor" },
 ];
 
 // project 5: the track record sits next to the predicted finishes
 const INSIGHTS_TABS = [
-  { id: "finishes", label: "PREDICTED FINISHES" },
-  { id: "trackrecord", label: "TRACK RECORD" },
-  { id: "chips", label: "CHIPS" },
+  { id: "finishes", label: "Predicted finishes" },
+  { id: "trackrecord", label: "Track record" },
+  { id: "chips", label: "Chips" },
 ];
 
 const RACEDATA_TABS = [
-  { id: "practice",   label: "PRACTICE" },
-  { id: "qualifying", label: "QUALIFYING" },
-  { id: "results",    label: "RACE RESULTS" },
-  ...(IS_DEV ? [{ id: "backtest", label: "BACKTEST" }] : []),
+  { id: "practice",   label: "Practice" },
+  { id: "qualifying", label: "Qualifying" },
+  { id: "results",    label: "Race results" },
+  ...(IS_DEV ? [{ id: "backtest", label: "Backtest" }] : []),
 ];
 
 function App() {
   const [section, setSection] = useState("overview");
-  const [myTeamTab, setMyTeamTab] = useState("budget");
+  const [myTeamTab, setMyTeamTab] = useState("manual");
   const [raceDataTab, setRaceDataTab] = useState("practice");
   const [insightsTab, setInsightsTab] = useState("finishes");
 
@@ -81,12 +82,11 @@ function App() {
   const [finishesLoading, setFinishesLoading] = useState(true);
   const [finishesError, setFinishesError] = useState(null);
 
-  // Race Data tabs and the Team Optimizer. The state stays up here in App (see
-  // hooks/useRaceData.js) so switching tabs doesn't forget the race you picked.
+  // Race Data tabs. The state stays up here in App (see hooks/useRaceData.js) so
+  // switching tabs doesn't forget the race you picked.
   const results = useRaceResults();
   const practice = usePractice();
   const qualifying = useQualifying();
-  const budget = useBudgetTeams();
 
   useEffect(() => {
     fetch(`${API}/races`).then(r => r.json()).then(setRaces).catch(() => {});
@@ -149,56 +149,56 @@ function App() {
   const activeSubTab = section === "myteam" ? myTeamTab : section === "insights" ? insightsTab : raceDataTab;
   const setSubTab = section === "myteam" ? setMyTeamTab : section === "insights" ? setInsightsTab : setRaceDataTab;
 
-  return (
-    <div className="min-h-screen bg-pw-bg text-white font-mono">
-      <div className="max-w-6xl mx-auto min-h-screen bg-[#05070c]">
+  const navButton = (item, phone) => (
+    <button
+      key={item.id}
+      onClick={() => setSection(item.id)}
+      aria-current={section === item.id ? "page" : undefined}
+      className={phone
+        ? `flex-1 py-2.5 text-xs font-semibold ${section === item.id ? "text-pw-red" : "text-pw-muted"}`
+        : `py-1 text-sm font-semibold whitespace-nowrap transition-colors ${section === item.id ? "text-pw-text shadow-[inset_0_-2px_0_#FF4D4D]" : "text-pw-muted hover:text-pw-text"}`}
+    >
+      {item.label}
+    </button>
+  );
 
-        {/* ── Header: wordmark · nav · T-MINUS ── */}
-        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 sm:px-5 py-3 border-b border-[#ff5c5c]/25 bg-pw-panel2">
-          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
-            <span className="font-extrabold text-lg sm:text-xl tracking-[0.05em] text-pw-red flex-shrink-0">PITWALL</span>
-            <nav className="flex gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
-              {NAV.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => setSection(item.id)}
-                  className={`px-2.5 sm:px-3 py-1.5 text-[13px] sm:text-sm tracking-[0.04em] whitespace-nowrap transition ${
-                    section === item.id
-                      ? "text-white border-b-2 border-pw-red"
-                      : "text-pw-muted hover:text-gray-300"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
+  return (
+    <div className="min-h-screen bg-pw-bg text-pw-text">
+      <div className="max-w-6xl mx-auto min-h-screen pb-20 sm:pb-0">
+
+        {/* header: logo, the four sections (desktop), the countdown */}
+        <header className="flex items-center justify-between gap-4 px-4 sm:px-5 py-3 border-b border-pw-edge">
+          <div className="flex items-center gap-6 min-w-0">
+            <span className="cond-x font-extrabold text-2xl text-pw-red flex-shrink-0">PITWALL</span>
+            <nav className="hidden sm:flex gap-5">{NAV.map(item => navButton(item, false))}</nav>
           </div>
           <CountdownWidget nextRace={nextRace} />
         </header>
 
-        {/* ── Section sub-tabs (My Team / Race Data) ── */}
+        {/* on a phone the sections sit at the bottom, where your thumb is */}
+        <nav className="sm:hidden fixed bottom-0 inset-x-0 z-30 flex bg-pw-bg/95 backdrop-blur border-t border-pw-edge pb-[env(safe-area-inset-bottom)]">
+          {NAV.map(item => navButton(item, true))}
+        </nav>
+
+        {/* sub tabs (My team, Race data, Insights) */}
         {subTabs && (
-          <div className="flex gap-0.5 px-4 sm:px-5 pt-4 overflow-x-auto no-scrollbar">
+          <div className="flex gap-5 px-4 sm:px-5 pt-3 border-b border-pw-line overflow-x-auto no-scrollbar">
             {subTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setSubTab(tab.id)}
-                className={`px-4 py-2.5 text-[11px] tracking-[0.04em] whitespace-nowrap transition ${
-                  activeSubTab === tab.id
-                    ? "bg-pw-panel text-white border border-[#ff5c5c]/30 border-b-0"
-                    : "text-pw-muted border-b border-white/[0.08] hover:text-gray-300"
+                className={`pb-2 text-sm font-semibold whitespace-nowrap transition-colors ${
+                  activeSubTab === tab.id ? "text-pw-text shadow-[inset_0_-2px_0_#E9ECF1]" : "text-pw-muted hover:text-pw-text"
                 }`}
               >
                 {tab.label}
               </button>
             ))}
-            <div className="flex-1 border-b border-white/[0.08]" />
           </div>
         )}
 
-        {/* ── Section content ── */}
-        <main className={`px-5 pb-16 ${subTabs ? "pt-0" : "pt-5"}`}>
-          <div className={subTabs ? "bg-pw-panel border-x border-b border-[#ff5c5c]/30 p-5" : ""}>
+        <main className="px-4 sm:px-5 pt-4 pb-16">
+          <ErrorBoundary resetKey={`${section}/${activeSubTab}`}>
 
             {section === "overview" && (
               <Overview
@@ -221,13 +221,12 @@ function App() {
             {mode === "results" && section === "racedata" && <RaceResultsTab races={races} results={results} />}
             {mode === "practice" && section === "racedata" && <PracticeTab races={races} practice={practice} />}
             {mode === "qualifying" && section === "racedata" && <QualifyingTab races={races} qualifying={qualifying} />}
-            {mode === "budget" && section === "myteam" && <TeamOptimizerTab races={races} budget={budget} />}
 
             {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} />}
             {mode === "chips" && section === "myteam" && <ChipAdvisor upcomingRaces={upcomingRaces} />}
             {mode === "planner" && section === "myteam" && <TransferPlanner upcomingRaces={upcomingRaces} />}
             {mode === "backtest" && section === "racedata" && IS_DEV && <Backtest />}
-          </div>
+          </ErrorBoundary>
         </main>
 
       </div>

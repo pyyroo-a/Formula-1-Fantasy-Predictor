@@ -1,5 +1,5 @@
-// The pit wall form styles. App.jsx, ManualTeamBuilder and ChipAdvisor each had
-// their own copy of these exact strings, now there's one.
-export const INPUT_CLS = "w-full p-2.5 bg-pw-panel2 text-white text-sm border border-white/10 outline-none focus:border-pw-red/50";
-export const PRIMARY_BTN_CLS = "w-full p-2.5 bg-pw-red hover:bg-[#ff7676] text-white text-sm font-semibold transition disabled:bg-white/10 disabled:text-pw-muted disabled:cursor-not-allowed";
-export const SECTION_HEAD_CLS = "text-xs text-pw-muted tracking-[0.08em] mb-3";
+// The shared form styles, one copy for the whole site. Redone for the redesign:
+// rounded boxes on the raised colour, the red only on the main button.
+export const INPUT_CLS = "w-full px-3 py-2 bg-pw-raised text-pw-text text-sm border border-pw-edge rounded-lg outline-none focus:border-pw-red/60";
+export const PRIMARY_BTN_CLS = "w-full px-3 py-2.5 bg-pw-red hover:bg-[#ff6a6a] text-pw-bg text-sm font-bold rounded-lg transition-colors disabled:bg-pw-raised disabled:text-pw-muted disabled:cursor-not-allowed";
+export const SECTION_HEAD_CLS = "cond font-bold text-[15px] mb-2";
