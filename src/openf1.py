@@ -46,6 +46,9 @@ SESSIONS_TTL_S = 3600
 
 _sessions_cache: dict[int, tuple[float, list]] = {}
 _grid_cache: dict[int, pd.DataFrame] = {}
+# the raw laps and drivers per finished session, so the model's grid and the Practice
+# page share one download (the free tier is rate limited)
+_laps_cache: dict[int, tuple[list, list]] = {}
 
 
 class NotPublishedYet(Exception):
@@ -59,6 +62,7 @@ class OpenF1Unavailable(Exception):
 def clear_caches():
     _sessions_cache.clear()
     _grid_cache.clear()
+    _laps_cache.clear()
 
 
 def _utc(t) -> pd.Timestamp:
@@ -150,13 +154,11 @@ def grid_from_openf1(laps: list, drivers: list, race_name: str) -> pd.DataFrame:
     return normalize_team_names(best)
 
 
-def openf1_grid(year: int, race_name: str, session: str, start_utc, now=None) -> pd.DataFrame:
+def _finished_session(year: int, race_name: str, session: str, start_utc, now=None) -> int:
     """
-    The pace order for one session from OpenF1.
-
-    Raises NotPublishedYet if the session isn't finished yet (nobody has those laps,
-    FastF1 included, so don't bother falling back), and OpenF1Unavailable if OpenF1
-    can't help (then FastF1 gets a go, which still works for sessions in our cache).
+    The OpenF1 session_key for a finished session. Raises NotPublishedYet if it isn't
+    over yet (nobody has those laps, FastF1 included, so don't bother falling back), and
+    OpenF1Unavailable if OpenF1 can't help (then FastF1 gets a go).
     """
     if os.getenv("USE_OPENF1", "1") != "1":
         raise OpenF1Unavailable("switched off with USE_OPENF1=0")
@@ -169,15 +171,73 @@ def openf1_grid(year: int, race_name: str, session: str, start_utc, now=None) ->
     match = pick_session(_sessions(year), name, start_utc)
     if match is None:
         raise OpenF1Unavailable(f"OpenF1 has no {name} near {start_utc} for {race_name}")
-
-    key = match["session_key"]
-    if key in _grid_cache:
-        return _grid_cache[key].copy()
-
     if not session_ready(match, now if now is not None else pd.Timestamp.now(tz="UTC")):
         raise NotPublishedYet(f"{race_name} {session} isn't over yet (ends {match['date_end']})")
+    return match["session_key"]
 
-    grid = grid_from_openf1(_get("laps", {"session_key": key}),
-                            _get("drivers", {"session_key": key}), race_name)
+
+def _laps_and_drivers(key: int) -> tuple[list, list]:
+    if key not in _laps_cache:
+        _laps_cache[key] = (_get("laps", {"session_key": key}), _get("drivers", {"session_key": key}))
+    return _laps_cache[key]
+
+
+def openf1_grid(year: int, race_name: str, session: str, start_utc, now=None) -> pd.DataFrame:
+    """The pace order for one session from OpenF1. Raises like _finished_session."""
+    key = _finished_session(year, race_name, session, start_utc, now)
+    if key in _grid_cache:
+        return _grid_cache[key].copy()
+    laps, drivers = _laps_and_drivers(key)
+    grid = grid_from_openf1(laps, drivers, race_name)
     _grid_cache[key] = grid
     return grid.copy()
+
+
+def _lap_text(seconds: float) -> str:
+    ms = int(round(seconds * 1000))
+    return f"{ms // 60000}:{(ms % 60000) / 1000:06.3f}"
+
+
+def practice_table(laps: list, drivers: list) -> list[dict]:
+    """
+    The rows the Practice page shows: everyone's fastest lap, fastest first, with the
+    gap to the top. Same ranking as grid_from_openf1. OpenF1's full_name is shouty
+    ("Charles LECLERC") so the name is built from first and last name instead.
+    """
+    laps = pd.DataFrame(laps)
+    if laps.empty or "lap_duration" not in laps:
+        raise NotPublishedYet("no laps yet")
+    laps = laps.dropna(subset=["lap_duration"])
+    if laps.empty:
+        raise NotPublishedYet("no timed laps yet")
+
+    best = laps.groupby("driver_number")["lap_duration"].min().reset_index()
+    drv = pd.DataFrame(drivers).drop_duplicates("driver_number")
+    for col in ("first_name", "last_name"):
+        if col not in drv:
+            drv[col] = None
+    best = best.merge(drv[["driver_number", "name_acronym", "team_name", "first_name", "last_name"]],
+                      on="driver_number")
+    best = best.sort_values("lap_duration").reset_index(drop=True)
+    best = normalize_team_names(best.rename(columns={"team_name": "TeamName"}))
+    pole = best["lap_duration"].min()
+
+    rows = []
+    for i, r in best.iterrows():
+        named = isinstance(r["first_name"], str) and isinstance(r["last_name"], str)
+        rows.append({
+            "Position": int(i) + 1,
+            "Abbreviation": r["name_acronym"],
+            "FullName": f"{r['first_name']} {r['last_name']}" if named else r["name_acronym"],
+            "TeamName": r["TeamName"],
+            "LapTime": _lap_text(r["lap_duration"]),
+            "GapToPole": round(float(r["lap_duration"] - pole), 3),
+        })
+    return rows
+
+
+def openf1_practice(year: int, race_name: str, session: str, start_utc, now=None) -> list[dict]:
+    """The Practice page's rows for one session from OpenF1. Raises like _finished_session."""
+    key = _finished_session(year, race_name, session, start_utc, now)
+    laps, drivers = _laps_and_drivers(key)
+    return practice_table(laps, drivers)

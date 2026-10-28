@@ -9,7 +9,8 @@ from src.api import clock, state
 from src.api.schemas import PracticeRequest, RaceRequest
 from src.config import SEASON, results_path
 from src.data_loader import load_dataset
-from src.fetch_practice import is_sprint_weekend
+from src import openf1
+from src.fetch_practice import _session_start_utc, is_sprint_weekend
 
 router = APIRouter()
 
@@ -234,6 +235,24 @@ def get_practice_results(request: PracticeRequest):
     # Use the requested session if it exists this weekend, else the final one.
     session_name = request.session if request.session in available else available[-1]
 
+    # OpenF1 first, like the model. This page used to ask FastF1 for the laps, and since
+    # F1 put live timing behind an F1TV login in October 2026 that crashed for every
+    # race. FastF1 is still the backup, its cache works for old sessions
+    start = _session_start_utc(year, request.race_name, openf1.SESSION_NAMES[session_name])
+    try:
+        output = openf1.openf1_practice(year, request.race_name, session_name, start)
+    except openf1.NotPublishedYet as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except openf1.OpenF1Unavailable:
+        output = _fastf1_practice_rows(year, request.race_name, session_name)
+
+    return {"session": session_name, "available_sessions": available, "results": output}
+
+
+def _fastf1_practice_rows(year: int, race_name: str, session_name: str) -> list[dict]:
+    """The old FastF1 way, now only the backup. Works for sessions in data/cache."""
+    event = fastf1.get_event(year, race_name)
+
     try:
         sess = event.get_session(session_name)
         sess.load(laps=True, telemetry=False, weather=False, messages=False)
@@ -277,4 +296,4 @@ def get_practice_results(request: PracticeRequest):
             "GapToPole": round((lap - pole).total_seconds(), 3),
         })
 
-    return {"session": session_name, "available_sessions": available, "results": output}
+    return output
