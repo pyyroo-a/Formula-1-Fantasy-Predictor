@@ -45,7 +45,8 @@ def final_practice_session(event) -> str:
     Sprint weekend: SPRINT QUALIFYING, because the deadline is the sprint race, so
     sprint quali has already run by then. That is a real timed order instead of a
     guess from one practice hour, and it measured much better: over the 4 sprint
-    weekends of 2026 the backtest went from 113.0 to 143.2 points per race.
+    weekends of 2026 the backtest went from 113.0 to 143.2 points per race. (That
+    was the old backtest, the one that could see real retirements, not re-measured.)
     """
     fmt = str(event.get("EventFormat", "conventional")).lower()
     return "SQ" if "sprint" in fmt else "FP3"

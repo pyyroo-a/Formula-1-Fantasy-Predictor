@@ -431,8 +431,44 @@
     }
   },
   "14": {
-    "drivers": {},
-    "constructors": {}
+    "drivers": {
+      "GAS": 12.2,
+      "COL": 10.4,
+      "ALO": 7.0,
+      "STR": 3.0,
+      "BOR": 8.6,
+      "HUL": 4.2,
+      "PER": 3.0,
+      "BOT": 3.0,
+      "HAM": 25.2,
+      "LEC": 24.1,
+      "OCO": 9.5,
+      "BEA": 6.4,
+      "NOR": 26.7,
+      "PIA": 24.0,
+      "RUS": 27.7,
+      "ANT": 26.3,
+      "LAW": 14.9,
+      "TSU": 9.9,
+      "LIN": 8.0,
+      "VER": 27.4,
+      "HAD": 14.5,
+      "SAI": 9.6,
+      "ALB": 5.8
+    },
+    "constructors": {
+      "Mercedes": 33.2,
+      "McLaren": 31.6,
+      "Red Bull Racing": 31.5,
+      "Ferrari": 27.2,
+      "Alpine": 19.2,
+      "Racing Bulls": 14.1,
+      "Williams": 13.8,
+      "Haas F1 Team": 10.8,
+      "Audi": 8.0,
+      "Aston Martin": 6.9,
+      "Cadillac": 3.0
+    }
   },
   "15": {
     "drivers": {

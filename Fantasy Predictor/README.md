@@ -51,13 +51,17 @@ Where it's going:
 - [Roadmap](Roadmap.md): the 7 projects from the post Austin brainstorm, open tasks, banked ideas, closed questions
 - [Future plans](Future%20plans.md): the bigger career picture PitWall sits in
 
-## Where things stand (2026-10-25)
+## Where things stand (2026-10-28)
 
 - 2026 season, US GP (round 18) was locked automatically on FP3 by the GitHub Action.
-- In the middle of the cleanup from the brainstorm, see [Roadmap](Roadmap.md). The plan
-  and design docs are in [`docs/superpowers/`](../docs/superpowers/).
-- 79 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
-- Watch out: F1 put its live timing behind an F1TV login in October 2026. Practice now
-  comes from OpenF1, but the Monday results job still uses FastF1. See [Gotchas](Gotchas.md).
+  Mexico (round 19) is next, and its lock is the first to save ownership.
+- Projects 1 and 2 on the [Roadmap](Roadmap.md) are done. PitWall now gets graded with
+  the game's own points: 203.9 pts/race on the replay vs 190.6 for copying the FP3
+  order, see the [Scorecard](Scorecard.md). Plans and designs are in
+  [`docs/superpowers/`](../docs/superpowers/). Next is project 3, the planner.
+- 126 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
+- F1 put its live timing behind an F1TV login in October 2026. Practice comes from
+  OpenF1 now, race results still come through FastF1 and that's fine (the 2026-10-26
+  Monday job worked). See [Gotchas](Gotchas.md).
 
 Related: [Race weekend flow](Race%20weekend%20flow.md), [Working rules](Working%20rules.md), [Roadmap](Roadmap.md)

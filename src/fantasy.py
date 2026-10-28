@@ -28,6 +28,9 @@ SPRINT_DNF_PENALTY = -10
 # shape as DNF_WEIGHT: it pumps up drivers already predicted in the top 8, which
 # pushes the optimiser off the cheap picks it earns its points from.
 # The real sprint points still count in the TRUTH, see sprint_score.
+# Heads up (2026-10-28): measured with the old backtest, which graded with our own
+# rule maths and could see which cars really retired. Not re-measured yet, see
+# "Fantasy Predictor/Decisions and evidence.md".
 PREDICT_SPRINT_POINTS = False
 
 
@@ -202,6 +205,9 @@ def qualifying_score(grid_pos: float) -> float:
 # drivers, which is exactly where the budget solver earns its points. The risk
 # estimate itself is sound (see src/dnf.py, it beats a flat rate on 11 of 12
 # races), it is using it as a points deduction that fails.
+# Heads up (2026-10-28): measured with the old backtest, which graded with our own
+# rule maths and could see which cars really retired. Not re-measured yet, see
+# "Fantasy Predictor/Decisions and evidence.md".
 DNF_WEIGHT = 0.0
 
 

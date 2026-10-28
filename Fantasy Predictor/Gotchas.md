@@ -1,6 +1,6 @@
 ---
 title: Gotchas
-date: 2026-10-25
+date: 2026-10-28
 tags: [pitwall, gotchas]
 ---
 
@@ -16,9 +16,26 @@ weekend flow.
   loads with 0 drivers and then `.laps` throws `DataNotLoadedError`, so the site just
   quietly said "no practice data yet" all US GP weekend. Practice now comes from OpenF1
   ([Model](Model.md)). A paid F1TV account would fix FastF1 but that's out (free only).
-  **Still at risk:** results go through FastF1 in two places, the Monday job
-  (`scripts/update_data.py`) and backend startup (`update_season_results` in `main.py`).
-  First Monday after the wall: 2026-10-26.
+  Race results still come through FastF1 (the Monday job `scripts/update_data.py` and
+  `update_season_results` at backend startup) and they're fine: the first Monday after
+  the wall, 2026-10-26, added the US GP results and prices like normal. Only practice
+  timing got locked. FastF1 can't load a NEW practice session though (Austin FP3 throws
+  `DataNotLoadedError`), so if OpenF1 hiccups the fallback fails too.
+- **A replay must never see the race it's predicting.** The backtest's prediction
+  table used to carry each driver's real race Status, so the scoring gave real
+  retirements their -20 before the race and the replay dodged them. Found 2026-10-28
+  because the replay didn't rebuild the real locked teams. There are tests now
+  (`test_replay_does_not_know_who_retires`, `test_replay_predicts_what_live_predicts`),
+  and the [Scorecard](Scorecard.md) says on every run how many locked teams the
+  replay rebuilt.
+- **An OpenF1 hiccup quietly changes a replay.** If FP3 doesn't load, the replay falls
+  back to FP2, a different grid. It once made a measurement look 2 points better than it
+  was. The scorecard now prints a line when that happens, run it again if you see one.
+- **The official points feed:** a round that hasn't happened yet has everyone on 0
+  (that's not a result, `is_raced` checks it), and ownership is only ever "right now",
+  which is why it gets saved in each snapshot at the lock.
+- **2026 has 22 cars.** Anything that clips positions to 20 hands P21/P22 made up
+  places gained. The championship nudge did exactly that until `CLIP_TO_REAL_FIELD`.
 - **"Can't check" must never look like "not out yet".** At Madring a broken check
   answered "not published yet" all weekend and nobody noticed the lock never happened.
   Now OpenF1 trouble raises (and `/snapshot/auto` answers 502) instead of "waiting".

@@ -1,6 +1,6 @@
 ---
 title: Prices
-date: 2026-10-25
+date: 2026-10-28
 tags: [pitwall, prices, data]
 ---
 
@@ -48,9 +48,11 @@ play with more than $100M (I was around $107.5M). The Manual Team page remembers
 your own budget in the browser (`pitwall_budget` in localStorage). The 3 locked teams
 are still built at exactly $100M, because they're shared by everyone.
 
-## Known gaps
+## Round 14
 
-- Round 14 is missing from `price_history.json` completely, all 23 drivers and 11
-  constructors. A gap in the data job, not the parser. On the [Roadmap](Roadmap.md).
+Round 14 used to be empty in `price_history.json` (a gap in the data job, not the
+parser). Filled on 2026-10-28 from the round 14 feed, which the points referee had
+already saved in `data/official_points_2026.json`. Every round there keeps that round's
+prices too, so the scorecard grades with the exact prices of the week.
 
 Related: [Gotchas](Gotchas.md), [Race weekend flow](Race%20weekend%20flow.md), [Fantasy scoring](Fantasy%20scoring.md)

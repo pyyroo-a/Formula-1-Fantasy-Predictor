@@ -68,7 +68,9 @@ Why 0.0: the backtest gave model picks 98.5 pts a race against 113.5 for just pi
 by FP3 order, and the model won 0 of 8 races. My guess at the cause: the model trains
 on the real quali grid but gets served the practice order, which is about 2 places
 off, and it amplifies that noise. Full numbers in [Decisions and evidence](Decisions%20and%20evidence.md).
-Raise it only if a backtest shows the model beating the FP3 order.
+Raise it only if the [Scorecard](Scorecard.md) shows the model beating the FP3 order.
+Heads up: those numbers came from the old backtest, which could see real retirements,
+and haven't been re-measured.
 
 ## Retirement risk
 

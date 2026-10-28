@@ -73,6 +73,9 @@ def predict(model: XGBRegressor, X_test: pd.DataFrame) -> np.ndarray:
 #
 # Raise this above 0.0 only when a backtest run shows the model beating the
 # FP3-order baseline. See "Fantasy Predictor/Decisions and evidence.md".
+# Heads up (2026-10-28): measured with the old backtest, which graded with our own
+# rule maths and could see which cars really retired. Not re-measured yet, see
+# "Fantasy Predictor/Decisions and evidence.md".
 SHRINK_TO_GRID = 0.0
 
 

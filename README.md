@@ -85,19 +85,17 @@ real and it is not going away.
 
 ### Why "off by 2 places" is worse than it sounds
 
-F1 Fantasy does not award points smoothly. It awards them in **jumps**:
+F1 Fantasy does not award qualifying points smoothly. Qualify in the **top 10** and
+you score up to +10. Qualify **11th or worse** and you score nothing.
 
-- Qualify in the **top 10** and you score up to +10
-- Qualify **11th to 15th** and you score nothing
-- Qualify **16th or worse** and you *lose* 5 points
+(We used to think 16th or worse also lost 5 points. It doesn't, the -5 is only for not
+setting a time at all. Checked against the real game in October 2026.)
 
 So the gap between 10th and 11th is not one place. It is the difference between
-points and nothing. And the gap between 15th and 16th swings you from zero to minus five.
+points and nothing. Now put that next to the fact that practice is normally off by
+about two places.
 
-Now put those two facts together. Practice is normally off by about two places, and
-the scoring has sudden drops at exactly those boundaries.
-
-> **One pick in four (25.8%) ends up on the wrong side of one of these jumps.**
+> **About one pick in seven (14.2%) ends up on the wrong side of the P10/P11 line.**
 > PitWall scores the driver for a grid slot he never actually started from.
 
 **Monza 2026 is the perfect example.** Practice had Gasly down in 9th, so PitWall
@@ -113,11 +111,12 @@ runs on a green, dusty track before anyone has properly dialled the car in.
 | | Normal weekend | Sprint weekend |
 |---|---|---|
 | Typical miss | 1.9 places | **2.5 places** |
-| Landed on the wrong side of a scoring jump | 23% | **29%** |
+| Landed on the wrong side of P10/P11 | 14.6% | 13.8% |
 | Found the actual pole-sitter | **7 out of 7** | **0 out of 5** |
 
 Practice correctly identified the pole-sitter at every single normal weekend, and at
-none of the sprint weekends. Sprint weekends are not a different problem needing a
+none of the sprint weekends. (The P10/P11 line comes out about the same for both, the
+gap shows up in the size of the misses and at the very front.) Sprint weekends are not a different problem needing a
 different model. They are the same problem with **less information**, so the sensible
 response is for PitWall to be visibly less confident on those weekends.
 
@@ -189,7 +188,10 @@ It made the teams **worse**, by a lot:
 | 50% of it | 83.2 |
 | All of it | 87.0 |
 
-Roughly 27 to 31 points a race lost, at every dose tried. The reason is that
+Roughly 27 to 31 points a race lost, at every dose tried. (Heads up: these were
+measured in September with our own version of the scoring, and with a replay that, as
+we found out in October, could see which cars really retired. They haven't been
+re-measured yet.) The reason is that
 retirement risk rises steadily the further back you start, so charging it is close
 to just saying "prefer drivers at the front". But the whole point of a budget team
 is that cheap midfield drivers are where the value is. Penalising them strips out
@@ -246,9 +248,21 @@ That last point is what actually wins fantasy leagues. You get three teams, so t
 right move is one safe team and one that swings for the fences, and you cannot make
 that call without knowing which picks are risky.
 
-Nothing ships on vibes. Every change is tested against `run_backtest`, which replays
-completed races. The bar to beat is the embarrassingly simple strategy of just picking
-drivers in practice order, which currently beats PitWall's model **8 races to 0**.
+Nothing ships on vibes. Every change is tested on the season scorecard
+(`scripts/scorecard.py`), which replays every finished race using only what was known
+before it, and grades every team with the game's **own** points from the official F1
+Fantasy feed. The bar is picks anyone could make with no model at all:
+
+| 2026, rounds 3 to 18 | Points per race |
+|---|---|
+| PitWall, replayed with today's rules | **203.9** |
+| Copy the FP3 order | 190.6 |
+| Most expensive team that fits | 168.4 |
+| Best possible team, in hindsight | 292.2 |
+
+Before the October 2026 scoring fixes the same replay was on 187.5, basically level
+with copying FP3. The teams PitWall really locked (rounds 13 to 18, old rules)
+averaged 175.2. The full table is in the [Scorecard](Fantasy%20Predictor/Scorecard.md).
 
 ## Chip Advisor
 
@@ -294,11 +308,11 @@ FantasyValue = RacePoints + OvertakeBonus + QualifyingScore + DNFPenalty
 | Component | Value |
 |---|---|
 | Race position | P1 = 25, P2 = 18, P3 = 15, P4 = 12, P5 = 10, P6 = 8, P7 = 6, P8 = 4, P9 = 2, P10 = 1 |
-| Qualifying | P1 = +10 down to P10 = +1 · Q2-only = 0 · Q1 knockout = **−5** |
+| Qualifying | P1 = +10 down to P10 = +1 · P11 to P15 = 0 · P16+ = **−5** (the real game gives P11 to P20 nothing, but forecasting it that way scored worse, so the forecast keeps the old rule for now) |
 | Overtakes | +1 per position gained, −1 per position lost (scaled by circuit) |
 | DNF | **−20** |
 
-Constructors score the sum of both their drivers, plus **+3 if both cars reach Q3** (or +1 for Q2), plus a top-team bonus so Mercedes/Ferrari are correctly favoured.
+Constructors score the sum of both their drivers, plus the game's qualifying bonus (**+10** both cars in Q3, +5 one in Q3, +3 both in Q2, +1 one in Q2, -1 neither), plus a top-team bonus so Mercedes/Ferrari are correctly favoured. Pit stop points aren't forecast yet, it measured as too small a gain to be worth it.
 
 Fastest Lap (+10) and Driver of the Day (+10) are deliberately excluded, they can't be predicted reliably before a race.
 
@@ -423,4 +437,4 @@ Two GitHub Actions:
 
 ## Planned
 
-See the [Roadmap](Fantasy%20Predictor/Roadmap.md). Next up after the cleanup: scoring every locked team with the game's real points against simple no-model picks, constructor scoring that follows the game's rules (pit stops included), and a transfer planner for your own team.
+See the [Roadmap](Fantasy%20Predictor/Roadmap.md). Done: grading with the game's real points against simple no-model picks, and the scoring fixes that won. Next up: a transfer planner for your own team.

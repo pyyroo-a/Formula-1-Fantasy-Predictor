@@ -1,6 +1,6 @@
 ---
 title: Decisions and evidence
-date: 2026-10-25
+date: 2026-10-28
 tags: [pitwall, evidence, decisions]
 ---
 
@@ -10,11 +10,39 @@ Every decision here was measured, not guessed. Don't undo one without new number
 that beat these. The rule we work by: measure before shipping, and if something
 measures worse, switch it off and leave the number next to the switch in the code.
 
-The backtest is `run_backtest(use_practice=True)` in `src/backtest.py` (or `/backtest`
-locally). It replays finished races using only what was known before each one, and
-the bar is "just pick by FP3 order".
+Since 2026-10-28 the yardstick is the season scorecard, `python scripts/scorecard.py
+--rules <names>` (see [Scorecard](Scorecard.md)). It replays every finished race with
+`run_backtest` using only what was known before it, and grades every team with the
+game's own points from the official feed, not our version of the rules. A
+`--rules` name flips switches for that run only, e.g. `--rules bonus+clip`.
 
-## Switched off, and why
+**Heads up on older numbers.** Everything measured before 2026-10-28 (the first table
+below) used the old backtest, which graded with our own rule maths and, we found out,
+had a leak: the replay could see which cars really retired, so it dodged them (US GP:
+Bottas, Colapinto and Bearman, all DNFs). That's fixed and the replay now rebuilds the
+real locked teams exactly, but those older numbers haven't been re-measured. I decided
+to leave them flagged rather than redo them.
+
+## Project 2 switches (measured 2026-10-28, rounds 3 to 18)
+
+All in `src/fantasy.py`. Before any of them: 187.5 real pts/race, copying the FP3 order
+190.6.
+
+| Switch | Value | Real pts/race | Races better / worse |
+|---|---|---|---|
+| `REAL_CONSTRUCTOR_QUALI_BONUS` (game's -1/+1/+3/+5/+10) | **on** | 194.3 alone | 1 / 0 (only Monza changed) |
+| `CLIP_TO_REAL_FIELD` (no made up +2 for P21/P22) | **on** | 200.4 alone | 5 / 3 |
+| both together, what ships | | **203.9** | 6 / 2 |
+| `USE_CONSTRUCTOR_EXTRAS` (expected pit stop points) | off | 201.6 alone, 204.2 on top of the two | 4 / 1 alone |
+| `FIX_CONSTRUCTOR_QUIRKS` (every page adds constructors up the same way) | off | 190.3 | 1 / 2 |
+| `REAL_QUALI_RULES` (P11 to P20 = 0, no -5 for P16+) | off | 175.3 | 5 / 9 |
+| all five | | 155.5 | 3 / 12 |
+
+Why the right quali rule scores worse: without the -5 the back of the grid costs
+nothing to own, so the optimiser fills up on cheap P16+ drivers (24 of 80 picks vs 8 of
+80). Extras stayed off because +0.3 on top isn't worth wiring into the live site.
+
+## Switched off earlier (old backtest, see the heads up)
 
 | Switch | Value | Evidence |
 |---|---|---|
@@ -45,8 +73,11 @@ FP3 combined on normal weekends (grid error 2.26 vs 2.07 for FP3 alone).
 - **Practice order vs the real grid:** about 2 places off on average (2.15), within 1
   place half the time, 6+ places off 5% of the time. Not biased towards any team, just
   noisy. Sprint weekends are worse (2.5 places vs 1.9).
-- **The scoring cliffs:** 25.8% of picks land on the wrong side of P10/P11 or P15/P16,
-  where quali points jump. Monza 2026: practice had Gasly 9th, he took pole.
+- **The P10/P11 line:** 14.2% of picks land on the wrong side of it (14.6% normal
+  weekends, 13.8% sprint), where quali points go from something to nothing. Monza
+  2026: practice had Gasly 9th, he took pole. (This used to say 25.8%, but that also
+  counted a P15/P16 "cliff" that isn't in the real game. Same rounds 1 to 12 data,
+  `archive/results/grid_error_2026.csv`.)
 - **Walk forward over 13 races of 2026:** practice order beat the model column on
   everything. Winner right 6/13 vs 4/13, places off 2.05 vs 2.31, rank correlation
   0.829 vs 0.803. (Antonelli won 7 of 13, so "always pick Antonelli" also gets 7.)
@@ -59,11 +90,23 @@ FP3 combined on normal weekends (grid error 2.26 vs 2.07 for FP3 alone).
 Measuring scripts: `scripts/measure_grid_error.py` (writes to `archive/results/`) and
 `scripts/measure_dnf.py`.
 
-## The accuracy bar going forward
+## The accuracy bar
 
 From the post Austin brainstorm: PitWall has to beat simple ways of picking that need
-no model ("copy the FP3 order", "most expensive drivers that fit") over a whole
-season, scored with the game's real points, or it isn't earning its place. That's
-project 2 on the [Roadmap](Roadmap.md), and the track record page (project 5) shows it.
+no model, over a whole season, scored with the game's real points, or it isn't
+earning its place. Project 2 built that. Rounds 3 to 18 of 2026, real pts/race:
 
-Related: [Model](Model.md), [Fantasy scoring](Fantasy%20scoring.md), [Roadmap](Roadmap.md)
+| | Before the fixes | Now |
+|---|---|---|
+| PitWall (replay) | 187.5 | **203.9** |
+| Copy the FP3 order | 190.6 | 190.6 |
+| Most expensive that fit | 168.4 | 168.4 |
+| Best possible in hindsight | 292.2 | 292.2 |
+| PitWall's real locked teams (R13 to R18) | 175.2 | |
+
+So it went from level with guessing to about 13 points a race ahead, winning 8 of 16
+races against FP3 order. Not perfect and it never will be, F1's too random for that.
+"Copy the crowd" starts filling in from Mexico, when the first ownership gets saved.
+The track record page (project 5) will show this on the site.
+
+Related: [Model](Model.md), [Fantasy scoring](Fantasy%20scoring.md), [Scorecard](Scorecard.md), [Roadmap](Roadmap.md)

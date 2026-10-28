@@ -1,6 +1,6 @@
 ---
 title: Roadmap
-date: 2026-10-25
+date: 2026-10-28
 tags: [pitwall, roadmap]
 ---
 
@@ -16,13 +16,14 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
 (bottom section) and the cleanup's [plan](../docs/superpowers/plans/2026-10-25-cleanup-and-notes.md).
 
 1. **Cleanup and these notes.** One scoring path, leftovers gone, big files split, no
-   dashes, this vault. In progress.
-2. **Accuracy bar and real constructor scoring.** Score each locked team with the
-   game's real points and compare with "copy the FP3 order" and "most expensive drivers
-   that fit". Constructor scoring that follows the game: bigger Q2/Q3 bonuses and pit
-   stop points (from OpenF1 pit data). Fixes the two scoring quirks in
-   [Fantasy scoring](Fantasy%20scoring.md). My friend's point: the constructor is where
-   the points are, value drivers are mostly filler.
+   dashes, this vault. Done.
+2. **Accuracy bar and real constructor scoring.** Done 2026-10-28. Every race graded
+   with the game's own points (the official feed, not OpenF1, which only had pit times
+   for 6 races) against no-model picks, see the [Scorecard](Scorecard.md). Every rule
+   fix measured behind a switch, only the winners went on (the real constructor bonus
+   and the P22 clip fix): 187.5 to 203.9 pts/race, copying FP3 is 190.6. The quirks
+   fix and pit stop points measured too small to ship, the real quali rule measured
+   worse. Numbers in [Decisions and evidence](Decisions%20and%20evidence.md).
 3. **"My team" planner.** My team saved in the browser, plus free transfers and my real
    bank balance. After the lock it shows the best move for 0, 1, 2 and 3+ transfers
    with -10 per extra transfer already taken off, plus the 2x pick. Advice only, never
@@ -39,17 +40,25 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
    seasons. The weekly check compares against the plan. Manual what ifs. Aimed at 2027,
    I have no chips left this season. See [Chips](Chips.md).
 7. **Reddit discussion feed (parked).** What people are picking and their game plans.
-   Reddit's free API is limited and AI summaries would cost money, so later. Maybe
-   ownership % from the F1 Fantasy feed first, if it's in there.
+   Reddit's free API is limited and AI summaries would cost money, so later. Ownership %
+   IS in the F1 Fantasy feed, and every snapshot saves it at the lock since project 2.
+
+After all that: **one UI redesign** of the whole site using the frontend design plugin,
+once projects 2 to 5 have added what they add. No piecemeal UI changes before then.
 
 ## Open tasks
 
-- **Check the Monday data job** after the F1 login wall (first run 2026-10-26). If race
-  results break, they probably need to come from OpenF1 or Jolpica like practice does.
-  Same for `update_season_results` at backend startup.
 - **Delete the cron-job.org job.** The Action locked the US GP by itself, so it's no
   longer needed.
-- **Round 14 missing from `price_history.json`.** A hole in the price chart.
+- **Re-measure the old switches** (`SHRINK_TO_GRID`, `DNF_WEIGHT`,
+  `PREDICT_SPRINT_POINTS`) on the scorecard. Their numbers came from the old backtest
+  that could see real retirements, see [Decisions and evidence](Decisions%20and%20evidence.md).
+- **Why the real quali rule loses.** With P11 to P20 at 0 the optimiser loves the cheap
+  back row. Worth a look only if there's a simple reason, F1 is never going to be 90%
+  predictable so no chasing.
+- **Chip gains are inflated** by the pool vs builder constructor gap, bigger now the
+  real bonus is on. `FIX_CONSTRUCTOR_QUIRKS` is ready, it just didn't win on points.
+- **Copy the crowd** fills in on the scorecard from Mexico, re-run it after a few races.
 - **The two step simulator.** Sample thousands of weekends (quali = pace + measured
   noise, race pulled back towards pace, plus retirements), score each, report a RANGE
   not one number. Has to beat the FP3 order baseline before it touches picks.
@@ -84,6 +93,9 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
 - Charging retirement risk against the score: lost 27 to 31 pts/race at every weight.
 - Expected sprint points in forecasts: no effect alone, worse combined.
 - Trusting the ML blend over the practice order: measured worse every time.
+- Forecasting the real quali rule (P11 to P20 = 0): -12.2 pts/race, worse on 9 of 16.
+- OpenF1 as the points or pit stop source: pit times for only 6 races, overtakes that
+  count pit stops. The official F1 Fantasy feed has the real points for free.
 - Discounting the overtake bonus: no consistent gain.
 - FP2 + FP3 combined on normal weekends: worse than FP3 alone.
 - A background scheduler inside the app to fetch practice: replaced by the snapshot
@@ -93,6 +105,10 @@ All the numbers: [Decisions and evidence](Decisions%20and%20evidence.md).
 
 ## Done
 
+- 2026-10-28: project 2. The points referee (official points for every round), ownership
+  saved at every lock, the Monday job saving official points, the season scorecard,
+  the replay leak fixed, the real constructor bonus and the P22 clip fix switched on,
+  round 14 prices filled in.
 - 2026-10: the cleanup started (tests frozen, one scoring path, leftovers, dashes,
   smaller files, these notes). Practice from OpenF1 after the login wall. Weekend
   self lock and the GitHub Action, after Bahrain and Singapore got lost. Price feed
