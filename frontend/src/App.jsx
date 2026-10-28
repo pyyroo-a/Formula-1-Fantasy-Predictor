@@ -222,7 +222,7 @@ function App() {
             {mode === "practice" && section === "racedata" && <PracticeTab races={races} practice={practice} />}
             {mode === "qualifying" && section === "racedata" && <QualifyingTab races={races} qualifying={qualifying} />}
 
-            {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} />}
+            {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} weekendTeam={overviewWeekend} />}
             {mode === "chips" && section === "myteam" && <ChipAdvisor upcomingRaces={upcomingRaces} />}
             {mode === "planner" && section === "myteam" && <TransferPlanner upcomingRaces={upcomingRaces} />}
             {mode === "backtest" && section === "racedata" && IS_DEV && <Backtest />}

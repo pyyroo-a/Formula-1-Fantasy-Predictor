@@ -1,29 +1,28 @@
+// When each practice session is, in your own time, and which ones are already in
 export default function SessionSchedule({ sessions }) {
   if (!sessions?.length) return null;
   const practiceSessions = sessions.filter(s => ["FP1", "FP2", "FP3"].includes(s.name));
   if (!practiceSessions.length) return null;
 
   return (
-    <div className="bg-gray-800/60 rounded-xl px-4 py-4 border border-gray-700 mb-3">
-      <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Practice Sessions</p>
-      <div className="space-y-3">
-        {practiceSessions.map((s) => {
-          const dt = new Date(s.date);
-          return (
-            <div key={s.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className={`w-3 h-3 rounded-full flex-shrink-0 ${s.available ? "bg-green-400" : "bg-gray-600"}`} />
-                <span className={`text-base font-bold ${s.available ? "text-white" : "text-gray-400"}`}>{s.name}</span>
-              </div>
-              <span className={`text-sm font-medium ${s.available ? "text-green-400" : "text-gray-400"}`}>
-                {s.available
-                  ? "Data available ✓"
-                  : dt.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+    <div className="bg-pw-panel rounded-xl px-3.5 py-3 mb-3">
+      <h3 className="cond font-bold text-[15px] mb-1.5">Practice sessions</h3>
+      {practiceSessions.map((s) => {
+        const dt = new Date(s.date);
+        return (
+          <div key={s.name} className="flex items-center justify-between py-1 text-[13px]">
+            <span className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${s.available ? "bg-pw-safe" : "bg-pw-edge"}`} />
+              <span className={`cond font-bold text-[15px] ${s.available ? "" : "text-pw-muted"}`}>{s.name}</span>
+            </span>
+            <span className={`num ${s.available ? "text-pw-safe" : "text-pw-muted"}`}>
+              {s.available
+                ? "In"
+                : dt.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
