@@ -11,6 +11,7 @@ import ChipAdvisor from "./components/ChipAdvisor";
 import TransferPlanner from "./components/myteam/TransferPlanner";
 import PredictedFinishes from "./components/PredictedFinishes";
 import TrackRecord from "./components/TrackRecord";
+import ChipHistory from "./components/ChipHistory";
 import Backtest from "./components/Backtest";
 import { cacheTeam, readCachedTeam, pickNewer } from "./teamCache";
 import { useRaceResults, usePractice, useQualifying, useBudgetTeams } from "./hooks/useRaceData";
@@ -37,6 +38,7 @@ const MYTEAM_TABS = [
 const INSIGHTS_TABS = [
   { id: "finishes", label: "PREDICTED FINISHES" },
   { id: "trackrecord", label: "TRACK RECORD" },
+  { id: "chips", label: "CHIPS" },
 ];
 
 const RACEDATA_TABS = [
@@ -214,6 +216,7 @@ function App() {
               <PredictedFinishes data={finishes} loading={finishesLoading} error={finishesError} />
             )}
             {section === "insights" && insightsTab === "trackrecord" && <TrackRecord />}
+            {section === "insights" && insightsTab === "chips" && <ChipHistory />}
 
             {mode === "results" && section === "racedata" && <RaceResultsTab races={races} results={results} />}
             {mode === "practice" && section === "racedata" && <PracticeTab races={races} practice={practice} />}
