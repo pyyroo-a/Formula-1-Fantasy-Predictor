@@ -1,4 +1,6 @@
-import { DRIVER_NAMES, CHIP_META, REC_STYLE } from "../constants";
+import { DRIVER_NAMES, CHIP_META } from "../constants";
+import { fmt1 } from "../lib/format";
+import VerdictTag from "../ui/VerdictTag";
 
 // Actionable recommendations sort to the front so the useful chips surface first.
 const REC_PRIORITY = { PLAY: 0, CONSIDER: 1, HEDGE: 1, "POST-QUALI": 2, HOLD: 3, SAVE: 3 };
@@ -9,19 +11,19 @@ function chipContext(key, chip) {
     case "x3_boost": {
       const name = chip.target ? (DRIVER_NAMES[chip.target] || chip.target) : null;
       if (!name) return null;
-      return chip.gain ? `Boost ${name} · +${chip.gain} pts` : `Boost ${name}`;
+      return chip.gain ? `On ${name}, +${fmt1(chip.gain)} pts` : `On ${name}`;
     }
     case "wildcard":
     case "limitless":
-      return chip.gain ? `+${chip.gain} pts vs this team` : "No gain over this team";
+      return chip.gain ? `+${fmt1(chip.gain)} pts vs this team` : "No gain over this team";
     case "final_fix":
       return chip.riskiest_driver
-        ? `Post-qualifying swap · watch ${DRIVER_NAMES[chip.riskiest_driver] || chip.riskiest_driver}`
+        ? `Decide after qualifying, watch ${DRIVER_NAMES[chip.riskiest_driver] || chip.riskiest_driver}`
         : "Use after qualifying";
     case "no_negative":
       return chip.is_high_attrition ? "High-attrition circuit, worth hedging" : "Low attrition risk here";
     case "autopilot":
-      return "Save it, PitWall already optimises your captain";
+      return "Save it, PitWall already picks your 2x";
     default:
       return null;
   }
@@ -45,13 +47,13 @@ export default function AutoChipAdvisor({ data, activeTeam }) {
   const teamLabel = teams.length > 1 ? `Team ${Math.min(activeTeam, teams.length - 1) + 1}` : "your team";
 
   return (
-    <div className="bg-pw-panel border border-white/[0.06] p-3.5">
-      <div className="flex items-end justify-between mb-3">
-        <p className="text-[10.5px] tracking-[0.05em] text-pw-muted">CHIP ADVISOR · AUTO</p>
-        <p className="text-[9.5px] text-pw-muted text-right">{teamLabel} · {data.session_used} pace</p>
+    <section className="bg-pw-panel rounded-xl px-3.5 sm:px-4 py-3.5">
+      <div className="flex items-baseline justify-between gap-2 mb-3">
+        <h3 className="cond font-bold text-[15px]">Chips for {teamLabel}</h3>
+        <p className="text-xs text-pw-muted text-right">from {data.session_used} pace</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {ordered.map(key => {
           const chip = chips[key];
           const meta = CHIP_META[key] || { label: key, color: "#6b7280", desc: "" };
@@ -61,20 +63,18 @@ export default function AutoChipAdvisor({ data, activeTeam }) {
           return (
             <div
               key={key}
-              className={`border-l-2 pl-3 pr-2.5 py-2 bg-pw-panel2 ${muted ? "opacity-55" : ""}`}
+              className={`bg-pw-raised rounded-lg border-l-[3px] px-3 py-2 ${muted ? "opacity-60" : ""}`}
               style={{ borderColor: meta.color }}
             >
-              <div className="flex justify-between items-start gap-2 mb-1">
-                <span className="text-[12px] font-bold text-white">{meta.label}</span>
-                <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${REC_STYLE[rec] || REC_STYLE.HOLD}`}>
-                  {rec}
-                </span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="cond font-bold text-[15px]">{meta.label}</span>
+                <VerdictTag rec={rec} />
               </div>
-              {ctx && <p className="text-[10.5px] text-pw-muted leading-snug">{ctx}</p>}
+              {ctx && <p className="text-xs text-pw-muted leading-snug mt-0.5">{ctx}</p>}
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

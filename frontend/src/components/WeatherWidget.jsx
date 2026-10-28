@@ -100,24 +100,24 @@ export default function WeatherWidget({ nextRace }) {
 
   if (!findCoords(raceName)) return null;
 
-  const SESSION_LABEL = { FRI: "FRI PRACTICE", SAT: "SAT QUALIFYING", SUN: "SUN RACE" };
+  const SESSION_LABEL = { FRI: "Fri practice", SAT: "Sat qualifying", SUN: "Sun race" };
 
   return (
-    <div className="pw-hairgrid grid grid-cols-3 gap-px border border-[#ff5c5c]/15">
+    <div className="grid grid-cols-3 gap-2">
       {loading && (
-        <p className="col-span-3 text-pw-muted text-xs text-center py-6 bg-pw-panel">Loading forecast…</p>
+        <p className="col-span-3 text-pw-muted text-sm text-center py-5 bg-pw-panel rounded-xl">Loading the forecast...</p>
       )}
 
       {!loading && forecast && forecast.map(day => {
-        const rainColor = day.rainPct >= 40 ? "text-pw-red" : "text-pw-rain";
+        const rainColor = day.rainPct >= 40 ? "text-pw-low" : "text-pw-info";
         return (
           <div
             key={day.label}
-            className={`bg-pw-panel px-3 py-3.5 text-center ${day.isRaceDay ? "border-b-2 border-pw-red bg-[#1a0f0f]" : ""}`}
+            className={`bg-pw-panel rounded-xl px-2 py-2.5 text-center ${day.isRaceDay ? "shadow-[inset_0_-2px_0_#FF4D4D]" : ""}`}
           >
-            <p className="text-[9.5px] text-pw-muted tracking-[0.06em] mb-1">{SESSION_LABEL[day.label] || day.label}</p>
-            <p className="text-white font-extrabold text-xl leading-none">{Math.round(day.maxTemp)}°C</p>
-            <p className={`text-[10px] font-medium mt-1 ${rainColor}`}>RAIN {day.rainPct}%</p>
+            <p className="text-xs text-pw-muted">{SESSION_LABEL[day.label] || day.label}</p>
+            <p className="cond-x font-extrabold text-2xl leading-tight num">{Math.round(day.maxTemp)}°C</p>
+            <p className={`text-xs font-medium ${rainColor}`}>Rain {day.rainPct}%</p>
           </div>
         );
       })}
