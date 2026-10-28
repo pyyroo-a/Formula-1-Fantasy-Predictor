@@ -13,17 +13,17 @@
     ],
     "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x"
    },
-   "budget_remaining": 1.2,
+   "budget_remaining": 0.0,
    "constructors": [
     {
      "name": "Audi",
      "price": 8.0,
-     "score": 13.6
+     "score": 20.6
     },
     {
-     "name": "Mercedes",
-     "price": 33.2,
-     "score": 58.5
+     "name": "McLaren",
+     "price": 31.6,
+     "score": 58.0
     }
    ],
    "drivers": [
@@ -55,6 +55,15 @@
      "TeamName": "Audi"
     },
     {
+     "Abbreviation": "BOR",
+     "FantasyValue": 2.4,
+     "GridPosition": 10,
+     "PickCategory": "Risk",
+     "Predicted": 10.2,
+     "Price": 8.6,
+     "TeamName": "Audi"
+    },
+    {
      "Abbreviation": "BEA",
      "FantasyValue": 0.0,
      "GridPosition": 13,
@@ -62,19 +71,10 @@
      "Predicted": 13.2,
      "Price": 6.4,
      "TeamName": "Haas F1 Team"
-    },
-    {
-     "Abbreviation": "ALB",
-     "FantasyValue": -4.6,
-     "GridPosition": 22,
-     "PickCategory": "Risk",
-     "Predicted": 20.0,
-     "Price": 5.8,
-     "TeamName": "Williams"
     }
    ],
-   "total_cost": 98.8,
-   "total_score": 126.3
+   "total_cost": 100.0,
+   "total_score": 139.8
   },
   "pool": {
    "constructors": [
@@ -119,18 +119,18 @@
      "score": -7.0
     },
     {
-     "name": "Williams",
-     "price": 13.8,
-     "score": -11.6
+     "name": "Aston Martin",
+     "price": 6.9,
+     "score": -14.0
     },
     {
      "name": "Cadillac",
      "price": 3.0,
-     "score": -12.8
+     "score": -14.0
     },
     {
-     "name": "Aston Martin",
-     "price": 6.9,
+     "name": "Williams",
+     "price": 13.8,
      "score": -14.0
     }
    ],
@@ -331,27 +331,27 @@
      "FantasyValue": -7.0,
      "GridPosition": 20,
      "PickCategory": "Avoid",
-     "Predicted": 20.0,
+     "Predicted": 20.2,
      "Price": 3.0,
      "TeamName": "Cadillac"
     },
     {
      "Abbreviation": "BOT",
      "DNFProb": 0.505,
-     "FantasyValue": -5.8,
+     "FantasyValue": -7.0,
      "GridPosition": 21,
      "PickCategory": "Avoid",
-     "Predicted": 20.0,
+     "Predicted": 21.2,
      "Price": 3.0,
      "TeamName": "Cadillac"
     },
     {
      "Abbreviation": "ALB",
      "DNFProb": 0.457,
-     "FantasyValue": -4.6,
+     "FantasyValue": -7.0,
      "GridPosition": 22,
-     "PickCategory": "Risk",
-     "Predicted": 20.0,
+     "PickCategory": "Avoid",
+     "Predicted": 22.0,
      "Price": 5.8,
      "TeamName": "Williams"
     }

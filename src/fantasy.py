@@ -137,7 +137,12 @@ REAL_QUALI_RULES = False
 #     on    194.3 pts/race   (+6.8, better on 1, worse on 0)
 # Only ONE race picked a different team (Monza, 147 -> 256), the other 15 were the
 # same team. So it's +6.8 from a single race, thin evidence.
-REAL_CONSTRUCTOR_QUALI_BONUS = False
+#
+# ON since 2026-10-28, together with CLIP_TO_REAL_FIELD: the two together scored
+# 203.9 pts/race (+16.4 on 187.5, better on 6, worse on 2). Adding
+# USE_CONSTRUCTOR_EXTRAS on top made 204.2, too small a gap to be worth wiring extras
+# into the live site, so we kept it simple.
+REAL_CONSTRUCTOR_QUALI_BONUS = True
 
 # The championship nudge (src/championship_form.py) clipped every prediction to P20, but
 # 2026 has 22 cars, so a P22 starter got "predicted" P20 and a made up +2 overtake bonus.
@@ -147,7 +152,10 @@ REAL_CONSTRUCTOR_QUALI_BONUS = False
 #     off   187.5 pts/race
 #     on    200.4 pts/race   (+12.9, better on 5, worse on 3, same team on 8)
 # All three switches on together: 154.4 pts/race (-33.1, worse on 13 of 16).
-CLIP_TO_REAL_FIELD = False
+#
+# ON since 2026-10-28, together with REAL_CONSTRUCTOR_QUALI_BONUS: 203.9 pts/race
+# (+16.4, better on 6, worse on 2), see above.
+CLIP_TO_REAL_FIELD = True
 
 # Every page should add a constructor up the same way: both drivers' points, Avoid or
 # not, plus the qualifying bonus. Off = the old quirks, the team builders drop Avoid

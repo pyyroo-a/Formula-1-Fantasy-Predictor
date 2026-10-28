@@ -9,7 +9,7 @@
     "riskiest_driver": "BEA"
    },
    "limitless": {
-    "gain": 125.7,
+    "gain": 139.7,
     "recommendation": "PLAY",
     "team": {
      "boost_pick": {
@@ -29,12 +29,12 @@
       {
        "name": "McLaren",
        "price": 31.6,
-       "score": 51.0
+       "score": 58.0
       },
       {
        "name": "Mercedes",
        "price": 33.2,
-       "score": 58.5
+       "score": 65.5
       }
      ],
      "drivers": [
@@ -85,7 +85,7 @@
       }
      ],
      "total_cost": 193.3,
-     "total_score": 245.5
+     "total_score": 259.5
     }
    },
    "my_team_score": 119.8,
@@ -98,7 +98,7 @@
     "recommendation": "HEDGE"
    },
    "wildcard": {
-    "gain": 6.5,
+    "gain": 20.0,
     "optimal_team": {
      "boost_pick": {
       "Abbreviation": "ANT",
@@ -112,17 +112,17 @@
       ],
       "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x"
      },
-     "budget_remaining": 1.2,
+     "budget_remaining": 0.0,
      "constructors": [
       {
        "name": "Audi",
        "price": 8.0,
-       "score": 13.6
+       "score": 20.6
       },
       {
-       "name": "Mercedes",
-       "price": 33.2,
-       "score": 58.5
+       "name": "McLaren",
+       "price": 31.6,
+       "score": 58.0
       }
      ],
      "drivers": [
@@ -154,6 +154,15 @@
        "TeamName": "Audi"
       },
       {
+       "Abbreviation": "BOR",
+       "FantasyValue": 2.4,
+       "GridPosition": 10,
+       "PickCategory": "Risk",
+       "Predicted": 10.2,
+       "Price": 8.6,
+       "TeamName": "Audi"
+      },
+      {
        "Abbreviation": "BEA",
        "FantasyValue": 0.0,
        "GridPosition": 13,
@@ -161,21 +170,12 @@
        "Predicted": 13.2,
        "Price": 6.4,
        "TeamName": "Haas F1 Team"
-      },
-      {
-       "Abbreviation": "ALB",
-       "FantasyValue": -4.6,
-       "GridPosition": 22,
-       "PickCategory": "Risk",
-       "Predicted": 20.0,
-       "Price": 5.8,
-       "TeamName": "Williams"
       }
      ],
-     "total_cost": 98.8,
-     "total_score": 126.3
+     "total_cost": 100.0,
+     "total_score": 139.8
     },
-    "recommendation": "HOLD"
+    "recommendation": "CONSIDER"
    },
    "x3_boost": {
     "gain": 39.0,

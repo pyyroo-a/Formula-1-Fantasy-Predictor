@@ -133,7 +133,9 @@ def test_constructor_scores_keep_the_avoid_quirk_for_now():
     pool = fantasy._constructor_scores(df, prices, drop_avoid=False, with_bonus=False)
     assert builder["Cadillac"] == pytest.approx(-3.7)   # Bottas only, one car so no Q bonus
     assert pool["Cadillac"] == pytest.approx(-8.8)
-    assert builder["Ferrari"] == pytest.approx(70.7)    # both in Q3: +3, no TeamAvgPosition: +0
+    # both in Q3: +10, the game's bonus (REAL_CONSTRUCTOR_QUALI_BONUS, on since 2026-10-28).
+    # no TeamAvgPosition: +0
+    assert builder["Ferrari"] == pytest.approx(77.7)
     assert pool["Ferrari"] == pytest.approx(67.7)
 
 
@@ -297,8 +299,10 @@ def test_real_constructor_bonus_values(monkeypatch):
     assert scores == {"BothQ3": 10, "OneQ3": 5, "BothQ2": 3, "OneQ2": 1, "NoneQ2": -1}
 
 
-def test_old_constructor_bonus_unchanged_while_switched_off():
-    assert fantasy.REAL_CONSTRUCTOR_QUALI_BONUS is False
+def test_old_constructor_bonus_still_there_when_switched_off(monkeypatch):
+    # the real bonus is on since 2026-10-28, the old +1 / +3 still works if it's turned off
+    assert fantasy.REAL_CONSTRUCTOR_QUALI_BONUS is True
+    monkeypatch.setattr(fantasy, "REAL_CONSTRUCTOR_QUALI_BONUS", False)
     scores = fantasy._constructor_scores(_two_car_frame(GRIDS), {t: 1.0 for t in GRIDS},
                                          drop_avoid=False, with_bonus=True)
     assert scores == {"BothQ3": 3, "OneQ3": 1, "BothQ2": 1, "OneQ2": 0, "NoneQ2": 0}
@@ -330,9 +334,10 @@ def test_championship_nudge_keeps_p22_at_the_back_when_switched_on(monkeypatch):
                           "Predicted": [1.0, 22.0]})
     form = pd.DataFrame({"Abbreviation": ["LEAD", "BACK"], "FormSignal": [1.0, 0.0],
                          "ChampPoints": [300, 0], "ChampPosition": [1, 2]})
-    assert fantasy.CLIP_TO_REAL_FIELD is False
+    assert fantasy.CLIP_TO_REAL_FIELD is True     # on since 2026-10-28
+    monkeypatch.setattr(fantasy, "CLIP_TO_REAL_FIELD", False)
     old = apply_championship_signal(table, form).set_index("Abbreviation")
-    assert old.loc["BACK", "Predicted"] == 20.0    # the old behaviour, left alone while off
+    assert old.loc["BACK", "Predicted"] == 20.0    # the old behaviour
     monkeypatch.setattr(fantasy, "CLIP_TO_REAL_FIELD", True)
     new = apply_championship_signal(table, form).set_index("Abbreviation")
     # 22 plus the backmarker nudge (+0.225) is clipped to the real field, P22, so no
@@ -358,8 +363,9 @@ def test_fixed_quirks_count_avoid_drivers_and_add_bonus(monkeypatch):
     builder = fantasy._constructor_scores(df, prices, drop_avoid=True, with_bonus=True)
     pool = fantasy._constructor_scores(df, prices, drop_avoid=False, with_bonus=False)
     assert builder == pool
-    assert builder["Cadillac"] == pytest.approx(-8.8)   # Perez counts now, no bonus at P21/P22
-    assert pool["Ferrari"] == pytest.approx(70.7)       # the pool gets the +3 too
+    # Perez counts now, and neither car in Q2 is -1 with the real bonus (on since 2026-10-28)
+    assert builder["Cadillac"] == pytest.approx(-9.8)
+    assert pool["Ferrari"] == pytest.approx(77.7)       # the pool gets the +10 too
 
 
 def _builder_table():

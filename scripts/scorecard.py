@@ -123,8 +123,12 @@ def grade_round(rnd: int, race: str, round_points: dict | None, prices: dict | N
     why: dict[str, str] = {}
     teams: dict[str, list[str]] = {}
     locked = (snapshot or {}).get("teams") or []
+    # the deadline session is FP3, or sprint quali (SQ). anything else means FP3 didn't
+    # load and the replay used an earlier session, a different grid than live would have
+    used = (replay or {}).get("session_used")
     row = {"round": rnd, "race": race, "cells": cells, "why": why, "teams": teams,
-           "replay_matches_lock": _replay_matches_lock(locked, replay)}
+           "replay_matches_lock": _replay_matches_lock(locked, replay),
+           "replay_fallback": used if used not in (None, "FP3", "SQ") else None}
 
     if round_points is None:
         for c in COLUMNS:
@@ -268,6 +272,13 @@ def render(rows: list[dict], rules_name: str, today: str) -> str:
                 f"{len(checked) - len(off)} of {len(checked)} locked weekends")
         line += (f", not on {_rounds_text([r['round'] for r in off])}." if off else ".")
         lines += ["", line]
+
+    fell_back = [r for r in rows if r.get("replay_fallback")]
+    if fell_back:
+        lines += ["", "The replay fell back to an earlier practice session (FP3 didn't load) on "
+                  + ", ".join(f"R{r['round']} ({r['replay_fallback']})" for r in fell_back)
+                  + ", so those races aren't graded on the grid live would have used. "
+                  "Run it again if that's a one-off."]
 
     # why the gaps, grouped so it's one line per reason
     reasons: dict[tuple[str, str], list[int]] = {}

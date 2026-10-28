@@ -183,11 +183,12 @@ def test_rules_names_turn_on_the_right_switches():
 def test_rules_helper_puts_the_switches_back():
     import src.fantasy as fantasy
     sc = _scorecard()
-    with sc.rules(**sc.switches_for("quali+bonus+clip")):
-        assert fantasy.REAL_QUALI_RULES and fantasy.REAL_CONSTRUCTOR_QUALI_BONUS
-        assert fantasy.CLIP_TO_REAL_FIELD
-    assert not (fantasy.REAL_QUALI_RULES or fantasy.REAL_CONSTRUCTOR_QUALI_BONUS
-                or fantasy.CLIP_TO_REAL_FIELD)
+    names = ["REAL_QUALI_RULES", "REAL_CONSTRUCTOR_QUALI_BONUS", "CLIP_TO_REAL_FIELD",
+             "FIX_CONSTRUCTOR_QUIRKS", "USE_CONSTRUCTOR_EXTRAS"]
+    before = {n: getattr(fantasy, n) for n in names}
+    with sc.rules(**sc.switches_for("all")):
+        assert all(getattr(fantasy, n) for n in names)
+    assert {n: getattr(fantasy, n) for n in names} == before
 
 
 def test_all_rules_turns_on_every_switch():
@@ -197,3 +198,19 @@ def test_all_rules_turns_on_every_switch():
     assert sc.switches_for("all") == {
         "REAL_QUALI_RULES": True, "REAL_CONSTRUCTOR_QUALI_BONUS": True, "CLIP_TO_REAL_FIELD": True,
         "FIX_CONSTRUCTOR_QUIRKS": True, "USE_CONSTRUCTOR_EXTRAS": True}
+
+
+def test_scorecard_says_when_the_replay_fell_back_to_another_session():
+    # if OpenF1 hiccups on FP3 (and FastF1 is stuck behind the login wall) the replay
+    # quietly uses FP2 instead, a different grid. that once moved a measured average
+    # by 2 points, so the report has to say so
+    sc = _scorecard()
+    normal = sc.grade_round(17, "Sprint GP", POINTS, PRICES, GRID, None,
+                            {"model_score": 90.0, "session_used": "SQ"})
+    fell_back = sc.grade_round(18, "Test GP", POINTS, PRICES, GRID, None,
+                               {"model_score": 80.0, "session_used": "FP2"})
+    assert normal["replay_fallback"] is None
+    assert fell_back["replay_fallback"] == "FP2"
+    text = sc.render([normal, fell_back], rules_name="current", today="2026-10-28")
+    line = next(l for l in text.splitlines() if "fell back" in l)
+    assert "R18" in line and "FP2" in line and "R17" not in line

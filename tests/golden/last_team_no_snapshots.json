@@ -32,7 +32,7 @@
      "double_dnf_risk": 0.005,
      "name": "Ferrari",
      "price": 27.2,
-     "score": 51.5
+     "score": 58.5
     }
    ],
    "drivers": [
@@ -88,7 +88,7 @@
     }
    ],
    "total_cost": 99.2,
-   "total_score": 124.1
+   "total_score": 131.1
   },
   "teams": [
    {
@@ -118,7 +118,7 @@
       "double_dnf_risk": 0.005,
       "name": "Ferrari",
       "price": 27.2,
-      "score": 51.5
+      "score": 58.5
      }
     ],
     "drivers": [
@@ -174,7 +174,7 @@
      }
     ],
     "total_cost": 99.2,
-    "total_score": 124.1
+    "total_score": 131.1
    },
    {
     "boost_pick": {
@@ -203,7 +203,7 @@
       "double_dnf_risk": 0.005,
       "name": "Ferrari",
       "price": 27.2,
-      "score": 51.5
+      "score": 58.5
      }
     ],
     "drivers": [
@@ -259,7 +259,7 @@
      }
     ],
     "total_cost": 98.6,
-    "total_score": 117.1
+    "total_score": 124.1
    },
    {
     "boost_pick": {
@@ -288,7 +288,7 @@
       "double_dnf_risk": 0.005,
       "name": "Ferrari",
       "price": 27.2,
-      "score": 51.5
+      "score": 58.5
      }
     ],
     "drivers": [
@@ -344,7 +344,7 @@
      }
     ],
     "total_cost": 98.4,
-    "total_score": 115.7
+    "total_score": 122.7
    }
   ]
  },
