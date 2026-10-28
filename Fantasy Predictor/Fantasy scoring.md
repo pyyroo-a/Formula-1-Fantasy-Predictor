@@ -58,16 +58,17 @@ builders: the game's qualifying bonus from the predicted grid (+10 both cars in 
 on since 2026-10-28, we used to give only +3 / +1), plus +1.5 for a team averaging top
 4 and +0.5 for top 7. All in `_constructor_scores`.
 
-Two known quirks. Project 2 built the fix (`FIX_CONSTRUCTOR_QUIRKS`) and measured it:
-+2.8 pts/race but it lost more races than it won, so it's still off:
+One known quirk left. Project 2 built the fix (`FIX_CONSTRUCTOR_QUIRKS`) and measured
+it: +2.8 pts/race but it lost more races than it won, so it's still off:
 - **The team builders drop Avoid drivers before adding up a constructor.** US GP
   2026: Cadillac got scored on Bottas alone (-3.7), both cars together were -8.8.
   So a constructor with a weak driver looks better than it is.
-- **The driver pool skips the bonus.** So the chip check (which uses the pool) saw
-  Ferrari as 67.7 while the team builder had 71.2 (US GP, old bonus). With the real
-  bonus on the gap can be up to 10 points now, see [Chips](Chips.md).
+- **Fixed 2026-10-28: the driver pool used to skip the bonus.** So the chip check (which
+  uses the pool) saw Ferrari as 67.7 while the team builder had 71.2 (US GP). With the
+  real bonus that gap got big enough to tell the best team to Wildcard into itself, so
+  the pool adds the bonus now too. See [Chips](Chips.md).
 
-There's a test pinning both (`test_constructor_scores_keep_the_avoid_quirk_for_now`).
+There's a test pinning the Avoid quirk (`test_constructor_scores_keep_the_avoid_quirk_for_now`).
 
 Still missing compared to the real game: pit stop points (up to +20, +5 fastest, +15
 world record). Nobody gives pit stop times out for free, so `src/constructor_extras.py`

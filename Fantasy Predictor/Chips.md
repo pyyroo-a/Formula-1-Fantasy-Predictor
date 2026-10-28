@@ -31,12 +31,13 @@ Anything under CONSIDER is HOLD. No Negative uses the real retirement chances fr
 
 ## Things to know
 
-- **The gains are inflated, a bit more since 2026-10-28.** The best team gets scored
-  with the team builder's constructor bonus, your team gets scored from the pool, which
-  has no bonus (see [Fantasy scoring](Fantasy%20scoring.md)). The builder's bonus is
-  now the game's real one, up to +10 per constructor instead of +3, so the gap grew.
-  That's part of why the US GP showed Limitless at +112. `FIX_CONSTRUCTOR_QUIRKS` closes
-  it, but it measured +2.8 pts/race and lost more races than it won, so it's off for now.
+- **The pool and the builder agree on the bonus now.** Your team used to be scored from
+  the pool with no constructor bonus while the best team had it, so Wildcard and
+  Limitless gains were inflated (part of why the US GP showed Limitless at +112). When
+  the real bonus (up to +10 per constructor) went on, the best team's own chips told it
+  to Wildcard into itself. Since 2026-10-28 the pool adds the same bonus. What's left
+  is the Avoid quirk: a constructor with an Avoid driver is still added up differently
+  (see [Fantasy scoring](Fantasy%20scoring.md)).
 - **Sprint weekends aren't treated differently yet.** A sprint weekend pays out twice,
   so the score driven chips (Limitless, 3x, Wildcard) are worth more there, but the
   thresholds are the same every weekend. Idea from before the Dutch GP, still open.

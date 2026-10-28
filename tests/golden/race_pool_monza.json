@@ -4,37 +4,37 @@
    {
     "name": "Mercedes",
     "price": 33.2,
-    "score": 66.2
+    "score": 72.7
    },
    {
     "name": "Red Bull Racing",
     "price": 31.5,
-    "score": 44.3
+    "score": 49.8
    },
    {
     "name": "McLaren",
     "price": 31.6,
-    "score": 32.2
-   },
-   {
-    "name": "Racing Bulls",
-    "price": 14.1,
-    "score": 18.0
+    "score": 43.7
    },
    {
     "name": "Alpine",
     "price": 19.2,
-    "score": 16.6
+    "score": 26.6
+   },
+   {
+    "name": "Racing Bulls",
+    "price": 14.1,
+    "score": 23.0
    },
    {
     "name": "Ferrari",
     "price": 27.2,
-    "score": 15.9
+    "score": 17.4
    },
    {
     "name": "Audi",
     "price": 8.0,
-    "score": 6.7
+    "score": 11.7
    },
    {
     "name": "Aston Martin",
@@ -44,17 +44,17 @@
    {
     "name": "Williams",
     "price": 13.8,
-    "score": -1.9
+    "score": -0.9
    },
    {
     "name": "Haas F1 Team",
     "price": 10.8,
-    "score": -10.8
+    "score": -7.8
    },
    {
     "name": "Cadillac",
     "price": 3.0,
-    "score": -14.6
+    "score": -15.6
    }
   ],
   "drivers": [

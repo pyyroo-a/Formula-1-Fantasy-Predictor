@@ -33,10 +33,10 @@
      "riskiest_driver": "BEA"
     },
     "limitless": {
-     "gain": 139.7,
+     "gain": 119.7,
      "recommendation": "PLAY"
     },
-    "my_team_score": 119.8,
+    "my_team_score": 139.8,
     "no_negative": {
      "expected_dnfs": 0.66,
      "gain": 23.3,
@@ -46,8 +46,8 @@
      "recommendation": "HEDGE"
     },
     "wildcard": {
-     "gain": 20.0,
-     "recommendation": "CONSIDER"
+     "gain": 0.0,
+     "recommendation": "HOLD"
     },
     "x3_boost": {
      "gain": 39.0,
@@ -150,10 +150,10 @@
       "riskiest_driver": "BEA"
      },
      "limitless": {
-      "gain": 139.7,
+      "gain": 119.7,
       "recommendation": "PLAY"
      },
-     "my_team_score": 119.8,
+     "my_team_score": 139.8,
      "no_negative": {
       "expected_dnfs": 0.66,
       "gain": 23.3,
@@ -163,8 +163,8 @@
       "recommendation": "HEDGE"
      },
      "wildcard": {
-      "gain": 20.0,
-      "recommendation": "CONSIDER"
+      "gain": 0.0,
+      "recommendation": "HOLD"
      },
      "x3_boost": {
       "gain": 39.0,
@@ -266,10 +266,10 @@
       "riskiest_driver": "BEA"
      },
      "limitless": {
-      "gain": 144.5,
+      "gain": 123.0,
       "recommendation": "PLAY"
      },
-     "my_team_score": 115.0,
+     "my_team_score": 136.5,
      "no_negative": {
       "expected_dnfs": 0.7,
       "gain": 23.0,
@@ -279,8 +279,8 @@
       "recommendation": "HEDGE"
      },
      "wildcard": {
-      "gain": 24.8,
-      "recommendation": "CONSIDER"
+      "gain": 3.3,
+      "recommendation": "HOLD"
      },
      "x3_boost": {
       "gain": 30.6,
@@ -382,10 +382,10 @@
       "riskiest_driver": "COL"
      },
      "limitless": {
-      "gain": 145.3,
+      "gain": 123.8,
       "recommendation": "PLAY"
      },
-     "my_team_score": 114.2,
+     "my_team_score": 135.7,
      "no_negative": {
       "expected_dnfs": 0.62,
       "gain": 21.6,
@@ -395,8 +395,8 @@
       "recommendation": "HEDGE"
      },
      "wildcard": {
-      "gain": 25.6,
-      "recommendation": "PLAY"
+      "gain": 4.1,
+      "recommendation": "HOLD"
      },
      "x3_boost": {
       "gain": 39.0,

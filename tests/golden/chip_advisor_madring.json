@@ -9,7 +9,7 @@
     "riskiest_driver": "BEA"
    },
    "limitless": {
-    "gain": 139.7,
+    "gain": 119.7,
     "recommendation": "PLAY",
     "team": {
      "boost_pick": {
@@ -88,7 +88,7 @@
      "total_score": 259.5
     }
    },
-   "my_team_score": 119.8,
+   "my_team_score": 139.8,
    "no_negative": {
     "expected_dnfs": 0.66,
     "gain": 23.3,
@@ -98,7 +98,7 @@
     "recommendation": "HEDGE"
    },
    "wildcard": {
-    "gain": 20.0,
+    "gain": 0.0,
     "optimal_team": {
      "boost_pick": {
       "Abbreviation": "ANT",
@@ -175,7 +175,7 @@
      "total_cost": 100.0,
      "total_score": 139.8
     },
-    "recommendation": "CONSIDER"
+    "recommendation": "HOLD"
    },
    "x3_boost": {
     "gain": 39.0,
@@ -183,7 +183,7 @@
     "target": "ANT"
    }
   },
-  "my_team_score": 119.8,
+  "my_team_score": 139.8,
   "session_used": "FP3"
  },
  "status": 200

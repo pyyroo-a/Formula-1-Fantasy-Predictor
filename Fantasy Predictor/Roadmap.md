@@ -56,9 +56,10 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
 - **Why the real quali rule loses.** With P11 to P20 at 0 the optimiser loves the cheap
   back row. Worth a look only if there's a simple reason, F1 is never going to be 90%
   predictable so no chasing.
-- **Chip gains are inflated** by the pool vs builder constructor gap, bigger now the
-  real bonus is on. `FIX_CONSTRUCTOR_QUIRKS` is ready, it just didn't win on points.
-- **Copy the crowd** fills in on the scorecard from Mexico, re-run it after a few races.
+- **The Avoid quirk** still adds a constructor with an Avoid driver up differently in the
+  builders than in the pool. `FIX_CONSTRUCTOR_QUIRKS` is ready, it just didn't win on points.
+- **Re-run the scorecard after a few races from Mexico.** The switches were picked on
+  R3 to R18, so the new races are the honest test. Copy the crowd fills in from then too.
 - **The two step simulator.** Sample thousands of weekends (quali = pace + measured
   noise, race pulled back towards pace, plus retirements), score each, report a RANGE
   not one number. Has to beat the FP3 order baseline before it touches picks.

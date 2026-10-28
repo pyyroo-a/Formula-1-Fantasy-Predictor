@@ -75,11 +75,24 @@ def test_fp3_order_team_breaks_a_tie_with_the_cheaper_team():
     assert _picked(team) == (["A", "B", "C", "D", "E"], ["X", "Z"], "A")
 
 
-def test_most_expensive_team_spends_the_most_under_budget():
+def test_most_expensive_teams_spends_the_most_under_budget():
     # leaving out C costs 74 for the drivers, X+Z is 26, exactly 100. nothing else
     # gets there (leave out F is 79, the cheapest pair Y+Z only makes 97)
-    team = simple_picks.most_expensive_team(PRICES)
-    assert _picked(team) == (["A", "B", "D", "E", "F"], ["X", "Z"], "A")
+    teams = simple_picks.most_expensive_teams(PRICES)
+    assert [_picked(t) for t in teams] == [(["A", "B", "D", "E", "F"], ["X", "Z"], "A")]
+
+
+def test_most_expensive_teams_returns_every_tie():
+    # final review, 2026-10-28: in the real game about 2,000 teams cost exactly $100.0M
+    # every round, and the column used to just take the first one alphabetically. now
+    # we get all of them and the scorecard averages them. here Y and Z cost the same,
+    # so X+Y and X+Z both make exactly 100
+    prices = {"drivers": PRICES["drivers"], "constructors": {"X": 20.0, "Y": 6.0, "Z": 6.0}}
+    teams = simple_picks.most_expensive_teams(prices)
+    assert sorted(_picked(t) for t in teams) == [
+        (["A", "B", "D", "E", "F"], ["X", "Y"], "A"),
+        (["A", "B", "D", "E", "F"], ["X", "Z"], "A"),
+    ]
 
 
 def test_crowd_team_maximises_ownership_and_boosts_most_captained():
@@ -127,6 +140,6 @@ def test_nothing_fits_returns_none():
     round_points = {"drivers": {a: {"points": 1.0} for a in TEAMS},
                     "constructors": {c: {"points": 1.0} for c in "XYZ"}}
     assert simple_picks.fp3_order_team(_grid(list("ABCDEF")), PRICES, budget=5.0) is None
-    assert simple_picks.most_expensive_team(PRICES, budget=5.0) is None
+    assert simple_picks.most_expensive_teams(PRICES, budget=5.0) == []
     assert simple_picks.crowd_team(ownership, PRICES, budget=5.0) is None
     assert simple_picks.hindsight_best_team(round_points, PRICES, budget=5.0) is None

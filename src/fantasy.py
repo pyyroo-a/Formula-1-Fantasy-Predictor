@@ -161,9 +161,9 @@ REAL_CONSTRUCTOR_QUALI_BONUS = True
 CLIP_TO_REAL_FIELD = True
 
 # Every page should add a constructor up the same way: both drivers' points, Avoid or
-# not, plus the qualifying bonus. Off = the old quirks, the team builders drop Avoid
-# drivers before adding up their constructor and the pool (Manual Team, chips) skips
-# the bonus. See _constructor_scores.
+# not, plus the qualifying bonus. Off = the old quirk, the team builders drop Avoid
+# drivers before adding up their constructor. (The pool used to skip the bonus too,
+# that got fixed on its own 2026-10-28, see get_race_pool.) See _constructor_scores.
 #
 # Measured 2026-10-28, scorecard replay of R3 to R18 (16 races), official points:
 #     off (what ships)   187.5 pts/race
@@ -511,15 +511,17 @@ def _constructor_scores(
 ) -> dict[str, float]:
     """
     Constructor score = sum of both drivers' FantasyValue, since you get points from
-    both cars. With with_bonus, plus the Q2/Q3 bonus (+1 if both cars reach Q2, +3 if
-    both reach Q3) and a small top team bonus.
+    both cars. With with_bonus, plus the qualifying bonus (the game's -1 to +10 with
+    REAL_CONSTRUCTOR_QUALI_BONUS, the old +1 / +3 without) and a small top team bonus.
 
     The two flags are there because the callers don't agree, and the cleanup kept
     that on purpose so no prediction moved. Project 2 sorts it out with measurement:
       * the team builders use drop_avoid=True, so an Avoid driver's points vanish
         from his constructor (US GP: Cadillac -3.7 on Bottas alone, both cars -8.8)
-      * the pool uses with_bonus=False, so the chip check sees different constructor
-        scores than the team builder does
+      * the pool used with_bonus=False, so the chip check saw different constructor
+        scores than the team builder did. Once the real bonus went on that told the
+        best team to Wildcard into itself (+20), so the pool has had the bonus since
+        2026-10-28. with_bonus=False is still here for the old behaviour and its test
     FIX_CONSTRUCTOR_QUIRKS overrides both flags so everyone adds up the same way.
 
     extras is each team's expected pit stop (and other) points, only added with
@@ -798,8 +800,9 @@ def get_race_pool(
                                     dnf_probs=dnf_probs, dnf_weight=dnf_weight)
     constructor_prices = prices.get("constructors", {})
 
-    # no Avoid drop and no Q bonus here, unlike the team builders, see _constructor_scores
-    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=False, with_bonus=False,
+    # no Avoid drop here, unlike the team builders, but the same bonus, so the chips
+    # compare your team and the best team on the same terms. see _constructor_scores
+    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=False, with_bonus=True,
                                  extras=constructor_extras)
 
     drivers = [_driver_out(d, with_dnf=True) for d in race_df.sort_values("Predicted").to_dict("records")]

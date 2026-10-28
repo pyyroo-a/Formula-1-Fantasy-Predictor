@@ -26,8 +26,10 @@ weekend flow.
   retirements their -20 before the race and the replay dodged them. Found 2026-10-28
   because the replay didn't rebuild the real locked teams. There are tests now
   (`test_replay_does_not_know_who_retires`, `test_replay_predicts_what_live_predicts`),
-  and the [Scorecard](Scorecard.md) says on every run how many locked teams the
-  replay rebuilt.
+  and the [Scorecard](Scorecard.md) says how many locked teams the replay rebuilt. The
+  locked R13 to R18 teams were built with the old rules, so run
+  `python scripts/scorecard.py --rules old --stdout` for that check: it should say 6 of
+  6 (it did on 2026-10-28). With today's rules it can't match, the rules changed.
 - **An OpenF1 hiccup quietly changes a replay.** If FP3 doesn't load, the replay falls
   back to FP2, a different grid. It once made a measurement look 2 points better than it
   was. The scorecard now prints a line when that happens, run it again if you see one.

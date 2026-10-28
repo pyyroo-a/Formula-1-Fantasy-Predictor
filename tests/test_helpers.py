@@ -428,3 +428,23 @@ def test_replay_hands_each_round_extras_from_earlier_rounds_only(monkeypatch):
     # only gets round 3's leftovers, never its own
     assert seen["Race 3"] == {}
     assert set(seen["Race 4"]) == {"Red", "Blue", "Green", "Pink"}
+
+
+def test_optimal_team_is_not_told_to_wildcard_into_itself():
+    # final review, 2026-10-28: with the real constructor bonus on, the builder's best
+    # team had up to +10 per constructor while "your team" (scored from the pool) had
+    # none, so the optimal team's own chips said Wildcard +20. the pool gets the bonus too
+    from src.weekend import evaluate_team_chips
+    table, prices = _builder_table()
+    # Red and Blue are the cheap constructors here, so the best team takes both and
+    # neither has an Avoid driver (that quirk is a separate thing)
+    prices = {"drivers": prices["drivers"],
+              "constructors": {"Red": 1.0, "Blue": 1.0, "Green": 30.0, "Pink": 30.0}}
+    best = fantasy.build_budget_team(table, "Test GP", prices)
+    assert {c["name"] for c in best["constructors"]} == {"Red", "Blue"}
+    pool = fantasy.get_race_pool(table, "Test GP", prices)
+    chips = evaluate_team_chips([d["Abbreviation"] for d in best["drivers"]],
+                                [c["name"] for c in best["constructors"]],
+                                pool, best["total_score"], best["total_score"], "Test GP")
+    assert chips["wildcard"]["gain"] == 0.0
+    assert chips["my_team_score"] == pytest.approx(best["total_score"])

@@ -50,6 +50,10 @@ RULES = {
 }
 # every switch at once
 RULES["all"] = {k: v for switches in RULES.values() for k, v in switches.items()}
+# the rules the R13 to R18 teams were really locked with, before bonus and clip went on
+# (2026-10-28). Run --rules old to check the replay still rebuilds every locked team,
+# that's how we'd spot a leak or the replay drifting away from live
+RULES["old"] = {"REAL_CONSTRUCTOR_QUALI_BONUS": False, "CLIP_TO_REAL_FIELD": False}
 
 
 def switches_for(name: str) -> dict:
@@ -156,10 +160,16 @@ def grade_round(rnd: int, race: str, round_points: dict | None, prices: dict | N
     pool = {"drivers": {a: p for a, p in prices.get("drivers", {}).items() if a in there},
             "constructors": prices.get("constructors", {})}
 
-    picks = {
-        "Most expensive": simple_picks.most_expensive_team(pool),
-        "Hindsight best": simple_picks.hindsight_best_team(round_points, pool),
-    }
+    picks = {"Hindsight best": simple_picks.hindsight_best_team(round_points, pool)}
+    # thousands of teams spend exactly $100.0M, so this column is their average score,
+    # not one of them picked by the alphabet (see most_expensive_teams)
+    priciest = simple_picks.most_expensive_teams(pool)
+    if priciest:
+        scores = [_graded(t, round_points) for t in priciest]
+        cells["Most expensive"] = round(sum(scores) / len(scores), 1)
+        teams["Most expensive"] = sorted({n for t in priciest for n in _names(t)})
+    else:
+        why["Most expensive"] = "no legal team under $100M"
     if grid is not None:
         picks["FP3 order"] = simple_picks.fp3_order_team(grid, pool)
     else:
@@ -239,7 +249,8 @@ def render(rows: list[dict], rules_name: str, today: str) -> str:
         "- **PitWall replay**: the same build replayed walk forward, only using what was known "
         "before that race (FP3, or sprint quali on sprint weekends).",
         "- **FP3 order**: the fastest cars in that session that fit, no model.",
-        "- **Most expensive**: spend as much of the $100M as possible.",
+        "- **Most expensive**: spend as much of the $100M as possible. Thousands of teams tie "
+        "at exactly $100.0M, so this is the average over all of them.",
         "- **Crowd**: the most owned team that fits, from the ownership saved at the lock.",
         "- **Hindsight best**: the best team you could have had, the ceiling.",
         "",

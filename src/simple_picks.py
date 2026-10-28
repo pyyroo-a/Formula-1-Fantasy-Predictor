@@ -85,14 +85,29 @@ def fp3_order_team(grid: pd.DataFrame, prices: dict, budget: float = 100.0) -> d
     return _team(found, driver_prices, constructor_prices, lambda a: -pos[a])
 
 
-def most_expensive_team(prices: dict, budget: float = 100.0) -> dict | None:
-    """The team that spends the most of the budget. 2x on the priciest driver."""
+def most_expensive_teams(prices: dict, budget: float = 100.0) -> list[dict]:
+    """
+    EVERY team that spends the most of the budget, 2x on each one's priciest driver.
+
+    All of them, not one: in the real game about 2,000 teams cost exactly $100.0M every
+    round, so picking one of them would just be picking by the alphabet (that's what
+    this used to do). The scorecard averages them instead. Prices have one decimal,
+    so costs get rounded to 0.1 before comparing, float noise can't drop a team.
+    """
     driver_prices = prices.get("drivers", {})
     constructor_prices = prices.get("constructors", {})
-    found = _search(driver_prices, constructor_prices,
-                    lambda combo: sum(driver_prices[a] for a in combo),
-                    lambda c: constructor_prices[c], budget)
-    return _team(found, driver_prices, constructor_prices, lambda a: driver_prices[a])
+    pairs = list(combinations(sorted(constructor_prices), 2))
+    best_cost, found = None, []
+    for combo in combinations(sorted(driver_prices), 5):
+        driver_cost = sum(driver_prices[a] for a in combo)
+        for pair in pairs:
+            cost = round(driver_cost + constructor_prices[pair[0]] + constructor_prices[pair[1]], 1)
+            if cost > budget or (best_cost is not None and cost < best_cost):
+                continue
+            if best_cost is None or cost > best_cost:
+                best_cost, found = cost, []
+            found.append((combo, pair))
+    return [_team(f, driver_prices, constructor_prices, lambda a: driver_prices[a]) for f in found]
 
 
 def crowd_team(ownership: dict, prices: dict, budget: float = 100.0) -> dict | None:

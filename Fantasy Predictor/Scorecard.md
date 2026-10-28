@@ -11,7 +11,7 @@ Made on 2026-10-28 with `python scripts/scorecard.py --rules current`, so the re
 - **Locked**: team 1 of what PitWall really locked that weekend.
 - **PitWall replay**: the same build replayed walk forward, only using what was known before that race (FP3, or sprint quali on sprint weekends).
 - **FP3 order**: the fastest cars in that session that fit, no model.
-- **Most expensive**: spend as much of the $100M as possible.
+- **Most expensive**: spend as much of the $100M as possible. Thousands of teams tie at exactly $100.0M, so this is the average over all of them.
 - **Crowd**: the most owned team that fits, from the ownership saved at the lock.
 - **Hindsight best**: the best team you could have had, the ceiling.
 
@@ -19,27 +19,27 @@ Everything is at $100M, each race a fresh team (no transfer limits), and everyon
 
 | Race | Locked | PitWall replay | FP3 order | Most expensive | Crowd | Hindsight best |
 |---|---:|---:|---:|---:|---:|---:|
-| R1 Australian Grand Prix | - | - | 220.0 | 132.0 | - | 290.0 |
-| R2 Chinese Grand Prix | - | - | 329.0 | 206.0 | - | 461.0 |
-| R3 Japanese Grand Prix | - | 248.0 | 248.0 | 130.0 | - | 273.0 |
-| R4 Miami Grand Prix | - | 232.0 | 171.0 | 265.0 | - | 332.0 |
-| R5 Canadian Grand Prix | - | 102.0 | 104.0 | 214.0 | - | 305.0 |
-| R6 Monaco Grand Prix | - | 178.0 | 178.0 | 154.0 | - | 297.0 |
-| R7 Barcelona Grand Prix | - | 127.0 | 115.0 | 71.0 | - | 262.0 |
-| R8 Austrian Grand Prix | - | 226.0 | 226.0 | 138.0 | - | 243.0 |
-| R9 British Grand Prix | - | 294.0 | 231.0 | 207.0 | - | 345.0 |
-| R10 Belgian Grand Prix | - | 223.0 | 223.0 | 187.0 | - | 257.0 |
-| R11 Hungarian Grand Prix | - | 229.0 | 212.0 | 211.0 | - | 257.0 |
-| R12 Dutch Grand Prix | - | 198.0 | 220.0 | 125.0 | - | 295.0 |
-| R13 Italian Grand Prix | 147.0 | 256.0 | 205.0 | 314.0 | - | 428.0 |
-| R14 Spanish Grand Prix | 145.0 | 145.0 | 129.0 | 155.0 | - | 199.0 |
-| R15 Azerbaijan Grand Prix | 99.0 | 178.0 | 88.0 | 21.0 | - | 270.0 |
-| R16 Bahrain Grand Prix | 212.0 | 159.0 | 231.0 | 215.0 | - | 339.0 |
-| R17 Singapore Grand Prix | 265.0 | 265.0 | 227.0 | 128.0 | - | 298.0 |
-| R18 United States Grand Prix | 183.0 | 203.0 | 242.0 | 159.0 | - | 276.0 |
-| **Average per race (races)** | 175.2 (6) | 203.9 (16) | 199.9 (18) | 168.4 (18) | - | 301.5 (18) |
-| **Average on the replay's races** | 175.2 (6) | 203.9 (16) | 190.6 (16) | 168.4 (16) | - | 292.2 (16) |
-| **Races the replay beat it** |  |  | 8 of 16 | 11 of 16 | - | 0 of 16 |
+| R1 Australian Grand Prix | - | - | 220.0 | 130.8 | - | 290.0 |
+| R2 Chinese Grand Prix | - | - | 329.0 | 185.7 | - | 461.0 |
+| R3 Japanese Grand Prix | - | 248.0 | 248.0 | 136.8 | - | 273.0 |
+| R4 Miami Grand Prix | - | 232.0 | 171.0 | 191.0 | - | 332.0 |
+| R5 Canadian Grand Prix | - | 102.0 | 104.0 | 127.2 | - | 305.0 |
+| R6 Monaco Grand Prix | - | 178.0 | 178.0 | 69.3 | - | 297.0 |
+| R7 Barcelona Grand Prix | - | 127.0 | 115.0 | 104.7 | - | 262.0 |
+| R8 Austrian Grand Prix | - | 226.0 | 226.0 | 120.8 | - | 243.0 |
+| R9 British Grand Prix | - | 294.0 | 231.0 | 196.8 | - | 345.0 |
+| R10 Belgian Grand Prix | - | 223.0 | 223.0 | 132.1 | - | 257.0 |
+| R11 Hungarian Grand Prix | - | 229.0 | 212.0 | 146.0 | - | 257.0 |
+| R12 Dutch Grand Prix | - | 198.0 | 220.0 | 129.9 | - | 295.0 |
+| R13 Italian Grand Prix | 147.0 | 256.0 | 205.0 | 205.0 | - | 428.0 |
+| R14 Spanish Grand Prix | 145.0 | 145.0 | 129.0 | 88.1 | - | 199.0 |
+| R15 Azerbaijan Grand Prix | 99.0 | 178.0 | 88.0 | 101.3 | - | 270.0 |
+| R16 Bahrain Grand Prix | 212.0 | 159.0 | 231.0 | 175.0 | - | 339.0 |
+| R17 Singapore Grand Prix | 265.0 | 265.0 | 227.0 | 117.5 | - | 298.0 |
+| R18 United States Grand Prix | 183.0 | 203.0 | 242.0 | 121.2 | - | 276.0 |
+| **Average per race (races)** | 175.2 (6) | 203.9 (16) | 199.9 (18) | 137.7 (18) | - | 301.5 (18) |
+| **Average on the replay's races** | 175.2 (6) | 203.9 (16) | 190.6 (16) | 135.2 (16) | - | 292.2 (16) |
+| **Races the replay beat it** |  |  | 8 of 16 | 14 of 16 | - | 0 of 16 |
 
 With these rules the replay rebuilt the exact locked team on 2 of 6 locked weekends, not on R13, R15, R16, R18.
 

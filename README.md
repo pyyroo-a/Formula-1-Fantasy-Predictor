@@ -257,12 +257,15 @@ Fantasy feed. The bar is picks anyone could make with no model at all:
 |---|---|
 | PitWall, replayed with today's rules | **203.9** |
 | Copy the FP3 order | 190.6 |
-| Most expensive team that fits | 168.4 |
+| Most expensive team that fits (average of every team that spends exactly the most) | 135.2 |
 | Best possible team, in hindsight | 292.2 |
 
 Before the October 2026 scoring fixes the same replay was on 187.5, basically level
 with copying FP3. The teams PitWall really locked (rounds 13 to 18, old rules)
-averaged 175.2. The full table is in the [Scorecard](Fantasy%20Predictor/Scorecard.md).
+averaged 175.2. The catch: the switches were picked on these same 16 races, so part of that lead
+could be luck in the choosing (the bonus's +6.8 is all from Monza). Mexico onwards is
+the real test, re-run the scorecard after a few races. The full table is in the
+[Scorecard](Fantasy%20Predictor/Scorecard.md).
 
 ## Chip Advisor
 

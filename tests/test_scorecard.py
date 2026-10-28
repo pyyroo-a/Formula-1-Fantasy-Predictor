@@ -68,7 +68,8 @@ def test_every_column_is_graded_with_official_points():
     assert cells["Locked"] == _score(LOCKED_TEAM)
     assert cells["PitWall replay"] == 77.0
     assert cells["FP3 order"] == _score(simple_picks.fp3_order_team(GRID, PRICES))
-    assert cells["Most expensive"] == _score(simple_picks.most_expensive_team(PRICES))
+    tied = simple_picks.most_expensive_teams(PRICES)
+    assert cells["Most expensive"] == round(sum(_score(t) for t in tied) / len(tied), 1)
     assert cells["Crowd"] == _score(simple_picks.crowd_team(OWNERSHIP, PRICES))
     assert cells["Hindsight best"] == _score(simple_picks.hindsight_best_team(POINTS, PRICES))
     # the ceiling really is the ceiling
@@ -214,3 +215,28 @@ def test_scorecard_says_when_the_replay_fell_back_to_another_session():
     text = sc.render([normal, fell_back], rules_name="current", today="2026-10-28")
     line = next(l for l in text.splitlines() if "fell back" in l)
     assert "R18" in line and "FP2" in line and "R17" not in line
+
+
+def test_most_expensive_column_is_the_average_of_every_tied_team():
+    # X+Y and X+Z both spend exactly 100 here, the column is the average of the two
+    sc = _scorecard()
+    prices = {"drivers": PRICES["drivers"], "constructors": {"X": 20.0, "Y": 6.0, "Z": 6.0}}
+    row = sc.grade_round(18, "Test GP", POINTS, prices, GRID, None, None)
+    both = [_score(t) for t in simple_picks.most_expensive_teams(prices)]
+    assert len(both) == 2 and both[0] != both[1]
+    assert row["cells"]["Most expensive"] == round(sum(both) / 2, 1)
+
+
+def test_old_rules_put_back_what_the_locked_teams_were_built_with():
+    # final review, 2026-10-28: once bonus and clip shipped ON, --rules could only turn
+    # things on, so nothing could rebuild the R13 to R18 locked teams any more and the
+    # "rebuilt the exact locked team" check went blind. --rules old turns them back off
+    import src.fantasy as fantasy
+    sc = _scorecard()
+    assert sc.switches_for("old") == {"REAL_CONSTRUCTOR_QUALI_BONUS": False,
+                                      "CLIP_TO_REAL_FIELD": False}
+    with sc.rules(**sc.switches_for("old")):
+        assert not fantasy.REAL_CONSTRUCTOR_QUALI_BONUS and not fantasy.CLIP_TO_REAL_FIELD
+    # "all" is still every switch ON, "old" doesn't sneak a False into it
+    assert set(sc.switches_for("all").values()) == {True}
+    assert len(sc.switches_for("all")) == 5

@@ -100,12 +100,19 @@ earning its place. Project 2 built that. Rounds 3 to 18 of 2026, real pts/race:
 |---|---|---|
 | PitWall (replay) | 187.5 | **203.9** |
 | Copy the FP3 order | 190.6 | 190.6 |
-| Most expensive that fit | 168.4 | 168.4 |
+| Most expensive that fit (average of every max spend team) | 135.2 | 135.2 |
 | Best possible in hindsight | 292.2 | 292.2 |
 | PitWall's real locked teams (R13 to R18) | 175.2 | |
 
 So it went from level with guessing to about 13 points a race ahead, winning 8 of 16
-races against FP3 order. Not perfect and it never will be, F1's too random for that.
+races against FP3 order and 14 of 16 against most expensive. Not perfect and it never
+will be, F1's too random for that. The catch: the switches were picked on these same 16 races, so part of that lead
+could be luck in the choosing (the bonus's +6.8 is all from Monza). Mexico onwards is
+the real test, re-run the scorecard after a few races.
+
+"Most expensive" used to be one team picked by the alphabet (about 2,000 teams cost
+exactly $100.0M every round), which made it look like 168.4. Now it's the average of
+all of them. Found in the final review.
 "Copy the crowd" starts filling in from Mexico, when the first ownership gets saved.
 The track record page (project 5) will show this on the site.
 
