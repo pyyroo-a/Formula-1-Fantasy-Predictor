@@ -355,3 +355,11 @@ def test_transfer_ladder_refuses_bad_free_transfers(client):
     assert _ladder(client, free_transfers=4).status_code == 422   # 3 is the most you can have
     assert _ladder(client, drivers=MADRING_TEAM_DRIVERS[:4]).status_code == 422
     assert _ladder(client, constructors=["McLaren"]).status_code == 422
+
+
+def test_transfer_ladder_refuses_the_same_pick_twice(client):
+    # final review: the page blocks it, a direct request didn't, and the whole ladder
+    # then got built on an illegal team
+    twice = [MADRING_TEAM_DRIVERS[0]] * 2 + MADRING_TEAM_DRIVERS[2:]
+    assert _ladder(client, drivers=twice).status_code == 422
+    assert _ladder(client, constructors=["McLaren", "McLaren"]).status_code == 422

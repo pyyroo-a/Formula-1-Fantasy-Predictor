@@ -1,7 +1,7 @@
 """
 Request bodies the endpoints accept. Kept in one place so every file uses the same ones.
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from src.planner import MAX_FREE_TRANSFERS
 
@@ -38,3 +38,10 @@ class TransferLadderRequest(BaseModel):
     constructors: list[str] = Field(min_length=2, max_length=2)
     budget: float = Field(gt=0)
     free_transfers: int = Field(ge=1, le=MAX_FREE_TRANSFERS)
+
+    @model_validator(mode="after")
+    def no_pick_twice(self):
+        # the game never lets you own the same driver or constructor twice
+        if len(set(self.drivers)) != 5 or len(set(self.constructors)) != 2:
+            raise ValueError("the same driver or constructor is in the team twice")
+        return self
