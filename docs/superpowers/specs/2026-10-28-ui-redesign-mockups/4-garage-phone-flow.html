@@ -1,0 +1,158 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:20px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); width:340px; flex:none; display:flex; flex-direction:column; }
+  .pw .num { font-variant-numeric: tabular-nums; }
+  .pw .mut { color:#8B93A3; }
+  .pw .top { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #232833; }
+  .pw .logo { font-weight:800; font-stretch:68%; font-size:22px; color:#FF4D4D; }
+  .pw .tabs { display:flex; gap:14px; padding:9px 16px 0; font-size:12px; color:#8B93A3; font-weight:600; border-bottom:1px solid #1E232C; white-space:nowrap; overflow:hidden; }
+  .pw .tabs span { padding-bottom:7px; }
+  .pw .tabs .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #E9ECF1; }
+  .b { padding:14px 16px 16px; flex:1; }
+  h3 { margin:0 0 4px; font-size:19px; font-weight:800; font-stretch:68%; }
+  .hint { font-size:12px; color:#8B93A3; margin:0 0 12px; line-height:1.45; }
+  .slot { border:1.5px dashed #2E3542; border-radius:10px; padding:14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; font-size:14px; color:#8B93A3; }
+  .slot b { color:#E9ECF1; font-size:15px; font-stretch:78%; }
+  .plus { background:#FF4D4D; color:#0F1217; font-weight:800; border-radius:8px; padding:6px 10px; font-size:13px; }
+  .field { margin-bottom:10px; }
+  .field label { display:block; font-size:12px; color:#8B93A3; margin-bottom:4px; }
+  .box { background:#181C24; border:1px solid #2A303C; border-radius:8px; padding:8px 10px; font-size:14px; }
+  .seg { display:flex; background:#181C24; border-radius:8px; padding:3px; }
+  .seg span { flex:1; text-align:center; padding:6px 0; font-size:14px; font-weight:700; border-radius:6px; color:#8B93A3; }
+  .seg .on { background:#E9ECF1; color:#0F1217; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .team { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px; }
+  .tn { grid-column:1 / -1; display:flex; align-items:center; gap:6px; font-size:12px; color:#8B93A3; margin-top:4px; }
+  .tn i { width:10px; height:3px; border-radius:2px; }
+  .card { background:#151922; border:1px solid #20252F; border-left:3px solid var(--c); border-radius:6px; padding:5px 8px; font-size:11px; color:#8B93A3; display:flex; justify-content:space-between; }
+  .card b { color:#E9ECF1; font-size:13px; font-stretch:78%; }
+  .card.sel { border-color:#FF4D4D; border-left-color:var(--c); background:#22161A; }
+  .cons { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+  .sticky { border-top:1px solid #232833; padding:10px 16px 12px; background:#141821; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#8B93A3; }
+  .sticky b { color:#E9ECF1; font-size:15px; font-stretch:75%; display:block; }
+  .save { background:#FF4D4D; color:#0F1217; font-weight:800; border-radius:8px; padding:8px 14px; font-size:14px; }
+  .myteams { display:flex; gap:6px; margin-bottom:10px; }
+  .myteams span { padding:6px 12px; border-radius:8px; background:#181C24; color:#8B93A3; font-size:13px; font-weight:600; }
+  .myteams .on { background:#FF4D4D; color:#0F1217; }
+  .sk { background:linear-gradient(90deg,#181C24,#222835,#181C24); border-radius:8px 8px 0 0; }
+  .stairs { display:grid; gap:7px; align-items:end; }
+  .step { display:flex; flex-direction:column; }
+  .step .blk { border-radius:8px 8px 0 0; background:#1B202A; display:flex; justify-content:center; padding-top:6px; }
+  .step .blk b { font-size:24px; font-stretch:62%; font-weight:800; }
+  .step.best .blk { background:#FF4D4D; color:#0F1217; }
+  .step .lab { font-size:12px; font-weight:700; margin-top:6px; }
+  .step .delta { font-size:12px; font-weight:700; color:#5BE38A; }
+  .swap { padding:7px 0; border-bottom:1px solid #1E232C; font-size:12px; }
+  .swap .k { color:#8B93A3; display:block; margin-bottom:2px; }
+  .swap b { font-stretch:78%; font-size:14px; }
+  .out { color:#FF7A7A; } .in { color:#5BE38A; }
+  .factbox { margin-top:10px; background:#141821; border-radius:8px; padding:9px 11px; font-size:12px; line-height:1.6; }
+  .cap { font-size:13px; margin:10px 4px 0; line-height:1.45; width:340px; }
+  .flow { display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; }
+  .flow > div { display:flex; flex-direction:column; }
+  .names { font-size:14px; line-height:1.6; margin-top:24px; }
+</style>
+
+<h2>How adding your team works, start to finish (on a phone)</h2>
+<p class="subtitle">Screens 3 and 4 are real server answers for the US GP example team, this time with 3 free transfers. The tab name is a placeholder, see the bottom.</p>
+
+<div class="flow">
+
+<div>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="tabs"><span>Optimizer</span><span>Manual</span><span class="on">Weekly plan</span></div>
+  <div class="b">
+    <h3>Add your F1 Fantasy teams</h3>
+    <p class="hint">Put in the teams you really have in the game, once. Then every week this page tells you which transfers are worth it and which chip to play. Saved on this device only.</p>
+    <div class="slot"><span><b>Team 1</b><br>empty</span><span class="plus">Add team</span></div>
+    <div class="slot"><span><b>Team 2</b><br>empty</span><span class="plus" style="background:#232833;color:#E9ECF1">Add team</span></div>
+    <div class="slot"><span><b>Team 3</b><br>empty</span><span class="plus" style="background:#232833;color:#E9ECF1">Add team</span></div>
+  </div>
+</div>
+<p class="cap"><b>1. First visit.</b> Three empty slots, because the game lets you have 3 teams. You only need to fill one.</p>
+</div>
+
+<div>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span><span class="mut" style="font-size:13px">Cancel</span></div>
+  <div class="b">
+    <div class="field"><label>Team name</label><div class="box">Main team</div></div>
+    <div class="row2">
+      <div class="field"><label>Budget in the game</label><div class="box num">$ 110.0 M</div></div>
+      <div class="field"><label>Free transfers this week</label><div class="seg"><span>1</span><span class="on">2</span><span>3</span></div></div>
+    </div>
+    <p class="hint" style="margin-top:-4px">Budget is your team value plus the bank. You get 2 free transfers a week, pick 3 if you saved one last week.</p>
+    <div class="tn"><i style="background:#FF87BC"></i>Alpine</div>
+    <div class="team"><div class="card sel" style="--c:#FF87BC"><b>Gasly</b>$9.6M</div><div class="card" style="--c:#FF87BC"><b>Colapinto</b>$8.2M</div></div>
+    <div class="tn"><i style="background:#E8E234"></i>Audi</div>
+    <div class="team"><div class="card sel" style="--c:#E8E234"><b>Hülkenberg</b>$7.2M</div><div class="card" style="--c:#E8E234"><b>Bortoleto</b>$6.4M</div></div>
+    <div class="tn"><i style="background:#4C7BD9"></i>Cadillac</div>
+    <div class="team"><div class="card" style="--c:#4C7BD9"><b>Pérez</b>$3.0M</div><div class="card sel" style="--c:#4C7BD9"><b>Bottas</b>$3.0M</div></div>
+    <p class="hint" style="text-align:center;margin:6px 0">... every team, A to Z ...</p>
+    <div class="cons">
+      <div class="card sel" style="--c:#4C7BD9"><b>Cadillac</b>$3.0M</div>
+      <div class="card sel" style="--c:#27F4D2"><b>Mercedes</b>$34.0M</div>
+    </div>
+  </div>
+  <div class="sticky"><div><b class="num">5/5 drivers, 2/2 constructors</b>$108.9M of $110.0M</div><span class="save">Save team</span></div>
+</div>
+<p class="cap"><b>2. Add or edit a team.</b> The same picker as Manual Team, with team colours on drivers and constructors. "Save team" only lights up once you have 5 and 2.</p>
+</div>
+
+<div>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="tabs"><span>Optimizer</span><span>Manual</span><span class="on">Weekly plan</span></div>
+  <div class="b">
+    <div class="myteams"><span class="on">Main team</span><span>Team 2</span><span>Team 3</span></div>
+    <h3>Working it out for Mexico</h3>
+    <p class="hint">Checking your transfers and chips. The free server can take up to 30 seconds to wake up.</p>
+    <div class="stairs" style="grid-template-columns:repeat(4,1fr)">
+      <div class="step"><div class="sk" style="height:50px"></div></div>
+      <div class="step"><div class="sk" style="height:62px"></div></div>
+      <div class="step"><div class="sk" style="height:76px"></div></div>
+      <div class="step"><div class="sk" style="height:84px"></div></div>
+    </div>
+    <div class="sk" style="height:48px;border-radius:8px;margin-top:14px"></div>
+    <div class="sk" style="height:48px;border-radius:8px;margin-top:8px"></div>
+    <p class="hint" style="margin-top:14px">Before FP1 it says "No practice yet for Mexico, this fills in by itself after FP1" and checks again every minute.</p>
+  </div>
+</div>
+<p class="cap"><b>3. Straight after saving.</b> It asks for the ladder and the chips by itself, no button. Grey blocks where the answer is coming.</p>
+</div>
+
+<div>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="tabs"><span>Optimizer</span><span>Manual</span><span class="on">Weekly plan</span></div>
+  <div class="b">
+    <div class="myteams"><span class="on">Main team</span><span>Team 2</span><span>Team 3</span></div>
+    <h3>Should you make transfers?</h3>
+    <p class="hint">You have 3 free transfers. Expected points with your 2x, from FP3.</p>
+    <div class="stairs num" style="grid-template-columns:repeat(4,1fr)">
+      <div class="step"><div class="blk" style="height:56px"><b>128</b></div><span class="lab">Keep</span></div>
+      <div class="step"><div class="blk" style="height:68px"><b>155</b></div><span class="lab">1 free</span><span class="delta">+27</span></div>
+      <div class="step"><div class="blk" style="height:83px"><b>189</b></div><span class="lab">2 free</span><span class="delta">+61</span></div>
+      <div class="step best"><div class="blk" style="height:90px"><b>205</b></div><span class="lab">3 free</span><span class="delta">+77</span></div>
+    </div>
+    <div style="margin-top:10px">
+      <div class="swap"><span class="k">With all 3 transfers</span><b class="out">Antonelli</b> out, <b class="in">Leclerc</b> in<br><b class="out">Hamilton</b> out, <b class="in">Pérez</b> in<br><b class="out">Cadillac</b> out, <b class="in">Ferrari</b> in<br><span class="mut">2x moves to Leclerc</span></div>
+    </div>
+    <div class="factbox">Transfer 3 adds +16.<br>Skip transfer 3 and you'd still have 3 free next week.<br>A 4th transfer would cost 10 points.</div>
+  </div>
+</div>
+<p class="cap"><b>4. With 3 free transfers.</b> The ladder just gets a 4th step. Tap any step to see its swaps. Chips sit under this, like the desktop mockup.</p>
+</div>
+
+</div>
+
+<div class="names">
+  <p><b>What to call the tab?</b> "My real teams" is clunky, my picks:</p>
+  <div class="options">
+    <div class="option" data-choice="weekly-plan" onclick="toggleSelect(this)"><div class="letter">A</div><div class="content"><h3>Weekly plan</h3><p>Says what it's for: what to do with your team this week.</p></div></div>
+    <div class="option" data-choice="transfers-chips" onclick="toggleSelect(this)"><div class="letter">B</div><div class="content"><h3>Transfers and chips</h3><p>Says exactly what's on it, a bit long on a phone.</p></div></div>
+    <div class="option" data-choice="garage" onclick="toggleSelect(this)"><div class="letter">C</div><div class="content"><h3>Garage</h3><p>F1 flavour: your cars live here. Fun, but less obvious.</p></div></div>
+  </div>
+</div>

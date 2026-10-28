@@ -1,0 +1,144 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:14px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); margin-bottom:26px; }
+  .pw .num { font-variant-numeric: tabular-nums; }
+  .pw .mut { color:#8B93A3; }
+  .pw .top { display:flex; align-items:center; gap:22px; padding:12px 18px; border-bottom:1px solid #232833; }
+  .pw .logo { font-weight:800; font-stretch:68%; font-size:24px; color:#FF4D4D; }
+  .pw nav { display:flex; gap:18px; font-size:14px; color:#8B93A3; font-weight:600; }
+  .pw nav .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #FF4D4D; padding-bottom:4px; }
+  .pw .tabs { display:flex; gap:16px; padding:10px 18px 0; font-size:13px; color:#8B93A3; font-weight:600; border-bottom:1px solid #1E232C; }
+  .pw .tabs span { padding-bottom:8px; }
+  .pw .tabs .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #E9ECF1; }
+  .pw .setup { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; padding:14px 18px; }
+  .pw .field label { display:block; font-size:12px; color:#8B93A3; margin-bottom:4px; }
+  .pw .box { background:#181C24; border:1px solid #2A303C; border-radius:8px; padding:8px 10px; font-size:14px; }
+  .pw .btn { background:#FF4D4D; color:#0F1217; font-weight:700; border-radius:8px; padding:9px 14px; font-size:14px; }
+  .pw .ghost { border:1px solid #2A303C; border-radius:8px; padding:8px 12px; font-size:13px; color:#E9ECF1; }
+  .pw .idea { font-size:11px; color:#E9C46A; margin-left:4px; }
+  .pw .grid { display:grid; grid-template-columns:1.6fr 1fr; gap:18px; padding:0 18px 18px; }
+  .pw h3 { margin:6px 0 8px; font-size:15px; font-weight:700; font-stretch:75%; display:flex; justify-content:space-between; align-items:baseline; }
+  .pw h3 small { font-weight:400; font-size:12px; color:#8B93A3; font-stretch:100%; }
+  .pw .sort { display:flex; gap:4px; font-size:12px; }
+  .pw .sort span { padding:2px 8px; border-radius:10px; color:#8B93A3; }
+  .pw .sort .on { background:#232833; color:#E9ECF1; }
+  .team { display:grid; grid-template-columns:108px 1fr 1fr 1fr; gap:6px; align-items:stretch; padding:5px 0; border-bottom:1px solid #1E232C; }
+  .team.sep { grid-template-columns:108px 1fr 1fr; }
+  .tname { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; font-stretch:80%; }
+  .tname i { width:4px; align-self:stretch; border-radius:2px; }
+  .card { background:#151922; border:1px solid #20252F; border-radius:7px; padding:6px 8px; font-size:12px; }
+  .card b { display:block; font-size:14px; font-stretch:78%; }
+  .card .l { display:flex; justify-content:space-between; color:#8B93A3; }
+  .card.sel { border-color:#FF4D4D; background:#22161A; }
+  .card.con b { color:#C9CFDA; }
+  .panel { background:#141821; border-radius:10px; padding:12px 14px; align-self:start; }
+  .budget { display:flex; justify-content:space-between; font-size:13px; margin:4px 0 6px; }
+  .bar { height:6px; background:#232833; border-radius:3px; overflow:hidden; }
+  .bar i { display:block; height:100%; width:90%; background:#5BE38A; }
+  .slot { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid #1E232C; font-size:13px; }
+  .slot b { font-stretch:78%; font-size:15px; }
+  .slot.empty { color:#5A6170; border-bottom-style:dashed; }
+  .x2 { background:#FF4D4D; color:#0F1217; font-size:10px; font-weight:800; padding:1px 4px; border-radius:3px; margin-left:5px; }
+  .score { display:flex; gap:8px; margin-top:12px; }
+  .score div { flex:1; background:#181C24; border-radius:8px; padding:8px 10px; font-size:12px; color:#8B93A3; }
+  .score b { display:block; font-size:20px; font-stretch:68%; color:#E9ECF1; }
+  .notes { font-size:14px; line-height:1.55; }
+  .notes li { margin-bottom:6px; }
+  .opt-h { font-size:16px; margin:4px 0 8px; }
+</style>
+
+<h2>Manual team: two ways to lay out the picker</h2>
+<p class="subtitle">Prices are today's real prices, predicted spots are from the US GP lock. Points show as "xx.x" because Mexico has no practice yet, the real page fills them in. Click the one you prefer.</p>
+
+<div class="options" style="display:block">
+<div class="option" data-choice="separate" onclick="toggleSelect(this)" style="display:block">
+<p class="opt-h"><b>A. Drivers by team, then constructors A to Z</b> (what you asked for)</p>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span><nav><span>Overview</span><span class="on">My team</span><span>Race data</span><span>Insights</span></nav></div>
+  <div class="tabs"><span>Team optimizer</span><span class="on">Manual team</span><span>Chip advisor</span><span>Planner</span></div>
+  <div class="setup">
+    <div class="field"><label>Race</label><div class="box">Mexico City Grand Prix</div></div>
+    <div class="field"><label>Your budget</label><div class="box num">$ 104.6 M</div></div>
+    <span class="btn">Load drivers</span>
+    <span class="ghost">Start from PitWall Team 1<span class="idea">new idea</span></span>
+  </div>
+  <div class="grid">
+    <div id="sepList"></div>
+    <div class="panel" id="myteam"></div>
+  </div>
+</div>
+</div>
+
+<div class="option" data-choice="merged" onclick="toggleSelect(this)" style="display:block">
+<p class="opt-h"><b>B. One row per team: both drivers and the constructor together</b> (teams A to Z)</p>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span><nav><span>Overview</span><span class="on">My team</span><span>Race data</span><span>Insights</span></nav></div>
+  <div class="tabs"><span>Team optimizer</span><span class="on">Manual team</span><span>Chip advisor</span><span>Planner</span></div>
+  <div class="setup">
+    <div class="field"><label>Race</label><div class="box">Mexico City Grand Prix</div></div>
+    <div class="field"><label>Your budget</label><div class="box num">$ 104.6 M</div></div>
+    <span class="btn">Load drivers</span>
+    <span class="ghost">Start from PitWall Team 1<span class="idea">new idea</span></span>
+  </div>
+  <div class="grid">
+    <div id="mergedList"></div>
+    <div class="panel" id="myteam2"></div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="notes">
+  <p><b>Same in both:</b></p>
+  <ul>
+    <li>Race and budget sit side by side at the top, and the race picks Mexico by itself. The budget is still remembered on this device like now.</li>
+    <li>Your team is a panel on the right that stays put while you scroll (on a phone it's a bar stuck to the bottom: spent, left, 5/5, 2/2).</li>
+    <li>Picked cards light up red. The 2x tag goes on your highest scoring driver, same rule as now.</li>
+    <li>"Start from PitWall Team 1" is a new idea, not something you asked for: one tap copies Team 1 in and you swap from there. Say no and it goes.</li>
+    <li>While it loads: "Waking up the free server, this can take up to 30 seconds", same wait as now, just said plainly.</li>
+  </ul>
+</div>
+
+<script>
+  const teams = [
+    ["Alpine","#FF87BC",[["Gasly",9.6,11],["Colapinto",8.2,12]],18.5],
+    ["Aston Martin","#229971",[["Alonso",6.0,14],["Stroll",3.0,17]],5.1],
+    ["Audi","#E8E234",[["Hülkenberg",7.2,7],["Bortoleto",6.4,18]],11.0],
+    ["Cadillac","#4C7BD9",[["Pérez",3.0,21],["Bottas",3.0,22]],3.0],
+    ["Ferrari","#E8002D",[["Leclerc",24.4,1],["Hamilton",24.7,5]],28.5],
+    ["Haas","#B6BABD",[["Bearman",6.2,13],["Ocon",10.1,16]],12.6],
+    ["McLaren","#FF8000",[["Norris",26.0,4],["Piastri",23.3,6]],32.7],
+    ["Mercedes","#27F4D2",[["Antonelli",27.4,3],["Russell",27.6,8]],34.0],
+    ["Racing Bulls","#6692FF",[["Lawson",10.5,9],["Lindblad",10.6,15]],17.1],
+    ["Red Bull","#3671C6",[["Verstappen",28.5,2],["Hadjar",16.5,10]],33.0],
+    ["Williams","#64C4FF",[["Sainz",8.2,19],["Albon",4.0,20]],12.0],
+  ];
+  const picked = new Set(["Leclerc","Hamilton","Hülkenberg","Gasly","Ferrari"]);
+  const dcard = ([n,p,pos]) => `<div class="card ${picked.has(n)?'sel':''}"><b>${n}</b><div class="l num"><span>P${pos}, xx.x pts</span><span>$${p.toFixed(1)}M</span></div></div>`;
+  const ccard = (n,p) => `<div class="card con ${picked.has(n)?'sel':''}"><b>${n}</b><div class="l num"><span>xx.x pts</span><span>$${p.toFixed(1)}M</span></div></div>`;
+  const tn = (n,c) => `<div class="tname"><i style="background:${c}"></i>${n}</div>`;
+  const sortbar = `<div class="sort"><span class="on">By team</span><span>By points</span><span>By price</span></div>`;
+  document.getElementById("sepList").innerHTML =
+    `<h3>Drivers <small>pick 5</small>${sortbar}</h3>` +
+    teams.map(([n,c,ds]) => `<div class="team sep">${tn(n,c)}${ds.map(dcard).join("")}</div>`).join("") +
+    `<h3 style="margin-top:16px">Constructors <small>pick 2, A to Z</small></h3><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">` +
+    teams.map(([n,c,ds,p]) => ccard(n,p)).join("") + `</div>`;
+  document.getElementById("mergedList").innerHTML =
+    `<h3>Pick 5 drivers and 2 constructors ${sortbar}</h3>` +
+    teams.map(([n,c,ds,p]) => `<div class="team">${tn(n,c)}${ds.map(dcard).join("")}${ccard("Constructor",p).replace("<b>Constructor</b>", `<b>${n} car</b>`).replace('card con ', 'card con ' + (picked.has(n)?'sel ':''))}</div>`).join("");
+  const mt = `<h3>Your team <small>4 of 5 drivers, 1 of 2 constructors</small></h3>
+    <div class="budget num"><span class="mut">Spent <b style="color:#E9ECF1">$94.4M</b></span><span class="mut">Left <b style="color:#5BE38A">$10.2M</b></span></div>
+    <div class="bar"><i></i></div>
+    <div style="margin-top:8px">
+    <div class="slot"><span><b>Hamilton</b></span><span class="mut num">$24.7M</span></div>
+    <div class="slot"><span><b>Leclerc</b><span class="x2">2x</span></span><span class="mut num">$24.4M</span></div>
+    <div class="slot"><span><b>Gasly</b></span><span class="mut num">$9.6M</span></div>
+    <div class="slot"><span><b>Hülkenberg</b></span><span class="mut num">$7.2M</span></div>
+    <div class="slot empty"><span>Pick 1 more driver</span></div>
+    <div class="slot"><span><b>Ferrari</b></span><span class="mut num">$28.5M</span></div>
+    <div class="slot empty"><span>Pick 1 more constructor</span></div></div>
+    <div class="score"><div>Your points<b class="num">xx.x</b></div><div>vs PitWall's best<b class="num">xx%</b></div></div>`;
+  document.getElementById("myteam").innerHTML = mt;
+  document.getElementById("myteam2").innerHTML = mt;
+</script>

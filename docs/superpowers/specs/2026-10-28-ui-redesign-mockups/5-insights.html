@@ -1,0 +1,150 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:14px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); margin-bottom:26px; }
+  .pw .num { font-variant-numeric: tabular-nums; }
+  .pw .mut { color:#8B93A3; }
+  .pw .top { display:flex; align-items:center; gap:22px; padding:12px 18px; border-bottom:1px solid #232833; }
+  .pw .logo { font-weight:800; font-stretch:68%; font-size:24px; color:#FF4D4D; }
+  .pw nav { display:flex; gap:18px; font-size:14px; color:#8B93A3; font-weight:600; }
+  .pw nav .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #FF4D4D; padding-bottom:4px; }
+  .pw .tabs { display:flex; gap:16px; padding:10px 18px 0; font-size:13px; color:#8B93A3; font-weight:600; border-bottom:1px solid #1E232C; }
+  .pw .tabs span { padding-bottom:8px; }
+  .pw .tabs .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #E9ECF1; }
+  .body { padding:16px 18px 18px; }
+  h1 { margin:0; font-weight:800; font-stretch:62%; font-size:34px; line-height:1; }
+  h3 { margin:0 0 4px; font-size:17px; font-weight:800; font-stretch:72%; }
+  .lede { font-size:14px; color:#C3C8D2; margin:8px 0 14px; max-width:68ch; line-height:1.5; }
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+  .tile { background:#141821; border-radius:10px; padding:10px 12px; }
+  .tile span { font-size:12px; color:#8B93A3; display:flex; align-items:center; gap:6px; }
+  .tile b { display:block; font-size:28px; font-stretch:62%; font-weight:800; margin-top:2px; }
+  .tile small { font-size:12px; color:#8B93A3; }
+  .sw { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .legend { display:flex; gap:14px; font-size:12px; color:#8B93A3; margin:0 0 6px; flex-wrap:wrap; }
+  .legend span { display:inline-flex; align-items:center; gap:5px; }
+  .chart { background:#141821; border-radius:10px; padding:12px 14px; }
+  .rrow { display:grid; grid-template-columns:150px 1fr 120px; align-items:center; gap:10px; height:36px; border-bottom:1px solid #1E232C; font-size:13px; }
+  .rrow:last-child { border-bottom:0; }
+  .track { position:relative; height:100%; }
+  .track .ln { position:absolute; top:50%; height:2px; background:#2A303C; }
+  .dot { position:absolute; top:50%; width:12px; height:12px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 2px #141821; cursor:default; }
+  .ceil { position:absolute; top:22%; height:56%; width:2px; background:#5A6170; transform:translateX(-50%); }
+  .res { text-align:right; font-weight:700; font-size:12px; }
+  .win { color:#5BE38A; } .lose { color:#F2C94C; }
+  .axis { display:grid; grid-template-columns:150px 1fr 120px; gap:10px; font-size:11px; color:#5A6170; margin-top:4px; }
+  .axis div { display:flex; justify-content:space-between; }
+  .note { font-size:12px; color:#8B93A3; margin-top:10px; line-height:1.5; }
+  .two { display:grid; grid-template-columns:360px 1fr; gap:24px; align-items:start; }
+  .phone { width:360px; }
+  .pf { display:grid; grid-template-columns:36px 4px 1fr auto; gap:9px; align-items:center; padding:7px 0; border-bottom:1px solid #1E232C; }
+  .pf .p { font-weight:700; font-stretch:68%; font-size:17px; color:#8B93A3; }
+  .pf .bar { width:4px; height:28px; border-radius:2px; }
+  .pf b { font-stretch:78%; font-size:16px; display:block; }
+  .pf small { font-size:12px; color:#8B93A3; }
+  .pf .real { font-size:12px; font-weight:700; padding:2px 7px; border-radius:10px; background:#232833; }
+  .pf .real.close { background:#163222; color:#5BE38A; }
+  .best3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .bc { background:#141821; border-radius:10px; padding:12px; border-top:3px solid var(--c); }
+  .bc h4 { margin:0; font-size:16px; font-stretch:72%; font-weight:800; }
+  .bc p { margin:2px 0 8px; font-size:12px; color:#8B93A3; }
+  .br { display:grid; grid-template-columns:1fr auto; font-size:13px; padding:4px 0; }
+  .br i { grid-column:1 / -1; height:4px; border-radius:2px; background:var(--c); margin-top:3px; }
+  .br.worst { color:#8B93A3; border-top:1px dashed #2A303C; margin-top:6px; padding-top:8px; }
+  .br.worst i { background:#3A404C; }
+  .flag { background:#1E1A10; color:#E9C46A; border-radius:8px; padding:9px 12px; font-size:13px; line-height:1.5; margin-top:14px; }
+</style>
+
+<h2>Insights: telling the story honestly</h2>
+<p class="subtitle">Every number is from the live server today. Same three tabs as now (Predicted finishes, Track record, Chips), just easier to read and no sideways scrolling on a phone.</p>
+
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span><nav><span>Overview</span><span>My team</span><span>Race data</span><span class="on">Insights</span></nav></div>
+  <div class="tabs"><span>Predicted finishes</span><span class="on">Track record</span><span>Chips</span></div>
+  <div class="body">
+    <h1>How PitWall's locked teams really did</h1>
+    <p class="lede">Graded with the game's own points, rounds 13 to 18. Honest answer so far: copying the FP3 order scored a bit more on average. These locks were all made before the 28 Oct fixes, so the next ones are the real test.</p>
+    <div class="tiles num">
+      <div class="tile"><span><i class="sw" style="background:#F0504F"></i>PitWall</span><b>175.2</b><small>pts a race</small></div>
+      <div class="tile"><span><i class="sw" style="background:#5B8DEF"></i>Copy the FP3 order</span><b>187.0</b><small>PitWall beat it 3 of 6</small></div>
+      <div class="tile"><span><i class="sw" style="background:#B08A22"></i>Most expensive team</span><b>134.7</b><small>PitWall beat it 4 of 6</small></div>
+      <div class="tile"><span><i style="width:2px;height:12px;background:#8B93A3;display:inline-block"></i>Best possible</span><b>301.7</b><small>known only after the race</small></div>
+    </div>
+    <div class="legend"><span><i class="sw" style="background:#F0504F"></i>PitWall</span><span><i class="sw" style="background:#5B8DEF"></i>FP3 order</span><span><i class="sw" style="background:#B08A22"></i>Most expensive</span><span><i style="width:2px;height:12px;background:#8B93A3;display:inline-block"></i>Best possible</span><span>Hover a dot for its number</span></div>
+    <div class="chart num" id="tr"></div>
+    <p class="note">Copy the crowd is left out for now: we only started saving ownership after the US GP, so it shows from Mexico on.</p>
+  </div>
+</div>
+
+<div class="two">
+  <div class="pw phone">
+    <div class="top"><span class="logo">PITWALL</span></div>
+    <div class="tabs"><span class="on">Predicted finishes</span><span>Track record</span><span>Chips</span></div>
+    <div class="body">
+      <h3>United States GP, how we did</h3>
+      <p class="note" style="margin:0 0 8px">Predicted spot, practice order under it, real finish on the right. Green means within 1 place.</p>
+      <div id="pf"></div>
+      <p class="note" style="text-align:center">... all 22 ...</p>
+    </div>
+  </div>
+  <div class="pw" style="margin:0">
+    <div class="tabs" style="padding-top:12px"><span>Predicted finishes</span><span>Track record</span><span class="on">Chips</span></div>
+    <div class="body">
+      <h3>Where each chip was worth the most this season</h3>
+      <p class="note" style="margin:0 0 12px">Official 2026 points. One season so far, so treat it as a hint, not a rule.</p>
+      <div class="best3 num">
+        <div class="bc" style="--c:#FF8000"><h4>3x Boost</h4><p>the top scorer's points</p>
+          <div class="br"><span>Monza</span><b>93</b><i style="width:100%"></i></div>
+          <div class="br"><span>Shanghai</span><b>68</b><i style="width:73%"></i></div>
+          <div class="br"><span>Montréal</span><b>62</b><i style="width:67%"></i></div>
+          <div class="br worst"><span>Worst: Madrid</span><b>38</b><i style="width:41%"></i></div></div>
+        <div class="bc" style="--c:#E8002D"><h4>Limitless</h4><p>extra over the best $100M team</p>
+          <div class="br"><span>Miami</span><b>+167</b><i style="width:100%"></i></div>
+          <div class="br"><span>Madrid</span><b>+127</b><i style="width:76%"></i></div>
+          <div class="br"><span>Suzuka</span><b>+119</b><i style="width:71%"></i></div>
+          <div class="br worst"><span>Worst: Monaco</span><b>+15</b><i style="width:9%"></i></div></div>
+        <div class="bc" style="--c:#52E252"><h4>No Negative</h4><p>what an average team gets back</p>
+          <div class="br"><span>Marina Bay</span><b>37.8</b><i style="width:100%"></i></div>
+          <div class="br"><span>Baku</span><b>31.2</b><i style="width:83%"></i></div>
+          <div class="br"><span>Melbourne</span><b>31.0</b><i style="width:82%"></i></div>
+          <div class="br worst"><span>Worst: Silverstone</span><b>4.9</b><i style="width:13%"></i></div></div>
+      </div>
+      <p class="note">Under this: every track as a list (no sideways table on a phone), plus a line each on Wildcard, Final Fix and Auto Pilot like now.</p>
+    </div>
+  </div>
+</div>
+
+<div class="flag"><b>Two data glitches I found (not part of the redesign, your call):</b><br>
+1. The chip history calls the Bahrain GP "Kuala Lumpur".<br>
+2. Montréal comes from the server as "MontrÃ©al" (a text encoding mix up), so it shows garbled on the live Chips page today.<br>
+Both are in the backend's chip history file, so they'd be a small separate backend fix.</div>
+
+<script>
+  const rows = [
+    ["R13 Italian GP",147,205,205,428],
+    ["R14 Spanish GP",145,129,88.1,199],
+    ["R15 Azerbaijan GP",99,88,101.3,270],
+    ["R16 Bahrain GP",212,231,175,339],
+    ["R17 Singapore GP",265,227,117.5,298],
+    ["R18 US GP",183,242,121.2,276],
+  ];
+  const max = 450, x = v => (v/max*100) + "%";
+  document.getElementById("tr").innerHTML = rows.map(([r,pw,fp3,exp,best]) => {
+    const lo = Math.min(pw,fp3,exp);
+    const won = pw > fp3;
+    return `<div class="rrow"><span>${r}</span><div class="track">
+      <span class="ln" style="left:${x(lo)};width:${(best-lo)/max*100}%"></span>
+      <span class="ceil" style="left:${x(best)}" title="Best possible: ${best}"></span>
+      <span class="dot" style="left:${x(exp)};background:#B08A22" title="Most expensive: ${exp}"></span>
+      <span class="dot" style="left:${x(fp3)};background:#5B8DEF" title="FP3 order: ${fp3}"></span>
+      <span class="dot" style="left:${x(pw)};background:#F0504F" title="PitWall: ${pw}"></span>
+    </div><span class="res ${won?'win':'lose'}">${pw} ${won?'beat':'lost to'} FP3</span></div>`;
+  }).join("") + `<div class="axis"><span></span><div><span>0</span><span>150</span><span>300</span><span>450 pts</span></div><span></span></div>`;
+  const pf = [
+    [1,"Leclerc","#E8002D",1,2],[2,"Verstappen","#3671C6",4,3],[3,"Antonelli","#27F4D2",3,1],
+    [4,"Norris","#FF8000",5,5],[5,"Hamilton","#E8002D",2,4],[6,"Piastri","#FF8000",7,7],
+    [7,"Hülkenberg","#E8E234",8,11],[8,"Russell","#27F4D2",6,8],
+  ];
+  document.getElementById("pf").innerHTML = pf.map(([p,n,c,base,act]) =>
+    `<div class="pf num"><span class="p">P${p}</span><span class="bar" style="background:${c}"></span><div><b>${n}</b><small>practice order P${base}</small></div><span class="real ${Math.abs(p-act)<=1?'close':''}">finished P${act}</span></div>`).join("");
+</script>

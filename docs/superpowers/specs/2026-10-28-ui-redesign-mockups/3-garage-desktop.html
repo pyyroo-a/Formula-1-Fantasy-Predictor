@@ -1,0 +1,134 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:14px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); margin-bottom:26px; }
+  .pw .num { font-variant-numeric: tabular-nums; }
+  .pw .mut { color:#8B93A3; }
+  .pw .top { display:flex; align-items:center; gap:22px; padding:12px 18px; border-bottom:1px solid #232833; }
+  .pw .logo { font-weight:800; font-stretch:68%; font-size:24px; color:#FF4D4D; }
+  .pw nav { display:flex; gap:18px; font-size:14px; color:#8B93A3; font-weight:600; }
+  .pw nav .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #FF4D4D; padding-bottom:4px; }
+  .pw .tabs { display:flex; gap:16px; padding:10px 18px 0; font-size:13px; color:#8B93A3; font-weight:600; border-bottom:1px solid #1E232C; }
+  .pw .tabs span { padding-bottom:8px; }
+  .pw .tabs .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #E9ECF1; }
+  .pw .tabs s { text-decoration:line-through; opacity:.5; }
+  .body { padding:16px 18px 18px; }
+  .myteams { display:flex; gap:8px; margin-bottom:14px; }
+  .myteams span { padding:7px 14px; border-radius:8px; background:#181C24; color:#8B93A3; font-size:14px; font-weight:600; }
+  .myteams .on { background:#FF4D4D; color:#0F1217; }
+  .myteams .add { margin-left:auto; background:none; border:1px solid #2A303C; color:#E9ECF1; }
+  .teamcard { display:grid; grid-template-columns: 1fr auto; gap:14px; background:#141821; border-radius:10px; padding:12px 14px; }
+  .chipsrow { display:flex; flex-wrap:wrap; gap:6px; }
+  .tchip { display:flex; align-items:center; gap:6px; background:#1B202A; border-radius:6px; padding:5px 9px 5px 6px; font-size:14px; font-stretch:78%; font-weight:700; }
+  .tchip i { width:4px; height:18px; border-radius:2px; }
+  .tchip small { font-weight:400; color:#8B93A3; font-stretch:100%; font-size:12px; }
+  .facts3 { display:flex; gap:18px; text-align:right; }
+  .facts3 span { display:block; font-size:12px; color:#8B93A3; }
+  .facts3 b { font-size:22px; font-stretch:68%; }
+  .split { display:grid; grid-template-columns: 1.35fr 1fr; gap:18px; margin-top:16px; }
+  h3 { margin:0 0 4px; font-size:17px; font-weight:800; font-stretch:72%; }
+  .hint { font-size:12px; color:#8B93A3; margin:0 0 12px; }
+  .stairs { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; align-items:end; }
+  .step { display:flex; flex-direction:column; }
+  .step .blk { border-radius:8px 8px 0 0; background:#1B202A; display:flex; align-items:flex-start; justify-content:center; padding-top:8px; }
+  .step .blk b { font-size:30px; font-stretch:62%; font-weight:800; }
+  .step.best .blk { background:#FF4D4D; color:#0F1217; }
+  .step .lab { font-size:13px; font-weight:700; margin-top:8px; }
+  .step .sub { font-size:12px; color:#8B93A3; }
+  .step .delta { font-size:13px; font-weight:700; color:#5BE38A; }
+  .swaps { margin-top:14px; border-top:1px solid #232833; }
+  .swap { display:grid; grid-template-columns:120px 1fr; gap:10px; padding:9px 0; border-bottom:1px solid #1E232C; font-size:13px; }
+  .swap .k { color:#8B93A3; font-size:12px; }
+  .swap b { font-stretch:78%; font-size:15px; }
+  .swap .out { color:#FF7A7A; } .swap .in { color:#5BE38A; }
+  .swap p { margin:2px 0 0; font-size:12px; color:#8B93A3; }
+  .factbox { margin-top:12px; background:#141821; border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.6; }
+  .chip { display:grid; grid-template-columns: 1fr auto; gap:2px 10px; background:#141821; border-radius:8px; padding:10px 12px; margin-bottom:8px; border-left:3px solid var(--c); }
+  .chip b { font-size:15px; font-stretch:78%; }
+  .chip p { margin:0; font-size:12px; color:#8B93A3; grid-column:1 / -1; }
+  .chip .g { font-size:13px; font-weight:700; text-align:right; }
+  .v { font-size:11px; font-weight:800; padding:2px 7px; border-radius:4px; justify-self:end; align-self:center; }
+  .play { background:#163222; color:#5BE38A; } .maybe { background:#332D16; color:#F2C94C; } .wait { background:#1A2440; color:#7FA6FF; } .hold { background:#232833; color:#8B93A3; }
+  .notes { font-size:14px; line-height:1.55; } .notes li { margin-bottom:6px; }
+  .phone { width:360px; }
+</style>
+
+<h2>Planner and chips on one page, built around your saved teams</h2>
+<p class="subtitle">All numbers are real answers from the live server for the US GP, for an example team (Antonelli, Hamilton, Hülkenberg, Gasly, Bottas, Mercedes, Cadillac, $110M, 2 free transfers).</p>
+
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span><nav><span>Overview</span><span class="on">My team</span><span>Race data</span><span>Insights</span></nav></div>
+  <div class="tabs"><span>Team optimizer</span><span>Manual team</span><span class="on">My real teams</span><s>Chip advisor</s></div>
+  <div class="body">
+    <div class="myteams"><span class="on">Main team</span><span>Team 2</span><span>Team 3</span><span class="add">Edit this team</span></div>
+    <div class="teamcard">
+      <div class="chipsrow">
+        <span class="tchip"><i style="background:#27F4D2"></i>Antonelli</span>
+        <span class="tchip"><i style="background:#E8002D"></i>Hamilton <small>2x</small></span>
+        <span class="tchip"><i style="background:#E8E234"></i>Hülkenberg</span>
+        <span class="tchip"><i style="background:#FF87BC"></i>Gasly</span>
+        <span class="tchip"><i style="background:#4C7BD9"></i>Bottas</span>
+        <span class="tchip"><i style="background:#27F4D2"></i>Mercedes</span>
+        <span class="tchip"><i style="background:#4C7BD9"></i>Cadillac</span>
+      </div>
+      <div class="facts3 num"><div><span>Budget</span><b>$110.0M</b></div><div><span>Free transfers this week</span><b>2</b></div><div><span>Expected as it is</span><b>128</b></div></div>
+    </div>
+
+    <div class="split">
+      <div>
+        <h3>Should you make transfers?</h3>
+        <p class="hint">Expected points for this race with your 2x counted. Based on FP3, the session this weekend locked on.</p>
+        <div class="stairs num">
+          <div class="step"><div class="blk" style="height:82px"><b>128</b></div><span class="lab">Keep your team</span><span class="sub">no changes</span></div>
+          <div class="step"><div class="blk" style="height:99px"><b>155</b></div><span class="lab">1 transfer</span><span class="sub">free</span><span class="delta">+27 vs keeping</span></div>
+          <div class="step best"><div class="blk" style="height:121px"><b>189</b></div><span class="lab">2 transfers</span><span class="sub">both free, highest expected</span><span class="delta">+61 vs keeping</span></div>
+        </div>
+        <div class="swaps">
+          <div class="swap"><span class="k">With 1 transfer</span><div><b class="out">Mercedes</b> out, <b class="in">Ferrari</b> in<p>Mercedes P3 and P6 to Ferrari P1 and P2 in FP3</p></div></div>
+          <div class="swap"><span class="k">With 2 transfers</span><div><b class="out">Antonelli</b> out, <b class="in">Pérez</b> in<p>Antonelli P3 to Pérez P21 in FP3</p><b class="out">Cadillac</b> out, <b class="in">Ferrari</b> in<p>Cadillac P21 and P22 to Ferrari P1 and P2 in FP3</p></div></div>
+        </div>
+        <div class="factbox">Transfer 2 adds +34 on top of transfer 1.<br>Skip transfer 2 and you'd have 3 free transfers next week.<br>A 3rd transfer would cost 10 points.</div>
+      </div>
+      <div>
+        <h3>Chips for this team</h3>
+        <p class="hint">Best first. Points are on top of your team as it is (99 before the 2x).</p>
+        <div class="chip" style="--c:#E8002D"><b>Limitless</b><span class="v play">PLAY</span><p>No budget cap for one race</p><span></span><span class="g" style="color:#5BE38A">+163.1</span></div>
+        <div class="chip" style="--c:#52E252"><b>No Negative</b><span class="v play">PLAY</span><p>About 0.9 expected retirements across your 5 drivers and 1.1 across your constructors' 4 cars. Bottas also projected P16 or worse.</p><span></span><span class="g" style="color:#5BE38A">44.7 pts at risk</span></div>
+        <div class="chip" style="--c:#6692FF"><b>Wildcard</b><span class="v play">PLAY</span><p>Rebuild the whole team for free</p><span></span><span class="g" style="color:#5BE38A">+43.1</span></div>
+        <div class="chip" style="--c:#FF8000"><b>3x Boost</b><span class="v maybe">CONSIDER</span><p>On Hamilton instead of 2x</p><span></span><span class="g" style="color:#5BE38A">+29.7</span></div>
+        <div class="chip" style="--c:#FFD700"><b>Final Fix</b><span class="v wait">AFTER QUALI</span><p>Decide after qualifying. Your riskiest driver is Bottas.</p></div>
+        <div class="chip" style="--c:#6b7280"><b>Auto Pilot</b><span class="v hold">SAVE</span><p>PitWall already picks your 2x</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start">
+  <div class="pw phone">
+    <div class="top"><span class="logo">PITWALL</span></div>
+    <div class="body">
+      <div class="myteams"><span class="on">Main</span><span>Team 2</span><span>Team 3</span></div>
+      <h3>Should you make transfers?</h3>
+      <div class="stairs num">
+        <div class="step"><div class="blk" style="height:62px"><b>128</b></div><span class="lab">Keep</span></div>
+        <div class="step"><div class="blk" style="height:76px"><b>155</b></div><span class="lab">1 free</span><span class="delta">+27</span></div>
+        <div class="step best"><div class="blk" style="height:92px"><b>189</b></div><span class="lab">2 free</span><span class="delta">+61</span></div>
+      </div>
+      <div class="swaps"><div class="swap"><span class="k">With 2</span><div><b class="out">Antonelli</b> out, <b class="in">Pérez</b> in<br><b class="out">Cadillac</b> out, <b class="in">Ferrari</b> in</div></div></div>
+      <h3 style="margin-top:14px">Chips for this team</h3>
+      <div class="chip" style="--c:#E8002D"><b>Limitless</b><span class="v play">PLAY</span><span></span><span class="g" style="color:#5BE38A">+163.1</span></div>
+      <div class="chip" style="--c:#52E252"><b>No Negative</b><span class="v play">PLAY</span><span></span><span class="g" style="color:#5BE38A">44.7 at risk</span></div>
+      <p class="hint">... 4 more chips ...</p>
+    </div>
+  </div>
+  <div class="notes" style="flex:1; min-width:260px">
+    <p><b>The idea:</b> you put your real teams in once, and everything else just reads them.</p>
+    <ul>
+      <li><b>One tab, "My real teams"</b>, replaces Planner and Chip Advisor. Pick your team at the top, and both answers show for it at once. No more typing your team in twice. (Your 3 saved planner teams carry over.)</li>
+      <li>The <b>transfer ladder becomes steps</b>: taller means more points, red is the highest. Each step lists exactly what goes out and comes in, and why, from practice.</li>
+      <li><b>Plain labels:</b> "Free transfers this week: 2" instead of "2 (free)", and "1 transfer, free" or "a 3rd would cost 10 points".</li>
+      <li>"Edit this team" opens the same picker as Manual Team (drivers by team, constructors A to Z), with the right constructor names. That fixes the Racing Bulls and Haas scoring 0 bug for good.</li>
+      <li>Same server answers as now, nothing about the maths changes. It just asks for the ladder and the chips together.</li>
+    </ul>
+  </div>
+</div>

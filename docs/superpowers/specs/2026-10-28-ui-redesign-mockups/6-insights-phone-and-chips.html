@@ -1,0 +1,116 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:20px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); width:360px; flex:none; }
+  .pw .num { font-variant-numeric: tabular-nums; }
+  .pw .top { display:flex; align-items:center; padding:12px 16px; border-bottom:1px solid #232833; }
+  .pw .logo { font-weight:800; font-stretch:68%; font-size:22px; color:#FF4D4D; }
+  .pw .tabs { display:flex; gap:14px; padding:9px 16px 0; font-size:12px; color:#8B93A3; font-weight:600; border-bottom:1px solid #1E232C; }
+  .pw .tabs span { padding-bottom:7px; }
+  .pw .tabs .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #E9ECF1; }
+  .b { padding:14px 16px 16px; }
+  h1 { margin:0; font-weight:800; font-stretch:62%; font-size:28px; line-height:1; }
+  .lede { font-size:13px; color:#C3C8D2; margin:6px 0 12px; line-height:1.5; }
+  .tiles { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+  .tile { background:#141821; border-radius:9px; padding:8px 10px; }
+  .tile span { font-size:11px; color:#8B93A3; display:flex; align-items:center; gap:5px; }
+  .tile b { display:block; font-size:24px; font-stretch:62%; font-weight:800; }
+  .tile small { font-size:11px; color:#8B93A3; }
+  .sw { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .race { padding:8px 0 10px; border-bottom:1px solid #1E232C; }
+  .race .h { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+  .win { color:#5BE38A; font-weight:700; font-size:12px; } .lose { color:#F2C94C; font-weight:700; font-size:12px; }
+  .track { position:relative; height:16px; }
+  .ln { position:absolute; top:50%; height:2px; background:#2A303C; }
+  .dot { position:absolute; top:50%; width:12px; height:12px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 2px #0F1217; }
+  .ceil { position:absolute; top:0; height:100%; width:2px; background:#5A6170; transform:translateX(-50%); }
+  .axis { display:flex; justify-content:space-between; font-size:10px; color:#5A6170; margin-top:6px; }
+  .legend { display:flex; gap:10px; flex-wrap:wrap; font-size:11px; color:#8B93A3; margin-bottom:4px; }
+  .legend span { display:inline-flex; align-items:center; gap:4px; }
+  .bc { background:#141821; border-radius:10px; padding:12px; border-top:3px solid var(--c); margin-bottom:10px; }
+  .bc h4 { margin:0; font-size:17px; font-stretch:72%; font-weight:800; }
+  .bc .why { margin:3px 0 8px; font-size:12px; color:#C3C8D2; line-height:1.45; }
+  .br { display:grid; grid-template-columns:1fr auto; font-size:13px; padding:5px 0 3px; }
+  .br small { grid-column:1 / -1; font-size:11px; color:#8B93A3; }
+  .br i { grid-column:1 / -1; height:4px; border-radius:2px; background:var(--c); margin-top:3px; }
+  .br.worst { color:#8B93A3; border-top:1px dashed #2A303C; margin-top:6px; padding-top:8px; }
+  .br.worst i { background:#3A404C; }
+  details { background:#141821; border-radius:10px; padding:10px 12px; font-size:12px; color:#C3C8D2; line-height:1.55; }
+  summary { font-weight:700; color:#E9ECF1; font-size:13px; cursor:pointer; }
+  details p { margin:8px 0 0; }
+  .flow { display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
+  .cap { font-size:13px; margin:10px 4px 0; width:360px; line-height:1.45; }
+</style>
+
+<h2>Track record on a phone, and chips with their reasons</h2>
+<p class="subtitle">Still all real numbers from the live server.</p>
+
+<div class="flow">
+<div>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="tabs"><span>Predicted</span><span class="on">Track record</span><span>Chips</span></div>
+  <div class="b">
+    <h1>How PitWall's locked teams really did</h1>
+    <p class="lede">Game's own points, rounds 13 to 18. Copying the FP3 order scored a bit more so far. These locks came before the 28 Oct fixes.</p>
+    <div class="tiles num">
+      <div class="tile"><span><i class="sw" style="background:#F0504F"></i>PitWall</span><b>175.2</b><small>pts a race</small></div>
+      <div class="tile"><span><i class="sw" style="background:#5B8DEF"></i>FP3 order</span><b>187.0</b><small>beat it 3 of 6</small></div>
+      <div class="tile"><span><i class="sw" style="background:#B08A22"></i>Most expensive</span><b>134.7</b><small>beat it 4 of 6</small></div>
+      <div class="tile"><span><i style="width:2px;height:10px;background:#8B93A3;display:inline-block"></i>Best possible</span><b>301.7</b><small>after the race</small></div>
+    </div>
+    <div class="legend"><span><i class="sw" style="background:#F0504F"></i>PitWall</span><span><i class="sw" style="background:#5B8DEF"></i>FP3 order</span><span><i class="sw" style="background:#B08A22"></i>Most expensive</span><span>Tap a dot for its number</span></div>
+    <div id="tr" class="num"></div>
+  </div>
+</div>
+<p class="cap"><b>Track record, phone.</b> Tiles go 2 by 2, and each race gets its own full width line with the name and result above it. Nothing scrolls sideways.</p>
+</div>
+
+<div>
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="tabs"><span>Predicted</span><span>Track record</span><span class="on">Chips</span></div>
+  <div class="b num">
+    <div class="bc" style="--c:#FF8000"><h4>3x Boost</h4>
+      <p class="why">Best where one driver scored huge. Each number is that race's top scorer, and who it was, so you can see if it was a one-off.</p>
+      <div class="br"><span>Monza</span><b>93</b><small>Antonelli, P19 to P1</small><i style="width:100%"></i></div>
+      <div class="br"><span>Shanghai</span><b>68</b><small>Antonelli, P1 to P1</small><i style="width:73%"></i></div>
+      <div class="br"><span>Montréal</span><b>62</b><small>Antonelli, P2 to P1</small><i style="width:67%"></i></div>
+      <div class="br worst"><span>Worst: Madrid</span><b>38</b><small>Verstappen, P3 to P2</small><i style="width:41%"></i></div></div>
+    <div class="bc" style="--c:#E8002D"><h4>Limitless</h4>
+      <p class="why">Best where the top team with no price limit beat the best team you could fit in $100M by a lot.</p>
+      <div class="br"><span>Miami</span><b>+167</b><i style="width:100%"></i></div>
+      <div class="br"><span>Madrid</span><b>+127</b><i style="width:76%"></i></div>
+      <div class="br"><span>Suzuka</span><b>+119</b><i style="width:71%"></i></div>
+      <div class="br worst"><span>Worst: Monaco</span><b>+15</b><i style="width:9%"></i></div></div>
+    <div class="bc" style="--c:#52E252"><h4>No Negative</h4>
+      <p class="why">Best where lots of drivers and teams went below zero (retirements, losing places). The number is what an average team would have got back.</p>
+      <div class="br"><span>Marina Bay</span><b>37.8</b><i style="width:100%"></i></div>
+      <div class="br"><span>Baku</span><b>31.2</b><i style="width:83%"></i></div>
+      <div class="br"><span>Melbourne</span><b>31.0</b><i style="width:82%"></i></div>
+      <div class="br worst"><span>Worst: Silverstone</span><b>4.9</b><i style="width:13%"></i></div></div>
+    <details open><summary>How we worked this out</summary>
+      <p>Every number comes from the game's own official 2026 points, saved after each race. Nothing here is a prediction.</p>
+      <p><b>3x:</b> the top scoring driver's points that race, which is the extra a 3x adds over a 2x. <b>Limitless:</b> the best team with no budget cap minus the best $100M team, with that round's prices. <b>No Negative:</b> 7 times the average points lost below zero, over every driver and constructor.</p>
+      <p><b>The catch:</b> it's one season so far. We can't check yet if a track that was good for a chip stays good the next year. Once there's a second season of official points, that check gets done and shows up here.</p>
+    </details>
+  </div>
+</div>
+<p class="cap"><b>Chips, phone.</b> Each chip gets one line on why those tracks top the list. 3x also shows who scored it. The "how we worked this out" box sits at the bottom and folds away with a tap.</p>
+</div>
+</div>
+
+<script>
+  const rows = [
+    ["R13 Italian GP",147,205,205,428],["R14 Spanish GP",145,129,88.1,199],["R15 Azerbaijan GP",99,88,101.3,270],
+    ["R16 Bahrain GP",212,231,175,339],["R17 Singapore GP",265,227,117.5,298],["R18 US GP",183,242,121.2,276],
+  ];
+  const max = 450, x = v => (v/max*100) + "%";
+  document.getElementById("tr").innerHTML = rows.map(([r,pw,fp3,exp,best]) => {
+    const lo = Math.min(pw,fp3,exp), won = pw > fp3;
+    return `<div class="race"><div class="h"><span>${r}</span><span class="${won?'win':'lose'}">${pw} ${won?'beat':'lost to'} FP3's ${fp3}</span></div><div class="track">
+      <span class="ln" style="left:${x(lo)};width:${(best-lo)/max*100}%"></span><span class="ceil" style="left:${x(best)}"></span>
+      <span class="dot" style="left:${x(exp)};background:#B08A22"></span><span class="dot" style="left:${x(fp3)};background:#5B8DEF"></span><span class="dot" style="left:${x(pw)};background:#F0504F"></span>
+    </div></div>`;
+  }).join("") + `<div class="axis"><span>0</span><span>150</span><span>300</span><span>450 pts</span></div>`;
+</script>

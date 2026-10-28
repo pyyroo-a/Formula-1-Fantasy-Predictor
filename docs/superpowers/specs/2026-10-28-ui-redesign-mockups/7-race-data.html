@@ -1,0 +1,121 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:20px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); width:360px; flex:none; }
+  .pw .num { font-variant-numeric: tabular-nums; }
+  .mut { color:#8B93A3; }
+  .top { display:flex; align-items:center; padding:12px 16px; border-bottom:1px solid #232833; }
+  .logo { font-weight:800; font-stretch:68%; font-size:22px; color:#FF4D4D; }
+  .tabs { display:flex; gap:14px; padding:9px 16px 0; font-size:12px; color:#8B93A3; font-weight:600; border-bottom:1px solid #1E232C; }
+  .tabs span { padding-bottom:7px; } .tabs .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #E9ECF1; }
+  .b { padding:14px 16px 16px; }
+  h1 { margin:0; font-weight:800; font-stretch:62%; font-size:28px; line-height:1; }
+  h3 { margin:0 0 4px; font-size:17px; font-weight:800; font-stretch:72%; }
+  .hint { font-size:12px; color:#8B93A3; margin:4px 0 10px; line-height:1.45; }
+  .box { background:#181C24; border:1px solid #2A303C; border-radius:8px; padding:8px 10px; font-size:14px; margin-bottom:10px; }
+  .sess { display:flex; background:#181C24; border-radius:8px; padding:3px; margin-bottom:12px; }
+  .sess span { flex:1; text-align:center; padding:6px 0; font-size:13px; font-weight:700; border-radius:6px; color:#8B93A3; }
+  .sess .on { background:#FF4D4D; color:#0F1217; } .sess .off { opacity:.35; }
+  .row { display:grid; grid-template-columns:34px 4px 1fr auto; gap:9px; align-items:center; padding:7px 0; border-bottom:1px solid #1E232C; }
+  .row .p { font-weight:700; font-stretch:68%; font-size:17px; color:#8B93A3; }
+  .row .bar { width:4px; height:28px; border-radius:2px; }
+  .row b { font-stretch:78%; font-size:16px; display:block; }
+  .row small { font-size:12px; color:#8B93A3; }
+  .row .r { text-align:right; font-size:13px; }
+  .row .r small { display:block; }
+  .up { color:#5BE38A; font-weight:700; } .down { color:#FF7A7A; font-weight:700; }
+  .row.dnf { opacity:.55; } .row.dnf .p { color:#FF7A7A; }
+  .tag { font-size:11px; font-weight:700; padding:1px 6px; border-radius:4px; background:#232833; color:#8B93A3; }
+  .tag.q3 { background:#332D16; color:#F2C94C; }
+  .warn { background:#2A1618; color:#FF9A9A; border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.5; }
+  .explain { background:#141821; border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.55; color:#C3C8D2; margin-bottom:12px; }
+  .explain b { color:#E9ECF1; }
+  .myteams { display:flex; gap:6px; margin-bottom:10px; }
+  .myteams span { flex:1; text-align:center; padding:6px 0; border-radius:8px; background:#181C24; color:#8B93A3; font-size:12px; font-weight:600; line-height:1.3; }
+  .myteams span small { display:block; font-weight:400; font-size:11px; }
+  .myteams .on { background:#FF4D4D; color:#0F1217; } .myteams .on small { color:#0F1217; }
+  .boost { border:1px solid #FF4D4D; border-radius:10px; padding:8px 10px; display:flex; gap:10px; align-items:center; margin-bottom:6px; }
+  .boost .x { font-weight:800; font-stretch:62%; font-size:28px; color:#FF4D4D; }
+  .boost b { font-stretch:75%; font-size:17px; } .boost p { margin:1px 0 0; font-size:12px; color:#8B93A3; }
+  .flow { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+  .cap { font-size:13px; margin:10px 4px 0; width:360px; line-height:1.45; }
+  .q { font-size:14px; line-height:1.55; margin-top:22px; }
+</style>
+
+<h2>Race Data and Team Optimizer</h2>
+<p class="subtitle">Real US GP data from the live server. Race Data becomes one page: pick a race, then the session strip (FP1 to Race) replaces the three separate tabs.</p>
+
+<div class="flow">
+
+<div><div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="b">
+    <div class="box">United States Grand Prix</div>
+    <div class="sess"><span>FP1</span><span>FP2</span><span>FP3</span><span>Quali</span><span class="on">Race</span></div>
+    <h3>Race result</h3>
+    <p class="hint">Grid spot to finish. Green gained places, red lost them.</p>
+    <div id="race"></div>
+    <p class="hint" style="text-align:center">... all 22 ...</p>
+  </div>
+</div>
+<p class="cap"><b>Race.</b> The grid to finish line shows on phones now too (today it's hidden on small screens). DNFs sit faded at the bottom.</p></div>
+
+<div><div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="b">
+    <div class="box">United States Grand Prix</div>
+    <div class="sess"><span>FP1</span><span>FP2</span><span>FP3</span><span class="on">Quali</span><span>Race</span></div>
+    <h3>Qualifying</h3>
+    <p class="hint">Each driver's best time from the last part they reached. Tap a row for all three times.</p>
+    <div id="quali"></div>
+    <p class="hint" style="text-align:center">... all 22 ...</p>
+  </div>
+</div>
+<p class="cap"><b>Quali.</b> Instead of three tiny time columns that don't fit a phone, one time per driver plus where they got knocked out.</p></div>
+
+<div><div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="b">
+    <div class="box">United States Grand Prix</div>
+    <div class="sess"><span>FP1</span><span>FP2</span><span class="on">FP3</span><span>Quali</span><span>Race</span></div>
+    <h3>FP3 pace</h3>
+    <p class="hint">Fastest lap and gap to the top, same rows as quali.</p>
+    <div class="warn"><b>Practice is broken on the live site right now.</b> The server crashes for every race, because this page still asks F1's live timing, which went behind the F1TV login in October. The weekend lock already moved to OpenF1, this page got missed. It needs a small backend fix, separate from the redesign.</div>
+  </div>
+</div>
+<p class="cap"><b>Practice.</b> On sprint weekends only FP1 shows in the strip, because that is the only practice, same as now.</p></div>
+
+<div><div class="pw">
+  <div class="top"><span class="logo">PITWALL</span></div>
+  <div class="tabs"><span class="on">Optimizer</span><span>Manual</span><span>Garage</span></div>
+  <div class="b">
+    <div class="explain"><b>What this does:</b> pick a race that already happened, and PitWall builds its 3 best $100M teams from that race's real starting grid. It's a "what would PitWall have picked" sandbox, not this weekend's teams (those are on Overview). Uses <b>today's prices</b>, so the costs won't match what they were back then.</div>
+    <div class="box">United States Grand Prix</div>
+    <div class="myteams num"><span class="on">Team 1<small>141.5 pts</small></span><span>Team 2<small>134.6 pts</small></span><span>Team 3<small>128.9 pts</small></span></div>
+    <div class="boost"><span class="x">2x</span><div><b>Andrea Kimi Antonelli</b><p>Starting P1, predicted P1</p></div></div>
+    <div id="opt"></div>
+    <p class="hint num" style="margin-top:8px">Cost $99.6M, $0.4M left</p>
+  </div>
+</div>
+<p class="cap"><b>Team Optimizer.</b> Same answers as now, with a box that finally says what it is. Same timing tower rows as the main page.</p></div>
+
+</div>
+
+<script>
+  const C = {Mercedes:"#27F4D2",Ferrari:"#E8002D","Red Bull":"#3671C6",McLaren:"#FF8000",Audi:"#E8E234","Aston Martin":"#229971",Cadillac:"#4C7BD9",Haas:"#B6BABD",Alpine:"#FF87BC"};
+  const race = [[1,"Antonelli","Mercedes",1,0],[2,"Leclerc","Ferrari",4,2],[3,"Verstappen","Red Bull",2,-1],[4,"Hamilton","Ferrari",5,1],[5,"Norris","McLaren",8,3],[6,"Hadjar","Red Bull",3,-3]];
+  const dnf = [["Bottas","Cadillac",19],["Bearman","Haas",13]];
+  document.getElementById("race").innerHTML = race.map(([p,n,t,g,ch]) =>
+    `<div class="row num"><span class="p">P${p}</span><span class="bar" style="background:${C[t]}"></span><div><b>${n}</b><small>${t}</small></div><div class="r">${ch>0?`<span class="up">+${ch}</span>`:ch<0?`<span class="down">${ch}</span>`:`<span class="mut">same</span>`}<small>from P${g}</small></div></div>`).join("")
+    + `<p class="hint" style="text-align:center;margin:6px 0">...</p>` + dnf.map(([n,t,g]) =>
+    `<div class="row dnf num"><span class="p">DNF</span><span class="bar" style="background:${C[t]}"></span><div><b>${n}</b><small>${t}</small></div><div class="r"><small>from P${g}</small></div></div>`).join("");
+  const q = [[1,"Antonelli","Mercedes","1:34.035","Q3"],[2,"Verstappen","Red Bull","1:34.214","Q3"],[3,"Hadjar","Red Bull","1:34.250","Q3"],[4,"Leclerc","Ferrari","1:34.267","Q3"],[10,"Lawson","Racing Bulls","1:35.058","out in Q2"],[11,"Gasly","Alpine","1:35.080","out in Q2"],[17,"Ocon","Haas","1:36.531","out in Q1"]];
+  C["Racing Bulls"]="#6692FF";
+  document.getElementById("quali").innerHTML = q.map(([p,n,t,time,tag]) =>
+    `<div class="row num"><span class="p">P${p}</span><span class="bar" style="background:${C[t]}"></span><div><b>${n}</b><small>${t}</small></div><div class="r">${time}<small><span class="tag ${tag==='Q3'?'q3':''}">${tag}</span></small></div></div>`).join("");
+  const opt = [[1,"Antonelli","Mercedes",27.4,38.0],[3,"Hadjar","Red Bull",16.5,21.0],[9.7,"Hülkenberg","Audi",7.2,2.4],[14.0,"Stroll","Aston Martin",3.0,4.7],[14.2,"Bortoleto","Audi",6.4,3.3]];
+  document.getElementById("opt").innerHTML = opt.map(([p,n,t,pr,pts]) =>
+    `<div class="row num"><span class="p">P${Math.round(p)}</span><span class="bar" style="background:${C[t]}"></span><div><b>${n}</b><small>${t}</small></div><div class="r">$${pr.toFixed(1)}M<small>${pts.toFixed(1)} pts</small></div></div>`).join("")
+    + [["Mercedes",34.0,67.4],["Aston Martin",5.1,4.7]].map(([n,pr,pts]) =>
+    `<div class="row num"><span class="p"></span><span class="bar" style="background:${C[n]}"></span><div><b>${n}</b><small>Constructor</small></div><div class="r">$${pr.toFixed(1)}M<small>${pts.toFixed(1)} pts</small></div></div>`).join("");
+</script>

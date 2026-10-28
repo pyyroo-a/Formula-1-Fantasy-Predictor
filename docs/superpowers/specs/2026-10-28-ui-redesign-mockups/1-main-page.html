@@ -1,0 +1,150 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:14px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); }
+  .pw .num { font-variant-numeric: tabular-nums; }
+  .pw .cond { font-stretch:68%; }
+  .pw .mut { color:#8B93A3; }
+  .pw .top { display:flex; align-items:center; gap:22px; padding:12px 18px; border-bottom:1px solid #232833; }
+  .pw .logo { font-weight:800; font-stretch:68%; font-size:24px; color:#FF4D4D; }
+  .pw nav { display:flex; gap:18px; font-size:14px; color:#8B93A3; font-weight:600; }
+  .pw nav .on { color:#E9ECF1; box-shadow:inset 0 -2px 0 #FF4D4D; padding-bottom:4px; }
+  .pw .clock { margin-left:auto; font-size:13px; }
+  .pw .clock b { font-stretch:68%; font-size:20px; color:#FF4D4D; margin-left:6px; }
+  .pw .hold { margin:14px 18px 0; padding:8px 12px; border-radius:8px; background:#1E1A10; color:#E9C46A; font-size:13px; }
+  .pw h1 { margin:0; font-weight:800; font-stretch:62%; font-size:40px; line-height:.95; }
+  .pw .sub { margin:4px 0 0; font-size:13px; color:#8B93A3; }
+  .pw .switch { display:flex; background:#181C24; border-radius:8px; padding:3px; margin-top:12px; }
+  .pw .switch span { flex:1; text-align:center; padding:7px 0; font-size:14px; border-radius:6px; color:#8B93A3; font-weight:600; }
+  .pw .switch .on { background:#FF4D4D; color:#0F1217; }
+  .pw .boost { margin-top:10px; border:1px solid #FF4D4D; border-radius:10px; padding:10px 12px; display:flex; gap:12px; align-items:center; }
+  .pw .boost .x { font-weight:800; font-stretch:62%; font-size:32px; color:#FF4D4D; line-height:1; }
+  .pw .boost b { font-stretch:75%; font-size:19px; }
+  .pw .boost p { margin:2px 0 0; font-size:12px; color:#8B93A3; }
+  .pw .key { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin:12px 0 2px; font-size:12px; color:#8B93A3; }
+  .pw .key .k { display:inline-flex; align-items:center; gap:5px; }
+  .pw .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .pw .row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #1E232C; }
+  .pw .pos { width:34px; font-weight:700; font-stretch:68%; font-size:18px; color:#8B93A3; }
+  .pw .bar { width:4px; height:32px; border-radius:2px; flex:none; }
+  .pw .who { flex:1; min-width:0; }
+  .pw .who b { font-stretch:75%; font-size:18px; font-weight:700; display:block; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pw .who span { font-size:12px; color:#8B93A3; }
+  .pw .conf { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:1px 7px 1px 6px; border-radius:10px; margin-left:6px; }
+  .pw .hi { background:#163222; color:#5BE38A; } .pw .hi .dot { background:#5BE38A; }
+  .pw .md { background:#332D16; color:#F2C94C; } .pw .md .dot { background:#F2C94C; }
+  .pw .lo { background:#3A1D22; color:#FF7A7A; } .pw .lo .dot { background:#FF7A7A; }
+  .pw .right { text-align:right; }
+  .pw .right b { font-stretch:75%; font-size:17px; display:block; }
+  .pw .right span { font-size:12px; color:#8B93A3; }
+  .pw .foot { display:flex; gap:8px; margin-top:12px; }
+  .pw .foot div { flex:1; background:#181C24; border-radius:8px; padding:8px 10px; }
+  .pw .foot span { font-size:12px; color:#8B93A3; display:block; }
+  .pw .foot b { font-stretch:68%; font-size:22px; }
+  .pw h3 { margin:0 0 8px; font-size:15px; font-weight:700; font-stretch:75%; color:#E9ECF1; }
+  .pw .chips { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .pw .chip { background:#181C24; border-radius:8px; padding:9px 10px; }
+  .pw .chip .h { display:flex; justify-content:space-between; align-items:center; }
+  .pw .chip b { font-size:14px; }
+  .pw .chip p { margin:4px 0 0; font-size:12px; color:#8B93A3; }
+  .pw .v { font-size:11px; font-weight:700; padding:1px 6px; border-radius:4px; }
+  .pw .play { background:#163222; color:#5BE38A; } .pw .wait { background:#1A2440; color:#7FA6FF; } .pw .hold2 { background:#232833; color:#8B93A3; }
+  .pw .panel { background:#141821; border-radius:10px; padding:12px 14px; }
+  .pw .mini { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid #1E232C; }
+  .pw .mini:last-child { border-bottom:0; }
+  .desk { display:grid; grid-template-columns: 1.55fr 1fr; gap:18px; padding:16px 18px 18px; }
+  .phone { width:360px; }
+  .phone .body { padding:14px 16px 16px; }
+  .phone nav { display:none; }
+  .phone .chips { grid-template-columns:1fr 1fr; }
+  .tabbar { display:flex; justify-content:space-around; border-top:1px solid #232833; padding:9px 0 11px; font-size:12px; color:#8B93A3; font-weight:600; }
+  .tabbar .on { color:#FF4D4D; }
+  .wrap2 { display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap; }
+  .notes { flex:1; min-width:260px; font-size:14px; line-height:1.55; }
+  .notes li { margin-bottom:8px; }
+</style>
+
+<h2>A's layout with B's font, plus a confidence key</h2>
+<p class="subtitle">Real data: the held US GP Team 1, chips, today's prices and the predicted finish with the real result next to it. Confidence levels are still examples (that lock had none). Desktop first, phone below.</p>
+
+<div class="pw">
+  <div class="top"><span class="logo">PITWALL</span><nav><span class="on">Overview</span><span>My team</span><span>Race data</span><span>Insights</span></nav><span class="clock mut">Mexico quali in<b class="num">3d 02:14:09</b></span></div>
+  <div class="hold">No race weekend live right now. Showing the last locked team until Mexico gets locked after FP3.</div>
+  <div class="desk">
+    <div>
+      <h1>United States Grand Prix</h1>
+      <p class="sub">Round 18, locked after FP3 on 24 Oct</p>
+      <div class="switch"><span class="on">Team 1</span><span>Team 2</span><span>Team 3</span></div>
+      <div class="boost"><span class="x">2x</span><div><b>Charles Leclerc</b><p>Starting P1 (Q3), predicted P1. Front row, qualifying points already banked, the safest 2x.</p></div></div>
+      <div class="key"><span>How sure we are about the predicted spot:</span><span class="k"><span class="dot" style="background:#5BE38A"></span>high</span><span class="k"><span class="dot" style="background:#F2C94C"></span>medium</span><span class="k"><span class="dot" style="background:#FF7A7A"></span>low</span><span>(about the spot, not whether he's a good pick)</span></div>
+      <div class="row"><span class="pos num">P1</span><span class="bar" style="background:#E8002D"></span><div class="who"><b>Charles Leclerc</b><span>Ferrari<span class="conf hi"><span class="dot"></span>high</span></span></div><div class="right num"><b>$24.1M</b><span>38.0 pts</span></div></div>
+      <div class="row"><span class="pos num">P2</span><span class="bar" style="background:#E8002D"></span><div class="who"><b>Lewis Hamilton</b><span>Ferrari<span class="conf hi"><span class="dot"></span>high</span></span></div><div class="right num"><b>$24.4M</b><span>29.7 pts</span></div></div>
+      <div class="row"><span class="pos num">P8</span><span class="bar" style="background:#E8E234"></span><div class="who"><b>Nico Hülkenberg</b><span>Audi<span class="conf md"><span class="dot"></span>medium</span></span></div><div class="right num"><b>$6.6M</b><span>7.9 pts</span></div></div>
+      <div class="row"><span class="pos num">P9</span><span class="bar" style="background:#FF87BC"></span><div class="who"><b>Pierre Gasly</b><span>Alpine<span class="conf lo"><span class="dot"></span>low</span></span></div><div class="right num"><b>$10.2M</b><span>4.6 pts</span></div></div>
+      <div class="row"><span class="pos num">P20</span><span class="bar" style="background:#4C7BD9"></span><div class="who"><b>Valtteri Bottas</b><span>Cadillac<span class="conf hi"><span class="dot"></span>high</span></span></div><div class="right num"><b>$3.0M</b><span>-3.7 pts</span></div></div>
+      <div class="row"><span class="pos"></span><span class="bar" style="background:#E8002D"></span><div class="who"><b>Ferrari</b><span>Constructor</span></div><div class="right num"><b>$28.2M</b><span>71.2 pts</span></div></div>
+      <div class="row"><span class="pos"></span><span class="bar" style="background:#4C7BD9"></span><div class="who"><b>Cadillac</b><span>Constructor</span></div><div class="right num"><b>$3.0M</b><span>-3.7 pts</span></div></div>
+      <div class="foot"><div><span>Expected points</span><b class="num">144.0</b></div><div><span>Cost</span><b class="num">$99.5M</b></div><div><span>Left over</span><b class="num">$0.5M</b></div></div>
+      <h3 style="margin-top:18px">Chips for Team 1</h3>
+      <div class="chips">
+        <div class="chip"><div class="h"><b>3x Boost</b><span class="v play">PLAY</span></div><p>On Leclerc, +38.0 pts</p></div>
+        <div class="chip"><div class="h"><b>Limitless</b><span class="v play">PLAY</span></div><p>+112.2 pts vs this team</p></div>
+        <div class="chip"><div class="h"><b>No Negative</b><span class="v play">PLAY</span></div><p>43.8 pts at risk</p></div>
+        <div class="chip"><div class="h"><b>Final Fix</b><span class="v wait">AFTER QUALI</span></div><p>Most likely swap: Bottas</p></div>
+        <div class="chip"><div class="h"><b>Wildcard</b><span class="v hold2">HOLD</span></div><p>Only +8.6 pts</p></div>
+        <div class="chip"><div class="h"><b>Auto Pilot</b><span class="v hold2">SAVE</span></div><p>PitWall already picks for you</p></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div class="panel"><h3>Predicted finish vs what happened</h3>
+        <div class="mini num"><span>P1 Leclerc</span><span class="mut">finished P2</span></div>
+        <div class="mini num"><span>P2 Verstappen</span><span class="mut">finished P3</span></div>
+        <div class="mini num"><span>P3 Antonelli</span><span class="mut">finished P1</span></div>
+        <div class="mini num"><span>P4 Norris</span><span class="mut">finished P5</span></div>
+        <div class="mini num"><span>P5 Hamilton</span><span class="mut">finished P4</span></div>
+        <div class="mini num"><span>P6 Piastri</span><span class="mut">finished P7</span></div>
+      </div>
+      <div class="panel"><h3>Driver prices now</h3>
+        <div class="mini num"><span>Verstappen</span><span>$28.5M</span></div>
+        <div class="mini num"><span>Russell</span><span>$27.6M</span></div>
+        <div class="mini num"><span>Antonelli</span><span>$27.4M</span></div>
+        <div class="mini num"><span>Norris</span><span>$26.0M</span></div>
+        <div class="mini num"><span>Hamilton</span><span>$24.7M</span></div>
+      </div>
+      <div class="panel"><h3>Constructor prices now</h3>
+        <div class="mini num"><span>Mercedes</span><span>$34.0M</span></div>
+        <div class="mini num"><span>Red Bull Racing</span><span>$33.0M</span></div>
+        <div class="mini num"><span>McLaren</span><span>$32.7M</span></div>
+        <div class="mini num"><span>Ferrari</span><span>$28.5M</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap2" style="margin-top:28px">
+  <div class="pw phone">
+    <div class="top"><span class="logo">PITWALL</span><span class="clock mut">Mexico quali<b class="num">3d 02:14</b></span></div>
+    <div class="body">
+      <h1>United States GP</h1>
+      <p class="sub">Round 18, locked after FP3</p>
+      <div class="switch"><span class="on">Team 1</span><span>Team 2</span><span>Team 3</span></div>
+      <div class="boost"><span class="x">2x</span><div><b>Charles Leclerc</b><p>Starts P1, predicted P1. The safest 2x.</p></div></div>
+      <div class="key"><span class="k"><span class="dot" style="background:#5BE38A"></span>high</span><span class="k"><span class="dot" style="background:#F2C94C"></span>medium</span><span class="k"><span class="dot" style="background:#FF7A7A"></span>low</span><span>= how sure we are about the spot</span></div>
+      <div class="row"><span class="pos num">P1</span><span class="bar" style="background:#E8002D"></span><div class="who"><b>Charles Leclerc</b><span>Ferrari<span class="conf hi"><span class="dot"></span>high</span></span></div><div class="right num"><b>$24.1M</b><span>38.0 pts</span></div></div>
+      <div class="row"><span class="pos num">P8</span><span class="bar" style="background:#E8E234"></span><div class="who"><b>Nico Hülkenberg</b><span>Audi<span class="conf md"><span class="dot"></span>medium</span></span></div><div class="right num"><b>$6.6M</b><span>7.9 pts</span></div></div>
+      <div class="row"><span class="pos num">P9</span><span class="bar" style="background:#FF87BC"></span><div class="who"><b>Pierre Gasly</b><span>Alpine<span class="conf lo"><span class="dot"></span>low</span></span></div><div class="right num"><b>$10.2M</b><span>4.6 pts</span></div></div>
+      <p class="sub" style="text-align:center">... the rest of the team ...</p>
+      <div class="foot"><div><span>Exp. points</span><b class="num">144.0</b></div><div><span>Cost</span><b class="num">$99.5M</b></div><div><span>Left</span><b class="num">$0.5M</b></div></div>
+    </div>
+    <div class="tabbar"><span class="on">Overview</span><span>My team</span><span>Race data</span><span>Insights</span></div>
+  </div>
+  <div class="notes">
+    <p><b>What changed from A:</b></p>
+    <ul>
+      <li>Archivo (B's font) everywhere. Tall and narrow for names and numbers, normal width for small text.</li>
+      <li>Pills just say <b>high / medium / low</b> with a coloured dot. One key line above the team explains them once: it's how sure we are about the <i>spot</i>, not whether he's a good pick.</li>
+      <li>On a phone the four sections move to a bar at the bottom, so your thumb can reach them.</li>
+      <li>Chip verdicts sit right under the team, in plain words ("AFTER QUALI" instead of "POST-QUALI").</li>
+    </ul>
+  </div>
+</div>
