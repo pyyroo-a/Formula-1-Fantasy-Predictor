@@ -3,6 +3,8 @@ import { API } from "../../api";
 import { DRIVER_NAMES } from "../../constants";
 import { INPUT_CLS, PRIMARY_BTN_CLS, SECTION_HEAD_CLS } from "../../styles";
 import { loadTeams, saveTeams } from "../../plannerTeams";
+import { ConfidencePill, ConfidenceReason } from "../BudgetTeam";
+import { CONFIDENCE_LEGEND } from "../../confidence";
 
 // The transfer planner (project 3). Put in one of my real teams, budget and free
 // transfers, and it shows the ladder: keep the team, or the best team with 1, 2, 3
@@ -70,6 +72,9 @@ function Ladder({ data, free }) {
         </p>
       </div>
 
+      {data.rows.some(r => (r.swaps || []).some(s => s.in_confidence)) && (
+        <p className="text-[10.5px] text-pw-muted">{CONFIDENCE_LEGEND}</p>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -93,7 +98,9 @@ function Ladder({ data, free }) {
                           {row.swaps.map(s => (
                             <div key={`${s.out}-${s.in}`} className="mb-1">
                               <span className="text-white">{s.out} &rarr; {s.in}</span>
+                              {s.in_confidence && <> <ConfidencePill level={s.in_confidence} /></>}
                               <p className="text-[11px] text-pw-muted">{s.reason}</p>
+                              {s.in_confidence_reason && <ConfidenceReason text={`${s.in}: ${s.in_confidence_reason}`} />}
                             </div>
                           ))}
                           <p className="text-[11px] text-pw-muted">2x on {row.boost}</p>

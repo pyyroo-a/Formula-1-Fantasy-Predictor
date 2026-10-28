@@ -1,11 +1,37 @@
 import { DRIVER_NAMES, teamAccent } from "../constants";
+import { displayCategory } from "../confidence";
 
 const CAT_BADGE = {
   Safe:  "text-pw-safe bg-pw-safe/10",
   Value: "text-pw-rain bg-pw-rain/10",
   Risk:  "text-pw-risk bg-pw-risk/10",
   Avoid: "text-pw-red bg-pw-red/10",
+  // a Safe driver with low confidence, see displayCategory. outlined so it doesn't look like Risk
+  Consider: "text-pw-risk bg-pw-risk/10 ring-1 ring-pw-risk/60",
 };
+
+const CONF_STYLE = {
+  high:   "text-pw-safe border-pw-safe/60",
+  medium: "text-pw-risk border-pw-risk/60",
+  low:    "text-pw-red border-pw-red/60",
+};
+
+// HIGH / MEDIUM / LOW CONFIDENCE, how much to trust this driver's practice spot.
+// Nothing when there's no level (previews, old snapshots, sprint weekends).
+export function ConfidencePill({ level }) {
+  if (!level) return null;
+  return (
+    <span className={`text-[9px] px-1.5 py-px border rounded-full whitespace-nowrap ${CONF_STYLE[level] || ""}`}>
+      {level.toUpperCase()} CONFIDENCE
+    </span>
+  );
+}
+
+// the plain reason under the name, always showing (mockup option A)
+export function ConfidenceReason({ text }) {
+  if (!text) return null;
+  return <p className="text-[10.5px] text-pw-muted mt-0.5 leading-relaxed whitespace-normal">{text}</p>;
+}
 
 // 3-cell hairline stat grid: BUDGET USED · REMAINING · PROJECTED PTS.
 export function TeamStatGrid({ used, remaining, score }) {
@@ -33,7 +59,8 @@ export function BudgetBar({ used, total = 100 }) {
 
 export function BudgetDriverCard({ driver, isCaptain = false }) {
   const accent = teamAccent(driver.TeamName);
-  const badge = CAT_BADGE[driver.PickCategory] || "text-pw-muted bg-white/5";
+  const category = displayCategory(driver);
+  const badge = CAT_BADGE[category] || "text-pw-muted bg-white/5";
   return (
     <div
       className={`flex items-center gap-3 px-3 py-2.5 bg-pw-panel2 border-l-2 ${isCaptain ? "ring-1 ring-pw-risk/40" : ""}`}
@@ -44,14 +71,16 @@ export function BudgetDriverCard({ driver, isCaptain = false }) {
           {isCaptain && <span className="text-pw-risk font-bold mr-1">C</span>}
           {DRIVER_NAMES[driver.Abbreviation] || driver.Abbreviation}
           <span className="text-pw-muted"> · {driver.TeamName}</span>
+          {driver.Confidence && <> <ConfidencePill level={driver.Confidence} /></>}
         </p>
         <p className="text-[10px] text-pw-muted mt-0.5">
           Grid P{Math.round(driver.GridPosition)} · Pred P{Math.round(driver.Predicted)} · {driver.FantasyValue?.toFixed(2)}
           {driver.DNFProb != null && <> · <RiskTag p={driver.DNFProb} /></>}
         </p>
+        <ConfidenceReason text={driver.ConfidenceReason} />
       </div>
-      {driver.PickCategory && (
-        <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{driver.PickCategory.toUpperCase()}</span>
+      {category && (
+        <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm flex-shrink-0 ${badge}`}>{category.toUpperCase()}</span>
       )}
       <span className="text-[12px] text-white w-16 text-right flex-shrink-0">${driver.Price?.toFixed(1)}M</span>
     </div>
@@ -76,6 +105,8 @@ export function BoostPickCard({ pick }) {
         </p>
         <span className="text-pw-risk font-bold text-[12px] flex-shrink-0">{pick.FantasyValue?.toFixed(2)}</span>
       </div>
+      <ConfidencePill level={pick.Confidence} />
+      <ConfidenceReason text={pick.ConfidenceReason} />
       <p className="text-[10.5px] text-pw-muted mt-0.5">
         P{pick.GridPosition} → P{Math.round(pick.Predicted)}
         {gain > 0 && <span className="text-pw-safe"> · +{gain.toFixed(1)} pos</span>}

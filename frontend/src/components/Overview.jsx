@@ -1,13 +1,15 @@
 import { DRIVER_NAMES, teamAccent } from "../constants";
 import WeatherWidget from "./WeatherWidget";
 import AutoChipAdvisor from "./AutoChipAdvisor";
-import { RiskTag } from "./BudgetTeam";
+import { RiskTag, ConfidencePill, ConfidenceReason } from "./BudgetTeam";
+import { CONFIDENCE_LEGEND, displayCategory, hasConfidence } from "../confidence";
 
 const CAT_BADGE = {
   Safe:  "text-pw-safe bg-pw-safe/10",
   Value: "text-pw-rain bg-pw-rain/10",
   Risk:  "text-pw-risk bg-pw-risk/10",
   Avoid: "text-pw-red bg-pw-red/10",
+  Consider: "text-pw-risk bg-pw-risk/10 ring-1 ring-pw-risk/60",
 };
 
 function PanelLabel({ children }) {
@@ -90,26 +92,32 @@ export default function Overview({ nextRace, weekendData, held = false, weekendA
                 : `Not final yet, built from ${weekendData.session_used}. Locks once ${weekendData.final_session || "FP3"} is published.`}
             </p>
           )}
+          {team && hasConfidence(team.drivers) && (
+            <p className="text-[10px] text-pw-muted mb-1.5">{CONFIDENCE_LEGEND}</p>
+          )}
           {team ? (
             <div className="flex flex-col">
               {team.drivers.map((d, i) => {
-                const badge = CAT_BADGE[d.PickCategory] || "text-pw-muted bg-white/5";
+                const category = displayCategory(d);
+                const badge = CAT_BADGE[category] || "text-pw-muted bg-white/5";
                 return (
-                  <div
-                    key={d.Abbreviation}
-                    className="flex items-center gap-2.5 py-2 border-b border-white/[0.05]"
-                  >
-                    <div className="w-5 text-pw-muted text-[11px]">{String(i + 1).padStart(2, "0")}</div>
-                    <div
-                      className="flex-1 text-[12.5px] text-white truncate border-l-2 pl-2.5"
-                      style={{ borderColor: teamAccent(d.TeamName) }}
-                    >
-                      {shortName(d.Abbreviation)} <span className="text-pw-muted">· {d.TeamName}</span>
+                  <div key={d.Abbreviation} className="py-2 border-b border-white/[0.05]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 text-pw-muted text-[11px]">{String(i + 1).padStart(2, "0")}</div>
+                      <div
+                        className="flex-1 min-w-0 text-[12.5px] text-white border-l-2 pl-2.5"
+                        style={{ borderColor: teamAccent(d.TeamName) }}
+                      >
+                        {shortName(d.Abbreviation)} <span className="text-pw-muted">· {d.TeamName}</span>
+                        {d.Confidence && <> <ConfidencePill level={d.Confidence} /></>}
+                      </div>
+                      <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm ${badge}`}>{(category || "").toUpperCase()}</span>
+                      {/* chance this driver retires. just for info, it doesn't change the picks */}
+                      {d.DNFProb != null && <span className="w-14 text-right"><RiskTag p={d.DNFProb} /></span>}
+                      <div className="text-[11.5px] text-white w-16 text-right">${d.Price?.toFixed(1)}M</div>
                     </div>
-                    <span className={`text-[9.5px] px-1.5 py-0.5 rounded-sm ${badge}`}>{(d.PickCategory || "").toUpperCase()}</span>
-                    {/* chance this driver retires. just for info, it doesn't change the picks */}
-                    {d.DNFProb != null && <span className="w-14 text-right"><RiskTag p={d.DNFProb} /></span>}
-                    <div className="text-[11.5px] text-white w-16 text-right">${d.Price?.toFixed(1)}M</div>
+                    {/* the reason gets its own full width line so it still reads on a phone */}
+                    <div className="pl-[30px]"><ConfidenceReason text={d.ConfidenceReason} /></div>
                   </div>
                 );
               })}
