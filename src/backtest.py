@@ -16,12 +16,7 @@ from src.models import prepare_data, train_model, predict, shrink_to_grid
 from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS, sprint_score
 from src.circuit_profiles import get_blend_weights
 from src.fetch_prices import fetch_prices
-from src.fetch_practice import (
-    fallback_sessions,
-    first_available_practice,
-    get_sprint_quali_grid,
-    is_sprint_weekend,
-)
+from src.fetch_practice import deadline_grid  # noqa: F401 (scorecard imports it from here)
 from src.dnf import DNFModel
 from src.championship_form import (
     CHAMPIONSHIP_WEIGHT,
@@ -235,23 +230,6 @@ def _graded_by_referee(team: dict, round_points: dict) -> float:
         (team.get("boost_pick") or {}).get("Abbreviation"),
         round_points,
     )
-
-
-def deadline_grid(race_name: str):
-    """
-    The order PitWall would have seen at the deadline: FP3 (or FP2, FP1 if it's
-    missing), or sprint quali on sprint weekends since the deadline comes after it.
-    Returns (grid, session used), or (None, None) if nothing loads.
-    """
-    if is_sprint_weekend(race_name):
-        # FP1 is the fallback if sprint quali can't be loaded
-        try:
-            return get_sprint_quali_grid(SEASON, race_name), "SQ"
-        except Exception:
-            grid, used, _ = first_available_practice(SEASON, race_name, ["FP1"])
-            return grid, used
-    grid, used, _ = first_available_practice(SEASON, race_name, fallback_sessions("FP3"))
-    return grid, used
 
 
 def predicted_for_round(rnd: int, df_previous: pd.DataFrame, df_current: pd.DataFrame):

@@ -203,3 +203,20 @@ def _fastf1_practice_grid(year: int, race_name: str, session: str) -> pd.DataFra
     fastest = normalize_team_names(fastest)  # same upstream as results, see src/team_names.py
 
     return fastest
+
+
+def deadline_grid(race_name: str):
+    """
+    The order PitWall would have seen at the deadline: FP3 (or FP2, FP1 if it's
+    missing), or sprint quali on sprint weekends since the deadline comes after it.
+    Returns (grid, session used), or (None, None) if nothing loads.
+    """
+    if is_sprint_weekend(race_name):
+        # FP1 is the fallback if sprint quali can't be loaded
+        try:
+            return get_sprint_quali_grid(SEASON, race_name), "SQ"
+        except Exception:
+            grid, used, _ = first_available_practice(SEASON, race_name, ["FP1"])
+            return grid, used
+    grid, used, _ = first_available_practice(SEASON, race_name, fallback_sessions("FP3"))
+    return grid, used

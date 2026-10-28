@@ -7,6 +7,7 @@ src/official_points.py), never our version of the rules. Six columns:
   * Locked:          the team 1 PitWall really locked that weekend (from round 13 on)
   * PitWall replay:  the same thing replayed walk forward, only info from before the race
   * FP3 order, Most expensive, Crowd: model-free picks, see src/simple_picks.py
+    (graded in src/track_record.py, shared with the track record page)
   * Hindsight best:  the best team you could have had, the ceiling
 
 Everything at $100M, each race a fresh team. Anything we don't have is a "-" with the
@@ -26,12 +27,12 @@ from datetime import date
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import src.fantasy as fantasy
-import src.simple_picks as simple_picks
 from src.backtest import MIN_HISTORY_ROUNDS, deadline_grid, run_backtest
 from src.config import SEASON, results_path
 from src.data_loader import load_dataset
-from src.official_points import load_official_points, team_points
+from src.official_points import load_official_points
 from src.snapshots import find_snapshot
+from src.track_record import grade_simple, names
 
 REPORT_PATH = "Fantasy Predictor/Scorecard.md"
 
@@ -79,17 +80,7 @@ def rules(**switches):
             setattr(fantasy, k, v)
 
 
-def _graded(team: dict, round_points: dict) -> float:
-    return team_points(
-        [d["Abbreviation"] for d in team["drivers"]],
-        [c["name"] for c in team["constructors"]],
-        (team.get("boost_pick") or {}).get("Abbreviation"),
-        round_points,
-    )
-
-
-def _names(team: dict) -> list[str]:
-    return [d["Abbreviation"] for d in team["drivers"]] + [c["name"] for c in team["constructors"]]
+_names = names
 
 
 def _signature(drivers, constructors, boost) -> tuple:
@@ -139,12 +130,11 @@ def grade_round(rnd: int, race: str, round_points: dict | None, prices: dict | N
             why[c] = "no official points for this round"
         return row
 
-    # what PitWall locked that weekend, team 1
-    if locked:
-        cells["Locked"] = _graded(locked[0], round_points)
-        teams["Locked"] = _names(locked[0])
-    else:
-        why["Locked"] = "not locked, the weekend lock started at round 13"
+    # the locked team and the model free picks, shared with the track record page
+    simple_cells, simple_why, simple_teams = grade_simple(round_points, prices, grid, snapshot, entry)
+    cells.update(simple_cells)
+    why.update(simple_why)
+    teams.update(simple_teams)
 
     if replay and replay.get("model_score") is not None:
         cells["PitWall replay"] = replay["model_score"]
@@ -152,40 +142,6 @@ def grade_round(rnd: int, race: str, round_points: dict | None, prices: dict | N
         why["PitWall replay"] = f"the model needs {MIN_HISTORY_ROUNDS} races of 2026 form first"
     else:
         why["PitWall replay"] = (replay or {}).get("error") or "no replay for this round"
-
-    if grid is not None:
-        there = set(grid["Abbreviation"])
-    else:
-        there = set(entry or prices.get("drivers", {}))
-    pool = {"drivers": {a: p for a, p in prices.get("drivers", {}).items() if a in there},
-            "constructors": prices.get("constructors", {})}
-
-    picks = {"Hindsight best": simple_picks.hindsight_best_team(round_points, pool)}
-    # thousands of teams spend exactly $100.0M, so this column is their average score,
-    # not one of them picked by the alphabet (see most_expensive_teams)
-    priciest = simple_picks.most_expensive_teams(pool)
-    if priciest:
-        scores = [_graded(t, round_points) for t in priciest]
-        cells["Most expensive"] = round(sum(scores) / len(scores), 1)
-        teams["Most expensive"] = sorted({n for t in priciest for n in _names(t)})
-    else:
-        why["Most expensive"] = "no legal team under $100M"
-    if grid is not None:
-        picks["FP3 order"] = simple_picks.fp3_order_team(grid, pool)
-    else:
-        why["FP3 order"] = "no practice grid loaded"
-    ownership = (snapshot or {}).get("ownership")
-    if ownership:
-        picks["Crowd"] = simple_picks.crowd_team(ownership, pool)
-    else:
-        why["Crowd"] = "no ownership saved at the lock, we only started saving it after the US GP"
-
-    for col, team in picks.items():
-        if team is None:
-            why[col] = "no legal team under $100M"
-            continue
-        cells[col] = _graded(team, round_points)
-        teams[col] = _names(team)
 
     return row
 
