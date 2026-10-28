@@ -10,6 +10,7 @@ import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
 import TransferPlanner from "./components/myteam/TransferPlanner";
 import PredictedFinishes from "./components/PredictedFinishes";
+import TrackRecord from "./components/TrackRecord";
 import Backtest from "./components/Backtest";
 import { cacheTeam, readCachedTeam, pickNewer } from "./teamCache";
 import { useRaceResults, usePractice, useQualifying, useBudgetTeams } from "./hooks/useRaceData";
@@ -32,6 +33,12 @@ const MYTEAM_TABS = [
   { id: "planner", label: "PLANNER" },
 ];
 
+// project 5: the track record sits next to the predicted finishes
+const INSIGHTS_TABS = [
+  { id: "finishes", label: "PREDICTED FINISHES" },
+  { id: "trackrecord", label: "TRACK RECORD" },
+];
+
 const RACEDATA_TABS = [
   { id: "practice",   label: "PRACTICE" },
   { id: "qualifying", label: "QUALIFYING" },
@@ -43,6 +50,7 @@ function App() {
   const [section, setSection] = useState("overview");
   const [myTeamTab, setMyTeamTab] = useState("budget");
   const [raceDataTab, setRaceDataTab] = useState("practice");
+  const [insightsTab, setInsightsTab] = useState("finishes");
 
   const [races, setRaces] = useState([]);
   const [upcomingRaces, setUpcomingRaces] = useState([]);
@@ -134,9 +142,10 @@ function App() {
   const held = !!(weekendData && !weekendData.active && heldTeam);
   const overviewWeekend = (weekendData && !weekendData.active) ? (heldTeam || weekendData) : weekendData;
 
-  const subTabs = section === "myteam" ? MYTEAM_TABS : section === "racedata" ? RACEDATA_TABS : null;
-  const activeSubTab = section === "myteam" ? myTeamTab : raceDataTab;
-  const setSubTab = section === "myteam" ? setMyTeamTab : setRaceDataTab;
+  const subTabs = section === "myteam" ? MYTEAM_TABS : section === "racedata" ? RACEDATA_TABS
+    : section === "insights" ? INSIGHTS_TABS : null;
+  const activeSubTab = section === "myteam" ? myTeamTab : section === "insights" ? insightsTab : raceDataTab;
+  const setSubTab = section === "myteam" ? setMyTeamTab : section === "insights" ? setInsightsTab : setRaceDataTab;
 
   return (
     <div className="min-h-screen bg-pw-bg text-white font-mono">
@@ -201,9 +210,10 @@ function App() {
               />
             )}
 
-            {section === "insights" && (
+            {section === "insights" && insightsTab === "finishes" && (
               <PredictedFinishes data={finishes} loading={finishesLoading} error={finishesError} />
             )}
+            {section === "insights" && insightsTab === "trackrecord" && <TrackRecord />}
 
             {mode === "results" && section === "racedata" && <RaceResultsTab races={races} results={results} />}
             {mode === "practice" && section === "racedata" && <PracticeTab races={races} practice={practice} />}
