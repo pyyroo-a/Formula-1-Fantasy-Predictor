@@ -310,3 +310,48 @@ def test_old_snapshot_without_ownership_still_serves(client, at, snapshots):
     r = client.get("/weekend-team")
     assert r.status_code == 200
     assert r.json()["locked"] is True
+
+
+# ---- the transfer planner (project 3) -----------------------------------------
+
+def _ladder(client, **overrides):
+    body = {"race_name": MADRING, "drivers": MADRING_TEAM_DRIVERS,
+            "constructors": MADRING_TEAM_CONSTRUCTORS, "budget": 100.0, "free_transfers": 2}
+    return client.post("/transfer-ladder", json={**body, **overrides})
+
+
+def test_transfer_ladder_uses_the_locked_session(client, snapshots):
+    snapshots(*UP_TO_MADRING)
+    r = _ladder(client)
+    body = r.json()
+    assert r.status_code == 200
+    assert body["provisional"] is False and body["session_used"] == "FP3"
+    # the paid row is off (SHOW_PAID_ROW), so keep plus the 2 free ones
+    assert [row["transfers"] for row in body["rows"]] == [0, 1, 2]
+    assert body["rows"][0]["vs_keep"] == 0
+    assert "Transfer 3 costs -10." in body["facts"]
+
+
+def test_transfer_ladder_is_provisional_before_the_lock(client, empty_snapshots):
+    body = _ladder(client).json()
+    assert body["provisional"] is True and body["session_used"] == "FP3"
+
+
+def test_transfer_ladder_matches_the_manual_team_numbers(client, snapshots):
+    # same race and session as the Manual Team page, so keep = its drivers + its
+    # constructors + the 2x driver once more
+    snapshots(*UP_TO_MADRING)
+    pool = client.post("/upcoming-race-pool", json={"race_name": MADRING, "year": 2026, "session": "FP3"}).json()["pool"]
+    keep = _ladder(client).json()["rows"][0]
+    fv = {d["Abbreviation"]: d["FantasyValue"] for d in pool["drivers"]}
+    score = {c["name"]: c["score"] for c in pool["constructors"]}
+    by_hand = (sum(fv[a] for a in MADRING_TEAM_DRIVERS) + sum(score[c] for c in MADRING_TEAM_CONSTRUCTORS)
+               + fv[keep["boost"]])
+    assert keep["expected"] == pytest.approx(by_hand, abs=0.01)
+
+
+def test_transfer_ladder_refuses_bad_free_transfers(client):
+    assert _ladder(client, free_transfers=0).status_code == 422
+    assert _ladder(client, free_transfers=4).status_code == 422   # 3 is the most you can have
+    assert _ladder(client, drivers=MADRING_TEAM_DRIVERS[:4]).status_code == 422
+    assert _ladder(client, constructors=["McLaren"]).status_code == 422

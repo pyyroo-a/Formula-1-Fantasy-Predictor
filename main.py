@@ -19,7 +19,7 @@ from src.pipeline import run_pipeline
 from src.fetch_prices import fetch_prices, save_prices, save_price_history, fetch_price_changes
 from src.fetch_results import update_season_results
 from src.config import SEASON, results_path
-from src.api import state, races, prices, teams, race_weekend, finishes, weekend_lock, dev
+from src.api import state, races, prices, teams, race_weekend, finishes, weekend_lock, planner, dev
 
 
 @asynccontextmanager
@@ -85,5 +85,5 @@ app.add_middleware(
 
 
 # every group of endpoints lives in its own file under src/api/
-for module in (races, prices, teams, race_weekend, finishes, weekend_lock, dev):
+for module in (races, prices, teams, race_weekend, finishes, weekend_lock, planner, dev):
     app.include_router(module.router)
