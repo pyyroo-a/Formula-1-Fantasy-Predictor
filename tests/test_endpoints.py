@@ -474,3 +474,22 @@ def test_track_record_without_a_file(client, monkeypatch, tmp_path):
     r = client.get("/track-record")
     assert r.status_code == 200
     assert r.json() == {"updated": None, "rows": [], "summary": {}}
+
+
+# ---- chip history (project 6) ----------------------------------------------------
+
+def test_chip_history_serves_the_file(client, monkeypatch, tmp_path):
+    history = {"updated": "2026-11-02", "seasons": [2026], "tracks": [{"track": "Miami"}],
+               "best": {"Limitless": {"top": [], "worst": None}}, "check": {}}
+    path = tmp_path / "chip_history.json"
+    path.write_text(_json.dumps(history))
+    monkeypatch.setenv("CHIP_HISTORY_PATH", str(path))
+    r = client.get("/chip-history")
+    assert r.status_code == 200 and r.json() == history
+
+
+def test_chip_history_without_a_file(client, monkeypatch, tmp_path):
+    monkeypatch.setenv("CHIP_HISTORY_PATH", str(tmp_path / "nothing_here.json"))
+    r = client.get("/chip-history")
+    assert r.status_code == 200
+    assert r.json() == {"updated": None, "seasons": [], "tracks": [], "best": {}, "check": {}}

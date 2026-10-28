@@ -71,6 +71,8 @@ def weekends_2026(official: dict) -> list[dict]:
 
 def main():
     logging.getLogger("fastf1").setLevel(logging.WARNING)
+    # the Monday Action starts with no cache folder, and FastF1 won't make it itself
+    os.makedirs("data/cache", exist_ok=True)
     fastf1.Cache.enable_cache("data/cache")
     weekends = weekends_2026(load_official_points())
     table = track_table(weekends)

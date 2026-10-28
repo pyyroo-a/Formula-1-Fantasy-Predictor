@@ -36,11 +36,16 @@ jobs:
         continue-on-error: true
         run: python scripts/track_record.py
 
+      # the CHIPS tab reads this one, what each chip was worth at each track
+      - name: Rebuild the chip history
+        continue-on-error: true
+        run: python scripts/chip_history.py
+
       - name: Commit and push if data changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/processed/race_results_2026.csv data/prices.json data/price_history.json data/official_points_2026.json data/track_record_2026.json
+          git add data/processed/race_results_2026.csv data/prices.json data/price_history.json data/official_points_2026.json data/track_record_2026.json data/chip_history.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
