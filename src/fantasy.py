@@ -813,3 +813,56 @@ def get_race_pool(
     )
 
     return {"drivers": drivers, "constructors": constructors}
+
+
+def actual_driver_points(target_raw: pd.DataFrame, sprint_raw: pd.DataFrame | None = None) -> dict[str, float]:
+    """
+    True F1 Fantasy points each driver scored, from the real result.
+
+    On a sprint weekend the Saturday sprint scores as well, so those points are
+    added on top. Without this the backtest simply can't see a third of what was
+    on offer at those weekends.
+    """
+    scored = target_raw.copy()
+    scored = scored.drop(columns=["Predicted"], errors="ignore")  # force actual Position
+    scored = calculate_fantasy_score(scored, scale_by_circuit=False)
+    points = dict(zip(scored["Abbreviation"], scored["FantasyValue"]))
+
+    if sprint_raw is not None and not sprint_raw.empty:
+        for _, r in sprint_raw.iterrows():
+            points[r["Abbreviation"]] = points.get(r["Abbreviation"], 0.0) + sprint_score(
+                r["GridPosition"], r["Position"], r["Status"])
+    return points
+
+
+def actual_constructor_points(target_raw: pd.DataFrame, sprint_raw: pd.DataFrame | None = None) -> dict[str, float]:
+    """
+    True constructor points: both drivers' race+overtake points, plus the
+    qualifying bonus (+3 both in Q3, +1 both in Q2).
+    """
+    out = {}
+    for team, rows in target_raw.groupby("TeamName"):
+        pts = 0.0
+        for _, r in rows.iterrows():
+            finished = r["Status"] in ("Finished", "Lapped")
+            if finished and not pd.isna(r["Position"]):
+                pos = int(r["Position"])
+                pts += RACE_POINTS.get(pos, 0)
+                pts += int(r["GridPosition"]) - pos
+            else:
+                pts -= 20
+
+        grids = [g for g in rows["GridPosition"] if not pd.isna(g)]
+        if len(grids) >= 2:
+            if all(g <= 10 for g in grids):
+                pts += 3
+            elif all(g <= 15 for g in grids):
+                pts += 1
+
+        # a constructor scores both its cars in the sprint too
+        if sprint_raw is not None and not sprint_raw.empty:
+            for _, r in sprint_raw[sprint_raw["TeamName"] == team].iterrows():
+                pts += sprint_score(r["GridPosition"], r["Position"], r["Status"])
+
+        out[team] = pts
+    return out

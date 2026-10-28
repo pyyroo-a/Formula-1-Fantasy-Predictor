@@ -14,6 +14,9 @@ from src.config import SEASON, PREVIOUS_SEASON, results_path, sprint_results_pat
 from src.features import build_features
 from src.models import prepare_data, train_model, predict, shrink_to_grid
 from src.fantasy import calculate_fantasy_score, build_budget_teams, RACE_POINTS, sprint_score
+# these two live in fantasy.py now so the chip history can use them without the model
+from src.fantasy import actual_driver_points as _actual_driver_points
+from src.fantasy import actual_constructor_points as _actual_constructor_points
 from src.circuit_profiles import get_blend_weights
 from src.fetch_prices import fetch_prices
 from src.fetch_practice import deadline_grid  # noqa: F401 (scorecard imports it from here)
@@ -147,59 +150,6 @@ def _predict_race(
     # the same standings nudge live adds on top, from this season's races before this one
     form = compute_championship_form(history[history["Year"] == history["Year"].max()])
     return apply_championship_signal(upcoming, form, weight=CHAMPIONSHIP_WEIGHT)
-
-
-def _actual_driver_points(target_raw: pd.DataFrame, sprint_raw: pd.DataFrame | None = None) -> dict[str, float]:
-    """
-    True F1 Fantasy points each driver scored, from the real result.
-
-    On a sprint weekend the Saturday sprint scores as well, so those points are
-    added on top. Without this the backtest simply can't see a third of what was
-    on offer at those weekends.
-    """
-    scored = target_raw.copy()
-    scored = scored.drop(columns=["Predicted"], errors="ignore")  # force actual Position
-    scored = calculate_fantasy_score(scored, scale_by_circuit=False)
-    points = dict(zip(scored["Abbreviation"], scored["FantasyValue"]))
-
-    if sprint_raw is not None and not sprint_raw.empty:
-        for _, r in sprint_raw.iterrows():
-            points[r["Abbreviation"]] = points.get(r["Abbreviation"], 0.0) + sprint_score(
-                r["GridPosition"], r["Position"], r["Status"])
-    return points
-
-
-def _actual_constructor_points(target_raw: pd.DataFrame, sprint_raw: pd.DataFrame | None = None) -> dict[str, float]:
-    """
-    True constructor points: both drivers' race+overtake points, plus the
-    qualifying bonus (+3 both in Q3, +1 both in Q2).
-    """
-    out = {}
-    for team, rows in target_raw.groupby("TeamName"):
-        pts = 0.0
-        for _, r in rows.iterrows():
-            finished = r["Status"] in ("Finished", "Lapped")
-            if finished and not pd.isna(r["Position"]):
-                pos = int(r["Position"])
-                pts += RACE_POINTS.get(pos, 0)
-                pts += int(r["GridPosition"]) - pos
-            else:
-                pts -= 20
-
-        grids = [g for g in rows["GridPosition"] if not pd.isna(g)]
-        if len(grids) >= 2:
-            if all(g <= 10 for g in grids):
-                pts += 3
-            elif all(g <= 15 for g in grids):
-                pts += 1
-
-        # a constructor scores both its cars in the sprint too
-        if sprint_raw is not None and not sprint_raw.empty:
-            for _, r in sprint_raw[sprint_raw["TeamName"] == team].iterrows():
-                pts += sprint_score(r["GridPosition"], r["Position"], r["Status"])
-
-        out[team] = pts
-    return out
 
 
 def _score_team(team: dict, driver_pts: dict, constructor_pts: dict) -> float:
