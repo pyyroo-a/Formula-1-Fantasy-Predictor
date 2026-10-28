@@ -19,17 +19,23 @@ from typing import Callable
 
 import pandas as pd
 
-# Measured on 12 FP3 weekends of 2026 (261 driver weekends), places between a driver's
-# FP3 rank and where they really ranked on fantasy points: high 3.06, medium 3.46,
-# low 4.56, and high beat low on 10 of the 12 weekends. Heads up, these cutoffs were
+# Measured on the 12 FP3 weekends of 2026 (261 driver weekends) with
+# scripts/confidence_grade.py, places between a driver's FP3 rank and where they really
+# ranked on fantasy points: high 3.02, medium 3.59, low 4.51, and high beat low on 11
+# of the 12 weekends (the brainstorm's quick check said 3.06 / 3.46 / 4.56 and 10 of
+# 12, close enough: that used raw OpenF1 laps, this goes through our own loaders and
+# Monza FP1 wouldn't load). Heads up, these cutoffs were
 # picked near the middle of that data after looking at it, so Mexico onwards is the
 # honest test (scripts/confidence_grade.py). Don't tune them to make it look better.
 MATE_PLACES = 2       # flagged if MORE than this many places from the teammate
 SPREAD_LIMIT = 1.5    # flagged if the sample std of their ranks is above this
 PACK_GAP_S = 0.05     # flagged if the nearest car is UNDER this many seconds away
 
-# Sprint weekends lock on sprint quali and weren't in the measurement, so they stay
-# off until scripts/confidence_grade.py shows high beating low there too.
+# Sprint weekends lock on sprint quali (moved around = FP1 vs sprint quali). Measured
+# 2026-10-28 with scripts/confidence_grade.py over the 6 sprint weekends, places off on
+# fantasy points: high 4.81, medium 4.30, low 4.78, high beat low on only 3 of 6. So on
+# sprint weekends the levels don't mean anything for points and it stays off. (It does
+# still split the race finish, 1.41 vs 2.74, but the sprint points muddle the total.)
 SHOW_ON_SPRINT_WEEKENDS = False
 
 SESSION_ORDER = ["FP1", "FP2", "FP3"]
