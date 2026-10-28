@@ -149,6 +149,30 @@ REAL_CONSTRUCTOR_QUALI_BONUS = False
 # All three switches on together: 154.4 pts/race (-33.1, worse on 13 of 16).
 CLIP_TO_REAL_FIELD = False
 
+# Every page should add a constructor up the same way: both drivers' points, Avoid or
+# not, plus the qualifying bonus. Off = the old quirks, the team builders drop Avoid
+# drivers before adding up their constructor and the pool (Manual Team, chips) skips
+# the bonus. See _constructor_scores.
+#
+# Measured 2026-10-28, scorecard replay of R3 to R18 (16 races), official points:
+#     off (what ships)   187.5 pts/race
+#     on                 190.3 pts/race   (+2.8, better on 1, worse on 2, same team on 13)
+# Basically a wash on points (Monza 147 -> 256, Bahrain 212 -> 149). Its real value is
+# that the 3 teams, Manual Team and the chips would all add a constructor up the same way.
+FIX_CONSTRUCTOR_QUIRKS = False
+
+# Add each constructor's expected extras (mostly pit stop points, see
+# src/constructor_extras.py) to its forecast. The caller passes them in, {} if it
+# doesn't have them.
+#
+# Measured 2026-10-28, same replay:
+#     off   187.5 pts/race
+#     on    201.6 pts/race   (+14.1, better on 4, worse on 1, same team on 11)
+# Every switch on together (all five): 155.5 pts/race (-32.0, worse on 12 of 16), the
+# real quali rule drags it down, see REAL_QUALI_RULES.
+# Only the replay passes extras in so far. Live (snapshot, API) doesn't yet.
+USE_CONSTRUCTOR_EXTRAS = False
+
 
 def qualifying_score(grid_pos: float) -> float:
     pos = int(round(grid_pos))
@@ -469,6 +493,7 @@ def _constructor_scores(
     *,
     drop_avoid: bool,
     with_bonus: bool,
+    extras: dict | None = None,
 ) -> dict[str, float]:
     """
     Constructor score = sum of both drivers' FantasyValue, since you get points from
@@ -481,13 +506,21 @@ def _constructor_scores(
         from his constructor (US GP: Cadillac -3.7 on Bottas alone, both cars -8.8)
       * the pool uses with_bonus=False, so the chip check sees different constructor
         scores than the team builder does
+    FIX_CONSTRUCTOR_QUIRKS overrides both flags so everyone adds up the same way.
+
+    extras is each team's expected pit stop (and other) points, only added with
+    USE_CONSTRUCTOR_EXTRAS on.
     """
+    if FIX_CONSTRUCTOR_QUIRKS:
+        drop_avoid, with_bonus = False, True
+    extra = (extras or {}) if USE_CONSTRUCTOR_EXTRAS else {}
+
     if drop_avoid:
         race_df = race_df[race_df["PickCategory"] != "Avoid"]
 
     sums = race_df.groupby("TeamName")["FantasyValue"].sum().to_dict()
     if not with_bonus:
-        return {team: round(sums.get(team, 0.0), 3) for team in constructor_prices}
+        return {team: round(sums.get(team, 0.0) + extra.get(team, 0.0), 3) for team in constructor_prices}
 
     team_avg_pos = (
         race_df.groupby("TeamName")["TeamAvgPosition"].mean().to_dict()
@@ -514,7 +547,8 @@ def _constructor_scores(
 
         return top_team + q_bonus
 
-    return {team: round(sums.get(team, 0.0) + _bonus(team), 3) for team in constructor_prices}
+    return {team: round(sums.get(team, 0.0) + _bonus(team) + extra.get(team, 0.0), 3)
+            for team in constructor_prices}
 
 
 def _driver_out(d: dict, with_dnf: bool) -> dict:
@@ -542,16 +576,19 @@ def build_budget_team(
     min_safe: int = 1,
     dnf_probs: dict | None = None,
     dnf_weight: float = DNF_WEIGHT,
+    constructor_extras: dict | None = None,
 ) -> dict:
     race_df, safe_abbrevs = _priced_race_table(fantasy_table, race_name, prices,
                                                dnf_probs=dnf_probs, dnf_weight=dnf_weight)
     constructor_prices = prices.get("constructors", {})
 
+    # constructors get added up from the full table, drop_avoid takes the Avoid
+    # drivers out of the sums (unless FIX_CONSTRUCTOR_QUIRKS), see _constructor_scores
+    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=True, with_bonus=True,
+                                 extras=constructor_extras)
+
     # Remove avoid-tier drivers from the candidate pool
     race_df = race_df[race_df["PickCategory"] != "Avoid"]
-
-    # drop_avoid takes them out of the constructor sums too, see _constructor_scores
-    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=True, with_bonus=True)
     constructors = [
         {"name": team, "price": price, "score": scores[team]}
         for team, price in constructor_prices.items()
@@ -617,6 +654,7 @@ def build_budget_teams(
     min_driver_diff: int = 2,
     dnf_probs: dict | None = None,
     dnf_weight: float = DNF_WEIGHT,
+    constructor_extras: dict | None = None,
 ) -> list[dict]:
     """
     Returns n high-scoring teams that are mutually diverse (differ by at least
@@ -626,10 +664,12 @@ def build_budget_teams(
     race_df, safe_abbrevs = _priced_race_table(fantasy_table, race_name, prices,
                                                dnf_probs=dnf_probs, dnf_weight=dnf_weight)
     constructor_prices = prices.get("constructors", {})
-    race_df = race_df[race_df["PickCategory"] != "Avoid"]
 
-    # drop_avoid takes them out of the constructor sums too, see _constructor_scores
-    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=True, with_bonus=True)
+    # constructors get added up from the full table, drop_avoid takes the Avoid
+    # drivers out of the sums (unless FIX_CONSTRUCTOR_QUIRKS), see _constructor_scores
+    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=True, with_bonus=True,
+                                 extras=constructor_extras)
+    race_df = race_df[race_df["PickCategory"] != "Avoid"]
 
     # Retirement risk per constructor. A constructor scores BOTH its cars, so it
     # carries double the exposure of a single driver: Aston Martin losing both
@@ -737,6 +777,7 @@ def get_race_pool(
     prices: dict,
     dnf_probs: dict | None = None,
     dnf_weight: float = DNF_WEIGHT,
+    constructor_extras: dict | None = None,
 ) -> dict:
     """Returns all drivers + constructors for a race with prices and categories, used by the manual team builder."""
     race_df, _ = _priced_race_table(fantasy_table, race_name, prices,
@@ -744,7 +785,8 @@ def get_race_pool(
     constructor_prices = prices.get("constructors", {})
 
     # no Avoid drop and no Q bonus here, unlike the team builders, see _constructor_scores
-    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=False, with_bonus=False)
+    scores = _constructor_scores(race_df, constructor_prices, drop_avoid=False, with_bonus=False,
+                                 extras=constructor_extras)
 
     drivers = [_driver_out(d, with_dnf=True) for d in race_df.sort_values("Predicted").to_dict("records")]
 

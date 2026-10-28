@@ -339,3 +339,86 @@ def test_championship_nudge_keeps_p22_at_the_back_when_switched_on(monkeypatch):
     # made up places gained
     assert new.loc["BACK", "Predicted"] == 22.0
     assert new.loc["LEAD", "Predicted"] == 1.0
+
+
+# ---- constructor quirks and expected extras, switches OFF (project 2, Task 5) ---
+
+def test_fixed_quirks_count_avoid_drivers_and_add_bonus(monkeypatch):
+    # same frame as the quirk test above. with the fix on, every caller adds a
+    # constructor up the same way: both drivers, Avoid or not, plus the bonus
+    monkeypatch.setattr(fantasy, "FIX_CONSTRUCTOR_QUIRKS", True)
+    df = pd.DataFrame({
+        "TeamName": ["Cadillac", "Cadillac", "Ferrari", "Ferrari"],
+        "Abbreviation": ["PER", "BOT", "LEC", "HAM"],
+        "FantasyValue": [-5.1, -3.7, 38.0, 29.7],
+        "PickCategory": ["Avoid", "Risk", "Safe", "Safe"],
+        "GridPosition": [21, 22, 1, 2],
+    })
+    prices = {"Cadillac": 3.0, "Ferrari": 28.2}
+    builder = fantasy._constructor_scores(df, prices, drop_avoid=True, with_bonus=True)
+    pool = fantasy._constructor_scores(df, prices, drop_avoid=False, with_bonus=False)
+    assert builder == pool
+    assert builder["Cadillac"] == pytest.approx(-8.8)   # Perez counts now, no bonus at P21/P22
+    assert pool["Ferrari"] == pytest.approx(70.7)       # the pool gets the +3 too
+
+
+def _builder_table():
+    """
+    8 drivers on 4 teams, predicted order = grid, so the two slowest (Pink) are Avoid.
+    Pink is the only constructor cheap enough to fit, so every team has to take it.
+    """
+    teams = {"AAA": "Red", "BBB": "Red", "CCC": "Blue", "DDD": "Blue",
+             "EEE": "Green", "FFF": "Green", "GGG": "Pink", "HHH": "Pink"}
+    table = pd.DataFrame({
+        "Abbreviation": list(teams), "TeamName": list(teams.values()),
+        "GridPosition": list(range(1, 9)), "Predicted": [float(g) for g in range(1, 9)],
+        "RaceName": "Test GP", "TeamAvgPosition": 10.0,
+    })
+    prices = {"drivers": {a: 10.0 for a in teams},
+              "constructors": {"Red": 30.0, "Blue": 30.0, "Green": 30.0, "Pink": 1.0}}
+    return table, prices
+
+
+def test_team_builder_counts_avoid_drivers_with_quirks_fixed(monkeypatch):
+    table, prices = _builder_table()
+    monkeypatch.setattr(fantasy, "FIX_CONSTRUCTOR_QUIRKS", True)
+    pool = fantasy.get_race_pool(table, "Test GP", prices)
+    assert {d["Abbreviation"] for d in pool["drivers"] if d["PickCategory"] == "Avoid"} == {"GGG", "HHH"}
+    pink = next(c["score"] for c in pool["constructors"] if c["name"] == "Pink")
+
+    # the builders used to drop Pink's Avoid drivers before adding Pink up. now the 3
+    # teams, the one-team builder and the pool all agree on what Pink is worth
+    for team in (fantasy.build_budget_teams(table, "Test GP", prices, n=1)[0],
+                 fantasy.build_budget_team(table, "Test GP", prices)):
+        assert next(c["score"] for c in team["constructors"] if c["name"] == "Pink") == pytest.approx(pink)
+
+
+def test_constructor_extras_added_only_when_switched_on(monkeypatch):
+    df = pd.DataFrame({
+        "TeamName": ["Ferrari", "Ferrari"], "Abbreviation": ["LEC", "HAM"],
+        "FantasyValue": [38.0, 29.7], "PickCategory": ["Safe", "Safe"], "GridPosition": [1, 2],
+    })
+    prices = {"Ferrari": 28.2, "Haas F1 Team": 12.0}
+    extras = {"Ferrari": 6.5}
+    off = fantasy._constructor_scores(df, prices, drop_avoid=False, with_bonus=True, extras=extras)
+    monkeypatch.setattr(fantasy, "USE_CONSTRUCTOR_EXTRAS", True)
+    on = fantasy._constructor_scores(df, prices, drop_avoid=False, with_bonus=True, extras=extras)
+    assert on["Ferrari"] == pytest.approx(off["Ferrari"] + 6.5)
+    assert on["Haas F1 Team"] == off["Haas F1 Team"]   # no history for a team, nothing added
+
+
+def test_replay_hands_each_round_extras_from_earlier_rounds_only(monkeypatch):
+    import src.backtest as backtest
+    seen = {}
+    real_build = backtest.build_budget_teams
+
+    def spy(table, race_name, prices, **kw):
+        if "constructor_extras" in kw:
+            seen[race_name] = kw["constructor_extras"]
+        return real_build(table, race_name, prices, **kw)
+    monkeypatch.setattr(backtest, "build_budget_teams", spy)
+    _one_round_backtest(monkeypatch)
+    # round 3 is the first official round, so there's no history for it yet. round 4
+    # only gets round 3's leftovers, never its own
+    assert seen["Race 3"] == {}
+    assert set(seen["Race 4"]) == {"Red", "Blue", "Green", "Pink"}

@@ -188,3 +188,12 @@ def test_rules_helper_puts_the_switches_back():
         assert fantasy.CLIP_TO_REAL_FIELD
     assert not (fantasy.REAL_QUALI_RULES or fantasy.REAL_CONSTRUCTOR_QUALI_BONUS
                 or fantasy.CLIP_TO_REAL_FIELD)
+
+
+def test_all_rules_turns_on_every_switch():
+    sc = _scorecard()
+    assert sc.switches_for("quirks") == {"FIX_CONSTRUCTOR_QUIRKS": True}
+    assert sc.switches_for("extras") == {"USE_CONSTRUCTOR_EXTRAS": True}
+    assert sc.switches_for("all") == {
+        "REAL_QUALI_RULES": True, "REAL_CONSTRUCTOR_QUALI_BONUS": True, "CLIP_TO_REAL_FIELD": True,
+        "FIX_CONSTRUCTOR_QUIRKS": True, "USE_CONSTRUCTOR_EXTRAS": True}

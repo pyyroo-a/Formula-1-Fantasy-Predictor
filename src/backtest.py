@@ -29,6 +29,7 @@ from src.championship_form import (
     compute_championship_form,
 )
 from src.official_points import team_points
+from src.constructor_extras import constructor_extras
 
 MIN_HISTORY_ROUNDS = 2  # need some 2026 form before predictions mean anything
 
@@ -384,8 +385,12 @@ def run_backtest(
             except Exception:
                 dnf_probs = None
 
+        # expected constructor extras (pit stops mostly) from the official rounds before
+        # this one. only used when USE_CONSTRUCTOR_EXTRAS is on, see src/fantasy.py
+        extra_kw = ({"constructor_extras": constructor_extras(official, df_current, int(rnd))}
+                    if official is not None else {})
         model_teams = build_budget_teams(predicted, race_name, prices, budget=100.0,
-                                         dnf_probs=dnf_probs, dnf_weight=dnf_weight)
+                                         dnf_probs=dnf_probs, dnf_weight=dnf_weight, **extra_kw)
 
         # Baseline: same optimiser, same information, no model. In practice mode
         # that means "pick by FP3 order", genuinely playable before the deadline.

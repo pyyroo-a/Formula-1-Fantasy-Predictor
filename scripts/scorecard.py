@@ -45,7 +45,11 @@ RULES = {
     "quali": {"REAL_QUALI_RULES": True},
     "bonus": {"REAL_CONSTRUCTOR_QUALI_BONUS": True},
     "clip": {"CLIP_TO_REAL_FIELD": True},
+    "quirks": {"FIX_CONSTRUCTOR_QUIRKS": True},
+    "extras": {"USE_CONSTRUCTOR_EXTRAS": True},
 }
+# every switch at once
+RULES["all"] = {k: v for switches in RULES.values() for k, v in switches.items()}
 
 
 def switches_for(name: str) -> dict:
