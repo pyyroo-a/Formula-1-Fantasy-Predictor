@@ -42,6 +42,20 @@ Why the right quali rule scores worse: without the -5 the back of the grid costs
 nothing to own, so the optimiser fills up on cheap P16+ drivers (24 of 80 picks vs 8 of
 80). Extras stayed off because +0.3 on top isn't worth wiring into the live site.
 
+## The planner's paid row (measured 2026-10-28, rounds 3 to 18)
+
+`SHOW_PAID_ROW` in `src/planner.py`, measured with `scripts/planner_grade.py` from
+PitWall's R3 team at $100M, official points, -10 per paid transfer:
+
+| Way to play | Real pts/race | vs |
+|---|---:|---|
+| Keep the team | 193.4 | |
+| Free transfers only | 218.6 | +25.2 on keep, better on 10, worse on 5 |
+| With hits | 214.6 | -4.0 on free only, 3 hits (Miami +15, Bahrain -30, Austin -28) |
+
+Free transfers passed, so the [Planner](Planner.md) shipped. The paid row failed, so it's
+off and the page only states what a paid transfer costs.
+
 ## Switched off earlier (old backtest, see the heads up)
 
 | Switch | Value | Evidence |

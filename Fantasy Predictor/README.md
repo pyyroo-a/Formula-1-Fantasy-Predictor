@@ -33,6 +33,7 @@ How it works:
 - [Model](Model.md): how a finishing order gets predicted, and why it's basically the practice order right now
 - [Fantasy scoring](Fantasy%20scoring.md): turning a predicted finish into fantasy points, constructors, picking the 3 teams, the 2x pick
 - [Chips](Chips.md): how each chip gets a PLAY / CONSIDER / HOLD
+- [Planner](Planner.md): my own 3 teams and the transfer ladder, keep or swap and what each one is worth
 - [Prices](Prices.md): where prices come from and the duplicate driver trap
 - [Snapshots](Snapshots.md): locking a weekend, the GitHub Action, the setup steps
 - [API](API.md): every endpoint and which file it lives in
@@ -55,11 +56,13 @@ Where it's going:
 
 - 2026 season, US GP (round 18) was locked automatically on FP3 by the GitHub Action.
   Mexico (round 19) is next, and its lock is the first to save ownership.
-- Projects 1 and 2 on the [Roadmap](Roadmap.md) are done. PitWall now gets graded with
+- Projects 1, 2 and 3 on the [Roadmap](Roadmap.md) are done. PitWall gets graded with
   the game's own points: 203.9 pts/race on the replay vs 190.6 for copying the FP3
-  order, see the [Scorecard](Scorecard.md). Plans and designs are in
-  [`docs/superpowers/`](../docs/superpowers/). Next is project 3, the planner.
-- 126 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
+  order, see the [Scorecard](Scorecard.md). The [Planner](Planner.md) is live under My
+  Team: using free transfers its way beat keeping the team by 25 pts/race. Plans and
+  designs are in [`docs/superpowers/`](../docs/superpowers/). Next is project 4, better
+  practice data.
+- 154 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
 - F1 put its live timing behind an F1TV login in October 2026. Practice comes from
   OpenF1 now, race results still come through FastF1 and that's fine (the 2026-10-26
   Monday job worked). See [Gotchas](Gotchas.md).

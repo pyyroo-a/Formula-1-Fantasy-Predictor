@@ -20,7 +20,9 @@ The header has 4 sections, and two of them have tabs:
 - **My Team**: Team Optimizer (`components/myteam/TeamOptimizerTab.jsx`, 3 teams for
   any race), Manual Team (`ManualTeamBuilder.jsx` with its cards in
   `ManualTeamParts.jsx`, pick your own and see how it scores, remembers your budget),
-  Chip Advisor (`ChipAdvisor.jsx`).
+  Chip Advisor (`ChipAdvisor.jsx`), Planner (`components/myteam/TransferPlanner.jsx`,
+  my 3 real teams and the transfer ladder, saved by `plannerTeams.js` as
+  `pitwall_planner_teams` in localStorage, see [Planner](Planner.md)).
 - **Race Data**: Practice, Qualifying, Race Results (`components/racedata/`), plus
   Backtest when running locally only (`import.meta.env.DEV`).
 - **Insights**: predicted finishes, model vs practice order, and how they did

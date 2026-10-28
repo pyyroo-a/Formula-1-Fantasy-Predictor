@@ -26,6 +26,7 @@ its own file under `src/api/`.
 | POST | `/predict-budget` | `teams.py` | 3 teams for any race (the Team Optimizer page) |
 | POST | `/upcoming-race-pool` | `teams.py` | every driver and constructor with points (Manual Team page) |
 | POST | `/chip-advisor` | `teams.py` | chip verdicts for your own team, see [Chips](Chips.md) |
+| POST | `/transfer-ladder` | `planner.py` | the transfer ladder for your own team (5 drivers, 2 constructors, budget, 1 to 3 free transfers), see [Planner](Planner.md) |
 | POST | `/predict`, `/predict-upcoming`, `/race-pool` | `teams.py` | older endpoints the site doesn't call any more, kept for now |
 | GET | `/weekend-team` | `race_weekend.py` | this weekend's locked snapshot, or a provisional before the lock |
 | GET | `/last-team` | `race_weekend.py` | the newest snapshot, held between races |

@@ -19,6 +19,7 @@ F1 Fantasy is deceptively hard. The sport is chaotic: a consistent midfield driv
 | **Budget Team** | Three ML-optimised lineups (5 drivers + 2 constructors) within a $100M budget, with a team switcher, F1 Fantasy allows up to 3 entries |
 | **Manual Team** | Build your own team for an upcoming race using live practice session data, scored against the optimal |
 | **Chip Advisor** | Enter your current F1 Fantasy squad and get a PLAY / CONSIDER / HOLD recommendation for each chip |
+| **Planner** | Save up to 3 of your real teams and see the transfer ladder: keep, or the best team with each free transfer, what it's expected to score and why |
 
 The **Weekend Team Widget** auto-activates within 5 days of a race, it detects the current weekend, fetches the best available practice session (FP3 → FP2 → FP1), and shows the optimal team without you having to do anything.
 
@@ -267,6 +268,19 @@ could be luck in the choosing (the bonus's +6.8 is all from Monza). Mexico onwar
 the real test, re-run the scorecard after a few races. The full table is in the
 [Scorecard](Fantasy%20Predictor/Scorecard.md).
 
+## Planner
+
+You already have a team in the game, a budget and some free transfers (2 a race, one
+unused one carries over, 3 at most, -10 for each extra). The Planner tab shows, for any
+of your 3 saved teams, the best team with 0, 1, 2 (or 3) free transfers, what each is
+expected to score with your 2x, and the practice facts behind every swap. It states
+facts, it never tells you what to do.
+
+It was graded on real points before it shipped (2026 rounds 3 to 18): using free
+transfers its way scored **218.6** a race against **193.4** for keeping the team. Paying
+-10 for an extra transfer when the ladder said it was ahead scored 4 a race less, so
+the page doesn't suggest paid transfers. More in [Planner](Fantasy%20Predictor/Planner.md).
+
 ## Chip Advisor
 
 PitWall analyses all 6 F1 Fantasy chips against your squad and the upcoming race predictions:
@@ -389,6 +403,7 @@ Fastest Lap (+10) and Driver of the Day (+10) are deliberately excluded, they ca
 | POST | `/snapshot/auto` | Locks the current weekend into a snapshot once final practice is published (needs `X-Snapshot-Secret`) |
 | POST | `/upcoming-race-pool` | Driver + constructor pool for manual team builder |
 | POST | `/chip-advisor` | Chip recommendations for a given squad |
+| POST | `/transfer-ladder` | The transfer ladder for your own team (5 drivers, 2 constructors, budget, free transfers) |
 
 ## Running Locally
 
@@ -440,4 +455,4 @@ Two GitHub Actions:
 
 ## Planned
 
-See the [Roadmap](Fantasy%20Predictor/Roadmap.md). Done: grading with the game's real points against simple no-model picks, and the scoring fixes that won. Next up: a transfer planner for your own team.
+See the [Roadmap](Fantasy%20Predictor/Roadmap.md). Done: grading with the game's real points against simple no-model picks, the scoring fixes that won, and the transfer planner. Next up: better practice data (best sectors, long runs) with a confidence and reason for each pick.

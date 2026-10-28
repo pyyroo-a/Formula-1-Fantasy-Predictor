@@ -24,11 +24,11 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
    and the P22 clip fix): 187.5 to 203.9 pts/race, copying FP3 is 190.6. The quirks
    fix and pit stop points measured too small to ship, the real quali rule measured
    worse. Numbers in [Decisions and evidence](Decisions%20and%20evidence.md).
-3. **"My team" planner.** My team saved in the browser, plus free transfers and my real
-   bank balance. After the lock it shows the best move for 0, 1, 2 and 3+ transfers
-   with -10 per extra transfer already taken off, plus the 2x pick. Advice only, never
-   touches my F1 Fantasy account. Every weekend type, and next season too. Chips plug in
-   later. This is the call I had to make by myself at the US GP.
+3. **"My team" planner.** Done 2026-10-28, see [Planner](Planner.md). My 3 teams saved in
+   the browser, and a transfer ladder for any of them (keep, then each free transfer)
+   with expected points, the practice reason for every swap and facts instead of
+   orders. Free transfers its way beat keeping the team by 25.2 pts/race on real points.
+   The paid (-10) row lost to free only, so it's switched off. Chips plug in later.
 4. **Better practice data, plus confidence and reasons.** I watched Max top sector 2 in
    FP3 at the US GP while the model only saw he was P4 on lap time. Add best sectors
    (the ideal lap), long runs vs quali runs (OpenF1 stints and tyres), all three
@@ -47,6 +47,9 @@ After all that: **one UI redesign** of the whole site using the frontend design 
 once projects 2 to 5 have added what they add. No piecemeal UI changes before then.
 
 ## Open tasks
+
+- **Re-test the paid transfer row** after a few more races (`scripts/planner_grade.py`).
+  It lost by 4 pts/race over 3 hits, a small sample.
 
 - **Delete the cron-job.org job.** The Action locked the US GP by itself, so it's no
   longer needed.
@@ -106,6 +109,8 @@ All the numbers: [Decisions and evidence](Decisions%20and%20evidence.md).
 
 ## Done
 
+- 2026-10-28: project 3. The transfer planner: the ladder maths, the real points grade,
+  `/transfer-ladder`, and the PLANNER page with 3 saved teams.
 - 2026-10-28: project 2. The points referee (official points for every round), ownership
   saved at every lock, the Monday job saving official points, the season scorecard,
   the replay leak fixed, the real constructor bonus and the P22 clip fix switched on,
