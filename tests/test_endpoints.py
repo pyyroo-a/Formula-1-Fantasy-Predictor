@@ -455,3 +455,22 @@ def test_transfer_ladder_shows_no_confidence_on_an_old_snapshot(client, snapshot
 def test_sprint_weekends_get_no_confidence_while_switched_off():
     from src.weekend import weekend_confidence_for
     assert weekend_confidence_for("Singapore Grand Prix", "SQ", "SQ") is None
+
+
+# ---- the track record page (project 5) ------------------------------------------
+
+def test_track_record_serves_the_file(client, monkeypatch, tmp_path):
+    record = {"updated": "2026-11-02", "summary": {"Locked": {"avg": 175.2, "races": 6}},
+              "rows": [{"round": 13, "race": "Italian Grand Prix", "cells": {"Locked": 147.0}, "why": {}}]}
+    path = tmp_path / "track_record.json"
+    path.write_text(_json.dumps(record))
+    monkeypatch.setenv("TRACK_RECORD_PATH", str(path))
+    r = client.get("/track-record")
+    assert r.status_code == 200 and r.json() == record
+
+
+def test_track_record_without_a_file(client, monkeypatch, tmp_path):
+    monkeypatch.setenv("TRACK_RECORD_PATH", str(tmp_path / "nothing_here.json"))
+    r = client.get("/track-record")
+    assert r.status_code == 200
+    assert r.json() == {"updated": None, "rows": [], "summary": {}}

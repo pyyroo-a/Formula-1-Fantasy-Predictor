@@ -1,0 +1,119 @@
+{
+ "updated": "2026-10-28",
+ "rows": [
+  {
+   "round": 13,
+   "race": "Italian Grand Prix",
+   "cells": {
+    "Locked": 147.0,
+    "FP3 order": 205.0,
+    "Most expensive": 205.0,
+    "Crowd": null,
+    "Hindsight best": 428.0
+   },
+   "why": {
+    "Crowd": "no ownership saved at the lock, we only started saving it after the US GP"
+   }
+  },
+  {
+   "round": 14,
+   "race": "Spanish Grand Prix",
+   "cells": {
+    "Locked": 145.0,
+    "FP3 order": 129.0,
+    "Most expensive": 88.1,
+    "Crowd": null,
+    "Hindsight best": 199.0
+   },
+   "why": {
+    "Crowd": "no ownership saved at the lock, we only started saving it after the US GP"
+   }
+  },
+  {
+   "round": 15,
+   "race": "Azerbaijan Grand Prix",
+   "cells": {
+    "Locked": 99.0,
+    "FP3 order": 88.0,
+    "Most expensive": 101.3,
+    "Crowd": null,
+    "Hindsight best": 270.0
+   },
+   "why": {
+    "Crowd": "no ownership saved at the lock, we only started saving it after the US GP"
+   }
+  },
+  {
+   "round": 16,
+   "race": "Bahrain Grand Prix",
+   "cells": {
+    "Locked": 212.0,
+    "FP3 order": 231.0,
+    "Most expensive": 175.0,
+    "Crowd": null,
+    "Hindsight best": 339.0
+   },
+   "why": {
+    "Crowd": "no ownership saved at the lock, we only started saving it after the US GP"
+   }
+  },
+  {
+   "round": 17,
+   "race": "Singapore Grand Prix",
+   "cells": {
+    "Locked": 265.0,
+    "FP3 order": 227.0,
+    "Most expensive": 117.5,
+    "Crowd": null,
+    "Hindsight best": 298.0
+   },
+   "why": {
+    "Crowd": "no ownership saved at the lock, we only started saving it after the US GP"
+   }
+  },
+  {
+   "round": 18,
+   "race": "United States Grand Prix",
+   "cells": {
+    "Locked": 183.0,
+    "FP3 order": 242.0,
+    "Most expensive": 121.2,
+    "Crowd": null,
+    "Hindsight best": 276.0
+   },
+   "why": {
+    "Crowd": "no ownership saved at the lock, we only started saving it after the US GP"
+   }
+  }
+ ],
+ "summary": {
+  "Locked": {
+   "avg": 175.2,
+   "races": 6
+  },
+  "FP3 order": {
+   "avg": 187.0,
+   "races": 6,
+   "beaten": 3,
+   "of": 6
+  },
+  "Most expensive": {
+   "avg": 134.7,
+   "races": 6,
+   "beaten": 4,
+   "of": 6
+  },
+  "Crowd": {
+   "avg": null,
+   "races": 0,
+   "beaten": 0,
+   "of": 0
+  },
+  "Hindsight best": {
+   "avg": 301.7,
+   "races": 6,
+   "beaten": 0,
+   "of": 6
+  }
+ }
+}

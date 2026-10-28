@@ -29,11 +29,16 @@ jobs:
       - name: Fetch new race results and refresh prices
         run: python scripts/update_data.py
 
+      # the track record page reads this file, so it updates itself every Monday.
+      # same grading as the scorecard, see scripts/track_record.py
+      - name: Rebuild the track record
+        run: python scripts/track_record.py
+
       - name: Commit and push if data changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/processed/race_results_2026.csv data/prices.json data/price_history.json data/official_points_2026.json
+          git add data/processed/race_results_2026.csv data/prices.json data/price_history.json data/official_points_2026.json data/track_record_2026.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
