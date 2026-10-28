@@ -18,30 +18,53 @@ const SERIES = [
 ];
 const shortRace = name => name.replace(/ Grand Prix$/, " GP");
 
-function Dot({ s, value, max, onPick, picked }) {
-  if (value == null) return null;
+// the little bubble above a dot: who it is, their points, and the best possible. Near
+// the ends of the line it hangs inwards so it never gets cut off on a phone
+function Bubble({ s, value, best, x }) {
+  const side = x < 18 ? "left-0" : x > 82 ? "right-0" : "left-1/2 -translate-x-1/2";
+  const arrow = x < 18 ? "left-1.5" : x > 82 ? "right-1.5" : "left-1/2 -translate-x-1/2";
   return (
-    <button
-      onClick={onPick}
-      title={`${s.label}: ${pointsText(value)}`}
-      aria-label={`${s.label}: ${pointsText(value)}`}
-      className={`absolute top-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_2px_#141821] ${picked ? "ring-2 ring-pw-text" : ""}`}
-      style={{ left: `${dotX(value, max)}%`, background: s.color }}
-    >
-      {/* a bigger invisible target so a thumb can hit it */}
-      <span className="absolute -inset-2" />
-    </button>
+    <span role="tooltip" className={`absolute bottom-full mb-2.5 ${side} z-20 pointer-events-none whitespace-nowrap rounded-lg bg-pw-text text-pw-bg px-2.5 py-1.5 shadow-lg text-left`}>
+      <span className="flex items-center gap-1.5 text-xs font-bold"><i className="w-2 h-2 rounded-full" style={{ background: s.color }} />{s.label}</span>
+      <span className="block cond-x font-extrabold text-lg leading-tight num">{pointsText(value)} pts</span>
+      {best != null && <span className="block text-[11px] text-pw-bg/70 num">best possible {pointsText(best)}</span>}
+      <span className={`absolute top-full ${arrow} w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-pw-text`} />
+    </span>
+  );
+}
+
+function Dot({ s, value, best, max, open, onToggle, onHover }) {
+  if (value == null) return null;
+  const x = dotX(value, max);
+  return (
+    <span className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, zIndex: open ? 20 : undefined }}>
+      <button
+        onClick={onToggle}
+        onMouseEnter={() => onHover(true)}
+        onMouseLeave={() => onHover(false)}
+        onFocus={() => onHover(true)}
+        onBlur={() => onHover(false)}
+        aria-label={`${s.label}: ${pointsText(value)}`}
+        className={`relative block w-3 h-3 rounded-full shadow-[0_0_0_2px_#141821] ${open ? "ring-2 ring-pw-text" : ""}`}
+        style={{ background: s.color }}
+      >
+        {/* a bigger invisible target so a thumb can hit it */}
+        <span className="absolute -inset-2" />
+      </button>
+      {open && <Bubble s={s} value={value} best={best} x={x} />}
+    </span>
   );
 }
 
 function RaceLine({ row, series, max }) {
-  const [picked, setPicked] = useState(null);
+  const [tapped, setTapped] = useState(null);
+  const [hovered, setHovered] = useState(null);
   const c = row.cells;
   const v = raceVerdict(c);
   const shown = series.map(s => c[s.key]).filter(x => x != null);
   const lo = Math.min(...shown);
   const best = c["Hindsight best"];
-  const pick = series.find(s => s.key === picked);
+  const open = hovered || tapped;
   return (
     <div className="py-2 border-b border-pw-line last:border-0">
       <div className="flex justify-between gap-2 text-[13px] mb-1.5 sm:mb-0">
@@ -54,12 +77,13 @@ function RaceLine({ row, series, max }) {
           {best != null && <span className="absolute top-0 h-full w-0.5 bg-pw-muted -translate-x-1/2" title={`Best possible: ${pointsText(best)}`} style={{ left: `${dotX(best, max)}%` }} />}
           {/* PitWall last so it sits on top when two dots land on the same spot */}
           {[...series].reverse().map(s => (
-            <Dot key={s.key} s={s} value={c[s.key]} max={max} picked={picked === s.key} onPick={() => setPicked(picked === s.key ? null : s.key)} />
+            <Dot key={s.key} s={s} value={c[s.key]} best={best} max={max} open={open === s.key}
+                 onToggle={() => setTapped(tapped === s.key ? null : s.key)}
+                 onHover={on => setHovered(on ? s.key : null)} />
           ))}
         </div>
         <span className={`hidden sm:block w-40 text-right text-xs font-bold ${v.won ? "text-pw-safe" : v.won === false ? "text-pw-caution" : "text-pw-muted"}`}>{v.text}</span>
       </div>
-      {pick && <p className="text-xs text-pw-muted mt-1 num">{pick.label}: {pointsText(c[pick.key])}, best possible {pointsText(best)}</p>}
     </div>
   );
 }

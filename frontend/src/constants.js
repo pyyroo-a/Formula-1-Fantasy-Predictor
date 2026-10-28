@@ -49,13 +49,14 @@ export const TEAM_COLORS = {
   Cadillac:          "#4C7BD9", // lighter than their real navy so it shows on the dark background
 };
 
+// chip colours match the official F1 Fantasy app, so they look the same in both
 export const CHIP_META = {
-  limitless:  { label: "Limitless",  color: "#E8002D", desc: "No budget cap: pick any 5 drivers + 2 constructors for one race." },
-  wildcard:   { label: "Wildcard",   color: "#6692FF", desc: "Rebuild your entire squad for free: transfers reset after." },
-  x3_boost:   { label: "3× Boost",   color: "#FF8000", desc: "Your boost driver scores 3× instead of 2× this race." },
-  final_fix:  { label: "Final Fix",  color: "#FFD700", desc: "One free swap after qualifying locks in." },
-  no_negative:{ label: "No Negative",color: "#52E252", desc: "Any negative score is floored at 0: ideal for high-attrition circuits." },
-  autopilot:  { label: "Auto Pilot", color: "#6b7280", desc: "F1's auto-pick: PitWall already does this better. Save it." },
+  limitless:  { label: "Limitless",  color: "#2563EB", desc: "No budget cap: pick any 5 drivers + 2 constructors for one race." },
+  wildcard:   { label: "Wildcard",   color: "#C62828", desc: "Rebuild your entire squad for free: transfers reset after." },
+  x3_boost:   { label: "3× Boost",   color: "#4CAF2A", desc: "Your boost driver scores 3× instead of 2× this race." },
+  final_fix:  { label: "Final Fix",  color: "#E07B10", desc: "One free swap after qualifying locks in." },
+  no_negative:{ label: "No Negative",color: "#6E56CF", desc: "Any negative score is floored at 0: ideal for high-attrition circuits." },
+  autopilot:  { label: "Auto Pilot", color: "#1AA37A", desc: "F1's auto-pick: PitWall already does this better. Save it." },
 };
 
 export const REC_STYLE = {
