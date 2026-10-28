@@ -235,7 +235,7 @@ export default function ManualTeamBuilder({ upcomingRaces, weekendTeam }) {
           </div>
 
           {/* on a phone the team panel is far down the page, so the money and counts ride along at the bottom */}
-          <div className="lg:hidden fixed bottom-[45px] sm:bottom-0 inset-x-0 z-20 bg-pw-panel border-t border-pw-edge px-4 py-2">
+          <div className="lg:hidden fixed pw-above-nav inset-x-0 z-20 bg-pw-panel border-t border-pw-edge px-4 py-2">
             <div className="flex justify-between items-center gap-3 text-xs text-pw-muted num">
               <span><b className="text-pw-text">{pickedDrivers.length}/5</b> drivers, <b className="text-pw-text">{pickedConstructors.length}/2</b> constructors</span>
               <span>Left <b className={overBudget ? "text-pw-low" : "text-pw-safe"}>{overBudget ? `-${money(totalCost - budget)}` : money(remaining)}</b></span>

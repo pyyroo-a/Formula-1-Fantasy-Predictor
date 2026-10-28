@@ -2,7 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
+:root {
+  color-scheme: dark;
+  /* the phone section bar. Phones with a home bar or gesture line (iPhones, most
+     Androids) keep a safe area above it, and the bar sits above that like other apps.
+     viewport-fit=cover in index.html is what makes the phone tell us how tall it is.
+     Phones that report nothing still get 14px, so the bar never sits on the edge */
+  --nav-h: 56px;
+  --safe-b: max(env(safe-area-inset-bottom), 14px);
+}
 
 html, body, #root {
   background: #0F1217;
@@ -34,3 +42,12 @@ body {
 /* Hairline grid: 1px gaps show the background through as thin dividers. Only the
    pages that haven't been redesigned yet still use it */
 .pw-hairgrid { background: #232833; }
+
+/* phone only: the section bar, the bars that ride on top of it, and room under the page */
+.pw-bottom-nav { padding-bottom: var(--safe-b); }
+.pw-above-nav { bottom: calc(var(--nav-h) + var(--safe-b)); }
+.pw-page-pad { padding-bottom: calc(var(--nav-h) + var(--safe-b) + 16px); }
+@media (min-width: 640px) {
+  .pw-above-nav { bottom: 0; }
+  .pw-page-pad { padding-bottom: 0; }
+}

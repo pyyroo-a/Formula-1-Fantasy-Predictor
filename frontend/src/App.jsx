@@ -151,7 +151,7 @@ function App() {
       onClick={() => setSection(item.id)}
       aria-current={section === item.id ? "page" : undefined}
       className={phone
-        ? `flex-1 py-2.5 text-xs font-semibold ${section === item.id ? "text-pw-red" : "text-pw-muted"}`
+        ? `flex-1 h-14 text-[13px] font-semibold ${section === item.id ? "text-pw-red" : "text-pw-muted"}`
         : `py-1 text-sm font-semibold whitespace-nowrap transition-colors ${section === item.id ? "text-pw-text shadow-[inset_0_-2px_0_#FF4D4D]" : "text-pw-muted hover:text-pw-text"}`}
     >
       {item.label}
@@ -160,10 +160,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-pw-bg text-pw-text">
-      <div className="max-w-6xl mx-auto min-h-screen pb-20 sm:pb-0">
+      <div className="max-w-6xl mx-auto min-h-screen pw-page-pad">
 
         {/* header: logo, the four sections (desktop), the countdown */}
-        <header className="flex items-center justify-between gap-4 px-4 sm:px-5 py-3 border-b border-pw-edge">
+        <header className="flex items-center justify-between gap-4 px-4 sm:px-5 pb-3 pt-[max(env(safe-area-inset-top),12px)] border-b border-pw-edge">
           <div className="flex items-center gap-6 min-w-0">
             <span className="cond-x font-extrabold text-2xl text-pw-red flex-shrink-0">PITWALL</span>
             <nav className="hidden sm:flex gap-5">{NAV.map(item => navButton(item, false))}</nav>
@@ -172,7 +172,7 @@ function App() {
         </header>
 
         {/* on a phone the sections sit at the bottom, where your thumb is */}
-        <nav className="sm:hidden fixed bottom-0 inset-x-0 z-30 flex bg-pw-bg/95 backdrop-blur border-t border-pw-edge pb-[env(safe-area-inset-bottom)]">
+        <nav className="sm:hidden fixed bottom-0 inset-x-0 z-30 flex bg-pw-bg/95 backdrop-blur border-t border-pw-edge pw-bottom-nav">
           {NAV.map(item => navButton(item, true))}
         </nav>
 

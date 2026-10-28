@@ -71,7 +71,7 @@ export default function GarageEditor({ team, prices, teamMap, onSave, onCancel }
         showPoints={false}
       />
 
-      <div className="fixed sm:sticky bottom-[45px] sm:bottom-0 inset-x-0 z-20 mt-4 bg-pw-panel border-t border-pw-edge sm:rounded-xl px-4 py-2.5 flex items-center justify-between gap-3">
+      <div className="fixed sm:sticky pw-above-nav inset-x-0 z-20 mt-4 bg-pw-panel border-t border-pw-edge sm:rounded-xl px-4 py-2.5 flex items-center justify-between gap-3">
         <div className="text-xs text-pw-muted num">
           <b className="text-pw-text">{drivers.length}/5</b> drivers, <b className="text-pw-text">{constructors.length}/2</b> constructors
           <span className="block"><b className={over ? "text-pw-low" : "text-pw-text"}>{money(cost)}</b> of {money(budget)}</span>
