@@ -165,7 +165,11 @@ function App() {
         {/* header: logo, the four sections (desktop), the countdown */}
         <header className="flex items-center justify-between gap-4 px-4 sm:px-5 pb-3 pt-[max(env(safe-area-inset-top),12px)] border-b border-pw-edge">
           <div className="flex items-center gap-6 min-w-0">
-            <span className="cond-x font-extrabold text-2xl text-pw-red flex-shrink-0">PITWALL</span>
+            {/* the fast P from the favicon, then the name */}
+            <span className="flex items-center gap-2 flex-shrink-0">
+              <img src="/favicon.svg" alt="" className="w-7 h-7" />
+              <span className="cond-x font-extrabold text-2xl text-pw-red">PITWALL</span>
+            </span>
             <nav className="hidden sm:flex gap-5">{NAV.map(item => navButton(item, false))}</nav>
           </div>
           <CountdownWidget nextRace={nextRace} />
