@@ -143,3 +143,11 @@ def test_facts_are_facts_not_orders():
     assert len(paid) == 1 and paid[0].endswith("but costs -10.")
     for f in facts + rich:
         assert not any(w in f.lower() for w in ("should", "do this", "recommend"))
+
+
+def test_points_round_half_up_like_the_page():
+    # the page shows Math.round, Python's own round goes to the even number on a .5,
+    # so a row said 201 while its fact said 200 (found clicking through, US GP)
+    assert planner.whole_points(200.5) == 201
+    assert planner.whole_points(-3.5) == -3          # Math.round(-3.5) is -3 too
+    assert planner.whole_points(81.4) == 81

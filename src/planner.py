@@ -11,6 +11,7 @@ get_race_pool), plus the 2x counted again because that's real points in the game
 
 It states facts, it never says "do this". That was the whole brief: I make the call.
 """
+import math
 from itertools import combinations
 
 from src.fantasy import pick_boost_driver
@@ -36,6 +37,11 @@ TRANSFER_HIT = 10
 # points aren't on the game's exact scale (no pit stops, retirements charged at 0), so
 # "+X but -10" can't be trusted. Off: the page just says what a paid one costs.
 SHOW_PAID_ROW = False
+
+
+def whole_points(x: float) -> int:
+    """Rounds like the page does (Math.round, .5 goes up), so a row and its fact always agree."""
+    return math.floor(x + 0.5)
 
 
 def next_free_transfers(free_now: int, used: int) -> int:
@@ -155,19 +161,20 @@ def transfer_ladder(current: dict, pool: dict, prices: dict, budget: float, free
     real = [r for r in rows if not r.get("none")]
     top = max(real, key=lambda r: r["expected"])
     if top["transfers"] == 0:
-        facts.append(f"The highest expected total is keeping your team ({top['expected']:.0f}).")
+        facts.append(f"The highest expected total is keeping your team ({whole_points(top['expected'])}).")
     else:
-        facts.append(f"The highest expected total is with {_plural(top['transfers'])} ({top['expected']:.0f}).")
+        facts.append(f"The highest expected total is with {_plural(top['transfers'])} ({whole_points(top['expected'])}).")
     for k in range(1, free_transfers + 1):
         if k < len(rows) and not rows[k].get("none") and not rows[k - 1].get("none"):
-            facts.append(f"Transfer {k} adds {rows[k]['expected'] - rows[k - 1]['expected']:+.0f}.")
+            gain = whole_points(rows[k]["expected"]) - whole_points(rows[k - 1]["expected"])
+            facts.append(f"Transfer {k} adds {gain:+d}.")
     saved = next_free_transfers(free_transfers, free_transfers - 1)
     if free_transfers >= 1 and saved > next_free_transfers(free_transfers, free_transfers):
         facts.append(f"Skip transfer {free_transfers} and you'd have {saved} free transfers next week.")
     extra = free_transfers + 1
     if show_paid and len(rows) > extra and not rows[extra].get("none") and not rows[free_transfers].get("none"):
-        gain = rows[extra]["expected"] + TRANSFER_HIT - rows[free_transfers]["expected"]
-        facts.append(f"Transfer {extra} adds {gain:+.0f} but costs -{TRANSFER_HIT}.")
+        gain = whole_points(rows[extra]["expected"]) + TRANSFER_HIT - whole_points(rows[free_transfers]["expected"])
+        facts.append(f"Transfer {extra} adds {gain:+d} but costs -{TRANSFER_HIT}.")
     else:
         facts.append(f"Transfer {extra} costs -{TRANSFER_HIT}.")
     return {"rows": rows, "facts": facts, "missing": keep["missing"]}

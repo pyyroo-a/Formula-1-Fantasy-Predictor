@@ -8,6 +8,7 @@ import QualifyingTab from "./components/racedata/QualifyingTab";
 import TeamOptimizerTab from "./components/myteam/TeamOptimizerTab";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import ChipAdvisor from "./components/ChipAdvisor";
+import TransferPlanner from "./components/myteam/TransferPlanner";
 import PredictedFinishes from "./components/PredictedFinishes";
 import Backtest from "./components/Backtest";
 import { cacheTeam, readCachedTeam, pickNewer } from "./teamCache";
@@ -28,6 +29,7 @@ const MYTEAM_TABS = [
   { id: "budget", label: "TEAM OPTIMIZER" },
   { id: "manual", label: "MANUAL TEAM" },
   { id: "chips",  label: "CHIP ADVISOR" },
+  { id: "planner", label: "PLANNER" },
 ];
 
 const RACEDATA_TABS = [
@@ -210,6 +212,7 @@ function App() {
 
             {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} />}
             {mode === "chips" && section === "myteam" && <ChipAdvisor upcomingRaces={upcomingRaces} />}
+            {mode === "planner" && section === "myteam" && <TransferPlanner upcomingRaces={upcomingRaces} />}
             {mode === "backtest" && section === "racedata" && IS_DEV && <Backtest />}
           </div>
         </main>
