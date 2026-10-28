@@ -34,6 +34,7 @@ export const BADGE_COLOR = {
 
 export const TEAM_COLORS = {
   "Red Bull Racing": "#3671C6",
+  "Red Bull":        "#3671C6", // what the quali feed calls them
   McLaren:           "#FF8000",
   Ferrari:           "#E8002D",
   Mercedes:          "#27F4D2",
@@ -41,10 +42,11 @@ export const TEAM_COLORS = {
   Alpine:            "#FF87BC",
   Williams:          "#64C4FF",
   "RB F1 Team":      "#6692FF",
+  "Racing Bulls":    "#6692FF", // the 2026 name, the old one stays for old data
   "Kick Sauber":     "#52E252",
   Haas:              "#B6BABD",
   Audi:              "#E8E234",
-  Cadillac:          "#003087",
+  Cadillac:          "#4C7BD9", // lighter than their real navy so it shows on the dark background
 };
 
 export const CHIP_META = {

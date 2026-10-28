@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import { API } from "./api";
 import CountdownWidget from "./components/CountdownWidget";
 import Overview from "./components/Overview";
-import RaceResultsTab from "./components/racedata/RaceResultsTab";
-import PracticeTab from "./components/racedata/PracticeTab";
-import QualifyingTab from "./components/racedata/QualifyingTab";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
 import Garage from "./components/myteam/Garage";
 import PredictedFinishes from "./components/PredictedFinishes";
@@ -12,7 +9,8 @@ import TrackRecord from "./components/TrackRecord";
 import ChipHistory from "./components/ChipHistory";
 import Backtest from "./components/Backtest";
 import { cacheTeam, readCachedTeam, pickNewer } from "./teamCache";
-import { useRaceResults, usePractice, useQualifying } from "./hooks/useRaceData";
+import { useRaceWeekend } from "./hooks/useRaceData";
+import RaceDataPage from "./components/racedata/RaceDataPage";
 import ErrorBoundary from "./ui/ErrorBoundary";
 
 // import.meta.env.DEV is true under `npm run dev` and false in a production
@@ -42,17 +40,17 @@ const INSIGHTS_TABS = [
   { id: "chips", label: "Chips" },
 ];
 
-const RACEDATA_TABS = [
-  { id: "practice",   label: "Practice" },
-  { id: "qualifying", label: "Qualifying" },
-  { id: "results",    label: "Race results" },
-  ...(IS_DEV ? [{ id: "backtest", label: "Backtest" }] : []),
-];
+// race data is one page now, the session strip replaced the three tabs. Backtest is
+// still there when running locally
+const RACEDATA_TABS = IS_DEV ? [
+  { id: "weekend",  label: "Race weekend" },
+  { id: "backtest", label: "Backtest" },
+] : null;
 
 function App() {
   const [section, setSection] = useState("overview");
   const [myTeamTab, setMyTeamTab] = useState("manual");
-  const [raceDataTab, setRaceDataTab] = useState("practice");
+  const [raceDataTab, setRaceDataTab] = useState("weekend");
   const [insightsTab, setInsightsTab] = useState("finishes");
 
   const [races, setRaces] = useState([]);
@@ -82,11 +80,9 @@ function App() {
   const [finishesLoading, setFinishesLoading] = useState(true);
   const [finishesError, setFinishesError] = useState(null);
 
-  // Race Data tabs. The state stays up here in App (see hooks/useRaceData.js) so
-  // switching tabs doesn't forget the race you picked.
-  const results = useRaceResults();
-  const practice = usePractice();
-  const qualifying = useQualifying();
+  // Race data. The state stays up here in App (see hooks/useRaceData.js) so
+  // switching pages doesn't forget the race you picked.
+  const raceWeekend = useRaceWeekend();
 
   useEffect(() => {
     fetch(`${API}/races`).then(r => r.json()).then(setRaces).catch(() => {});
@@ -218,9 +214,7 @@ function App() {
             {section === "insights" && insightsTab === "trackrecord" && <TrackRecord />}
             {section === "insights" && insightsTab === "chips" && <ChipHistory />}
 
-            {mode === "results" && section === "racedata" && <RaceResultsTab races={races} results={results} />}
-            {mode === "practice" && section === "racedata" && <PracticeTab races={races} practice={practice} />}
-            {mode === "qualifying" && section === "racedata" && <QualifyingTab races={races} qualifying={qualifying} />}
+            {mode === "weekend" && section === "racedata" && <RaceDataPage races={races} weekend={raceWeekend} />}
 
             {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} weekendTeam={overviewWeekend} />}
             {mode === "garage" && section === "myteam" && <Garage upcomingRaces={upcomingRaces} finishes={finishes} />}

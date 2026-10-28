@@ -1,87 +1,65 @@
 import { useState } from "react";
 import { API } from "../api";
+import { postJson } from "../lib/api";
 
-// State and fetching for the Race Data tabs. These get
-// called in App, not inside the tabs, on purpose: a tab unmounts when you switch
-// away from it, and keeping the state up in App is what makes your picked race
-// still be there when you come back.
+// State and fetching for the Race data page. It gets called in App, not inside the
+// page, on purpose: the page unmounts when you switch away from it, and keeping the
+// state up in App is what makes your picked race still be there when you come back.
+//
+// One race, then a session from the strip (FP1 to Race). Every answer is kept, so
+// going back to a session you already opened doesn't ask the server again.
 
-export function useRaceResults() {
-  const [resultsRace, setResultsRace] = useState("");
-  const [raceResults, setRaceResults] = useState(null);
-  const [resultsLoading, setResultsLoading] = useState(false);
-  const [resultsError, setResultsError] = useState(null);
+const ENDPOINT = { Quali: "qualifying-results", Race: "race-results" };
 
-  const fetchRaceResults = async (raceName) => {
-    if (!raceName) return;
-    setResultsLoading(true); setResultsError(null); setRaceResults(null);
-    try {
-      const res = await fetch(`${API}/race-results`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: raceName }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setRaceResults(data);
-    } catch (e) { setResultsError(e.message || "Failed to load race results."); }
-    setResultsLoading(false);
+export function useRaceWeekend() {
+  const [race, setRaceName] = useState("");
+  const [session, setSessionName] = useState("Race");
+  const [answers, setAnswers] = useState({});      // "race|session" -> { ok, data } or { ok: false, error }
+  const [pending, setPending] = useState({});      // "race|session" -> true while asking
+  const [available, setAvailable] = useState({});  // race -> ["FP1", "FP2", "FP3"], from the practice answer
+
+  const keep = (key, answer) => {
+    setAnswers(a => ({ ...a, [key]: answer }));
+    setPending(p => { const next = { ...p }; delete next[key]; return next; });
   };
 
-  return { resultsRace, setResultsRace, raceResults, resultsLoading, resultsError, fetchRaceResults };
-}
-
-export function usePractice() {
-  const [practiceRace, setPracticeRace] = useState("");
-  const [practiceData, setPracticeData] = useState(null);   // { session, available_sessions, results }
-  const [practiceLoading, setPracticeLoading] = useState(false);
-  const [practiceError, setPracticeError] = useState(null);
-
-  // session = "" lets the backend auto-pick the final practice session that ran
-  // (FP3 normally, FP1 on sprint weekends), and tell us which sessions exist.
-  const fetchPractice = async (raceName, session = "") => {
-    if (!raceName) return;
-    setPracticeLoading(true); setPracticeError(null);
-    try {
-      const res = await fetch(`${API}/practice-results`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: raceName, session }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setPracticeData(data);
-    } catch (e) { setPracticeError(e.message || "Failed to load practice data."); setPracticeData(null); }
-    setPracticeLoading(false);
+  // practice: "" lets the server pick the last session that ran, which also tells us
+  // which practice sessions this weekend had
+  const loadPractice = async (raceName, fp) => {
+    const r = await postJson(`${API}/practice-results`, { race_name: raceName, session: fp });
+    if (r.ok) {
+      setAvailable(a => ({ ...a, [raceName]: r.data.available_sessions }));
+      keep(`${raceName}|${r.data.session}`, r);
+    }
+    if (fp) keep(`${raceName}|${fp}`, r);
   };
 
+  const load = async (raceName, s, known) => {
+    const key = `${raceName}|${s}`;
+    if (!raceName || known[key]) return;
+    setPending(p => ({ ...p, [key]: true }));
+    if (ENDPOINT[s]) keep(key, await postJson(`${API}/${ENDPOINT[s]}`, { race_name: raceName }));
+    else await loadPractice(raceName, s);
+  };
+
+  const setRace = (name) => {
+    setRaceName(name);
+    setSessionName("Race");
+    if (!name) return;
+    load(name, "Race", answers);
+    if (!available[name]) loadPractice(name, "");
+  };
+
+  const setSession = (s) => {
+    setSessionName(s);
+    load(race, s, answers);
+  };
+
+  const key = `${race}|${session}`;
   return {
-    practiceRace, setPracticeRace, practiceData, setPracticeData,
-    practiceLoading, practiceError, setPracticeError, fetchPractice,
-  };
-}
-
-export function useQualifying() {
-  const [qualRace, setQualRace] = useState("");
-  const [qualResults, setQualResults] = useState(null);
-  const [qualLoading, setQualLoading] = useState(false);
-  const [qualError, setQualError] = useState(null);
-
-  const fetchQualifying = async () => {
-    if (!qualRace) return;
-    setQualLoading(true); setQualError(null); setQualResults(null);
-    try {
-      const res = await fetch(`${API}/qualifying-results`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ race_name: qualRace }),
-      });
-      const data = await res.json();
-      if (data.detail) throw new Error(data.detail);
-      setQualResults(data);
-    } catch (e) { setQualError(e.message || "Failed to load qualifying data."); }
-    setQualLoading(false);
-  };
-
-  return {
-    qualRace, setQualRace, qualResults, setQualResults,
-    qualLoading, qualError, setQualError, fetchQualifying,
+    race, setRace, session, setSession,
+    answer: answers[key] || null,
+    loading: !!pending[key],
+    available: available[race] || null,
   };
 }
