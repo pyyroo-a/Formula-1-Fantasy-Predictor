@@ -10,8 +10,10 @@ been worth at each track, so you can weigh up a chip before a race. Facts, not a
   Limitless    the best team with no budget cap minus the best $100M team. Needs that
                round's prices, so 2026 only for now
 
-Only 2025 and 2026 (my call, same as the model: older seasons are old cars). Kept free
-of the model's imports so the Monday GitHub Action can run it.
+Only seasons with the game's own official points (2026 on, growing every season). Our
+own scoring of 2025 was on a smaller scale (no extras), so it made every track look the
+same, see scripts/chip_history.py. Kept free of the model's imports so the Monday
+GitHub Action can run it.
 """
 import pandas as pd
 

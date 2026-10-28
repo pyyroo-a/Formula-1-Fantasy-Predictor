@@ -60,7 +60,12 @@ Per race weekend:
   (`simple_picks.hindsight_best_team`). Needs that round's prices, so **2026 only**
   for now (prices are in `data/official_points_2026.json`), it grows every season.
 
-**Seasons: 2025 and 2026 only** (Ashen's call, same as the model: older seasons
+**Update after the real data (task 2): 2026 only, growing each season** (Ashen's
+call). Our own scoring of 2025 came out on a smaller scale than the game's official
+points (a pole to win weekend scored 35 almost everywhere, the game gave 45 to 93 in
+2026), so it flattened every track and broke the 2025 to 2026 check (0.05, 1 of 5).
+The check waits for 2027. 2025 still trains the model. Originally: **2025 and 2026
+only** (Ashen's call, same as the model: older seasons
 describe old cars, a 2023/2024 heavy model once put his 2x on Perez for -48). Points:
 2026 from the official feed (`data/official_points_2026.json`). 2025 from our own
 scoring of `data/processed/race_results_2025.csv` (`src/fantasy.py`),
