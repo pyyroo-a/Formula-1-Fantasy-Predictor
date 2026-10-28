@@ -43,7 +43,7 @@ export default function TeamPicker({ drivers, constructors, picked, onToggleDriv
     const on = picked.drivers.includes(d.Abbreviation);
     const line = showPoints && d.FantasyValue != null
       ? `${d.Predicted != null ? `P${Math.round(d.Predicted)}, ` : ""}${fmt1(d.FantasyValue)} pts`
-      : d.TeamName || "";
+      : sort === "team" ? "" : d.TeamName || "";
     return (
       <Card
         key={d.Abbreviation}

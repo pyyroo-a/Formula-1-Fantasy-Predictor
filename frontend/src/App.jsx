@@ -6,8 +6,7 @@ import RaceResultsTab from "./components/racedata/RaceResultsTab";
 import PracticeTab from "./components/racedata/PracticeTab";
 import QualifyingTab from "./components/racedata/QualifyingTab";
 import ManualTeamBuilder from "./components/ManualTeamBuilder";
-import ChipAdvisor from "./components/ChipAdvisor";
-import TransferPlanner from "./components/myteam/TransferPlanner";
+import Garage from "./components/myteam/Garage";
 import PredictedFinishes from "./components/PredictedFinishes";
 import TrackRecord from "./components/TrackRecord";
 import ChipHistory from "./components/ChipHistory";
@@ -29,10 +28,11 @@ const NAV = [
 
 // the Team Optimizer got dropped in the redesign: old races at today's prices wasn't
 // this weekend's answer or what you could have scored. /predict-budget is still there
+// the Garage took over the planner and the chip advisor (your saved teams, both
+// answers at once)
 const MYTEAM_TABS = [
   { id: "manual", label: "Manual team" },
-  { id: "planner", label: "Garage" },
-  { id: "chips",  label: "Chip advisor" },
+  { id: "garage", label: "Garage" },
 ];
 
 // project 5: the track record sits next to the predicted finishes
@@ -223,8 +223,7 @@ function App() {
             {mode === "qualifying" && section === "racedata" && <QualifyingTab races={races} qualifying={qualifying} />}
 
             {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} weekendTeam={overviewWeekend} />}
-            {mode === "chips" && section === "myteam" && <ChipAdvisor upcomingRaces={upcomingRaces} />}
-            {mode === "planner" && section === "myteam" && <TransferPlanner upcomingRaces={upcomingRaces} />}
+            {mode === "garage" && section === "myteam" && <Garage upcomingRaces={upcomingRaces} finishes={finishes} />}
             {mode === "backtest" && section === "racedata" && IS_DEV && <Backtest />}
           </ErrorBoundary>
         </main>
