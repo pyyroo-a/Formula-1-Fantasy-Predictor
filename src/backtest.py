@@ -254,6 +254,22 @@ def deadline_grid(race_name: str):
     return grid, used
 
 
+def predicted_for_round(rnd: int, df_previous: pd.DataFrame, df_current: pd.DataFrame):
+    """
+    One round of the replay on its own: (race name, the walk forward predicted table,
+    session used). Trained only on races before rnd, grid from the deadline session,
+    the same steps run_backtest does per round. The table is None if no practice loads.
+    The planner grade (scripts/planner_grade.py) uses this.
+    """
+    target_raw = df_current[df_current["RoundNumber"] == rnd].copy()
+    race_name = target_raw["RaceName"].iloc[0]
+    practice_df, session_used = deadline_grid(race_name)
+    if practice_df is None:
+        return race_name, None, None
+    history_raw = pd.concat([df_previous, df_current[df_current["RoundNumber"] < rnd]], ignore_index=True)
+    return race_name, _predict_race(history_raw, target_raw, race_name, practice_df), session_used
+
+
 def _prices_for_round(round_number: int, fallback: dict, cache: dict) -> dict:
     if round_number in cache:
         return cache[round_number]

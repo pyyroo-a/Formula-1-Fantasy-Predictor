@@ -25,8 +25,17 @@ MAX_FREE_TRANSFERS = 3
 TRANSFER_HIT = 10
 
 # Show the paid row (one transfer past the free ones, -10 already taken off)?
-# Measured in the planner grade (scripts/planner_grade.py), numbers go here.
-SHOW_PAID_ROW = True
+#
+# Measured 2026-10-28, scripts/planner_grade.py, R3 to R18 replayed from PitWall's R3
+# team at $100M, official points, -10 per paid transfer:
+#     keep the team          193.4 pts/race
+#     free transfers only    218.6 pts/race   (+25.2, better on 10, worse on 5)
+#     with hits              214.6 pts/race   (-4.0 vs free only, 3 hits: Miami +15,
+#                                              Bahrain -30, Austin -28)
+# Free transfers clear the bar, paying -10 on the ladder's say so doesn't. Our expected
+# points aren't on the game's exact scale (no pit stops, retirements charged at 0), so
+# "+X but -10" can't be trusted. Off: the page just says what a paid one costs.
+SHOW_PAID_ROW = False
 
 
 def next_free_transfers(free_now: int, used: int) -> int:

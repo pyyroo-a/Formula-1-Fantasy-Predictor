@@ -76,7 +76,8 @@ def test_rows_are_independent_not_nested():
 
 
 def test_paid_row_has_the_hit_taken_off():
-    ladder = planner.transfer_ladder(TEAM, POOL, PRICES, budget=999.0, free_transfers=2)
+    # the page doesn't show it (SHOW_PAID_ROW is off), the replay still asks for it
+    ladder = planner.transfer_ladder(TEAM, POOL, PRICES, budget=999.0, free_transfers=2, paid_row=True)
     assert [r["transfers"] for r in ladder["rows"]] == [0, 1, 2, 3]
     paid = ladder["rows"][3]
     three = planner.best_with_transfers(TEAM, POOL, PRICES, budget=999.0, k=3)
@@ -86,7 +87,7 @@ def test_paid_row_has_the_hit_taken_off():
 
 
 def test_no_paid_row_when_switched_off(monkeypatch):
-    monkeypatch.setattr(planner, "SHOW_PAID_ROW", False)
+    assert planner.SHOW_PAID_ROW is False   # off since 2026-10-28, it lost on real points
     ladder = planner.transfer_ladder(TEAM, POOL, PRICES, budget=999.0, free_transfers=2)
     assert [r["transfers"] for r in ladder["rows"]] == [0, 1, 2]
     assert "Transfer 3 costs -10." in ladder["facts"]
@@ -131,10 +132,13 @@ def test_facts_are_facts_not_orders():
     assert "Transfer 1 adds +81." in facts
     assert "Transfer 2 adds +13." in facts
     assert "Skip transfer 2 and you'd have 3 free transfers next week." in facts
-    # no 3 transfer team fits in $70M, so the paid fact is just the cost
-    assert ladder["rows"][3].get("none")
+    # the paid row is off, so the paid fact is just the cost (and at $70M no 3 transfer
+    # team even fits)
+    assert len(ladder["rows"]) == 3
     assert "Transfer 3 costs -10." in facts
-    rich = planner.transfer_ladder(TEAM, POOL, PRICES, budget=999.0, free_transfers=2)["facts"]
+    assert planner.transfer_ladder(TEAM, POOL, PRICES, budget=70.0, free_transfers=2,
+                                   paid_row=True)["rows"][3].get("none")
+    rich = planner.transfer_ladder(TEAM, POOL, PRICES, budget=999.0, free_transfers=2, paid_row=True)["facts"]
     paid = [f for f in rich if f.startswith("Transfer 3 adds")]
     assert len(paid) == 1 and paid[0].endswith("but costs -10.")
     for f in facts + rich:
