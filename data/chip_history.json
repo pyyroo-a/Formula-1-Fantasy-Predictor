@@ -247,7 +247,7 @@
   {
    "track": "Marina Bay",
    "name": "Singapore Grand Prix",
-   "sprint": false,
+   "sprint": true,
    "chips": {
     "3x": {
      "median": 53.0,

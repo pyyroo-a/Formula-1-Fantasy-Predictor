@@ -15,6 +15,10 @@ own scoring of 2025 was on a smaller scale (no extras), so it made every track l
 same, see scripts/chip_history.py. Kept free of the model's imports so the Monday
 GitHub Action can run it.
 """
+import glob
+import os
+import re
+
 import pandas as pd
 
 from src import simple_picks
@@ -29,6 +33,22 @@ TRACK_ALIASES = {"Monte Carlo": "Monaco"}
 
 def track_key(location: str) -> str:
     return TRACK_ALIASES.get(location, location)
+
+
+def official_seasons(folder: str = "data") -> list[int]:
+    """Every season we have the game's own points for (data/official_points_YYYY.json)."""
+    years = []
+    for path in glob.glob(os.path.join(folder, "official_points_*.json")):
+        m = re.fullmatch(r"official_points_(\d{4})\.json", os.path.basename(path))
+        if m:
+            years.append(int(m.group(1)))
+    return sorted(years)
+
+
+def sprint_rounds(schedule: pd.DataFrame) -> set[int]:
+    """Sprint weekends from FastF1's calendar, which is complete (our sprint file isn't)."""
+    return {int(r["RoundNumber"]) for _, r in schedule.iterrows()
+            if "sprint" in str(r["EventFormat"]).lower()}
 
 
 def _limitless(driver_pts: dict, constructor_pts: dict, prices: dict) -> float:

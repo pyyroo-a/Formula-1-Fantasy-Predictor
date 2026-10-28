@@ -66,8 +66,10 @@ Where it's going:
   [`docs/superpowers/`](../docs/superpowers/). The track record page (INSIGHTS > TRACK
   RECORD) shows what the real locked teams scored, honestly: R13 to R18 PitWall 175.2
   pts/race vs 187.0 for copying the FP3 order, but those locks were all made before the
-  28 Oct fixes. Next is project 6, chips (aimed at 2027).
-- 193 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
+  28 Oct fixes. INSIGHTS > CHIPS shows what each chip was really worth at every track
+  (project 6, official points so 2026 only for now). Project 7 (Reddit) is parked, so
+  next is a simple code tour note, then the one big UI redesign.
+- 205 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
 - F1 put its live timing behind an F1TV login in October 2026. Practice comes from
   OpenF1 now, race results still come through FastF1 and that's fine (the 2026-10-26
   Monday job worked). See [Gotchas](Gotchas.md).

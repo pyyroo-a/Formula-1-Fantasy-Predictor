@@ -42,9 +42,10 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
    scorecard (`src/track_record.py`), rebuilt every Monday by the Action. Honest
    start: R13 to R18 PitWall 175.2 vs 187.0 for copying FP3 (beat it 3 of 6), all
    locked before the 28 Oct fixes, Mexico is the first real test.
-6. **Chips.** A season chip plan by circuit, backed by history and tested on past
-   seasons. The weekly check compares against the plan. Manual what ifs. Aimed at 2027,
-   I have no chips left this season. See [Chips](Chips.md).
+6. **Chips.** Done 2026-10-28. INSIGHTS > CHIPS: what 3x, Limitless and No Negative were
+   really worth at every track, best tracks per chip, plain lines for the other three.
+   Official points only (2026, growing every season), our 2025 maths was on a smaller
+   scale. No "save it for later" engine, facts only. See [Chips](Chips.md).
 7. **Reddit discussion feed (parked).** What people are picking and their game plans.
    Reddit's free API is limited and AI summaries would cost money, so later. Ownership %
    IS in the F1 Fantasy feed, and every snapshot saves it at the lock since project 2.
@@ -57,6 +58,10 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
 - **Re-run `scripts/confidence_grade.py` after a few races from Mexico.** The cutoffs
   were picked on R1 to R18, the new races are the honest test. Same for sprint weekends
   if we ever want them on.
+- **A simple code tour note in this vault** (I asked for it 2026-10-28): every file
+  added in projects 1 to 6 and what it does, in plain words, not all the code.
+- **After the first 2027 races:** check the CHIPS tab's "does last season predict this
+  one" line has filled in, and write the numbers in Decisions and evidence.
 - **Re-test the paid transfer row** after a few more races (`scripts/planner_grade.py`).
   It lost by 4 pts/race over 3 hits, a small sample.
 
@@ -124,6 +129,8 @@ All the numbers: [Decisions and evidence](Decisions%20and%20evidence.md).
 
 ## Done
 
+- 2026-10-28: project 6. Chip history by track (`src/chip_history.py`,
+  `scripts/chip_history.py`, `/chip-history`, the CHIPS tab), in the Monday job.
 - 2026-10-28: project 5. The track record page, `scripts/track_record.py` in the Monday
   job, `/track-record`, the scorecard's grading shared in `src/track_record.py`.
 - 2026-10-28: project 4. Ideal lap and long runs measured and dropped, confidence levels

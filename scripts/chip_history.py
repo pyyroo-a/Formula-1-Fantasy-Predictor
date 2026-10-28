@@ -1,9 +1,11 @@
 """
 Builds data/chip_history.json for the CHIPS tab (project 6).
 
-Every 2025 and 2026 race weekend: what 3x, Limitless and No Negative would really have
-been worth (src/chip_history.py), grouped by track, the best tracks per chip, and the
-honest check of whether 2025's ranking predicted 2026's.
+Every race weekend we have the game's official points for: what 3x, Limitless and No
+Negative would really have been worth (src/chip_history.py), grouped by track, the best
+tracks per chip, and (once there are two seasons) the honest check of whether last
+season's ranking predicted this one's. A new season joins by itself as soon as its
+data/official_points_YYYY.json exists.
 
   Only seasons with the game's own official points, so 2026 for now, and every new
   season gets added as it's raced. We tried 2025 with our own scoring of the results,
@@ -26,45 +28,33 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import fastf1
 import pandas as pd
 
-from src.chip_history import CHIPS, best_tracks, rank_check, track_key, track_table, weekend_values
+from src.chip_history import (CHIPS, best_tracks, official_seasons, rank_check, sprint_rounds, track_key,
+                               track_table, weekend_values)
 from src.official_points import load_official_points
 
 OUT = "data/chip_history.json"
 PROCESSED = "data/processed"
 
 
-def _locations(year: int) -> dict[int, str]:
-    s = fastf1.get_event_schedule(year, include_testing=False)
-    return {int(r["RoundNumber"]): r["Location"] for _, r in s.iterrows()}
-
-
-def _positions(rows: pd.DataFrame) -> tuple[dict, dict]:
-    starts = {a: g for a, g in zip(rows["Abbreviation"], rows["GridPosition"]) if pd.notna(g)}
-    finishes = {a: p for a, p in zip(rows["Abbreviation"], rows["Position"]) if pd.notna(p)}
-    return starts, finishes
-
-
-def _sprints(year: int) -> pd.DataFrame:
-    path = f"{PROCESSED}/sprint_results_{year}.csv"
-    return pd.read_csv(path) if os.path.exists(path) else pd.DataFrame(columns=["RoundNumber"])
-
-
-def weekends_2026(official: dict) -> list[dict]:
-    results = pd.read_csv(f"{PROCESSED}/race_results_2026.csv")
-    sprint_rounds = set(_sprints(2026)["RoundNumber"].astype(int))
-    where = _locations(2026)
+def weekends_for(year: int, official: dict) -> list[dict]:
+    """One season's weekends, official points only."""
+    results = pd.read_csv(f"{PROCESSED}/race_results_{year}.csv")
+    schedule = fastf1.get_event_schedule(year, include_testing=False)
+    where = {int(r["RoundNumber"]): r["Location"] for _, r in schedule.iterrows()}
+    sprints = sprint_rounds(schedule)
     out = []
     for rnd, rows in results.groupby("RoundNumber"):
         rnd = int(rnd)
         rp = official.get(rnd)
-        if not rp:
+        if not rp or rnd not in where:
             continue
         there = set(rows["Abbreviation"])
         drivers = {a: v["points"] for a, v in rp["drivers"].items() if a in there}
         constructors = {c: v["points"] for c, v in rp["constructors"].items()}
-        starts, finishes = _positions(rows)
-        out.append({"season": 2026, "round": rnd, "track": track_key(where[rnd]),
-                    "name": rows["RaceName"].iloc[0], "sprint": rnd in sprint_rounds,
+        starts = {a: g for a, g in zip(rows["Abbreviation"], rows["GridPosition"]) if pd.notna(g)}
+        finishes = {a: f for a, f in zip(rows["Abbreviation"], rows["Position"]) if pd.notna(f)}
+        out.append({"season": year, "round": rnd, "track": track_key(where[rnd]),
+                    "name": rows["RaceName"].iloc[0], "sprint": rnd in sprints,
                     "values": weekend_values(drivers, constructors, rp.get("prices"), starts, finishes)})
     return out
 
@@ -74,7 +64,9 @@ def main():
     # the Monday Action starts with no cache folder, and FastF1 won't make it itself
     os.makedirs("data/cache", exist_ok=True)
     fastf1.Cache.enable_cache("data/cache")
-    weekends = weekends_2026(load_official_points())
+    weekends = []
+    for year in official_seasons("data"):
+        weekends += weekends_for(year, load_official_points(f"data/official_points_{year}.json"))
     table = track_table(weekends)
     seasons = sorted({w["season"] for w in weekends})
     # the honest check needs two official seasons: does last season's ranking predict this one's

@@ -74,3 +74,19 @@ def test_rank_check_uses_tracks_in_both_seasons():
     assert check["tracks"] == 3
     assert check["spearman"] == pytest.approx(1.0)
     assert check["top5_hits"] == 3
+
+
+def test_official_seasons_finds_every_points_file(tmp_path):
+    # final review: "grows every season" has to happen by itself, so the script reads
+    # every season that has the game's official points, not just 2026
+    for name in ["official_points_2026.json", "official_points_2027.json", "prices.json"]:
+        (tmp_path / name).write_text("{}")
+    assert ch.official_seasons(str(tmp_path)) == [2026, 2027]
+
+
+def test_sprint_rounds_come_from_the_schedule():
+    # final review: the sprint results file was missing Singapore, the calendar isn't
+    import pandas as pd
+    schedule = pd.DataFrame({"RoundNumber": [16, 17, 18],
+                             "EventFormat": ["conventional", "sprint_qualifying", "conventional"]})
+    assert ch.sprint_rounds(schedule) == {17}

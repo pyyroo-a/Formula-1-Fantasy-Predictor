@@ -67,6 +67,11 @@ like before. The first call after a quiet spell takes about a minute while Rende
 
 ## Start a new season
 
+Also point `OFFICIAL_POINTS_PATH` in `src/official_points.py` at the new year's
+`data/official_points_YYYY.json` (it says 2026 right now), and add the new file to the
+`git add` line in `.github/workflows/update-race-data.yml`. The CHIPS tab picks up every
+season's file by itself, that's how it grows.
+
 `src/config.py` has `SEASON`. Change it to the new year, make sure the finished
 season's results are in `data/processed/` as last season's data, check every race
 name exists in `CIRCUIT_PROFILES` and `src/race_names.py` (see [Gotchas](Gotchas.md)),

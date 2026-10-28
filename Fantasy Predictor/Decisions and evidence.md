@@ -56,6 +56,29 @@ PitWall's R3 team at $100M, official points, -10 per paid transfer:
 Free transfers passed, so the [Planner](Planner.md) shipped. The paid row failed, so it's
 off and the page only states what a paid transfer costs.
 
+## Project 6: chip history (measured 2026-10-28)
+
+What each chip would really have been worth, best possible picks, 2026 official points:
+
+| | Normal weekends (12) | Sprint weekends (6) |
+|---|---:|---:|
+| 3x (the top scorer's points) | 51.6 | 58.0 |
+| Limitless (no cap best minus the best $100M) | 90.8 | 103.8 |
+
+- 3x on a sprint isn't much of a rule, about +6. The best 3x was Monza (93, Antonelli P19
+  to P1), a normal weekend and a one-off.
+- Limitless is huge but swings: Miami +167, Monaco +15. China: best $100M 461, perfect
+  Limitless about 549.
+- No Negative tops at Singapore (37.8) and Baku (31.2) this season, one weekend each so far
+  (Melbourne 31.0 right behind).
+- **2025 dropped from the chip history.** Our own scoring of 2025 only counts the basics
+  (pole to win = 35 almost everywhere vs 45 to 93 in the real 2026 game), so "does
+  2025 predict 2026" came out at rank correlation 0.05 (1 of 5 best tracks repeated)
+  for both 3x and No Negative, a scale problem, not a finding about tracks. The real
+  check waits for a second official season.
+- The free F1 Fantasy feed doesn't seem to share chip usage (what people played), so
+  "copy the crowd" for chips isn't possible for free.
+
 ## Project 4: better inputs and confidence (measured 2026-10-28)
 
 First we tried to beat the FP3 order with better practice inputs. Places between a

@@ -29,7 +29,9 @@ The header has 4 sections, and two of them have tabs:
   they did (`PredictedFinishes.jsx`). Track record (`TrackRecord.jsx`, project 5): what
   PitWall's locked team 1 really scored each weekend vs copy the FP3 order, most
   expensive, copy the crowd and the best possible, green where PitWall won, amber
-  where it lost. Reads `/track-record`.
+  where it lost. Reads `/track-record`. Chips (`ChipHistory.jsx`, project 6): best
+  tracks for 3x, Limitless and No Negative and what each was worth at every track,
+  plus a line each on the other three chips. Reads `/chip-history`.
 
 ## How it fits together
 
