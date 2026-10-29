@@ -39,6 +39,7 @@ How it works:
 - [API](API.md): every endpoint and which file it lives in
 - [Frontend](Frontend.md): how the site's files fit together
 - [Code tour](Code%20tour.md): every file added in projects 1 to 6, one plain line each
+- [Learning the code](Learning%20the%20code/Learning%20the%20code.md): the code explained in plain words, from the big picture to one page traced end to end, for reading in my free time
 
 Why it is the way it is:
 - [Decisions and evidence](Decisions%20and%20evidence.md): every measured number behind a decision, so nobody undoes one by feel
