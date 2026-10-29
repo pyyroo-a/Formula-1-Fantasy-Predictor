@@ -1,0 +1,127 @@
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  .pw, .pw * { box-sizing:border-box; }
+  .pw { background:#0F1217; color:#E9ECF1; font-family:Archivo, sans-serif; border-radius:20px; overflow:hidden; box-shadow:0 0 0 1px rgba(127,127,127,.25); width:360px; flex:none; }
+  .num { font-variant-numeric: tabular-nums; }
+  .mut { color:#8B93A3; }
+  .b { padding:14px 16px 16px; }
+  h1 { margin:0; font-weight:800; font-stretch:62%; font-size:26px; line-height:1; }
+  .sub { font-size:12px; color:#8B93A3; margin:6px 0 10px; line-height:1.45; }
+  .boxes { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
+  .box { background:#141821; border-radius:9px; padding:7px 9px; }
+  .box span { font-size:11px; color:#8B93A3; display:block; }
+  .box b { font-size:22px; font-stretch:62%; font-weight:800; }
+  .win { box-shadow: inset 0 0 0 1px rgba(91,227,138,.5); }
+  .win b { color:#5BE38A; }
+  /* A */
+  .head { display:grid; grid-template-columns:34px 1fr 52px 64px; gap:6px; font-size:11px; color:#8B93A3; padding:0 0 4px; border-bottom:1px solid #232833; }
+  .r { display:grid; grid-template-columns:34px 1fr 52px 64px; gap:6px; align-items:center; padding:6px 0; border-bottom:1px solid #1E232C; font-size:13px; }
+  .r .p { font-weight:700; font-stretch:68%; font-size:16px; color:#8B93A3; }
+  .r .n { display:flex; align-items:center; gap:7px; min-width:0; }
+  .r .n i { width:4px; height:18px; border-radius:2px; flex:none; }
+  .r .n b { font-stretch:78%; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .r .c { text-align:center; color:#8B93A3; }
+  .pill { justify-self:end; font-size:12px; font-weight:700; padding:1px 8px; border-radius:10px; background:#232833; color:#8B93A3; }
+  .pill.ok { background:#163222; color:#5BE38A; }
+  .pill.dnf { background:#3A1D22; color:#FF7A7A; }
+  /* B */
+  .slope { position:relative; }
+  .slope svg { display:block; }
+  .lbl { font-family:Archivo; font-stretch:78%; font-weight:700; font-size:11px; fill:#E9ECF1; }
+  .lblm { font-family:Archivo; font-size:10px; fill:#8B93A3; }
+  /* C */
+  .bucket { background:#141821; border-radius:10px; padding:9px 11px; margin-bottom:7px; }
+  .bucket h4 { margin:0 0 6px; font-size:14px; font-stretch:75%; display:flex; justify-content:space-between; }
+  .bucket h4 span { font-weight:400; font-size:12px; color:#8B93A3; font-stretch:100%; }
+  .chips { display:flex; flex-wrap:wrap; gap:4px; }
+  .chip { font-size:12px; padding:2px 7px 2px 5px; border-radius:6px; background:#1B202A; display:inline-flex; gap:5px; align-items:center; font-stretch:80%; font-weight:600; }
+  .chip i { width:3px; height:12px; border-radius:2px; }
+  .chip small { font-weight:400; color:#8B93A3; font-stretch:100%; }
+  .flow { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+  .flow > .option { display:block !important; padding:12px !important; width:auto; }
+  .cap { font-size:13px; margin:10px 4px 0; width:360px; line-height:1.45; }
+</style>
+
+<h2>Predicted finishes: three ways without the headshots</h2>
+<p class="subtitle">Real US GP data (the held weekend). All three keep the "model off by 1.89, practice off by 1.58" boxes at the top. Phone width. Click the one you like.</p>
+
+<div class="flow options">
+
+<div class="option" data-choice="slim-list" onclick="toggleSelect(this)">
+<div class="pw"><div class="b">
+  <h1>US GP, how close were we?</h1>
+  <p class="sub">Predicted from FP3. Real result after the race.</p>
+  <div class="boxes num"><div class="box"><span>Model off by</span><b>1.89</b> <span>places on average</span></div><div class="box win"><span>Practice order off by</span><b>1.58</b> <span>places, closer this time</span></div></div>
+  <div class="head"><span>Pred</span><span>Driver</span><span style="text-align:center">Practice</span><span style="text-align:right">Finished</span></div>
+  <div id="a"></div>
+</div></div>
+<p class="cap"><b>A. Slim timing list.</b> Like today's page minus the photos, as a tidy 4 column table that fits a phone: predicted spot, driver, practice spot, real finish. Green when we were within 1. Fast to scan, all 22 on about one screen.</p>
+</div>
+
+<div class="option" data-choice="slope" onclick="toggleSelect(this)">
+<div class="pw"><div class="b">
+  <h1>US GP, how close were we?</h1>
+  <p class="sub">Left: where we predicted them. Right: where they finished. Flat lines = we nailed it.</p>
+  <div class="boxes num"><div class="box"><span>Model off by</span><b>1.89</b></div><div class="box win"><span>Practice order off by</span><b>1.58</b></div></div>
+  <div class="slope" id="b"></div>
+</div></div>
+<p class="cap"><b>B. Before and after lines.</b> Each driver is a line from predicted spot to real finish. Green lines were within 1 place, grey ones were further off, red ends are DNFs. You see at a glance who we got badly wrong (Hülkenberg dropping from P7 to P11, Hadjar jumping P10 to P6).</p>
+</div>
+
+<div class="option" data-choice="buckets" onclick="toggleSelect(this)">
+<div class="pw"><div class="b">
+  <h1>US GP, how close were we?</h1>
+  <p class="sub">Every driver sorted by how far off the prediction was.</p>
+  <div class="boxes num"><div class="box"><span>Model off by</span><b>1.89</b></div><div class="box win"><span>Practice order off by</span><b>1.58</b></div></div>
+  <div id="c"></div>
+</div></div>
+<p class="cap"><b>C. How close, in groups.</b> Spot on, within 1, 2 to 3 off, 4 or more off, and DNFs. Each driver is a small chip with "P7 to P11". Reads like a report card: how many we nailed and who surprised us.</p>
+</div>
+
+</div>
+
+<script>
+  const C = {Ferrari:"#E8002D","Red Bull Racing":"#3671C6",Mercedes:"#27F4D2",McLaren:"#FF8000",Audi:"#E8E234","Racing Bulls":"#6692FF",Alpine:"#FF87BC","Haas F1 Team":"#B6BABD","Aston Martin":"#229971",Williams:"#64C4FF",Cadillac:"#4C7BD9"};
+  // [model, code, name, team, practice, finished or null for DNF]
+  const R = [[1,"LEC","Leclerc","Ferrari",1,2],[2,"VER","Verstappen","Red Bull Racing",4,3],[3,"ANT","Antonelli","Mercedes",3,1],[4,"NOR","Norris","McLaren",5,5],
+    [5,"HAM","Hamilton","Ferrari",2,4],[6,"PIA","Piastri","McLaren",7,7],[7,"HUL","Hülkenberg","Audi",8,11],[8,"RUS","Russell","Mercedes",6,8],
+    [9,"LAW","Lawson","Racing Bulls",11,9],[10,"HAD","Hadjar","Red Bull Racing",10,6],[11,"GAS","Gasly","Alpine",9,10],[12,"COL","Colapinto","Alpine",15,null],
+    [13,"BEA","Bearman","Haas F1 Team",14,null],[14,"ALO","Alonso","Aston Martin",16,16],[15,"LIN","Lindblad","Racing Bulls",12,12],[16,"OCO","Ocon","Haas F1 Team",17,14],
+    [17,"STR","Stroll","Aston Martin",18,15],[18,"BOR","Bortoleto","Audi",13,13],[19,"SAI","Sainz","Williams",19,18],[20,"ALB","Albon","Williams",20,17],
+    [21,"PER","Pérez","Cadillac",21,19],[22,"BOT","Bottas","Cadillac",22,null]];
+
+  // A
+  document.getElementById("a").innerHTML = R.map(([m,c,n,t,p,f]) => {
+    const cls = f == null ? "dnf" : Math.abs(m-f) <= 1 ? "ok" : "";
+    return `<div class="r num"><span class="p">P${m}</span><span class="n"><i style="background:${C[t]}"></i><b>${n}</b></span><span class="c">P${p}</span><span class="pill ${cls}">${f == null ? "DNF" : "P"+f}</span></div>`;
+  }).join("");
+
+  // B: slope chart
+  const H = 23*24 + 24, W = 328, xl = 70, xr = W - 70, y = i => 14 + (i-1)*24;
+  let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  s += `<text x="${xl}" y="8" text-anchor="middle" class="lblm">predicted</text><text x="${xr}" y="8" text-anchor="middle" class="lblm">finished</text>`;
+  for (const [m,c,n,t,p,f] of R) {
+    const y1 = y(m) + 10, y2 = f == null ? y(23) + 10 : y(f) + 10;
+    const close = f != null && Math.abs(m-f) <= 1;
+    const col = f == null ? "#FF7A7A" : close ? "#5BE38A" : "#5A6170";
+    s += `<line x1="${xl+4}" y1="${y1}" x2="${xr-4}" y2="${y2}" stroke="${col}" stroke-width="${close?2:1.6}" ${f==null?'stroke-dasharray="3 3"':''} opacity="${close||f==null?1:.8}"/>`;
+    s += `<circle cx="${xr-4}" cy="${y2}" r="3.5" fill="${f==null ? "#FF7A7A" : C[t]}"/>`;
+    s += `<text x="${xl-6}" y="${y1+4}" text-anchor="end" class="lbl">P${m} ${c}</text>`;
+    s += `<circle cx="${xl+4}" cy="${y1}" r="3.5" fill="${C[t]}"/>`;
+
+  }
+  for (let i=1;i<=22;i++) s += `<text x="${xr+8}" y="${y(i)+14}" class="lblm">P${i}</text>`;
+  s += `<text x="${xr+8}" y="${y(23)+14}" class="lblm" style="fill:#FF7A7A">DNF</text>`;
+  s += `</svg>`;
+  document.getElementById("b").innerHTML = s;
+
+  // C: buckets
+  const groups = [["Spot on", r => r[5] != null && r[5] === r[0]], ["Within 1 place", r => r[5] != null && Math.abs(r[5]-r[0]) === 1],
+                  ["2 to 3 places off", r => r[5] != null && Math.abs(r[5]-r[0]) >= 2 && Math.abs(r[5]-r[0]) <= 3],
+                  ["4 or more off", r => r[5] != null && Math.abs(r[5]-r[0]) >= 4], ["Didn't finish", r => r[5] == null]];
+  document.getElementById("c").innerHTML = groups.map(([title, test]) => {
+    const list = R.filter(test);
+    return `<div class="bucket"><h4>${title}<span>${list.length} driver${list.length===1?"":"s"}</span></h4><div class="chips num">${list.map(([m,c,n,t,p,f]) =>
+      `<span class="chip"><i style="background:${C[t]}"></i>${n} <small>P${m} to ${f==null?"DNF":"P"+f}</small></span>`).join("")}</div></div>`;
+  }).join("");
+</script>

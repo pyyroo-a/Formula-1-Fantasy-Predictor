@@ -104,6 +104,11 @@ The Team Optimizer got dropped, Planner and Chip Advisor became the Garage.
 - **Strategy modes:** a "max points" vs safer toggle.
 - **Let confidence steer something,** like keeping the 2x off a low confidence driver.
   Its own switch, off until it wins on the scorecard in official points.
+- **Predicted finishes: List / Lines switch.** Drop the headshots, open as a slim 4 column
+  list (predicted, driver, practice, finished), with a switch to a "before and after"
+  view: a line per driver from predicted spot to real finish, green within 1, red dashed
+  for DNFs. Frontend only, the data is already in `/weekend-finishes`. Mockups A and B in
+  `docs/superpowers/specs/2026-10-28-ui-redesign-mockups/8-predicted-finishes-ideas.html`.
 - **Why a track is good for Limitless or No Negative.** The Chips tab can say who scored
   the 3x at a track, but for the other two the chip history only saves the total. Saying
   why (which pricey drivers paid off, who retired) needs the script to save that too.
