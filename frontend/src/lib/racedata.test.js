@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { qualiTag, sessionOptions, raceChange } from "./racedata.js";
+import { qualiTag, sessionOptions, raceChange, needsFetch } from "./racedata.js";
 
 // real US GP rows from /qualifying-results and /race-results
 test("qualiTag", () => {
@@ -21,4 +21,12 @@ test("raceChange", () => {
   assert.deepEqual(raceChange({ PositionChange: 0, Status: "Lapped", GridPosition: 9 }), { text: "same", tone: "same", from: "from P9" });
   assert.deepEqual(raceChange({ PositionChange: -1, Status: "DNF", GridPosition: 19 }), { text: "", tone: "none", from: "from P19" });
   assert.deepEqual(raceChange({ PositionChange: null, Status: "Finished", GridPosition: null }), { text: "", tone: "none", from: "" });
+});
+
+// a session that loaded stays kept, one that failed (server asleep) gets asked again
+test("only answers that worked are kept", () => {
+  const answers = { "US GP|Race": { ok: true, data: [] }, "US GP|Quali": { ok: false, error: "Couldn't reach the server." } };
+  assert.equal(needsFetch(answers, "US GP|Race"), false);
+  assert.equal(needsFetch(answers, "US GP|Quali"), true);
+  assert.equal(needsFetch(answers, "US GP|FP3"), true);
 });

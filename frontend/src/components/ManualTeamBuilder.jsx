@@ -5,6 +5,7 @@ import { INPUT_CLS } from "../styles";
 import { postJson } from "../lib/api";
 import { fmt1, money } from "../lib/format";
 import { pickTeam1 } from "../lib/picker";
+import { raceToUse, RACE_LIST_FAILED } from "../lib/races";
 import TeamPicker from "../ui/TeamPicker";
 import Loading, { ErrorLine } from "../ui/Loading";
 import SessionSchedule from "./SessionSchedule";
@@ -26,9 +27,10 @@ const CHECK_EVERY_MS = 60000;
 // My team > Manual team. Pick your own 5 and 2 from this weekend's practice pool and
 // see how it scores. It loads by itself now: no button, it checks if practice exists
 // and if not it keeps checking once a minute until FP1 is in.
-export default function ManualTeamBuilder({ upcomingRaces, weekendTeam }) {
+export default function ManualTeamBuilder({ upcomingRaces, upcomingReady, weekendTeam }) {
   const [race, setRace] = useState("");
-  const raceName = race || upcomingRaces?.[0]?.race_name || "";
+  const racePick = raceToUse(race, upcomingRaces, upcomingReady);
+  const raceName = racePick.name;
   const isSprint = upcomingRaces.find(r => r.race_name === raceName)?.is_sprint ?? false;
 
   const [status, setStatus] = useState("checking"); // checking | waiting | loading | ready | error
@@ -132,6 +134,10 @@ export default function ManualTeamBuilder({ upcomingRaces, weekendTeam }) {
       <span className="text-pw-muted">Left <b className={overBudget ? "text-pw-low" : "text-pw-safe"}>{overBudget ? `-${money(totalCost - budget)}` : money(remaining)}</b></span>
     </div>
   );
+
+  // no race to work on yet: the race list is still coming, or it never did
+  if (racePick.state === "loading") return <Loading text="Loading the race list. The free server can take up to 30 seconds to wake up." rows={2} />;
+  if (racePick.state === "failed") return <ErrorLine text={RACE_LIST_FAILED} />;
 
   return (
     <div className="pb-14 sm:pb-0">

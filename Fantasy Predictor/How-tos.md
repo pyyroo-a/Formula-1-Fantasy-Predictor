@@ -54,6 +54,7 @@ uvicorn main:app --reload        # wait for "Pipeline loaded with X rows", about
 cd frontend
 npm install
 npm run dev                      # http://localhost:5173
+npm test                         # the frontend's own tests (src/lib)
 ```
 
 `.env.example` lists the settings. Set `BACKTEST_ENABLED=true` locally to get the

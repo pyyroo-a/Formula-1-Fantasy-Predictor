@@ -25,13 +25,6 @@ export const DRIVER_NAMES = {
   LIN: "Arvid Lindblad",
 };
 
-export const BADGE_COLOR = {
-  Safe:  "bg-green-500",
-  Value: "bg-yellow-500",
-  Risk:  "bg-orange-500",
-  Avoid: "bg-red-500",
-};
-
 export const TEAM_COLORS = {
   "Red Bull Racing": "#3671C6",
   "Red Bull":        "#3671C6", // what the quali feed calls them
@@ -59,15 +52,6 @@ export const CHIP_META = {
   autopilot:  { label: "Auto Pilot", color: "#1AA37A", desc: "F1's auto-pick: PitWall already does this better. Save it." },
 };
 
-export const REC_STYLE = {
-  PLAY:         "bg-green-500/20 text-green-400 border border-green-500/40",
-  CONSIDER:     "bg-yellow-500/20 text-yellow-400 border border-yellow-500/40",
-  HOLD:         "bg-gray-700 text-gray-400 border border-gray-600",
-  HEDGE:        "bg-orange-500/20 text-orange-400 border border-orange-500/40",
-  "POST-QUALI": "bg-blue-500/20 text-blue-400 border border-blue-500/40",
-  SAVE:         "bg-gray-700 text-gray-500 border border-gray-600",
-};
-
 export const BUDGET = 100.0;
 
 export function teamAccent(teamName) {
@@ -80,7 +64,7 @@ export function teamAccent(teamName) {
 // Colours for the Safe / Value / Risk / Avoid pick badges
 export const CAT_BADGE = {
   Safe:  "text-pw-safe bg-pw-safe/10",
-  Value: "text-pw-rain bg-pw-rain/10",
-  Risk:  "text-pw-risk bg-pw-risk/10",
-  Avoid: "text-pw-red bg-pw-red/10",
+  Value: "text-pw-info bg-pw-info/10",
+  Risk:  "text-pw-caution bg-pw-caution/10",
+  Avoid: "text-pw-low bg-pw-low/10",
 };

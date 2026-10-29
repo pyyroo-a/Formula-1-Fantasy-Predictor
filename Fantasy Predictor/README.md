@@ -53,7 +53,7 @@ Where it's going:
 - [Roadmap](Roadmap.md): the 7 projects from the post Austin brainstorm, open tasks, banked ideas, closed questions
 - [Future plans](Future%20plans.md): the bigger career picture PitWall sits in
 
-## Where things stand (2026-10-28)
+## Where things stand (2026-10-30)
 
 - 2026 season, US GP (round 18) was locked automatically on FP3 by the GitHub Action.
   Mexico (round 19) is next, and its lock is the first to save ownership.
@@ -68,9 +68,14 @@ Where it's going:
   RECORD) shows what the real locked teams scored, honestly: R13 to R18 PitWall 175.2
   pts/race vs 187.0 for copying the FP3 order, but those locks were all made before the
   28 Oct fixes. INSIGHTS > CHIPS shows what each chip was really worth at every track
-  (project 6, official points so 2026 only for now). Project 7 (Reddit) is parked, so
-  next is the one big UI redesign.
-- 205 tests, all passing, including a test that fails if an em dash sneaks in anywhere.
+  (project 6, official points so 2026 only for now). Project 7 (Reddit) is parked.
+- The one big UI redesign is done (2026-10-29): one dark timing tower look with the
+  Archivo font, works on a phone, the 2x pick and a confidence key on the main page,
+  Manual team loads by itself, Planner and Chip Advisor became the GARAGE, Race data is
+  one page with a session strip, Insights got the honest track record chart. The Team
+  Optimizer got dropped. How the site's files fit together is in [Frontend](Frontend.md).
+- 216 backend tests and 44 frontend tests (`npm test` in `frontend/`), all passing,
+  including a test that fails if an em dash sneaks in anywhere.
 - F1 put its live timing behind an F1TV login in October 2026. Practice comes from
   OpenF1 now, race results still come through FastF1 and that's fine (the 2026-10-26
   Monday job worked). See [Gotchas](Gotchas.md).

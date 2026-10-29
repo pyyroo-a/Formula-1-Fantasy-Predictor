@@ -39,9 +39,6 @@ body {
   * { transition: none !important; animation: none !important; }
 }
 
-/* Hairline grid: 1px gaps show the background through as thin dividers. Only the
-   pages that haven't been redesigned yet still use it */
-.pw-hairgrid { background: #232833; }
 
 /* phone only: the section bar, the bars that ride on top of it, and room under the page */
 .pw-bottom-nav { padding-bottom: var(--safe-b); }

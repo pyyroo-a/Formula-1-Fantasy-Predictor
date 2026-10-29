@@ -5,6 +5,7 @@ import { INPUT_CLS } from "../../styles";
 import { fetchJson, postJson } from "../../lib/api";
 import { fmt1, money, surname } from "../../lib/format";
 import { ladderSteps, stepLabel, isComplete, driverTeamMap, chipOrder } from "../../lib/garage";
+import { raceToUse, RACE_LIST_FAILED } from "../../lib/races";
 import { loadTeams, saveTeams } from "../../plannerTeams";
 import VerdictTag from "../../ui/VerdictTag";
 import Loading, { ErrorLine } from "../../ui/Loading";
@@ -197,14 +198,15 @@ function TeamCard({ team, prices, teamMap }) {
   );
 }
 
-export default function Garage({ upcomingRaces, finishes }) {
+export default function Garage({ upcomingRaces, upcomingReady, finishes }) {
   const [teams, setTeams] = useState(loadTeams);
   const [active, setActive] = useState(() => Math.max(0, loadTeams().findIndex(isComplete)));
   const [editing, setEditing] = useState(false);
   const [prices, setPrices] = useState(null);
   const [pricesError, setPricesError] = useState(null);
   const [race, setRace] = useState("");
-  const raceName = race || upcomingRaces?.[0]?.race_name || "";
+  const racePick = raceToUse(race, upcomingRaces, upcomingReady);
+  const raceName = racePick.name;
 
   useEffect(() => {
     let cancelled = false;
@@ -266,9 +268,11 @@ export default function Garage({ upcomingRaces, finishes }) {
             <button onClick={() => setEditing(true)} className="px-3 py-2 text-sm rounded-lg border border-pw-edge hover:border-pw-muted">Edit this team</button>
           </div>
           <TeamCard team={team} prices={prices} teamMap={driverTeamMap(finishes)} />
-          {isComplete(team) && raceName
-            ? <Results team={team} raceName={raceName} />
-            : <p className="text-sm text-pw-muted my-3">This team isn't finished yet. Tap "Edit this team" to pick all 5 drivers and 2 constructors.</p>}
+          {!isComplete(team)
+            ? <p className="text-sm text-pw-muted my-3">This team isn't finished yet. Tap "Edit this team" to pick all 5 drivers and 2 constructors.</p>
+            : racePick.state === "loading" ? <Loading text="Loading the race list. The free server can take up to 30 seconds to wake up." rows={3} />
+            : racePick.state === "failed" ? <ErrorLine text={RACE_LIST_FAILED} />
+            : <Results team={team} raceName={raceName} />}
         </>
       )}
     </div>

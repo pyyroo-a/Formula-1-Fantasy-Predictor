@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { API } from "../api";
 import { postJson } from "../lib/api";
+import { needsFetch } from "../lib/racedata";
 
 // State and fetching for the Race data page. It gets called in App, not inside the
 // page, on purpose: the page unmounts when you switch away from it, and keeping the
 // state up in App is what makes your picked race still be there when you come back.
 //
-// One race, then a session from the strip (FP1 to Race). Every answer is kept, so
-// going back to a session you already opened doesn't ask the server again.
+// One race, then a session from the strip (FP1 to Race). Every answer that worked is
+// kept, so going back to a session you already opened doesn't ask the server again.
 
 const ENDPOINT = { Quali: "qualifying-results", Race: "race-results" };
 
@@ -36,7 +37,7 @@ export function useRaceWeekend() {
 
   const load = async (raceName, s, known) => {
     const key = `${raceName}|${s}`;
-    if (!raceName || known[key]) return;
+    if (!raceName || !needsFetch(known, key)) return;
     setPending(p => ({ ...p, [key]: true }));
     if (ENDPOINT[s]) keep(key, await postJson(`${API}/${ENDPOINT[s]}`, { race_name: raceName }));
     else await loadPractice(raceName, s);

@@ -86,6 +86,18 @@ Every race weekend goes like this, and each step has a file:
 | `src/api/chip_history.py` | `GET /chip-history`, just hands the file over |
 | `frontend/src/components/ChipHistory.jsx` | INSIGHTS > CHIPS |
 
+## The redesign (October 2026)
+
+| File | What it does |
+|---|---|
+| `frontend/src/ui/` | the look every page shares: timing tower rows, the switcher, the confidence pill and key, stat boxes, chip tags, the team picker, the error boundary |
+| `frontend/src/lib/` | the plain rules the pages follow (one decimal, the ladder steps, quali tags, the track record words...), each with tests, `npm test` |
+| `frontend/src/lib/api.js` | `fetchJson`, asks the backend and never throws, so an HTML error page from the free server can't crash a page |
+| `frontend/src/components/myteam/Garage.jsx` | MY TEAM > GARAGE: your real teams, the transfer steps and the chips for them, replaced the Planner and Chip Advisor |
+| `frontend/src/components/racedata/RaceDataPage.jsx` | RACE DATA on one page with the FP1 to Race strip |
+| `src/openf1.py` (`practice_table`, `openf1_practice`) and `src/api/races.py` | the practice page gets its laps from OpenF1 now, same download as the model's grid |
+| `frontend/public/` icons | the fast P, `favicon.svg` for tabs and white P PNGs plus `site.webmanifest` for phone home screens |
+
 ## A pattern worth knowing
 
 Projects 5 and 6 work the same way: **a script does the slow maths once, saves a JSON

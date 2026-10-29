@@ -23,3 +23,9 @@ export function raceChange(row) {
   if (ch < 0) return { text: `${ch}`, tone: "down", from };
   return { text: "same", tone: "same", from };
 }
+
+// ask the server unless we already have an answer that worked. A failed one (server
+// asleep) gets asked again when you pick that race or session again
+export function needsFetch(answers, key) {
+  return !answers?.[key]?.ok;
+}

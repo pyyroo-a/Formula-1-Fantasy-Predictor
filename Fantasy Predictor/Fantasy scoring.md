@@ -86,7 +86,7 @@ the backtest feeds it in.
 3. Keep the best 50, then pick 3 that differ by at least 2 drivers each. Loose on
    purpose: if a driver is clearly the best pick he can be in all 3 teams.
 
-`build_budget_teams` is also what `/predict-budget` (the Team Optimizer page) uses.
+`build_budget_teams` is also what `/predict-budget` uses (the old Team Optimizer page, dropped in the redesign).
 `build_budget_team` (one team, only for the chip maths: the best legal team and the
 best team with no budget cap) and `get_race_pool` (every driver and constructor, for
 the Manual Team page and the chip checks) share the same scoring helpers, so there's

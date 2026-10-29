@@ -50,8 +50,10 @@ in [the design doc](../docs/superpowers/specs/2026-10-25-cleanup-and-notes-desig
    Reddit's free API is limited and AI summaries would cost money, so later. Ownership %
    IS in the F1 Fantasy feed, and every snapshot saves it at the lock since project 2.
 
-After all that: **one UI redesign** of the whole site using the frontend design plugin,
-once projects 2 to 5 have added what they add. No piecemeal UI changes before then.
+After all that: **one UI redesign** of the whole site. Done 2026-10-29, see
+[Frontend](Frontend.md) and the design in `docs/superpowers/specs/2026-10-28-ui-redesign-design.md`.
+The 2x card on the main page, plain labels, phones and the confidence wording all went in.
+The Team Optimizer got dropped, Planner and Chip Advisor became the Garage.
 
 ## Open tasks
 
@@ -80,9 +82,9 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
   not one number. Has to beat the FP3 order baseline before it touches picks.
 - **DNF calibration.** The model under-predicts retirements (50.8 expected vs 57 real),
   2026 retires more than the weighting has caught up with.
-- **Per team budgets in the Team Optimizer.** I play with about $107.5M, not $100M.
+- **Per team budgets for PitWall's own teams.** I play with about $107.5M, not $100M.
   Needs the driver pool stored in snapshots. Measure first whether a bigger budget
-  really changes the picks. Probably folds into the planner.
+  really changes the picks. The Garage already uses my real budget for my own teams.
 - **Disrupted practice guard.** A red flagged FP3 ranks people on 1 or 2 laps. FP3 alone
   still beats FP2 + FP3 on normal weekends, so this wants a narrow per driver guard for
   thin laps, not a different default.
@@ -102,8 +104,9 @@ once projects 2 to 5 have added what they add. No piecemeal UI changes before th
 - **Strategy modes:** a "max points" vs safer toggle.
 - **Let confidence steer something,** like keeping the 2x off a low confidence driver.
   Its own switch, off until it wins on the scorecard in official points.
-- **A 2x card on the main page.** The main page never shows the 2x pick, only the Team
-  Optimizer does. For the redesign.
+- **Why a track is good for Limitless or No Negative.** The Chips tab can say who scored
+  the 3x at a track, but for the other two the chip history only saves the total. Saying
+  why (which pricey drivers paid off, who retired) needs the script to save that too.
 - **AI agents:** discussed and deliberately kept out of the core, which is plain
   numbers. Narrow fits only, like turning session reports or Reddit text into
   structured signals.

@@ -2,10 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- the fast P. The svg is the tab icon, the png is for saving the site to a phone home
-         screen. The png has a white P because iPhone dark mode drops the red background -->
+    <!-- the fast P. The svg is the tab icon (the 32px png is the backup for browsers that
+         can't do svg). apple-touch-icon and the manifest icons are for saving the site to a
+         phone home screen, those have a white P because iPhone dark mode drops the red
+         background. The maskable one is shrunk so Android's round crop doesn't cut it -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#0F1217" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

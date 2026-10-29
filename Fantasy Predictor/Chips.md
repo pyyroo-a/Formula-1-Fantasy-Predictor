@@ -11,7 +11,7 @@ in `src/weekend.py`, which runs in two places:
 
 - **Automatically, for each of the 3 locked teams.** The verdicts are saved in the
   snapshot and shown on the Overview (`AutoChipAdvisor.jsx`).
-- **For your own team**, on the My Team > Chip Advisor page (`POST /chip-advisor` in
+- **For your own team**, on the My Team > Garage page (`POST /chip-advisor` in
   `src/api/teams.py`). That one also shows the full Limitless and Wildcard teams.
 
 ## The verdicts
@@ -41,7 +41,7 @@ Anything under CONSIDER is HOLD. No Negative uses the real retirement chances fr
 - **Sprint weekends aren't treated differently yet.** A sprint weekend pays out twice,
   so the score driven chips (Limitless, 3x, Wildcard) are worth more there, but the
   thresholds are the same every weekend. Idea from before the Dutch GP, still open.
-- The Chip Advisor page always uses FP3 (falling back to FP2, FP1), even on sprint
+- The Garage's chips always use FP3 (falling back to FP2, FP1), even on sprint
   weekends where the locked teams use sprint quali.
 - I have no chips left for the rest of 2026 (joined mid season), so this all really
   matters from 2027.

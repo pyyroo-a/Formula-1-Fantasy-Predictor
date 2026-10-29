@@ -1,7 +1,7 @@
 import { DRIVER_NAMES, teamAccent } from "../constants";
 import WeatherWidget from "./WeatherWidget";
 import AutoChipAdvisor from "./AutoChipAdvisor";
-import { RiskTag } from "./BudgetTeam";
+import RiskTag from "../ui/RiskTag";
 import { displayCategory } from "../confidence";
 import { fmt1, money, pts, surname } from "../lib/format";
 import { showConfidenceKey, finishLine } from "../lib/overview";

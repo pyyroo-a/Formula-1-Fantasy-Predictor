@@ -55,6 +55,9 @@ function App() {
 
   const [races, setRaces] = useState([]);
   const [upcomingRaces, setUpcomingRaces] = useState([]);
+  // true once the race list has answered (worked or not), so pages can tell "still
+  // loading" from "it never came"
+  const [upcomingReady, setUpcomingReady] = useState(false);
   const [nextRace, setNextRace] = useState(null);
   const [priceChanges, setPriceChanges] = useState(null);
 
@@ -86,7 +89,10 @@ function App() {
 
   useEffect(() => {
     fetch(`${API}/races`).then(r => r.json()).then(setRaces).catch(() => {});
-    fetch(`${API}/upcoming-races`).then(r => r.json()).then(setUpcomingRaces).catch(() => {});
+    fetch(`${API}/upcoming-races`).then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setUpcomingRaces(d); })
+      .catch(() => {})
+      .finally(() => setUpcomingReady(true));
     fetch(`${API}/next-race`).then(r => r.json()).then(setNextRace).catch(() => {});
     fetch(`${API}/price-changes`).then(r => r.json()).then(setPriceChanges).catch(() => {});
     fetch(`${API}/weekend-team`).then(r => r.json()).then(d => {
@@ -220,8 +226,8 @@ function App() {
 
             {mode === "weekend" && section === "racedata" && <RaceDataPage races={races} weekend={raceWeekend} />}
 
-            {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} weekendTeam={overviewWeekend} />}
-            {mode === "garage" && section === "myteam" && <Garage upcomingRaces={upcomingRaces} finishes={finishes} />}
+            {mode === "manual" && section === "myteam" && <ManualTeamBuilder upcomingRaces={upcomingRaces} upcomingReady={upcomingReady} weekendTeam={overviewWeekend} />}
+            {mode === "garage" && section === "myteam" && <Garage upcomingRaces={upcomingRaces} upcomingReady={upcomingReady} finishes={finishes} />}
             {mode === "backtest" && section === "racedata" && IS_DEV && <Backtest />}
           </ErrorBoundary>
         </main>

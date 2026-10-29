@@ -20,13 +20,13 @@ its own file under `src/api/`.
 | POST | `/race-sessions` | `races.py` | FP1/FP2/FP3 times and whether each is available |
 | POST | `/race-results` | `races.py` | finishing order of a finished race |
 | POST | `/qualifying-results` | `races.py` | Q1/Q2/Q3 times |
-| POST | `/practice-results` | `races.py` | practice pace for a session |
+| POST | `/practice-results` | `races.py` | practice pace for a session (RACE DATA), from OpenF1 like the model since 2026-10-28, FastF1 only as the backup |
 | GET | `/prices` | `prices.py` | current prices |
 | GET | `/price-changes` | `prices.py` | prices vs last round |
-| POST | `/predict-budget` | `teams.py` | 3 teams for any race (the Team Optimizer page) |
+| POST | `/predict-budget` | `teams.py` | 3 teams for any race. The site doesn't call it any more (the Team Optimizer page got dropped in the redesign), kept for now |
 | POST | `/upcoming-race-pool` | `teams.py` | every driver and constructor with points (Manual Team page) |
-| POST | `/chip-advisor` | `teams.py` | chip verdicts for your own team, see [Chips](Chips.md) |
-| GET | `/chip-history` | `chip_history.py` | the CHIPS tab's numbers, just serves `data/chip_history.json` (rebuilt by `scripts/chip_history.py` in the Monday job). An empty history if the file isn't there |
+| POST | `/chip-advisor` | `teams.py` | chip verdicts for your own team (MY TEAM > GARAGE), see [Chips](Chips.md) |
+| GET | `/chip-history` | `chip_history.py` | the CHIPS tab's numbers, just serves `data/chip_history.json` (each track carries its `round` in the newest season, for calendar order) (rebuilt by `scripts/chip_history.py` in the Monday job). An empty history if the file isn't there |
 | GET | `/track-record` | `track_record.py` | the track record page's numbers, just serves `data/track_record_2026.json` (rebuilt by `scripts/track_record.py` in the Monday job). An empty record if the file isn't there |
 | POST | `/transfer-ladder` | `planner.py` | the transfer ladder for your own team (5 drivers, 2 constructors, budget, 1 to 3 free transfers), see [Planner](Planner.md). Driver swaps carry `in_confidence` and `in_confidence_reason` for the driver coming in |
 | POST | `/predict`, `/predict-upcoming`, `/race-pool` | `teams.py` | older endpoints the site doesn't call any more, kept for now |

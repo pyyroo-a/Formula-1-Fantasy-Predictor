@@ -13,7 +13,7 @@ this swap actually worth it, and is a 3rd one worth the -10?
 
 ## What it does
 
-My Team > PLANNER. I save up to 3 of my real teams in the browser (5 drivers, 2
+My Team > GARAGE (the PLANNER tab until the redesign, the chips for the same team sit next to it now). I save up to 3 of my real teams in the browser (5 drivers, 2
 constructors, my budget, free transfers this week), pick a race, and get the ladder:
 
 | Row | What it is |

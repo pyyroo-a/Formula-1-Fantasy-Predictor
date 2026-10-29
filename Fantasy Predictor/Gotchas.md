@@ -75,11 +75,26 @@ weekend flow.
   a made up race name like `"Test Grand Prix"`, never a real upcoming race.
 - `tests/conftest.py` switches OpenF1 off so the goldens use the FastF1 cache.
 
+## Vercel and phones
+
+- **Vercel can miss a push.** On 2026-10-28 one commit (the Insights redesign) never got a
+  deployment at all, not even a failed one, while every other push built in a minute.
+  The next push built everything. If the live site looks behind, check the Deployments
+  page: no row for the commit means Vercel never heard about it, push again or deploy
+  `main` from the menu.
+- **iPhone dark mode drops a home screen icon's background.** Our P was dark, so on black
+  it vanished. The home screen icons have a white P for that, the tab icon keeps the dark one.
+- **A phone bar needs `viewport-fit=cover`**, or the iPhone reports a safe area of 0 and the
+  bar sits on the home bar.
+
 ## Windows
 
 - The venv doesn't stay activated between shell commands, call
   `./venv/Scripts/python.exe -m pytest` directly.
 - Files are mostly CRLF. Scripts that edit them should keep the line endings and save
   as UTF-8 without a BOM, or the site shows garbled characters.
+- **Piping `curl` into Python on Windows garbles accents** (Montréal comes out as
+  MontrÃ©al) because Python reads the pipe in the Windows code page. The server is fine,
+  check the raw bytes or the page itself before calling it a data bug.
 
 Related: [Race weekend flow](Race%20weekend%20flow.md), [Snapshots](Snapshots.md), [How-tos](How-tos.md), [Prices](Prices.md)
