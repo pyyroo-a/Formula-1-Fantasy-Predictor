@@ -44,8 +44,10 @@ sits above the home bar (that's what `viewport-fit=cover` in `index.html` is for
   the backend. Backtest shows as a second tab only when running locally
   (`import.meta.env.DEV`).
 - **Insights**, three tabs:
-  - **Predicted finishes** (`PredictedFinishes.jsx`): model vs practice order, and how
-    they did once the race is in.
+  - **Predicted finishes** (`PredictedFinishes.jsx`): a slim list (predicted, practice,
+    finished). Once the real results are in, a List / Lines switch: Lines joins each
+    driver's predicted spot to their real finish, flat thick green with a tick = spot on.
+    Rules in `lib/finishes.js`.
   - **Track record** (`TrackRecord.jsx`, project 5): the honest headline, four boxes, a
     line per race with a dot per team (tap or hover for a bubble), or as a table. Reads
     `/track-record`.
@@ -82,7 +84,7 @@ sits above the home bar (that's what `viewport-fit=cover` in `index.html` is for
 - `public/`: the fast P icon (`favicon.svg`, `favicon-32.png` as the backup), the home
   screen icons (`apple-touch-icon.png`, `icon-*.png` and `site.webmanifest`, those have a
   white P because iPhone dark mode drops the red background), `drivers/<CODE>.avif`
-  headshots.
+  headshots (not shown anywhere since the predicted finishes went to a slim list).
 
 ## Checking a change
 
