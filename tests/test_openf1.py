@@ -349,3 +349,24 @@ def test_practice_endpoint_falls_back_to_fastf1(races_api, client, monkeypatch):
     assert r.status_code == 200
     assert r.json()["session"] == "FP2"
     assert r.json()["results"] == [{"Abbreviation": "VER"}]
+
+
+def test_an_empty_answer_is_not_remembered(fake_openf1, monkeypatch):
+    # OpenF1 can still be filling in laps after the buffer. An empty answer has to be
+    # asked again next time, or the lock says "not published" until the server restarts
+    answers = iter([[], LAPS])
+    real_get = of1._get
+
+    def first_empty(path, params):
+        if path == "laps":
+            fake_openf1.append("laps")
+            return next(answers)
+        return real_get(path, params)
+    monkeypatch.setattr(of1, "_get", first_empty)
+    later = START + pd.Timedelta(hours=3)
+    with pytest.raises(of1.NotPublishedYet):
+        of1.openf1_grid(2026, "United States Grand Prix", "FP2", START, now=later)
+    grid = of1.openf1_grid(2026, "United States Grand Prix", "FP2", START, now=later)
+    assert grid["Abbreviation"].iloc[0] == "LEC"
+    rows = of1.openf1_practice(2026, "United States Grand Prix", "FP2", START, now=later)
+    assert rows[0]["Abbreviation"] == "LEC"

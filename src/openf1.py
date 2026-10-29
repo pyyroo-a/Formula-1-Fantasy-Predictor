@@ -177,9 +177,15 @@ def _finished_session(year: int, race_name: str, session: str, start_utc, now=No
 
 
 def _laps_and_drivers(key: int) -> tuple[list, list]:
-    if key not in _laps_cache:
-        _laps_cache[key] = (_get("laps", {"session_key": key}), _get("drivers", {"session_key": key}))
-    return _laps_cache[key]
+    if key in _laps_cache:
+        return _laps_cache[key]
+    laps, drivers = _get("laps", {"session_key": key}), _get("drivers", {"session_key": key})
+    # only remember a session once it has timed laps. OpenF1 can still be filling them in
+    # after the buffer, and a remembered empty answer would say "not published" until the
+    # server restarts, which would stop the automatic lock for the whole weekend
+    if any(lap.get("lap_duration") is not None for lap in laps or []):
+        _laps_cache[key] = (laps, drivers)
+    return laps, drivers
 
 
 def openf1_grid(year: int, race_name: str, session: str, start_utc, now=None) -> pd.DataFrame:
