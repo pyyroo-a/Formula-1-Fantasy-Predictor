@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-29",
+ "updated": "2026-11-02",
  "seasons": [
   2026
  ],
@@ -325,6 +325,47 @@
       {
        "season": 2026,
        "value": 31.0,
+       "who": null
+      }
+     ],
+     "seasons": 1
+    }
+   }
+  },
+  {
+   "track": "Mexico City",
+   "name": "Mexico City Grand Prix",
+   "round": 19,
+   "sprint": false,
+   "chips": {
+    "3x": {
+     "median": 49.0,
+     "values": [
+      {
+       "season": 2026,
+       "value": 49.0,
+       "who": "VER P5 to P1"
+      }
+     ],
+     "seasons": 1
+    },
+    "Limitless": {
+     "median": 75.0,
+     "values": [
+      {
+       "season": 2026,
+       "value": 75.0,
+       "who": null
+      }
+     ],
+     "seasons": 1
+    },
+    "No Negative": {
+     "median": 26.1,
+     "values": [
+      {
+       "season": 2026,
+       "value": 26.1,
        "who": null
       }
      ],
