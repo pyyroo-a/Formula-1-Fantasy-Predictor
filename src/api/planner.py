@@ -30,6 +30,12 @@ def get_transfer_ladder(request: TransferLadderRequest):
         raise HTTPException(status_code=503, detail="Prices not available")
 
     snap = find_snapshot(request.race_name)
+    if snap and snap.get("pool"):
+        # locked with the full forecast saved, so no practice data needed at all. The
+        # confidence still comes from the lock's own "confidence", so the ladder can never
+        # say something different from the main page
+        pool = {**snap["pool"], "drivers": attach_confidence(snap["pool"]["drivers"], snap.get("confidence"))}
+        return _ladder_reply(request, pool, snap["session_used"], provisional=False)
     lock_session = snap.get("session_used") if snap else None
     wanted = lock_session or ("SQ" if is_sprint_weekend(request.race_name) else "FP3")
     practice_df, session_used = weekend_grid(request.race_name, wanted)
@@ -47,13 +53,18 @@ def get_transfer_ladder(request: TransferLadderRequest):
     else:
         conf = weekend_confidence_for(request.race_name, session_used, wanted)
     pool["drivers"] = attach_confidence(pool["drivers"], conf)
+    # locked = the session the weekend locked on, anything else is a preview
+    return _ladder_reply(request, pool, session_used,
+                         provisional=lock_session is None or session_used != lock_session)
+
+
+def _ladder_reply(request: TransferLadderRequest, pool: dict, session_used: str, provisional: bool) -> dict:
     ladder = transfer_ladder({"drivers": request.drivers, "constructors": request.constructors},
                              pool, state.current_prices, request.budget, request.free_transfers,
                              session=session_used)
     return {
         "race_name": request.race_name,
         "session_used": session_used,
-        # locked = the session the weekend locked on, anything else is a preview
-        "provisional": lock_session is None or session_used != lock_session,
+        "provisional": provisional,
         **ladder,
     }

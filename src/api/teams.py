@@ -13,7 +13,9 @@ from src.fantasy import (
     generate_explanations,
     get_race_pool,
 )
-from src.fetch_practice import fallback_sessions, first_available_practice, get_practice_grid
+from src.api.weekend_common import weekend_grid
+from src.fetch_practice import fallback_sessions, first_available_practice, get_practice_grid, is_sprint_weekend
+from src.snapshots import find_snapshot
 from src.pipeline import predict_upcoming_race
 from src.weekend import evaluate_team_chips, upcoming_dnf_probs
 
@@ -122,21 +124,28 @@ def get_chip_advisor(request: ChipAdvisorRequest):
     if not state.current_prices or not state.current_prices.get("drivers"):
         raise HTTPException(status_code=503, detail="Prices not available")
 
-    practice_df, session_used, last_error = first_available_practice(
-        SEASON, request.race_name, fallback_sessions("FP3"))
+    snap = find_snapshot(request.race_name)
+    if snap and snap.get("pool"):
+        # locked with the full forecast saved, so no practice data needed (same as the ladder)
+        pool, session_used = snap["pool"], snap["session_used"]
+        optimal, limitless = snap.get("optimal_team"), snap.get("limitless_team")
+    else:
+        # same session rule as the ladder: the lock's session, else sprint quali on a
+        # sprint weekend, else FP3. It used to always ask for FP3
+        lock_session = snap.get("session_used") if snap else None
+        wanted = lock_session or ("SQ" if is_sprint_weekend(request.race_name) else "FP3")
+        practice_df, session_used = weekend_grid(request.race_name, wanted)
+        if practice_df is None:
+            raise HTTPException(status_code=400, detail="No practice data available yet.")
 
-    if practice_df is None:
-        raise HTTPException(status_code=400, detail=f"No practice data available yet. {last_error}")
-
-    upcoming_table = predict_upcoming_race(practice_df)
-    pool = get_race_pool(upcoming_table, request.race_name, state.current_prices,
-                         dnf_probs=upcoming_dnf_probs(upcoming_table, request.race_name))
+        upcoming_table = predict_upcoming_race(practice_df)
+        pool = get_race_pool(upcoming_table, request.race_name, state.current_prices,
+                             dnf_probs=upcoming_dnf_probs(upcoming_table, request.race_name))
+        optimal = build_budget_team(upcoming_table, request.race_name, state.current_prices, budget=100.0)
+        limitless = build_budget_team(upcoming_table, request.race_name, state.current_prices, budget=999.0)
 
     if not pool["drivers"]:
         raise HTTPException(status_code=400, detail="No priced drivers found for this race.")
-
-    optimal = build_budget_team(upcoming_table, request.race_name, state.current_prices, budget=100.0)
-    limitless = build_budget_team(upcoming_table, request.race_name, state.current_prices, budget=999.0)
 
     my_team_score = (
         sum({d["Abbreviation"]: d for d in pool["drivers"]}.get(a, {}).get("FantasyValue", 0) for a in request.my_drivers)

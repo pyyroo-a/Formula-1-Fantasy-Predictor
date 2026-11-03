@@ -527,3 +527,84 @@ def test_snapshot_records_where_its_order_came_from(client, monkeypatch):
     monkeypatch.setattr(weekend, "load_grid", from_classification)
     snap = weekend.build_snapshot(_madring_event(), state.current_prices, source="test")
     assert snap["lap_source"] == "classification"
+
+
+# ---- the lock saves the full forecast, the Garage reads it -----------------------
+#
+# On Mexico quali day the Garage broke: /transfer-ladder and /chip-advisor worked their
+# numbers out live from practice, and OpenF1 was blocking us. Once a weekend's locked,
+# everything it needs is in the lock now.
+
+@pytest.fixture
+def pooled_madring(client, monkeypatch, tmp_path):
+    """Madring locked the new way (with the pool), saved where the app looks."""
+    from src import weekend
+    from src.api import state
+    from src.snapshots import save_snapshot
+    monkeypatch.setenv("SNAPSHOT_DIR", str(tmp_path))
+    snap = weekend.build_snapshot(_madring_event(), state.current_prices, source="test")
+    save_snapshot(snap)
+    return snap
+
+
+def _no_practice_data(monkeypatch):
+    from src.api import planner, teams
+
+    def boom(*a, **k):
+        raise AssertionError("shouldn't need practice data once the weekend is locked")
+    monkeypatch.setattr(planner, "weekend_grid", boom)
+    monkeypatch.setattr(teams, "weekend_grid", boom, raising=False)
+    monkeypatch.setattr(teams, "first_available_practice", boom)
+
+
+def test_snapshot_saves_the_pool_and_chip_scores(pooled_madring):
+    snap = pooled_madring
+    assert snap["pool"]["drivers"] and snap["pool"]["constructors"]
+    for d in snap["pool"]["drivers"]:
+        assert {"Abbreviation", "FantasyValue", "Price", "Confidence"} <= set(d)
+    assert snap["optimal_score"] == snap["optimal_team"]["total_score"]
+    assert snap["limitless_score"] == snap["limitless_team"]["total_score"]
+    _json.dumps(snap)   # it has to save as plain json
+
+
+def test_transfer_ladder_reads_the_locked_pool_without_practice_data(client, pooled_madring, monkeypatch):
+    _no_practice_data(monkeypatch)
+    r = _ladder(client)
+    assert r.status_code == 200
+    body = r.json()
+    assert body["provisional"] is False and body["session_used"] == pooled_madring["session_used"]
+    fv = {d["Abbreviation"]: d["FantasyValue"] for d in pooled_madring["pool"]["drivers"]}
+    score = {c["name"]: c["score"] for c in pooled_madring["pool"]["constructors"]}
+    keep = body["rows"][0]
+    by_hand = (sum(fv[a] for a in MADRING_TEAM_DRIVERS) + sum(score[c] for c in MADRING_TEAM_CONSTRUCTORS)
+               + fv[keep["boost"]])
+    assert keep["expected"] == pytest.approx(by_hand, abs=0.01)
+
+
+def test_chip_advisor_reads_the_locked_pool_without_practice_data(client, pooled_madring, monkeypatch):
+    _no_practice_data(monkeypatch)
+    r = client.post("/chip-advisor", json={"race_name": MADRING, "my_drivers": MADRING_TEAM_DRIVERS,
+                                           "my_constructors": MADRING_TEAM_CONSTRUCTORS})
+    assert r.status_code == 200
+    body = r.json()
+    fv = {d["Abbreviation"]: d["FantasyValue"] for d in pooled_madring["pool"]["drivers"]}
+    score = {c["name"]: c["score"] for c in pooled_madring["pool"]["constructors"]}
+    by_hand = sum(fv[a] for a in MADRING_TEAM_DRIVERS) + sum(score[c] for c in MADRING_TEAM_CONSTRUCTORS)
+    assert body["my_team_score"] == pytest.approx(by_hand, abs=0.01)
+    assert body["session_used"] == pooled_madring["session_used"]
+    assert body["chips"]["limitless"]["team"] == pooled_madring["limitless_team"]
+
+
+def test_old_snapshot_without_a_pool_still_works_live(client, snapshots):
+    snapshots(*UP_TO_MADRING)   # locked before pools existed
+    assert _ladder(client).status_code == 200
+    r = client.post("/chip-advisor", json={"race_name": MADRING, "my_drivers": MADRING_TEAM_DRIVERS,
+                                           "my_constructors": MADRING_TEAM_CONSTRUCTORS})
+    assert r.status_code == 200
+
+
+def test_weekend_team_doesnt_send_the_pool(client, at, pooled_madring):
+    at(SAT_MADRING_BEFORE_QUALI)
+    body = client.get("/weekend-team").json()
+    assert body["locked"] is True
+    assert "pool" not in body and "optimal_team" not in body

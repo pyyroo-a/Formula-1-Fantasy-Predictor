@@ -350,6 +350,14 @@ def build_snapshot(event, prices: dict, source: str = "auto", note: str | None =
         # every driver's level, not just the picked ones, so the planner can read the
         # locked version instead of working out a fresh one that might not match
         "confidence": conf,
+        # the whole forecast, so the Garage (ladder and chips) can read the lock instead
+        # of working it out live from practice. On Mexico quali day OpenF1 was blocking
+        # us and the Garage broke even though the weekend was already locked
+        "pool": {**pool, "drivers": confidence.attach_confidence(pool["drivers"], conf)},
+        "optimal_team": optimal,
+        "optimal_score": optimal_score,
+        "limitless_team": limitless,
+        "limitless_score": limitless_score,
     }
     if note:
         snap["note"] = note
