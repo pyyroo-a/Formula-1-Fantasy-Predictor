@@ -617,3 +617,17 @@ def test_health_answers_get_and_head(client):
     # some checkers use HEAD by default, so it answers that too
     assert client.get("/health").json() == {"status": "ok"}
     assert client.head("/health").status_code == 200
+
+
+def test_manual_team_pool_reads_the_lock_without_practice_data(client, pooled_madring, monkeypatch):
+    # final review: the Manual team page loaded practice live too, so it broke in the 30
+    # minutes before quali (OpenF1's block), right when you're picking your team
+    _no_practice_data(monkeypatch)
+    r = client.post("/upcoming-race-pool", json={"race_name": MADRING, "year": 2026,
+                                                 "session": pooled_madring["session_used"]})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["session_used"] == pooled_madring["session_used"]
+    assert [d["Abbreviation"] for d in body["pool"]["drivers"]] == \
+        [d["Abbreviation"] for d in pooled_madring["pool"]["drivers"]]
+    assert body["optimal"] == pooled_madring["optimal_team"]

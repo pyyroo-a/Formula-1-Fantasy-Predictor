@@ -11,20 +11,23 @@ name: Lock Weekend Snapshot
 # And OpenF1 blocks free users from about 30 minutes before a session until it ends, so
 # between FP3 and quali there's only about 90 minutes to lock (Brazil: 16:00 to 17:30
 # UTC). So instead of one poke per run, each run stays awake and asks every 5 minutes
-# for up to ~6 hours (GitHub's limit for one job). Starts are spread over Friday,
-# Saturday and Sunday in UTC, so even a start that runs hours late still covers the
-# window. Free, the repo's public.
+# for up to ~6 hours (GitHub's limit for one job). Starts come every hour on Friday,
+# Saturday and Sunday morning in UTC, so a late or dropped start never leaves the
+# window uncovered. Free, the repo's public.
 #
 # Before that it was cron-job.org, which gave up on a request after 30s while Render
 # takes ~53s to wake up. Bahrain (round 16) and Singapore (round 17) got lost that way.
 
 on:
   schedule:
-    # sprint weekends lock on Friday's sprint qualifying, normal weekends on Saturday's
-    # FP3, and Las Vegas's Saturday is Friday night in UTC
-    - cron: "0 0,6,12,18 * * 5,6"
+    # a start every hour, at 17 past because GitHub is busiest on the hour and drops
+    # queued scheduled runs (about 5 of 48 starts ran on Mexico weekend). The concurrency
+    # group below means one runs and the next waits to take over, so the lock never
+    # hangs on one start. Sprint weekends lock on Friday's sprint qualifying, normal
+    # weekends on Saturday's FP3, and Las Vegas's Saturday is Friday night in UTC
+    - cron: "17 * * * 5,6"
     # Sunday catch up for anything that slipped through overnight
-    - cron: "0 0,6 * * 0"
+    - cron: "17 0-12 * * 0"
   workflow_dispatch: # and a Run workflow button for when you want to force it
 
 # one run at a time, a new start waits for the running one instead of piling up

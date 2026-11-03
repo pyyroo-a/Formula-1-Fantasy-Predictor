@@ -475,6 +475,7 @@ def mexico_openf1(monkeypatch):
         ("drivers", 11398): _fixture("mexico_fp2_drivers.json"),
         ("drivers", 11000): [{"driver_number": 30, "name_acronym": "WRONG", "team_name": "Nope"}],
         ("laps", 11399): _fixture("mexico_fp3_laps_best.json"),
+        ("session_result", 11399): _fixture("mexico_fp3_session_result.json"),
     }
 
     def fake_get(path, params):
@@ -608,3 +609,42 @@ def test_fastf1_grid_says_it_came_from_fastf1(monkeypatch, no_schedule):
     monkeypatch.setattr(fp.openf1, "openf1_grid", unavailable)
     monkeypatch.setattr(fp, "_fastf1_practice_grid", lambda *a: pd.DataFrame({"Abbreviation": ["LEC"]}))
     assert fp.get_practice_grid(2026, "Bahrain Grand Prix", "FP3").attrs["lap_source"] == "fastf1"
+
+
+def test_half_filled_laps_lose_to_a_fuller_classification(mexico_openf1):
+    # final review: if OpenF1 fills late laps in a few drivers at a time, a lock built in
+    # the middle would only have some of the grid, frozen forever. The classification
+    # wins until the laps have everyone it has
+    full = mexico_openf1[("laps", 11399)]
+    timed = [lap for lap in full if lap.get("lap_duration") is not None]
+    mexico_openf1[("laps", 11399)] = timed[:5]
+    mexico_openf1[("session_result", 11399)] = _fixture("mexico_fp3_session_result.json")
+    grid = _mexico_fp3_grid()
+    assert grid.attrs["lap_source"] == "classification"
+    assert len(grid) > 5
+    # and nothing half filled got remembered: once the laps are all in, they win
+    mexico_openf1[("laps", 11399)] = full
+    assert _mexico_fp3_grid().attrs["lap_source"] == "laps"
+
+
+def test_full_laps_still_win_when_the_classification_is_missing(mexico_openf1):
+    mexico_openf1[("session_result", 11399)] = []
+    assert _mexico_fp3_grid().attrs["lap_source"] == "laps"
+
+
+def test_rate_limit_backs_off_a_few_times_before_giving_up(monkeypatch):
+    # final review: lock day makes a burst of calls with cold caches, and one 2 second
+    # retry wasn't much against the free tier's rate limit
+    answers = iter([_FakeResponse({}, 429), _FakeResponse({}, 429), _FakeResponse([{"ok": 1}])])
+    waits = []
+    monkeypatch.setattr(of1.httpx, "get", lambda *a, **k: next(answers))
+    monkeypatch.setattr(of1.time, "sleep", waits.append)
+    assert of1._get("laps", {}) == [{"ok": 1}]
+    assert waits == [2, 4]
+
+
+def test_rate_limit_still_gives_up_eventually(monkeypatch):
+    monkeypatch.setattr(of1.httpx, "get", lambda *a, **k: _FakeResponse({}, 429))
+    monkeypatch.setattr(of1.time, "sleep", lambda s: None)
+    with pytest.raises(of1.OpenF1Unavailable):
+        of1._get("laps", {})

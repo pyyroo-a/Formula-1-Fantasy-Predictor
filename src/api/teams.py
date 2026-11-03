@@ -100,6 +100,13 @@ def get_upcoming_race_pool(request: UpcomingRaceRequest):
     if not state.current_prices or not state.current_prices.get("drivers"):
         raise HTTPException(status_code=503, detail="Prices not available")
 
+    snap = find_snapshot(request.race_name)
+    if snap and snap.get("pool"):
+        # locked with the full forecast saved: the Manual team page shows the lock's
+        # pool, so it works during OpenF1's quali block and matches the main page. The
+        # page asks for FP3 (FP1 on sprint weekends), the lock's session wins either way
+        return {"pool": snap["pool"], "optimal": snap.get("optimal_team"), "session_used": snap["session_used"]}
+
     # try the requested session first, then work backwards
     practice_df, session_used, last_error = first_available_practice(
         request.year, request.race_name, fallback_sessions(request.session))

@@ -44,6 +44,9 @@ MATCH_TOLERANCE = pd.Timedelta(hours=6)
 
 SESSIONS_TTL_S = 3600
 
+# seconds to wait before each retry when OpenF1 says we're asking too fast
+RATE_LIMIT_WAITS = (2, 4)
+
 _sessions_cache: dict[int, tuple[float, list]] = {}
 # each session's driver list, kept for an hour like the sessions list, because a list
 # can be out of date during the weekend (Mexico FP3 named car 50 wrong at first)
@@ -97,14 +100,17 @@ def _is_no_results(data) -> bool:
 
 
 def _get(path: str, params: dict):
-    """One OpenF1 request. Waits and retries once if we hit the rate limit."""
-    for attempt in range(2):
+    """
+    One OpenF1 request. If we hit the rate limit it waits 2s, then 4s, and tries again,
+    because lock day fires a burst of calls with cold caches.
+    """
+    for attempt in range(len(RATE_LIMIT_WAITS) + 1):
         try:
             r = httpx.get(f"{BASE}/{path}", params=params, timeout=30)
         except httpx.HTTPError as e:
             raise OpenF1Unavailable(f"OpenF1 {path}: {e}") from e
-        if r.status_code == 429 and attempt == 0:
-            time.sleep(2)
+        if r.status_code == 429 and attempt < len(RATE_LIMIT_WAITS):
+            time.sleep(RATE_LIMIT_WAITS[attempt])
             continue
         try:
             data = r.json()
@@ -324,9 +330,25 @@ def openf1_grid(year: int, race_name: str, session: str, start_utc, now=None) ->
         grid = _classification_grid(match, race_name)
         grid.attrs["lap_source"] = "classification"
         return grid
+    # the laps could still be filling in a few drivers at a time. If the classification
+    # has more drivers, it wins, and nothing half filled gets remembered (a lock built
+    # from it would be missing people forever). Checked once, then the grid's cached
+    classified = _classification_grid_if_out(match, race_name)
+    if classified is not None and len(classified) > len(grid):
+        _laps_cache.pop(key, None)
+        classified.attrs["lap_source"] = "classification"
+        return classified
     grid.attrs["lap_source"] = "laps"
     _grid_cache[key] = grid
     return grid.copy()
+
+
+def _classification_grid_if_out(session: dict, race_name: str) -> pd.DataFrame | None:
+    """The classification grid, or None if it isn't out or OpenF1 can't give it right now."""
+    try:
+        return _classification_grid(session, race_name)
+    except (NotPublishedYet, OpenF1Unavailable):
+        return None
 
 
 def _classification_grid(session: dict, race_name: str) -> pd.DataFrame:
