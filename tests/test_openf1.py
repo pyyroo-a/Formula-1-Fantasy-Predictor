@@ -439,3 +439,91 @@ def test_no_results_found_with_its_real_404_is_still_an_empty_list(openf1_answer
     # checked on 2026-11-03: OpenF1 sends "No results found." with a 404
     openf1_answers(NO_RESULTS, status=404)
     assert of1._get("laps", {"session_key": 11399}) == []
+
+
+# ---- naming drivers from the whole meeting ---------------------------------------
+#
+# A session's /drivers can be empty (Monaco FP2, Singapore SQ) or out of date (Mexico
+# FP3 had no car 30 LAW, and on the day it had OCO where car 50 HIR drove). So a car
+# the session can't name gets looked up in the rest of the weekend, and if nobody can
+# name it, it's left out. Never guessed.
+
+import json
+from pathlib import Path
+
+FIXTURES = Path(__file__).parent / "fixtures" / "openf1"
+
+
+def _fixture(name):
+    return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
+
+
+MEX_FP3 = {**_session(key=11399, name="Practice 3"), "meeting_key": 1298}
+MEX_FP2 = {**_session(key=11398, name="Practice 2", start=START - pd.Timedelta(hours=20)), "meeting_key": 1298}
+OTHER_WEEKEND = {**_session(key=11000, name="Practice 2", start=START - pd.Timedelta(days=7)), "meeting_key": 1290}
+
+
+@pytest.fixture
+def mexico_openf1(monkeypatch):
+    """OpenF1 as it looked for Mexico: FP3's driver list has no car 30, FP2's does."""
+    answers = {
+        ("sessions", None): [MEX_FP2, MEX_FP3, OTHER_WEEKEND],
+        ("drivers", 11399): _fixture("mexico_fp3_drivers.json"),
+        ("drivers", 11398): _fixture("mexico_fp2_drivers.json"),
+        ("drivers", 11000): [{"driver_number": 30, "name_acronym": "WRONG", "team_name": "Nope"}],
+        ("laps", 11399): _fixture("mexico_fp3_laps_best.json"),
+    }
+
+    def fake_get(path, params):
+        return answers[(path, params.get("session_key"))]
+
+    monkeypatch.setenv("USE_OPENF1", "1")
+    monkeypatch.setattr(of1, "_get", fake_get)
+    of1.clear_caches()
+    yield answers
+    of1.clear_caches()
+
+
+def _acronyms(drivers):
+    return {d["driver_number"]: d["name_acronym"] for d in drivers}
+
+
+def test_meeting_drivers_fill_in_a_car_missing_from_the_session(mexico_openf1):
+    assert 30 not in _acronyms(mexico_openf1[("drivers", 11399)])
+    names = _acronyms(of1.meeting_drivers(MEX_FP3))
+    assert names[30] == "LAW"          # from FP2, the same weekend
+    assert names[50] == "HIR"          # the session's own list
+
+
+def test_session_drivers_win_over_the_rest_of_the_meeting(mexico_openf1):
+    mexico_openf1[("drivers", 11398)] = [{"driver_number": 1, "name_acronym": "OLD", "team_name": "McLaren"}]
+    assert _acronyms(of1.meeting_drivers(MEX_FP3))[1] == "NOR"
+
+
+def test_meeting_drivers_never_look_at_another_weekend(mexico_openf1):
+    mexico_openf1[("drivers", 11398)] = []
+    assert 30 not in _acronyms(of1.meeting_drivers(MEX_FP3))
+
+
+def test_grid_with_empty_drivers_list_is_not_published_instead_of_crashing():
+    with pytest.raises(of1.NotPublishedYet):
+        of1.grid_from_openf1(LAPS, [], "x")
+
+
+def test_grid_drops_a_car_nobody_can_name():
+    grid = of1.grid_from_openf1(LAPS + [{"driver_number": 99, "lap_duration": 90.0}], DRIVERS, "x")
+    assert len(grid) == 4
+    assert grid.iloc[0]["Abbreviation"] == "LEC"
+
+
+def test_practice_table_with_empty_drivers_list_is_not_published_instead_of_crashing():
+    with pytest.raises(of1.NotPublishedYet):
+        of1.practice_table(LAPS, [])
+
+
+def test_mexico_fp3_grid_names_lawson_from_fp2(mexico_openf1):
+    grid = of1.openf1_grid(2026, "Mexico City Grand Prix", "FP3", MEX_FP3["date_start"],
+                           now=START + pd.Timedelta(hours=3))
+    assert "LAW" in set(grid["Abbreviation"])
+    assert "HIR" in set(grid["Abbreviation"])
+    assert list(grid["Abbreviation"][:3]) == ["NOR", "ANT", "LEC"]

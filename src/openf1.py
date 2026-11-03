@@ -45,6 +45,9 @@ MATCH_TOLERANCE = pd.Timedelta(hours=6)
 SESSIONS_TTL_S = 3600
 
 _sessions_cache: dict[int, tuple[float, list]] = {}
+# each session's driver list, kept for an hour like the sessions list, because a list
+# can be out of date during the weekend (Mexico FP3 named car 50 wrong at first)
+_drivers_cache: dict[int, tuple[float, list]] = {}
 _grid_cache: dict[int, pd.DataFrame] = {}
 # the raw laps and drivers per finished session, so the model's grid and the Practice
 # page share one download (the free tier is rate limited)
@@ -69,6 +72,7 @@ class LiveBlocked(NotPublishedYet):
 
 def clear_caches():
     _sessions_cache.clear()
+    _drivers_cache.clear()
     _grid_cache.clear()
     _laps_cache.clear()
 
@@ -156,6 +160,62 @@ def session_ready(session: dict, now) -> bool:
     return _utc(now) >= _utc(session["date_end"]) + INGEST_BUFFER
 
 
+def _session_drivers(key: int) -> list:
+    cached = _drivers_cache.get(key)
+    if cached and time.time() - cached[0] < SESSIONS_TTL_S:
+        return cached[1]
+    drivers = _get("drivers", {"session_key": key})
+    _drivers_cache[key] = (time.time(), drivers)
+    return drivers
+
+
+def meeting_drivers(session: dict, needed: set | None = None) -> list[dict]:
+    """
+    Everyone we can name for one session: its own /drivers first, then any car number
+    that's only in /drivers for another session of the same weekend (same meeting_key).
+
+    Basically a session's list can be empty (Monaco FP2, Singapore SQ) or out of date
+    (Mexico FP3 had no car 30, LAW). The session's own entry always wins. If `needed`
+    is given and the session's own list already names all of them, we don't bother
+    asking about the rest of the weekend.
+    """
+    own = list(_session_drivers(session["session_key"]))
+    have = {d["driver_number"] for d in own}
+    if needed is not None and set(needed) <= have:
+        return own
+    meeting = session.get("meeting_key")
+    if meeting is None:
+        return own
+    year = session.get("year") or _utc(session["date_start"]).year
+    for other in _sessions(year):
+        if other.get("meeting_key") != meeting or other["session_key"] == session["session_key"]:
+            continue
+        for d in _session_drivers(other["session_key"]):
+            if d["driver_number"] not in have:
+                own.append(d)
+                have.add(d["driver_number"])
+    return own
+
+
+def _name_laps(best: pd.DataFrame, drivers: list, cols: list[str], what: str) -> pd.DataFrame:
+    """
+    Puts names on each driver's best lap. A car nobody can name gets left out (and
+    logged) instead of guessed, and no names at all means there's nothing to rank yet.
+    """
+    drv = pd.DataFrame(drivers)
+    for col in cols:
+        if col not in drv:
+            drv[col] = None
+    drv = drv[cols].drop_duplicates("driver_number") if not drv.empty else pd.DataFrame(columns=cols)
+    unnamed = sorted(set(best["driver_number"]) - set(drv["driver_number"]))
+    if unnamed:
+        print(f"OpenF1 {what}: leaving out car(s) {unnamed}, nobody in the driver lists has that number")
+    named = best.merge(drv, on="driver_number")
+    if named.empty:
+        raise NotPublishedYet(f"no named drivers for {what} yet")
+    return named
+
+
 def grid_from_openf1(laps: list, drivers: list, race_name: str) -> pd.DataFrame:
     """
     Same shape and same maths as get_practice_grid's FastF1 version: rank by each
@@ -169,8 +229,7 @@ def grid_from_openf1(laps: list, drivers: list, race_name: str) -> pd.DataFrame:
         raise NotPublishedYet(f"no timed laps for {race_name} yet")
 
     best = laps.groupby("driver_number")["lap_duration"].min().reset_index()
-    drv = pd.DataFrame(drivers)[["driver_number", "name_acronym", "team_name"]].drop_duplicates("driver_number")
-    best = best.merge(drv, on="driver_number")
+    best = _name_laps(best, drivers, ["driver_number", "name_acronym", "team_name"], race_name)
     best = best.sort_values("lap_duration").reset_index(drop=True)
 
     best["GridPosition"] = best.index + 1
@@ -187,7 +246,7 @@ def grid_from_openf1(laps: list, drivers: list, race_name: str) -> pd.DataFrame:
 
 def _finished_session(year: int, race_name: str, session: str, start_utc, now=None) -> int:
     """
-    The OpenF1 session_key for a finished session. Raises NotPublishedYet if it isn't
+    The OpenF1 session (its whole dict) for a finished session. Raises NotPublishedYet if it isn't
     over yet (nobody has those laps, FastF1 included, so don't bother falling back), and
     OpenF1Unavailable if OpenF1 can't help (then FastF1 gets a go).
     """
@@ -204,13 +263,16 @@ def _finished_session(year: int, race_name: str, session: str, start_utc, now=No
         raise OpenF1Unavailable(f"OpenF1 has no {name} near {start_utc} for {race_name}")
     if not session_ready(match, now if now is not None else pd.Timestamp.now(tz="UTC")):
         raise NotPublishedYet(f"{race_name} {session} isn't over yet (ends {match['date_end']})")
-    return match["session_key"]
+    return match
 
 
-def _laps_and_drivers(key: int) -> tuple[list, list]:
+def _laps_and_drivers(session: dict) -> tuple[list, list]:
+    key = session["session_key"]
     if key in _laps_cache:
         return _laps_cache[key]
-    laps, drivers = _get("laps", {"session_key": key}), _get("drivers", {"session_key": key})
+    laps = _get("laps", {"session_key": key})
+    needed = {lap["driver_number"] for lap in laps or [] if lap.get("lap_duration") is not None}
+    drivers = meeting_drivers(session, needed)
     # only remember a session once it has timed laps. OpenF1 can still be filling them in
     # after the buffer, and a remembered empty answer would say "not published" until the
     # server restarts, which would stop the automatic lock for the whole weekend
@@ -221,10 +283,11 @@ def _laps_and_drivers(key: int) -> tuple[list, list]:
 
 def openf1_grid(year: int, race_name: str, session: str, start_utc, now=None) -> pd.DataFrame:
     """The pace order for one session from OpenF1. Raises like _finished_session."""
-    key = _finished_session(year, race_name, session, start_utc, now)
+    match = _finished_session(year, race_name, session, start_utc, now)
+    key = match["session_key"]
     if key in _grid_cache:
         return _grid_cache[key].copy()
-    laps, drivers = _laps_and_drivers(key)
+    laps, drivers = _laps_and_drivers(match)
     grid = grid_from_openf1(laps, drivers, race_name)
     _grid_cache[key] = grid
     return grid.copy()
@@ -249,12 +312,8 @@ def practice_table(laps: list, drivers: list) -> list[dict]:
         raise NotPublishedYet("no timed laps yet")
 
     best = laps.groupby("driver_number")["lap_duration"].min().reset_index()
-    drv = pd.DataFrame(drivers).drop_duplicates("driver_number")
-    for col in ("first_name", "last_name"):
-        if col not in drv:
-            drv[col] = None
-    best = best.merge(drv[["driver_number", "name_acronym", "team_name", "first_name", "last_name"]],
-                      on="driver_number")
+    best = _name_laps(best, drivers, ["driver_number", "name_acronym", "team_name", "first_name", "last_name"],
+                      "the practice table")
     best = best.sort_values("lap_duration").reset_index(drop=True)
     best = normalize_team_names(best.rename(columns={"team_name": "TeamName"}))
     pole = best["lap_duration"].min()
@@ -275,6 +334,6 @@ def practice_table(laps: list, drivers: list) -> list[dict]:
 
 def openf1_practice(year: int, race_name: str, session: str, start_utc, now=None) -> list[dict]:
     """The Practice page's rows for one session from OpenF1. Raises like _finished_session."""
-    key = _finished_session(year, race_name, session, start_utc, now)
-    laps, drivers = _laps_and_drivers(key)
+    match = _finished_session(year, race_name, session, start_utc, now)
+    laps, drivers = _laps_and_drivers(match)
     return practice_table(laps, drivers)

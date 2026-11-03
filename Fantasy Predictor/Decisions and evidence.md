@@ -182,4 +182,24 @@ all of them. Found in the final review.
 "Copy the crowd" starts filling in from Mexico, when the first ownership gets saved.
 The track record page (project 5) will show this on the site.
 
+## Naming drivers from the whole weekend (measured 2026-11-03, rounds 3 to 19)
+
+OpenF1's driver list for a session can be empty or out of date. Mexico FP3's had no car
+30 (LAW), so his laps just got dropped. Now a car the session can't name gets looked up
+in the other sessions of the same weekend, and if nobody can name it, it's left out,
+never guessed. Scorecard (`--rules current`) with and without it:
+
+| | Without | With |
+|---|---|---|
+| PitWall replay (17 races) | 196.1 | 196.1 |
+| FP3 order (17 races) | 181.5 | 182.9 |
+| Hindsight best (17 races) | 290.2 | 291.1 |
+| Mexico FP3 order | 35.0 | 60.0 |
+| Copy the crowd (Mexico, its only race so far) | 118.0 | 92.0 |
+
+Only Mexico moved, and PitWall's own picks didn't change. The FP3 order and the best
+possible team went up because LAW was finally in the pool, and the crowd team changed
+because it gets built from the same pool. Heads up: the replay was 203.9 on the 28 Oct
+scorecard over 16 races, it's 196.1 now because Mexico scored 71.0.
+
 Related: [Model](Model.md), [Fantasy scoring](Fantasy%20scoring.md), [Scorecard](Scorecard.md), [Roadmap](Roadmap.md)
