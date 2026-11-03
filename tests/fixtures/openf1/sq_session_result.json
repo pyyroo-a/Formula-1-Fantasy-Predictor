@@ -1,0 +1,422 @@
+[
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 1,
+  "dsq": false,
+  "duration": [
+   88.723,
+   89.366,
+   87.869
+  ],
+  "gap_to_leader": [
+   0.0,
+   1.033,
+   0.0
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 15,
+  "position": 1,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 12,
+  "dsq": false,
+  "duration": [
+   89.312,
+   89.209,
+   88.091
+  ],
+  "gap_to_leader": [
+   0.589,
+   0.876,
+   0.222
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 14,
+  "position": 2,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 81,
+  "dsq": false,
+  "duration": [
+   89.169,
+   88.506,
+   88.108
+  ],
+  "gap_to_leader": [
+   0.446,
+   0.173,
+   0.239
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 11,
+  "position": 3,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 16,
+  "dsq": false,
+  "duration": [
+   88.733,
+   88.333,
+   88.239
+  ],
+  "gap_to_leader": [
+   0.01,
+   0.0,
+   0.37
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 15,
+  "position": 4,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 3,
+  "dsq": false,
+  "duration": [
+   89.801,
+   89.093,
+   88.461
+  ],
+  "gap_to_leader": [
+   1.078,
+   0.76,
+   0.592
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 12,
+  "position": 5,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 63,
+  "dsq": false,
+  "duration": [
+   89.659,
+   88.903,
+   88.493
+  ],
+  "gap_to_leader": [
+   0.936,
+   0.57,
+   0.624
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 15,
+  "position": 6,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 44,
+  "dsq": false,
+  "duration": [
+   89.255,
+   88.841,
+   88.618
+  ],
+  "gap_to_leader": [
+   0.532,
+   0.508,
+   0.749
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 15,
+  "position": 7,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 43,
+  "dsq": false,
+  "duration": [
+   90.386,
+   89.527,
+   89.32
+  ],
+  "gap_to_leader": [
+   1.663,
+   1.194,
+   1.451
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 15,
+  "position": 8,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 6,
+  "dsq": false,
+  "duration": [
+   90.352,
+   89.75,
+   89.422
+  ],
+  "gap_to_leader": [
+   1.629,
+   1.417,
+   1.553
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 15,
+  "position": 9,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 10,
+  "dsq": false,
+  "duration": [
+   89.984,
+   89.973,
+   89.474
+  ],
+  "gap_to_leader": [
+   1.261,
+   1.64,
+   1.605
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 15,
+  "position": 10,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 5,
+  "dsq": false,
+  "duration": [
+   90.561,
+   89.994,
+   null
+  ],
+  "gap_to_leader": [
+   1.838,
+   1.661,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 12,
+  "position": 11,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 27,
+  "dsq": false,
+  "duration": [
+   90.27,
+   90.019,
+   null
+  ],
+  "gap_to_leader": [
+   1.547,
+   1.686,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 12,
+  "position": 12,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 87,
+  "dsq": false,
+  "duration": [
+   90.614,
+   90.116,
+   null
+  ],
+  "gap_to_leader": [
+   1.891,
+   1.783,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 9,
+  "position": 13,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 55,
+  "dsq": false,
+  "duration": [
+   90.987,
+   90.224,
+   null
+  ],
+  "gap_to_leader": [
+   2.264,
+   1.891,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 12,
+  "position": 14,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 41,
+  "dsq": false,
+  "duration": [
+   90.872,
+   90.573,
+   null
+  ],
+  "gap_to_leader": [
+   2.149,
+   2.24,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 9,
+  "position": 15,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 30,
+  "dsq": false,
+  "duration": [
+   91.043,
+   null,
+   null
+  ],
+  "gap_to_leader": [
+   2.32,
+   null,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 5,
+  "position": 16,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 31,
+  "dsq": false,
+  "duration": [
+   91.245,
+   null,
+   null
+  ],
+  "gap_to_leader": [
+   2.522,
+   null,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 6,
+  "position": 17,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 11,
+  "dsq": false,
+  "duration": [
+   91.255,
+   null,
+   null
+  ],
+  "gap_to_leader": [
+   2.532,
+   null,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 3,
+  "position": 18,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 23,
+  "dsq": false,
+  "duration": [
+   91.322,
+   90.216,
+   null
+  ],
+  "gap_to_leader": [
+   2.599,
+   1.883,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 6,
+  "position": 19,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 77,
+  "dsq": false,
+  "duration": [
+   91.826,
+   null,
+   null
+  ],
+  "gap_to_leader": [
+   3.103,
+   null,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 6,
+  "position": 20,
+  "session_key": 11271
+ },
+ {
+  "dnf": false,
+  "dns": false,
+  "driver_number": 14,
+  "dsq": false,
+  "duration": [
+   101.311,
+   null,
+   null
+  ],
+  "gap_to_leader": [
+   12.588,
+   null,
+   null
+  ],
+  "meeting_key": 1284,
+  "number_of_laps": 6,
+  "position": null,
+  "session_key": 11271
+ }
+]

@@ -493,3 +493,23 @@ def test_chip_history_without_a_file(client, monkeypatch, tmp_path):
     r = client.get("/chip-history")
     assert r.status_code == 200
     assert r.json() == {"updated": None, "seasons": [], "tracks": [], "best": {}, "check": {}}
+
+
+# ---- the OpenF1 live block -------------------------------------------------------
+
+def test_snapshot_auto_waits_during_the_live_block(client, at, monkeypatch, empty_snapshots):
+    # FP3 is over but OpenF1 is blocking free users until quali ends. That's "try again
+    # in 5 minutes", not a 502, or the lock Action would treat Brazil as broken
+    import pandas as pd
+    from src import openf1
+    from conftest import SAT_MADRING_FP3_RUNNING
+    monkeypatch.setenv("SNAPSHOT_SECRET", "test-secret")
+    monkeypatch.setattr(weekend_lock, "results_already_in_data", lambda race: False)
+
+    def blocked(*a, **k):
+        raise openf1.LiveBlocked("live session")
+    monkeypatch.setattr(openf1, "openf1_grid", blocked)
+    at(SAT_MADRING_FP3_RUNNING + pd.Timedelta(hours=2))
+    r = client.post("/snapshot/auto", headers={"X-Snapshot-Secret": "test-secret"})
+    assert r.status_code == 200
+    assert r.json()["status"] == "waiting"

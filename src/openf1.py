@@ -59,6 +59,14 @@ class OpenF1Unavailable(Exception):
     """OpenF1 couldn't give us the session: switched off, not found, network, rate limit."""
 
 
+class LiveBlocked(NotPublishedYet):
+    """
+    A session is live, and OpenF1 blocks free users from everything (old sessions too)
+    until it ends. Basically "try again later", which is why it's a NotPublishedYet:
+    the lock keeps waiting and nobody bothers asking FastF1.
+    """
+
+
 def clear_caches():
     _sessions_cache.clear()
     _grid_cache.clear()
@@ -68,6 +76,20 @@ def clear_caches():
 def _utc(t) -> pd.Timestamp:
     t = pd.Timestamp(t)
     return t.tz_localize("UTC") if t.tzinfo is None else t.tz_convert("UTC")
+
+
+def _detail(data) -> str:
+    return str(data.get("detail", "")) if isinstance(data, dict) else ""
+
+
+def _is_live_block(data) -> bool:
+    """We never saw which status code comes with the block, so we go by the message."""
+    return _detail(data).startswith("Live F1 session in progress")
+
+
+def _is_no_results(data) -> bool:
+    """OpenF1's "nothing here yet". It comes with a 404, so again we go by the message."""
+    return _detail(data).startswith("No results found")
 
 
 def _get(path: str, params: dict):
@@ -80,10 +102,19 @@ def _get(path: str, params: dict):
         if r.status_code == 429 and attempt == 0:
             time.sleep(2)
             continue
+        try:
+            data = r.json()
+        except ValueError:
+            data = None
+        # OpenF1 answers with a dict instead of a list when something's wrong. Two of
+        # those aren't really wrong though. On Mexico FP3 the laps said "No results found."
+        # for hours, which just means nothing yet, and we treated it as OpenF1 being down
+        if _is_no_results(data):
+            return []
+        if _is_live_block(data):
+            raise LiveBlocked(f"OpenF1 {path}: blocked while a session is live")
         if r.status_code != 200:
             raise OpenF1Unavailable(f"OpenF1 {path} returned {r.status_code}")
-        data = r.json()
-        # OpenF1 answers with a dict instead of a list when something's wrong
         if not isinstance(data, list):
             raise OpenF1Unavailable(f"OpenF1 {path}: {data}")
         return data

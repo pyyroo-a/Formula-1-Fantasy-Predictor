@@ -370,3 +370,72 @@ def test_an_empty_answer_is_not_remembered(fake_openf1, monkeypatch):
     assert grid["Abbreviation"].iloc[0] == "LEC"
     rows = of1.openf1_practice(2026, "United States Grand Prix", "FP2", START, now=later)
     assert rows[0]["Abbreviation"] == "LEC"
+
+
+# ---- OpenF1's odd answers --------------------------------------------------------
+#
+# Mexico FP3: the laps answered {"detail": "No results found."} for hours, and _get
+# treated any dict as "OpenF1 is down", so it went off to FastF1 (401s) instead of
+# just saying "no laps yet". And during a live session OpenF1 blocks everything for
+# free users, which has to mean "try again later", not "broken".
+
+NO_RESULTS = {"detail": "No results found."}
+LIVE_BLOCK = {"detail": "Live F1 session in progress. Global API access (including past sessions) is "
+                        "restricted to authenticated users until the session ends. Get an API key here: "
+                        "https://buy.stripe.com/eVqcN41BPekP0iIalBcEw02"}
+
+
+class _FakeResponse:
+    def __init__(self, data, status=200):
+        self.status_code, self._data = status, data
+
+    def json(self):
+        return self._data
+
+
+@pytest.fixture
+def openf1_answers(monkeypatch):
+    """Makes OpenF1 answer with whatever you pass in."""
+    def _answer(data, status=200):
+        monkeypatch.setattr(of1.httpx, "get", lambda *a, **k: _FakeResponse(data, status))
+    return _answer
+
+
+def test_no_results_found_is_an_empty_list_not_openf1_down(openf1_answers):
+    openf1_answers(NO_RESULTS)
+    assert of1._get("laps", {"session_key": 11399}) == []
+
+
+def test_live_block_is_try_later_not_openf1_down(openf1_answers):
+    openf1_answers(LIVE_BLOCK)
+    with pytest.raises(of1.LiveBlocked):
+        of1._get("laps", {"session_key": 11399})
+    assert issubclass(of1.LiveBlocked, of1.NotPublishedYet)
+
+
+def test_other_odd_answers_still_mean_unavailable(openf1_answers):
+    openf1_answers({"detail": "something else went wrong"})
+    with pytest.raises(of1.OpenF1Unavailable):
+        of1._get("laps", {})
+
+
+def test_practice_grid_doesnt_ask_fastf1_during_the_live_block(monkeypatch, no_schedule):
+    def blocked(*a, **k):
+        raise of1.LiveBlocked("live session")
+    monkeypatch.setattr(fp.openf1, "openf1_grid", blocked)
+    monkeypatch.setattr(fp, "_fastf1_practice_grid", lambda *a: pytest.fail("FastF1 shouldn't be tried"))
+    with pytest.raises(of1.NotPublishedYet):
+        fp.get_practice_grid(2026, "Mexico City Grand Prix", "FP3")
+
+
+def test_live_block_is_try_later_whatever_the_status_code(openf1_answers):
+    # we never saw which status OpenF1 sends with the block, so don't depend on it
+    openf1_answers(LIVE_BLOCK, status=401)
+    with pytest.raises(of1.LiveBlocked):
+        of1._get("laps", {"session_key": 11399})
+
+
+def test_no_results_found_with_its_real_404_is_still_an_empty_list(openf1_answers):
+    # checked on 2026-11-03: OpenF1 sends "No results found." with a 404
+    openf1_answers(NO_RESULTS, status=404)
+    assert of1._get("laps", {"session_key": 11399}) == []
