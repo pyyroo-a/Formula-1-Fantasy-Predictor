@@ -229,6 +229,34 @@ def grid_from_openf1(laps: list, drivers: list, race_name: str) -> pd.DataFrame:
         raise NotPublishedYet(f"no timed laps for {race_name} yet")
 
     best = laps.groupby("driver_number")["lap_duration"].min().reset_index()
+    return _rank(best, drivers, race_name)
+
+
+def _best_classified_time(duration):
+    """Practice gives one number (or None), sprint quali a list with one per part."""
+    if isinstance(duration, list):
+        times = [t for t in duration if t is not None]
+        return min(times) if times else None
+    return duration
+
+
+def grid_from_classification(results: list, drivers: list, race_name: str) -> pd.DataFrame:
+    """
+    The same grid as grid_from_openf1, but from OpenF1's classification (/session_result)
+    instead of the laps. On Mexico FP3 the laps didn't turn up until after quali, while
+    the classification had everyone's best lap the whole time. Drivers with no time drop
+    out, same as the laps route.
+    """
+    best = pd.DataFrame([{"driver_number": r["driver_number"], "lap_duration": _best_classified_time(r.get("duration"))}
+                         for r in results or []], columns=["driver_number", "lap_duration"])
+    best = best.dropna(subset=["lap_duration"])
+    if best.empty:
+        raise NotPublishedYet(f"no classified times for {race_name} yet")
+    return _rank(best, drivers, race_name)
+
+
+def _rank(best: pd.DataFrame, drivers: list, race_name: str) -> pd.DataFrame:
+    """Each driver's best time in, the model's grid out: ranked, gap to pole, gap to teammate."""
     best = _name_laps(best, drivers, ["driver_number", "name_acronym", "team_name"], race_name)
     best = best.sort_values("lap_duration").reset_index(drop=True)
 
@@ -288,9 +316,23 @@ def openf1_grid(year: int, race_name: str, session: str, start_utc, now=None) ->
     if key in _grid_cache:
         return _grid_cache[key].copy()
     laps, drivers = _laps_and_drivers(match)
-    grid = grid_from_openf1(laps, drivers, race_name)
+    try:
+        grid = grid_from_openf1(laps, drivers, race_name)
+    except NotPublishedYet:
+        # no laps yet, so try the classification. Not cached on purpose, so the laps
+        # take over as soon as they turn up (the lock never changes once it's made)
+        grid = _classification_grid(match, race_name)
+        grid.attrs["lap_source"] = "classification"
+        return grid
+    grid.attrs["lap_source"] = "laps"
     _grid_cache[key] = grid
     return grid.copy()
+
+
+def _classification_grid(session: dict, race_name: str) -> pd.DataFrame:
+    results = _get("session_result", {"session_key": session["session_key"]})
+    needed = {r["driver_number"] for r in results if _best_classified_time(r.get("duration")) is not None}
+    return grid_from_classification(results, meeting_drivers(session, needed), race_name)
 
 
 def _lap_text(seconds: float) -> str:

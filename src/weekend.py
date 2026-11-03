@@ -338,6 +338,9 @@ def build_snapshot(event, prices: dict, source: str = "auto", note: str | None =
         "race_name": race_name,
         "round": rnd,
         "session_used": session,
+        # where the order came from: OpenF1's laps, its classification (the backup when
+        # the laps are late, like Mexico FP3) or FastF1
+        "lap_source": practice.attrs.get("lap_source", "laps"),
         "locked_at": now.isoformat(),
         "source": source,
         # the fantasy deadline is qualifying, so we note if this was built too late for it

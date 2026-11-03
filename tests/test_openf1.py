@@ -126,6 +126,8 @@ def fake_openf1(monkeypatch):
             return LAPS
         if path == "drivers":
             return DRIVERS
+        if path == "session_result":
+            return []   # "No results found.", what OpenF1 says before the classification is out
         raise AssertionError(path)
 
     monkeypatch.setenv("USE_OPENF1", "1")
@@ -199,8 +201,9 @@ def test_practice_grid_falls_back_to_fastf1_when_openf1_cant_help(monkeypatch, n
     def unavailable(*a, **k):
         raise of1.OpenF1Unavailable("rate limited")
     monkeypatch.setattr(fp.openf1, "openf1_grid", unavailable)
-    monkeypatch.setattr(fp, "_fastf1_practice_grid", lambda *a: "from fastf1")
-    assert fp.get_practice_grid(2026, "Bahrain Grand Prix", "FP3") == "from fastf1"
+    from_fastf1 = pd.DataFrame({"Abbreviation": ["LEC"]})
+    monkeypatch.setattr(fp, "_fastf1_practice_grid", lambda *a: from_fastf1)
+    assert fp.get_practice_grid(2026, "Bahrain Grand Prix", "FP3") is from_fastf1
 
 
 def test_practice_grid_doesnt_ask_fastf1_about_an_unfinished_session(monkeypatch, no_schedule):
@@ -527,3 +530,81 @@ def test_mexico_fp3_grid_names_lawson_from_fp2(mexico_openf1):
     assert "LAW" in set(grid["Abbreviation"])
     assert "HIR" in set(grid["Abbreviation"])
     assert list(grid["Abbreviation"][:3]) == ["NOR", "ANT", "LEC"]
+
+
+# ---- the classification backup ---------------------------------------------------
+#
+# Mexico FP3: no laps for hours, but /session_result had every driver's best lap the
+# whole time. Same ranking maths as the laps, so it's a straight backup.
+
+def test_classification_grid_matches_mexico_fp3():
+    grid = of1.grid_from_classification(_fixture("mexico_fp3_session_result.json"),
+                                        _fixture("mexico_fp3_drivers.json"), "Mexico City Grand Prix")
+    assert list(grid["Abbreviation"][:5]) == ["NOR", "ANT", "LEC", "PIA", "VER"]
+    assert grid.iloc[1]["GapToPole"] == pytest.approx(0.001, abs=1e-6)
+    assert "PER" not in set(grid["Abbreviation"])        # no time, drops out
+    assert "HIR" in set(grid["Abbreviation"])            # car 50 really was HIR
+    assert list(grid.columns) == list(of1.grid_from_openf1(LAPS, DRIVERS, "x").columns)
+
+
+def test_classification_grid_takes_the_best_part_of_sprint_quali():
+    results = _fixture("sq_session_result.json")
+    drivers = [{"driver_number": r["driver_number"], "name_acronym": f"D{r['driver_number']}", "team_name": "Ferrari"}
+               for r in results]
+    grid = of1.grid_from_classification(results, drivers, "Miami Grand Prix")
+    best = {f"D{r['driver_number']}": min(t for t in r["duration"] if t)
+            for r in results if r["duration"] and any(r["duration"])}
+    assert list(grid["Abbreviation"]) == sorted(best, key=best.get)
+
+
+def test_classification_with_no_times_is_not_published():
+    with pytest.raises(of1.NotPublishedYet):
+        of1.grid_from_classification([{"driver_number": 1, "duration": None}], DRIVERS, "x")
+    with pytest.raises(of1.NotPublishedYet):
+        of1.grid_from_classification([], DRIVERS, "x")
+
+
+def _mexico_fp3_grid():
+    return of1.openf1_grid(2026, "Mexico City Grand Prix", "FP3", MEX_FP3["date_start"],
+                           now=START + pd.Timedelta(hours=3))
+
+
+def test_openf1_grid_falls_back_to_the_classification_when_laps_say_no_results(mexico_openf1):
+    mexico_openf1[("laps", 11399)] = []
+    mexico_openf1[("session_result", 11399)] = _fixture("mexico_fp3_session_result.json")
+    grid = _mexico_fp3_grid()
+    assert grid.attrs["lap_source"] == "classification"
+    assert list(grid["Abbreviation"][:3]) == ["NOR", "ANT", "LEC"]
+    assert "LAW" in set(grid["Abbreviation"])            # named from FP2, like the laps route
+
+
+def test_classification_grid_is_not_cached_so_laps_can_take_over(mexico_openf1):
+    laps = mexico_openf1[("laps", 11399)]
+    mexico_openf1[("laps", 11399)] = []
+    mexico_openf1[("session_result", 11399)] = _fixture("mexico_fp3_session_result.json")
+    assert _mexico_fp3_grid().attrs["lap_source"] == "classification"
+    mexico_openf1[("laps", 11399)] = laps
+    assert _mexico_fp3_grid().attrs["lap_source"] == "laps"
+
+
+def test_nothing_anywhere_is_not_published_yet(mexico_openf1):
+    mexico_openf1[("laps", 11399)] = []
+    mexico_openf1[("session_result", 11399)] = [{"driver_number": 1, "duration": None}]
+    with pytest.raises(of1.NotPublishedYet):
+        _mexico_fp3_grid()
+
+
+def test_laps_grid_says_it_came_from_laps(fake_openf1):
+    grid = of1.openf1_grid(2026, "United States Grand Prix", "FP2", START, now=START + pd.Timedelta(hours=2))
+    assert grid.attrs["lap_source"] == "laps"
+    # the cached copy too
+    assert of1.openf1_grid(2026, "United States Grand Prix", "FP2", START,
+                           now=START + pd.Timedelta(hours=2)).attrs["lap_source"] == "laps"
+
+
+def test_fastf1_grid_says_it_came_from_fastf1(monkeypatch, no_schedule):
+    def unavailable(*a, **k):
+        raise of1.OpenF1Unavailable("down")
+    monkeypatch.setattr(fp.openf1, "openf1_grid", unavailable)
+    monkeypatch.setattr(fp, "_fastf1_practice_grid", lambda *a: pd.DataFrame({"Abbreviation": ["LEC"]}))
+    assert fp.get_practice_grid(2026, "Bahrain Grand Prix", "FP3").attrs["lap_source"] == "fastf1"

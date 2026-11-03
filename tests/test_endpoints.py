@@ -513,3 +513,17 @@ def test_snapshot_auto_waits_during_the_live_block(client, at, monkeypatch, empt
     r = client.post("/snapshot/auto", headers={"X-Snapshot-Secret": "test-secret"})
     assert r.status_code == 200
     assert r.json()["status"] == "waiting"
+
+
+def test_snapshot_records_where_its_order_came_from(client, monkeypatch):
+    from src import weekend
+    from src.api import state
+    real = weekend.load_grid
+
+    def from_classification(race, session, year=2026):
+        grid = real(race, session, year)
+        grid.attrs["lap_source"] = "classification"
+        return grid
+    monkeypatch.setattr(weekend, "load_grid", from_classification)
+    snap = weekend.build_snapshot(_madring_event(), state.current_prices, source="test")
+    assert snap["lap_source"] == "classification"

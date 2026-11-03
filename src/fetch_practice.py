@@ -97,7 +97,9 @@ def _openf1_then_fastf1(year: int, race_name: str, session: str, fastf1_loader):
     except openf1.NotPublishedYet:
         raise
     except openf1.OpenF1Unavailable:
-        return fastf1_loader()
+        grid = fastf1_loader()
+        grid.attrs["lap_source"] = "fastf1"
+        return grid
 
 
 def get_sprint_quali_grid(year: int, race_name: str) -> pd.DataFrame:
