@@ -1,30 +1,43 @@
 name: Lock Weekend Snapshot
 
-# Backup for the weekend lock, because cron-job.org kept failing: it gives up on a
-# request after 30s and Render's free tier takes ~53s to wake from sleep, so the
-# call never landed. Two weekends were lost that way (Bahrain round 16, Singapore
-# round 17). Here we can just wait for the cold start instead of working around it.
+# Locks the race weekend by calling POST /snapshot/auto on Render. All the "is it time
+# yet" logic lives there: it checks the final session has finished AND OpenF1 has it
+# (laps or, as a backup, the classification), that the weekend has no snapshot yet, and
+# refuses outright if the race results are already in our data. Calling it when there's
+# nothing to do is free, it just answers "idle" or "waiting".
 #
-# This only pokes the endpoint. All the "is it time yet" logic lives in
-# POST /snapshot/auto, which checks the final session has finished AND OpenF1 has
-# its laps, that the weekend has no snapshot yet, and refuses outright if the
-# race results are already in our data. Calling it when there is nothing to do is
-# free, it answers "idle" or "waiting" and stops.
+# Why it loops now: on Mexico weekend this was set to run every 30 minutes, but GitHub
+# actually ran it every 4 to 6 hours (31 Oct: 01:26, 07:25, 13:48, 18:17, 21:47 UTC).
+# And OpenF1 blocks free users from about 30 minutes before a session until it ends, so
+# between FP3 and quali there's only about 90 minutes to lock (Brazil: 16:00 to 17:30
+# UTC). So instead of one poke per run, each run stays awake and asks every 5 minutes
+# for up to ~6 hours (GitHub's limit for one job). Starts are spread over Friday,
+# Saturday and Sunday in UTC, so even a start that runs hours late still covers the
+# window. Free, the repo's public.
+#
+# Before that it was cron-job.org, which gave up on a request after 30s while Render
+# takes ~53s to wake up. Bahrain (round 16) and Singapore (round 17) got lost that way.
 
 on:
   schedule:
-    # every 30 min Friday and Saturday: sprint weekends lock on Friday's sprint
-    # qualifying, normal weekends on Saturday's FP3
-    - cron: "*/30 * * * 5,6"
-    # Sunday morning catch-up for anything that slipped through overnight
-    - cron: "*/30 0-10 * * 0"
+    # sprint weekends lock on Friday's sprint qualifying, normal weekends on Saturday's
+    # FP3, and Las Vegas's Saturday is Friday night in UTC
+    - cron: "0 0,6,12,18 * * 5,6"
+    # Sunday catch up for anything that slipped through overnight
+    - cron: "0 0,6 * * 0"
   workflow_dispatch: # and a Run workflow button for when you want to force it
+
+# one run at a time, a new start waits for the running one instead of piling up
+concurrency:
+  group: lock-snapshot
+  cancel-in-progress: false
 
 jobs:
   lock:
     runs-on: ubuntu-latest
+    timeout-minutes: 355
     steps:
-      - name: Ask the backend to lock this weekend
+      - name: Keep asking the backend to lock this weekend
         env:
           SNAPSHOT_SECRET: ${{ secrets.SNAPSHOT_SECRET }}
           BACKEND: https://formula-1-fantasy-predictor.onrender.com
@@ -34,35 +47,52 @@ jobs:
             exit 1
           fi
 
-          # --max-time 180 is the whole point: it covers Render waking up.
-          # --retry-all-errors retries the connection errors you get mid-wake.
-          code=$(curl -sS -o response.json -w '%{http_code}' \
-            --max-time 180 --retry 3 --retry-delay 15 --retry-all-errors \
-            -X POST "$BACKEND/snapshot/auto" \
-            -H "X-Snapshot-Secret: $SNAPSHOT_SECRET")
-
-          echo "HTTP $code"
-          cat response.json || true
-          echo
-
-          # put the answer in the run summary so you can see what happened without
-          # opening the logs
           {
             echo "### Snapshot lock"
             echo ""
-            echo "HTTP \`$code\`"
-            echo ""
-            echo '```json'
-            cat response.json || true
-            echo ""
-            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-          # "idle" and "waiting" are normal, they just mean there's nothing to lock
-          # right now. Only a real HTTP failure should go red.
-          case "$code" in
-            2*) ;;
-            000) echo "::error::No answer from the backend within 180s."; exit 1 ;;
-            401) echo "::error::401, the repo secret doesn't match SNAPSHOT_SECRET on Render."; exit 1 ;;
-            *) echo "::error::snapshot/auto returned HTTP $code"; exit 1 ;;
-          esac
+          # stop a bit before GitHub's 6 hour limit so the run ends green, not killed
+          deadline=$(( $(date +%s) + 345 * 60 ))
+
+          while true; do
+            # --max-time 180 covers Render waking up, --retry-all-errors covers the
+            # connection errors you get mid wake
+            code=$(curl -sS -o response.json -w '%{http_code}' \
+              --max-time 180 --retry 3 --retry-delay 15 --retry-all-errors \
+              -X POST "$BACKEND/snapshot/auto" \
+              -H "X-Snapshot-Secret: $SNAPSHOT_SECRET" || true)
+            status=$(python3 -c "import json; print(json.load(open('response.json')).get('status', ''))" 2>/dev/null || true)
+
+            echo "$(date -u +%H:%M) UTC: HTTP $code $status"
+            cat response.json 2>/dev/null || true
+            echo
+            echo "- $(date -u +%H:%M) UTC: HTTP \`$code\` \`$status\`" >> "$GITHUB_STEP_SUMMARY"
+
+            # a wrong secret won't fix itself, so that's the one thing that goes red
+            if [ "$code" = "401" ]; then
+              echo "::error::401, the repo secret doesn't match SNAPSHOT_SECRET on Render."
+              exit 1
+            fi
+
+            # done: locked already, nothing to lock, or too late (results are in)
+            case "$code:$status" in
+              2*:already_locked|2*:idle|2*:refused)
+                {
+                  echo ""
+                  echo '```json'
+                  cat response.json
+                  echo ""
+                  echo '```'
+                } >> "$GITHUB_STEP_SUMMARY"
+                exit 0 ;;
+            esac
+
+            # anything else (waiting, started, building, a 5xx, no answer while Render
+            # restarts) means try again in 5 minutes
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "Ran out of time, still not locked. The next scheduled run carries on." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 300
+          done

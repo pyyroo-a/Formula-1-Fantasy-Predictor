@@ -608,3 +608,12 @@ def test_weekend_team_doesnt_send_the_pool(client, at, pooled_madring):
     body = client.get("/weekend-team").json()
     assert body["locked"] is True
     assert "pool" not in body and "optimal_team" not in body
+
+
+# ---- keeping Render awake --------------------------------------------------------
+
+def test_health_answers_get_and_head(client):
+    # the uptime checker knocks on this every few minutes so Render never falls asleep.
+    # some checkers use HEAD by default, so it answers that too
+    assert client.get("/health").json() == {"status": "ok"}
+    assert client.head("/health").status_code == 200

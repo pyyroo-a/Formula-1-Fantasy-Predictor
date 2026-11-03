@@ -87,3 +87,13 @@ app.add_middleware(
 # every group of endpoints lives in its own file under src/api/
 for module in (races, prices, teams, race_weekend, finishes, weekend_lock, planner, track_record, chip_history, dev):
     app.include_router(module.router)
+
+
+@app.api_route("/health", methods=["GET", "HEAD"])
+def health():
+    """
+    For the uptime checker. Render's free tier sleeps after 15 minutes with no visitors and
+    takes ~50s to wake up, so something knocks on this every few minutes. Answers straight
+    away without loading anything.
+    """
+    return {"status": "ok"}
