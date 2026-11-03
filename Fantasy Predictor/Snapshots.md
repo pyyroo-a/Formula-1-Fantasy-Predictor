@@ -23,7 +23,12 @@ predicted vs actual works for every race.
 
 A snapshot holds: year, race name, round, `session_used` (FP3 or SQ), `locked_at`,
 `source` (`auto` or `manual`), `built_after_quali_start`, the 3 `teams` (with their 2x
-pick and chip verdicts) and the predicted `finishes`.
+pick and chip verdicts) and the predicted `finishes`. Since 2026-11-03 also
+`lap_source` (`laps`, `classification` or `fastf1`, where the order came from), and the
+whole forecast: `pool` (every driver and constructor with points, price, DNF chance and
+confidence), `optimal_team`, `optimal_score`, `limitless_team`, `limitless_score`. The
+Garage reads those once a weekend's locked, so it never needs OpenF1 again for that
+weekend. Older snapshots don't have them and the Garage works them out live like before.
 
 Code: `src/snapshots.py` (reading, saving, committing to GitHub), `build_snapshot` in
 `src/weekend.py` (what goes in one), `src/api/weekend_lock.py` (the automatic lock).
@@ -34,10 +39,13 @@ script, so they can never build different things.
 
 Two independent ways, see [Race weekend flow](Race%20weekend%20flow.md) for the timeline:
 
-1. **`POST /snapshot/auto`, called by the GitHub Action** (`.github/workflows/lock-snapshot.yml`)
-   every 30 minutes on Fridays and Saturdays plus Sunday morning UTC. `--max-time 180`
-   on purpose: Render takes about 53 seconds to wake up, and cron-job.org (which we used
-   before) gave up after 30, which is how Bahrain and Singapore got lost.
+1. **`POST /snapshot/auto`, called by the GitHub Action** (`.github/workflows/lock-snapshot.yml`).
+   Each run starts at 00, 06, 12 and 18 UTC on Fridays and Saturdays (00 and 06 on
+   Sundays), then stays awake and calls it every 5 minutes for up to ~6 hours, because
+   GitHub's timers run hours late. It stops once it's `already_locked`, `idle` or
+   `refused`, only a 401 goes red. `--max-time 180` on purpose: Render takes about 53
+   seconds to wake up, and cron-job.org (which we used before) gave up after 30, which
+   is how Bahrain and Singapore got lost.
 2. **The self lock.** When `/weekend-team` or `/weekend-finishes` builds a provisional
    from the lock session, it starts the same build in the background. Only the FINAL
    session counts, never if a snapshot exists, never once results are in the data.
@@ -48,7 +56,7 @@ What `/snapshot/auto` answers:
 | Answer | Means |
 |---|---|
 | `idle` | no race weekend on (more than 5 days out, or season over) |
-| `waiting` | the lock session isn't finished, or OpenF1 doesn't have it yet. Normal, just wait |
+| `waiting` | the lock session isn't finished, OpenF1 doesn't have it yet (no laps and no classification), or OpenF1 is blocking us during a live session. Normal, just wait |
 | `started` / `building` | the build is running in the background |
 | `already_locked` | done. It still re-checks the snapshot made it to GitHub |
 | `refused` | the race results are already in our data, a snapshot now would have seen the answers |

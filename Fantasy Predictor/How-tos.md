@@ -12,13 +12,18 @@ When the Action and the self lock both missed it (check `/weekend-team` says
 `"locked": true` first):
 
 ```bash
+python scripts/lock_team.py --dry-run                # look first: teams, 2x, predicted finish, saves nothing
 python scripts/lock_team.py                          # the next race weekend
 python scripts/lock_team.py --race "Singapore Grand Prix"
 python scripts/lock_team.py --race "..." --force     # replace an existing snapshot
 ```
 
-Then commit the new file in `data/snapshots/` and push. It builds exactly what the
-automatic lock would. It refuses once the race results are in our data, so a missed
+Always do the dry run first. It also says where the order came from (`laps`,
+`classification` or `fastf1`), and if FP3 isn't out anywhere yet it just stops with
+"isn't over yet" or "not published". Then run it without `--dry-run`, commit the new
+file in `data/snapshots/` and push. It builds exactly what the automatic lock would,
+marked `source: manual`. Mexico R19 got locked by hand this way (with a one-off script,
+before this existed), because OpenF1 had no FP3 laps. It refuses once the race results are in our data, so a missed
 weekend has to be recovered before Monday's job runs. That's how Bahrain R16 and
 Singapore R17 got saved.
 

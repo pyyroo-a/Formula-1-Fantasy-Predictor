@@ -94,6 +94,17 @@ The Team Optimizer got dropped, Planner and Chip Advisor became the Garage.
 
 ## Banked ideas
 
+- **The classification as the main source.** It drops deleted laps and the laps don't,
+  so it might even be the better order. Measure on the scorecard first.
+- **Our own copy of every session:** save what we read from OpenF1 into the repo, so
+  old weekends never depend on OpenF1 being up.
+- **Race data's Practice page** could show the classification when the laps are late.
+- **The ladder's odd numbers:** it gave BOT, ALB and STR the same 183.5 for my Mexico
+  Team 1, and the live ladder said 187.0 where a hand run said 182.0. Worth a look.
+- **A computer vision timing reader** off the TV graphics, as its own project. Sectors
+  can't be measured any other way without F1's feed. Not for PitWall, formula1.com and
+  F1 account scraping are out (F1's terms: personal, non commercial use only).
+
 - **Price momentum:** predict which prices go up or down from `price_history.json`, to
   bank team value and avoid transfer penalties.
 - **Betting odds** as an extra signal, if a free source exists before the deadline.
@@ -129,6 +140,11 @@ The Team Optimizer got dropped, Planner and Chip Advisor became the Garage.
 All the numbers: [Decisions and evidence](Decisions%20and%20evidence.md).
 
 ## Done
+
+- 2026-11-03: the reliable weekend lock, after Mexico. The Action stays awake and asks
+  every 5 minutes, OpenF1's classification is the backup when laps are late, drivers
+  named from the whole weekend, the lock saves the full forecast for the Garage,
+  `lock_team.py --dry-run`, `/health` for an uptime checker.
 
 - 2026-10-28: project 6. Chip history by track (`src/chip_history.py`,
   `scripts/chip_history.py`, `/chip-history`, the CHIPS tab), in the Monday job.

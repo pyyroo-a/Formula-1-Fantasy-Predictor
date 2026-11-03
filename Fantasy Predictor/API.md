@@ -25,15 +25,16 @@ its own file under `src/api/`.
 | GET | `/price-changes` | `prices.py` | prices vs last round |
 | POST | `/predict-budget` | `teams.py` | 3 teams for any race. The site doesn't call it any more (the Team Optimizer page got dropped in the redesign), kept for now |
 | POST | `/upcoming-race-pool` | `teams.py` | every driver and constructor with points (Manual Team page) |
-| POST | `/chip-advisor` | `teams.py` | chip verdicts for your own team (MY TEAM > GARAGE), see [Chips](Chips.md) |
+| POST | `/chip-advisor` | `teams.py` | chip verdicts for your own team (MY TEAM > GARAGE), see [Chips](Chips.md). Reads the lock's saved pool once the weekend is locked, otherwise works it out live from the same session the ladder uses |
 | GET | `/chip-history` | `chip_history.py` | the CHIPS tab's numbers, just serves `data/chip_history.json` (each track carries its `round` in the newest season, for calendar order) (rebuilt by `scripts/chip_history.py` in the Monday job). An empty history if the file isn't there |
 | GET | `/track-record` | `track_record.py` | the track record page's numbers, just serves `data/track_record_2026.json` (rebuilt by `scripts/track_record.py` in the Monday job). An empty record if the file isn't there |
-| POST | `/transfer-ladder` | `planner.py` | the transfer ladder for your own team (5 drivers, 2 constructors, budget, 1 to 3 free transfers), see [Planner](Planner.md). Driver swaps carry `in_confidence` and `in_confidence_reason` for the driver coming in |
+| POST | `/transfer-ladder` | `planner.py` | the transfer ladder for your own team (5 drivers, 2 constructors, budget, 1 to 3 free transfers), see [Planner](Planner.md). Driver swaps carry `in_confidence` and `in_confidence_reason` for the driver coming in. Reads the lock's saved pool once the weekend is locked |
 | POST | `/predict`, `/predict-upcoming`, `/race-pool` | `teams.py` | older endpoints the site doesn't call any more, kept for now |
 | GET | `/weekend-team` | `race_weekend.py` | this weekend's locked snapshot, or a provisional before the lock. Each driver and 2x pick has `Confidence` and `ConfidenceReason` once the lock session is in (None on earlier previews, old snapshots and sprint weekends) |
 | GET | `/last-team` | `race_weekend.py` | the newest snapshot, held between races |
 | GET | `/weekend-finishes` | `finishes.py` | predicted finishing order, plus real results once they're in |
 | POST | `/snapshot/auto` | `weekend_lock.py` | locks the weekend, needs `X-Snapshot-Secret`, see [Snapshots](Snapshots.md) |
+| GET, HEAD | `/health` | `main.py` | answers `{"status": "ok"}` straight away, for the uptime checker that keeps Render awake |
 | GET | `/backtest` | `dev.py` | replays the season to grade the model, only with `BACKTEST_ENABLED=true` (local only, it's slow) |
 
 The weekend files share `weekend_common.py` (schedule, next race, best practice order

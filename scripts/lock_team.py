@@ -9,7 +9,10 @@ It builds exactly the same snapshot the automatic one would, then saves it into
 data/snapshots/. You commit and push it, and the site picks it up after Render
 redeploys.
 
+Try --dry-run first: it builds everything and shows you the teams, but saves nothing.
+
 Usage:
+    python scripts/lock_team.py --dry-run                # just show what it would lock
     python scripts/lock_team.py                          # the next race weekend
     python scripts/lock_team.py --race "Spanish Grand Prix"
     python scripts/lock_team.py --race "..." --force     # replace an existing snapshot
@@ -33,6 +36,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--race", help="Event name, e.g. 'Spanish Grand Prix'")
     ap.add_argument("--force", action="store_true", help="Replace an existing snapshot for that race")
+    ap.add_argument("--dry-run", action="store_true", help="Build it and show it, but don't save anything")
     args = ap.parse_args()
 
     fastf1.Cache.enable_cache("data/cache")
@@ -57,7 +61,7 @@ def main():
     race = event["EventName"]
     rnd = int(event["RoundNumber"])
 
-    if find_snapshot(race) and not args.force:
+    if find_snapshot(race) and not args.force and not args.dry_run:
         print(f"{race} already has a snapshot ({snapshot_path(SEASON, rnd, race)}). Use --force to replace it.")
         return
 
@@ -69,14 +73,23 @@ def main():
     print(f"Building {race} (round {rnd}) from {session}...")
 
     # no try/except on purpose: if something breaks you see the real error
-    snap = build_snapshot(event, fetch_prices(rnd), source="manual")
-    path = save_snapshot(snap, force=args.force)
+    snap = build_snapshot(event, fetch_prices(rnd), source="manual",
+                          note="locked by hand with scripts/lock_team.py")
 
-    print(f"Saved {path}")
+    print(f"Order from {session}, {snap.get('lap_source')}")
     for i, t in enumerate(snap["teams"], 1):
         drivers = ", ".join(d["Abbreviation"] for d in t["drivers"])
         constructors = ", ".join(c["name"] for c in t["constructors"])
-        print(f"  team {i}: {drivers} | {constructors} | {t['total_score']} pts")
+        boost = (t.get("boost_pick") or {}).get("Abbreviation", "-")
+        print(f"  team {i}: {drivers} | {constructors} | 2x {boost} | {t['total_score']} pts")
+    print("  predicted finish: " + ", ".join(f["abbreviation"] for f in snap["finishes"]))
+    if args.dry_run:
+        print()
+        print("Dry run, nothing saved. Run it again without --dry-run to lock it.")
+        return
+
+    path = save_snapshot(snap, force=args.force)
+    print(f"Saved {path}")
     if snap.get("built_after_quali_start"):
         print("  heads up: qualifying had already started, so this is too late for the fantasy deadline")
     print("\nNow commit it:  git add data/snapshots && git commit -m \"snapshot for " + race + "\" && git push")

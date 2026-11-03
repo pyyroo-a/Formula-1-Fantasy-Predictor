@@ -29,13 +29,18 @@ session that runs before the deadline as its best guess of the order:
 2. **Practice starts (FP1, FP2).** Once a session is over (plus a 30 minute buffer so
    all the laps are in), `/weekend-team` builds a live PROVISIONAL team from the best
    session so far. It's worked out fresh on every request and can still change.
-   Practice laps come from OpenF1 first, FastF1 second, see [Model](Model.md).
+   Practice laps come from OpenF1 first, then OpenF1's classification if the laps aren't
+   there yet, then FastF1, see [Model](Model.md) and [Gotchas](Gotchas.md).
 3. **The lock session finishes (FP3 or SQ).** Two things race to lock it, whichever
    gets there first wins:
-   - **The GitHub Action** (`.github/workflows/lock-snapshot.yml`) calls
-     `POST /snapshot/auto` every 30 minutes on Fridays and Saturdays, plus Sunday
-     morning UTC. That checks the session is finished AND OpenF1 has it, then builds
-     the snapshot in the background and commits it to GitHub.
+   - **The GitHub Action** (`.github/workflows/lock-snapshot.yml`) starts a few times
+     on Fridays, Saturdays and Sundays (UTC), then stays awake and calls
+     `POST /snapshot/auto` every 5 minutes for up to ~6 hours. That checks the session
+     is finished AND OpenF1 has it (laps or classification), then builds the snapshot in
+     the background and commits it to GitHub. OpenF1 blocks us from about 30 minutes
+     before quali, so on a normal weekend the window is roughly FP3's end plus 30
+     minutes until then (Brazil: 16:00 to 17:30 UTC). If FP3 only turns up after quali
+     starts it still locks from FP3, flagged `built_after_quali_start`. Never from FP2.
    - **The self lock.** If someone opens the site and the provisional was built from
      the lock session, the page view kicks off the same build (`should_self_lock` in
      `src/api/weekend_lock.py`).

@@ -22,7 +22,11 @@ ranked, plus the gap to pole and the gap to their teammate.
   started "loading" new sessions with 0 drivers and no error. OpenF1 measured
   identical to FastF1 on 4 old weekends (same 22 drivers, same order, same gaps to
   the millisecond).
-- **FastF1 second**, which still works for old sessions that are in our cache.
+- **OpenF1's classification** (`/session_result`) when the laps aren't there yet. Same
+  ranking by each driver's best time. Mexico FP3's laps were hours late while this had
+  everything. Drivers get named from the whole weekend, never guessed, see
+  [Gotchas](Gotchas.md).
+- **FastF1 last**, which still works for old sessions that are in our cache.
 - A session only counts once it's over plus 30 minutes, so half a session never
   gets locked in. OpenF1 sessions are matched by start time, not name (the Bahrain
   GP was in Kuala Lumpur this year).

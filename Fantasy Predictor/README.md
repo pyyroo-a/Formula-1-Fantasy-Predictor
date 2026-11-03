@@ -54,10 +54,16 @@ Where it's going:
 - [Roadmap](Roadmap.md): the 7 projects from the post Austin brainstorm, open tasks, banked ideas, closed questions
 - [Future plans](Future%20plans.md): the bigger career picture PitWall sits in
 
-## Where things stand (2026-10-30)
+## Where things stand (2026-11-03)
 
-- 2026 season, US GP (round 18) was locked automatically on FP3 by the GitHub Action.
-  Mexico (round 19) is next, and its lock is the first to save ownership.
+- 2026 season, Mexico (round 19) nearly didn't lock: OpenF1 had no FP3 laps until
+  after quali and GitHub ran the lock Action hours late, so it got locked by hand from
+  OpenF1's classification. That led to the reliable lock work (design and plan in
+  `docs/superpowers/`, dated 2026-11-03): the Action now stays awake and asks every 5
+  minutes, the classification is the backup when laps are late, drivers get named from
+  the whole weekend, the lock saves the full forecast so the Garage reads it, and
+  `/health` keeps Render awake. Brazil (round 20) is the first weekend with all of it.
+  What bit us is in [Gotchas](Gotchas.md).
 - Projects 1 to 5 on the [Roadmap](Roadmap.md) are done. PitWall gets graded with
   the game's own points: 203.9 pts/race on the replay vs 190.6 for copying the FP3
   order, see the [Scorecard](Scorecard.md). The [Planner](Planner.md) is live under My

@@ -21,6 +21,23 @@ weekend flow.
   the wall, 2026-10-26, added the US GP results and prices like normal. Only practice
   timing got locked. FastF1 can't load a NEW practice session though (Austin FP3 throws
   `DataNotLoadedError`), so if OpenF1 hiccups the fallback fails too.
+- **OpenF1 blocks free users during every live session.** From about 30 minutes before
+  a session until it ends, everything answers "Live F1 session in progress", old
+  sessions too. So between FP3 and quali there's only about 90 minutes to lock. In the
+  code that's `LiveBlocked`, which means "try again later", never "broken".
+- **OpenF1's laps can be hours late.** Mexico FP3's laps answered `{"detail": "No
+  results found."}` (with a 404!) until after quali, while `/session_result` had every
+  driver's best lap the whole time. Now the classification is the backup when there are
+  no laps, and the lock says which one it used (`lap_source`). Across 2026 the
+  classification matched the laps' order on 41 of 57 sessions, the differences are
+  mostly deleted laps (the laps still count them, the classification doesn't).
+- **A session's driver list can be empty or wrong.** Monaco FP2 and Singapore SQ had
+  none, Mexico FP3's had no car 30 (LAW) and at first had OCO where car 50 (HIR, a Haas
+  stand in) drove. A car the session can't name gets looked up in the rest of the
+  weekend, and if nobody knows it, it's left out. Never guess a number (I did once, the
+  Mexico hand lock gave OCO HIR's lap).
+- **GitHub's scheduled Actions run late.** "Every 30 minutes" ran every 4 to 6 hours on
+  Mexico weekend. That's why the lock Action now stays awake and asks every 5 minutes.
 - **A replay must never see the race it's predicting.** The backtest's prediction
   table used to carry each driver's real race Status, so the scoring gave real
   retirements their -20 before the race and the replay dodged them. Found 2026-10-28
