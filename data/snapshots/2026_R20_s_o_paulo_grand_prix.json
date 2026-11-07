@@ -1,0 +1,1294 @@
+{
+  "year": 2026,
+  "race_name": "S\u00e3o Paulo Grand Prix",
+  "round": 20,
+  "session_used": "FP3",
+  "lap_source": "laps",
+  "locked_at": "2026-11-07T16:03:11.519625+00:00",
+  "source": "auto",
+  "built_after_quali_start": false,
+  "teams": [
+    {
+      "drivers": [
+        {
+          "Abbreviation": "VER",
+          "TeamName": "Red Bull Racing",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 36.0,
+          "Price": 28.8,
+          "PickCategory": "Safe",
+          "DNFProb": 0.077,
+          "Confidence": "low",
+          "ConfidenceReason": "P1 in FP3. Steady all weekend. But teammate HAD was P9 and only 0.025s from the next car."
+        },
+        {
+          "Abbreviation": "LIN",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 7,
+          "Predicted": 7.2,
+          "FantasyValue": 10.4,
+          "Price": 10.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.095,
+          "Confidence": "medium",
+          "ConfidenceReason": "P7 in FP3. Teammate LAW P8 backs it up and 0.111s clear of the next car. But moved around between sessions (P7 to P14)."
+        },
+        {
+          "Abbreviation": "LAW",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 8,
+          "Predicted": 8.1,
+          "FantasyValue": 7.3,
+          "Price": 11.1,
+          "PickCategory": "Risk",
+          "DNFProb": 0.086,
+          "Confidence": "low",
+          "ConfidenceReason": "P8 in FP3. Teammate LIN P7 backs it up. But moved around between sessions (P8 to P13) and only 0.042s from the next car."
+        },
+        {
+          "Abbreviation": "BOR",
+          "TeamName": "Audi",
+          "GridPosition": 10,
+          "Predicted": 10.2,
+          "FantasyValue": 2.1,
+          "Price": 5.8,
+          "PickCategory": "Risk",
+          "DNFProb": 0.127,
+          "Confidence": "low",
+          "ConfidenceReason": "P10 in FP3. Steady all weekend. But teammate HUL was P13 and only 0.000s from the next car."
+        },
+        {
+          "Abbreviation": "CAM",
+          "TeamName": "Haas F1 Team",
+          "GridPosition": 15,
+          "Predicted": 15.0,
+          "FantasyValue": 0.0,
+          "Price": 6.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.238,
+          "Confidence": "medium",
+          "ConfidenceReason": "P15 in FP3. Teammate BEA P16 backs it up and 0.056s clear of the next car. But moved around between sessions (P15 to P18)."
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Mercedes",
+          "price": 34.0,
+          "score": 58.1,
+          "dnf_risk": 0.123,
+          "double_dnf_risk": 0.004
+        },
+        {
+          "name": "Cadillac",
+          "price": 3.0,
+          "score": 0.0,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        }
+      ],
+      "total_cost": 98.7,
+      "budget_remaining": 1.3,
+      "total_score": 113.9,
+      "boost_pick": {
+        "Abbreviation": "VER",
+        "TeamName": "Red Bull Racing",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "LIN",
+          "LAW"
+        ],
+        "Confidence": "low",
+        "ConfidenceReason": "P1 in FP3. Steady all weekend. But teammate HAD was P9 and only 0.025s from the next car."
+      },
+      "chips": {
+        "my_team_score": 101.9,
+        "limitless": {
+          "gain": 130.9,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 12.0,
+          "recommendation": "CONSIDER"
+        },
+        "x3_boost": {
+          "gain": 36.0,
+          "target": "VER",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "CAM",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "gain": 34.2,
+          "points_at_risk": 34.2,
+          "expected_dnfs": 0.62,
+          "is_high_attrition": false,
+          "reason": "About 0.6 expected retirements across your 5 drivers and 1.1 across your constructors' 4 cars.",
+          "recommendation": "PLAY"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    },
+    {
+      "drivers": [
+        {
+          "Abbreviation": "VER",
+          "TeamName": "Red Bull Racing",
+          "GridPosition": 1,
+          "Predicted": 1.0,
+          "FantasyValue": 36.0,
+          "Price": 28.8,
+          "PickCategory": "Safe",
+          "DNFProb": 0.077,
+          "Confidence": "low",
+          "ConfidenceReason": "P1 in FP3. Steady all weekend. But teammate HAD was P9 and only 0.025s from the next car."
+        },
+        {
+          "Abbreviation": "LIN",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 7,
+          "Predicted": 7.2,
+          "FantasyValue": 10.4,
+          "Price": 10.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.095,
+          "Confidence": "medium",
+          "ConfidenceReason": "P7 in FP3. Teammate LAW P8 backs it up and 0.111s clear of the next car. But moved around between sessions (P7 to P14)."
+        },
+        {
+          "Abbreviation": "BOR",
+          "TeamName": "Audi",
+          "GridPosition": 10,
+          "Predicted": 10.2,
+          "FantasyValue": 2.1,
+          "Price": 5.8,
+          "PickCategory": "Risk",
+          "DNFProb": 0.127,
+          "Confidence": "low",
+          "ConfidenceReason": "P10 in FP3. Steady all weekend. But teammate HUL was P13 and only 0.000s from the next car."
+        },
+        {
+          "Abbreviation": "GAS",
+          "TeamName": "Alpine",
+          "GridPosition": 11,
+          "Predicted": 11.2,
+          "FantasyValue": 0.0,
+          "Price": 9.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.126,
+          "Confidence": "low",
+          "ConfidenceReason": "P11 in FP3. But teammate COL was P14, moved around between sessions (P11 to P14) and only 0.000s from the next car."
+        },
+        {
+          "Abbreviation": "HUL",
+          "TeamName": "Audi",
+          "GridPosition": 13,
+          "Predicted": 13.2,
+          "FantasyValue": 0.0,
+          "Price": 7.8,
+          "PickCategory": "Risk",
+          "DNFProb": 0.215,
+          "Confidence": "low",
+          "ConfidenceReason": "P13 in FP3. But teammate BOR was P10 and only 0.032s from the next car. Couldn't check: only one session so far."
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Mercedes",
+          "price": 34.0,
+          "score": 58.1,
+          "dnf_risk": 0.123,
+          "double_dnf_risk": 0.004
+        },
+        {
+          "name": "Aston Martin",
+          "price": 4.5,
+          "score": 0.0,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        }
+      ],
+      "total_cost": 99.9,
+      "budget_remaining": 0.1,
+      "total_score": 106.6,
+      "boost_pick": {
+        "Abbreviation": "VER",
+        "TeamName": "Red Bull Racing",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "LIN",
+          "BOR"
+        ],
+        "Confidence": "low",
+        "ConfidenceReason": "P1 in FP3. Steady all weekend. But teammate HAD was P9 and only 0.025s from the next car."
+      },
+      "chips": {
+        "my_team_score": 94.6,
+        "limitless": {
+          "gain": 138.2,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 19.3,
+          "recommendation": "CONSIDER"
+        },
+        "x3_boost": {
+          "gain": 36.0,
+          "target": "VER",
+          "recommendation": "PLAY"
+        },
+        "final_fix": {
+          "riskiest_driver": "GAS",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "gain": 35.7,
+          "points_at_risk": 35.7,
+          "expected_dnfs": 0.64,
+          "is_high_attrition": false,
+          "reason": "About 0.6 expected retirements across your 5 drivers and 1.1 across your constructors' 4 cars.",
+          "recommendation": "PLAY"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    },
+    {
+      "drivers": [
+        {
+          "Abbreviation": "ANT",
+          "TeamName": "Mercedes",
+          "GridPosition": 2,
+          "Predicted": 1.8,
+          "FantasyValue": 27.9,
+          "Price": 27.5,
+          "PickCategory": "Safe",
+          "DNFProb": 0.049,
+          "Confidence": "medium",
+          "ConfidenceReason": "P2 in FP3. Teammate RUS P4 backs it up and steady all weekend. But only 0.025s from the next car."
+        },
+        {
+          "Abbreviation": "LIN",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 7,
+          "Predicted": 7.2,
+          "FantasyValue": 10.4,
+          "Price": 10.0,
+          "PickCategory": "Risk",
+          "DNFProb": 0.095,
+          "Confidence": "medium",
+          "ConfidenceReason": "P7 in FP3. Teammate LAW P8 backs it up and 0.111s clear of the next car. But moved around between sessions (P7 to P14)."
+        },
+        {
+          "Abbreviation": "LAW",
+          "TeamName": "Racing Bulls",
+          "GridPosition": 8,
+          "Predicted": 8.1,
+          "FantasyValue": 7.3,
+          "Price": 11.1,
+          "PickCategory": "Risk",
+          "DNFProb": 0.086,
+          "Confidence": "low",
+          "ConfidenceReason": "P8 in FP3. Teammate LIN P7 backs it up. But moved around between sessions (P8 to P13) and only 0.042s from the next car."
+        },
+        {
+          "Abbreviation": "BOR",
+          "TeamName": "Audi",
+          "GridPosition": 10,
+          "Predicted": 10.2,
+          "FantasyValue": 2.1,
+          "Price": 5.8,
+          "PickCategory": "Risk",
+          "DNFProb": 0.127,
+          "Confidence": "low",
+          "ConfidenceReason": "P10 in FP3. Steady all weekend. But teammate HUL was P13 and only 0.000s from the next car."
+        },
+        {
+          "Abbreviation": "HUL",
+          "TeamName": "Audi",
+          "GridPosition": 13,
+          "Predicted": 13.2,
+          "FantasyValue": 0.0,
+          "Price": 7.8,
+          "PickCategory": "Risk",
+          "DNFProb": 0.215,
+          "Confidence": "low",
+          "ConfidenceReason": "P13 in FP3. But teammate BOR was P10 and only 0.032s from the next car. Couldn't check: only one session so far."
+        }
+      ],
+      "constructors": [
+        {
+          "name": "Mercedes",
+          "price": 34.0,
+          "score": 58.1,
+          "dnf_risk": 0.123,
+          "double_dnf_risk": 0.004
+        },
+        {
+          "name": "Cadillac",
+          "price": 3.0,
+          "score": 0.0,
+          "dnf_risk": null,
+          "double_dnf_risk": null
+        }
+      ],
+      "total_cost": 99.2,
+      "budget_remaining": 0.8,
+      "total_score": 105.8,
+      "boost_pick": {
+        "Abbreviation": "ANT",
+        "TeamName": "Mercedes",
+        "GridPosition": 2,
+        "Predicted": 1.8,
+        "FantasyValue": 27.9,
+        "reason": "Starting P2 (Q3), predicted P2: front row, qualifying points already banked, safest 2x",
+        "alternatives": [
+          "LIN",
+          "LAW"
+        ],
+        "Confidence": "medium",
+        "ConfidenceReason": "P2 in FP3. Teammate RUS P4 backs it up and steady all weekend. But only 0.025s from the next car."
+      },
+      "chips": {
+        "my_team_score": 93.8,
+        "limitless": {
+          "gain": 139.0,
+          "recommendation": "PLAY"
+        },
+        "wildcard": {
+          "gain": 20.1,
+          "recommendation": "CONSIDER"
+        },
+        "x3_boost": {
+          "gain": 27.9,
+          "target": "ANT",
+          "recommendation": "CONSIDER"
+        },
+        "final_fix": {
+          "riskiest_driver": "HUL",
+          "recommendation": "POST-QUALI"
+        },
+        "no_negative": {
+          "gain": 33.2,
+          "points_at_risk": 33.2,
+          "expected_dnfs": 0.57,
+          "is_high_attrition": false,
+          "reason": "About 0.6 expected retirements across your 5 drivers and 1.1 across your constructors' 4 cars.",
+          "recommendation": "PLAY"
+        },
+        "autopilot": {
+          "recommendation": "SAVE"
+        }
+      }
+    }
+  ],
+  "finishes": [
+    {
+      "abbreviation": "VER",
+      "team": "Red Bull Racing",
+      "model_pos": 1,
+      "baseline_pos": 1,
+      "delta": 0
+    },
+    {
+      "abbreviation": "ANT",
+      "team": "Mercedes",
+      "model_pos": 2,
+      "baseline_pos": 2,
+      "delta": 0
+    },
+    {
+      "abbreviation": "NOR",
+      "team": "McLaren",
+      "model_pos": 3,
+      "baseline_pos": 3,
+      "delta": 0
+    },
+    {
+      "abbreviation": "LEC",
+      "team": "Ferrari",
+      "model_pos": 4,
+      "baseline_pos": 5,
+      "delta": 1
+    },
+    {
+      "abbreviation": "RUS",
+      "team": "Mercedes",
+      "model_pos": 5,
+      "baseline_pos": 4,
+      "delta": -1
+    },
+    {
+      "abbreviation": "PIA",
+      "team": "McLaren",
+      "model_pos": 6,
+      "baseline_pos": 6,
+      "delta": 0
+    },
+    {
+      "abbreviation": "LAW",
+      "team": "Racing Bulls",
+      "model_pos": 7,
+      "baseline_pos": 8,
+      "delta": 1
+    },
+    {
+      "abbreviation": "LIN",
+      "team": "Racing Bulls",
+      "model_pos": 8,
+      "baseline_pos": 7,
+      "delta": -1
+    },
+    {
+      "abbreviation": "HAM",
+      "team": "Ferrari",
+      "model_pos": 9,
+      "baseline_pos": 12,
+      "delta": 3
+    },
+    {
+      "abbreviation": "COL",
+      "team": "Alpine",
+      "model_pos": 10,
+      "baseline_pos": 14,
+      "delta": 4
+    },
+    {
+      "abbreviation": "HAD",
+      "team": "Red Bull Racing",
+      "model_pos": 11,
+      "baseline_pos": 9,
+      "delta": -2
+    },
+    {
+      "abbreviation": "BOR",
+      "team": "Audi",
+      "model_pos": 12,
+      "baseline_pos": 10,
+      "delta": -2
+    },
+    {
+      "abbreviation": "GAS",
+      "team": "Alpine",
+      "model_pos": 13,
+      "baseline_pos": 11,
+      "delta": -2
+    },
+    {
+      "abbreviation": "CAM",
+      "team": "Haas F1 Team",
+      "model_pos": 14,
+      "baseline_pos": 15,
+      "delta": 1
+    },
+    {
+      "abbreviation": "BEA",
+      "team": "Haas F1 Team",
+      "model_pos": 15,
+      "baseline_pos": 16,
+      "delta": 1
+    },
+    {
+      "abbreviation": "HUL",
+      "team": "Audi",
+      "model_pos": 16,
+      "baseline_pos": 13,
+      "delta": -3
+    },
+    {
+      "abbreviation": "ALB",
+      "team": "Williams",
+      "model_pos": 17,
+      "baseline_pos": 17,
+      "delta": 0
+    },
+    {
+      "abbreviation": "ALO",
+      "team": "Aston Martin",
+      "model_pos": 18,
+      "baseline_pos": 18,
+      "delta": 0
+    },
+    {
+      "abbreviation": "SAI",
+      "team": "Williams",
+      "model_pos": 19,
+      "baseline_pos": 19,
+      "delta": 0
+    },
+    {
+      "abbreviation": "PER",
+      "team": "Cadillac",
+      "model_pos": 20,
+      "baseline_pos": 20,
+      "delta": 0
+    },
+    {
+      "abbreviation": "STR",
+      "team": "Aston Martin",
+      "model_pos": 21,
+      "baseline_pos": 22,
+      "delta": 1
+    },
+    {
+      "abbreviation": "BOT",
+      "team": "Cadillac",
+      "model_pos": 22,
+      "baseline_pos": 21,
+      "delta": -1
+    }
+  ],
+  "confidence": {
+    "VER": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P1 in FP3. Steady all weekend. But teammate HAD was P9 and only 0.025s from the next car."
+    },
+    "ANT": {
+      "level": "medium",
+      "flags": 1,
+      "reason": "P2 in FP3. Teammate RUS P4 backs it up and steady all weekend. But only 0.025s from the next car."
+    },
+    "NOR": {
+      "level": "medium",
+      "flags": 1,
+      "reason": "P3 in FP3. Steady all weekend and 0.053s clear of the next car. But teammate PIA was P6."
+    },
+    "RUS": {
+      "level": "high",
+      "flags": 0,
+      "reason": "P4 in FP3. Teammate ANT P2 backs it up, steady all weekend and 0.053s clear of the next car."
+    },
+    "LEC": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P5 in FP3. Steady all weekend. But teammate HAM was P12 and only 0.039s from the next car."
+    },
+    "PIA": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P6 in FP3. Steady all weekend. But teammate NOR was P3 and only 0.039s from the next car."
+    },
+    "LIN": {
+      "level": "medium",
+      "flags": 1,
+      "reason": "P7 in FP3. Teammate LAW P8 backs it up and 0.111s clear of the next car. But moved around between sessions (P7 to P14)."
+    },
+    "LAW": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P8 in FP3. Teammate LIN P7 backs it up. But moved around between sessions (P8 to P13) and only 0.042s from the next car."
+    },
+    "HAD": {
+      "level": "low",
+      "flags": 3,
+      "reason": "P9 in FP3. But teammate VER was P1, moved around between sessions (P6 to P9) and only 0.042s from the next car."
+    },
+    "BOR": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P10 in FP3. Steady all weekend. But teammate HUL was P13 and only 0.000s from the next car."
+    },
+    "GAS": {
+      "level": "low",
+      "flags": 3,
+      "reason": "P11 in FP3. But teammate COL was P14, moved around between sessions (P11 to P14) and only 0.000s from the next car."
+    },
+    "HAM": {
+      "level": "low",
+      "flags": 3,
+      "reason": "P12 in FP3. But teammate LEC was P5, moved around between sessions (P4 to P12) and only 0.032s from the next car."
+    },
+    "HUL": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P13 in FP3. But teammate BOR was P10 and only 0.032s from the next car. Couldn't check: only one session so far."
+    },
+    "COL": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P14 in FP3. 0.056s clear of the next car. But teammate GAS was P11 and moved around between sessions (P9 to P14)."
+    },
+    "CAM": {
+      "level": "medium",
+      "flags": 1,
+      "reason": "P15 in FP3. Teammate BEA P16 backs it up and 0.056s clear of the next car. But moved around between sessions (P15 to P18)."
+    },
+    "BEA": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P16 in FP3. Teammate CAM P15 backs it up. But moved around between sessions (P10 to P16) and only 0.038s from the next car."
+    },
+    "ALB": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P17 in FP3. Teammate SAI P19 backs it up. But moved around between sessions (P16 to P19) and only 0.024s from the next car."
+    },
+    "ALO": {
+      "level": "low",
+      "flags": 3,
+      "reason": "P18 in FP3. But teammate STR was P22, moved around between sessions (P13 to P18) and only 0.024s from the next car."
+    },
+    "SAI": {
+      "level": "high",
+      "flags": 0,
+      "reason": "P19 in FP3. Teammate ALB P17 backs it up, steady all weekend and 0.132s clear of the next car."
+    },
+    "PER": {
+      "level": "high",
+      "flags": 0,
+      "reason": "P20 in FP3. Teammate BOT P21 backs it up, steady all weekend and 0.149s clear of the next car."
+    },
+    "BOT": {
+      "level": "medium",
+      "flags": 1,
+      "reason": "P21 in FP3. Teammate PER P20 backs it up and 0.149s clear of the next car. But moved around between sessions (P15 to P21)."
+    },
+    "STR": {
+      "level": "low",
+      "flags": 2,
+      "reason": "P22 in FP3. 1.044s clear of the next car. But teammate ALO was P18 and moved around between sessions (P18 to P22)."
+    }
+  },
+  "pool": {
+    "drivers": [
+      {
+        "Abbreviation": "VER",
+        "TeamName": "Red Bull Racing",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "Price": 28.8,
+        "PickCategory": "Safe",
+        "DNFProb": 0.077,
+        "Confidence": "low",
+        "ConfidenceReason": "P1 in FP3. Steady all weekend. But teammate HAD was P9 and only 0.025s from the next car."
+      },
+      {
+        "Abbreviation": "ANT",
+        "TeamName": "Mercedes",
+        "GridPosition": 2,
+        "Predicted": 1.8,
+        "FantasyValue": 27.9,
+        "Price": 27.5,
+        "PickCategory": "Safe",
+        "DNFProb": 0.049,
+        "Confidence": "medium",
+        "ConfidenceReason": "P2 in FP3. Teammate RUS P4 backs it up and steady all weekend. But only 0.025s from the next car."
+      },
+      {
+        "Abbreviation": "NOR",
+        "TeamName": "McLaren",
+        "GridPosition": 3,
+        "Predicted": 3.0,
+        "FantasyValue": 23.8,
+        "Price": 25.9,
+        "PickCategory": "Safe",
+        "DNFProb": 0.097,
+        "Confidence": "medium",
+        "ConfidenceReason": "P3 in FP3. Steady all weekend and 0.053s clear of the next car. But teammate PIA was P6."
+      },
+      {
+        "Abbreviation": "RUS",
+        "TeamName": "Mercedes",
+        "GridPosition": 4,
+        "Predicted": 4.0,
+        "FantasyValue": 19.7,
+        "Price": 27.3,
+        "PickCategory": "Value",
+        "DNFProb": 0.078,
+        "Confidence": "high",
+        "ConfidenceReason": "P4 in FP3. Teammate ANT P2 backs it up, steady all weekend and 0.053s clear of the next car."
+      },
+      {
+        "Abbreviation": "LEC",
+        "TeamName": "Ferrari",
+        "GridPosition": 5,
+        "Predicted": 5.0,
+        "FantasyValue": 16.6,
+        "Price": 24.7,
+        "PickCategory": "Value",
+        "DNFProb": 0.095,
+        "Confidence": "low",
+        "ConfidenceReason": "P5 in FP3. Steady all weekend. But teammate HAM was P12 and only 0.039s from the next car."
+      },
+      {
+        "Abbreviation": "PIA",
+        "TeamName": "McLaren",
+        "GridPosition": 6,
+        "Predicted": 6.1,
+        "FantasyValue": 13.5,
+        "Price": 23.0,
+        "PickCategory": "Value",
+        "DNFProb": 0.1,
+        "Confidence": "low",
+        "ConfidenceReason": "P6 in FP3. Steady all weekend. But teammate NOR was P3 and only 0.039s from the next car."
+      },
+      {
+        "Abbreviation": "LIN",
+        "TeamName": "Racing Bulls",
+        "GridPosition": 7,
+        "Predicted": 7.2,
+        "FantasyValue": 10.4,
+        "Price": 10.0,
+        "PickCategory": "Risk",
+        "DNFProb": 0.095,
+        "Confidence": "medium",
+        "ConfidenceReason": "P7 in FP3. Teammate LAW P8 backs it up and 0.111s clear of the next car. But moved around between sessions (P7 to P14)."
+      },
+      {
+        "Abbreviation": "LAW",
+        "TeamName": "Racing Bulls",
+        "GridPosition": 8,
+        "Predicted": 8.1,
+        "FantasyValue": 7.3,
+        "Price": 11.1,
+        "PickCategory": "Risk",
+        "DNFProb": 0.086,
+        "Confidence": "low",
+        "ConfidenceReason": "P8 in FP3. Teammate LIN P7 backs it up. But moved around between sessions (P8 to P13) and only 0.042s from the next car."
+      },
+      {
+        "Abbreviation": "HAD",
+        "TeamName": "Red Bull Racing",
+        "GridPosition": 9,
+        "Predicted": 9.1,
+        "FantasyValue": 4.2,
+        "Price": 16.3,
+        "PickCategory": "Risk",
+        "DNFProb": 0.118,
+        "Confidence": "low",
+        "ConfidenceReason": "P9 in FP3. But teammate VER was P1, moved around between sessions (P6 to P9) and only 0.042s from the next car."
+      },
+      {
+        "Abbreviation": "BOR",
+        "TeamName": "Audi",
+        "GridPosition": 10,
+        "Predicted": 10.2,
+        "FantasyValue": 2.1,
+        "Price": 5.8,
+        "PickCategory": "Risk",
+        "DNFProb": 0.127,
+        "Confidence": "low",
+        "ConfidenceReason": "P10 in FP3. Steady all weekend. But teammate HUL was P13 and only 0.000s from the next car."
+      },
+      {
+        "Abbreviation": "GAS",
+        "TeamName": "Alpine",
+        "GridPosition": 11,
+        "Predicted": 11.2,
+        "FantasyValue": 0.0,
+        "Price": 9.0,
+        "PickCategory": "Risk",
+        "DNFProb": 0.126,
+        "Confidence": "low",
+        "ConfidenceReason": "P11 in FP3. But teammate COL was P14, moved around between sessions (P11 to P14) and only 0.000s from the next car."
+      },
+      {
+        "Abbreviation": "HAM",
+        "TeamName": "Ferrari",
+        "GridPosition": 12,
+        "Predicted": 11.9,
+        "FantasyValue": 0.0,
+        "Price": 25.0,
+        "PickCategory": "Risk",
+        "DNFProb": 0.107,
+        "Confidence": "low",
+        "ConfidenceReason": "P12 in FP3. But teammate LEC was P5, moved around between sessions (P4 to P12) and only 0.032s from the next car."
+      },
+      {
+        "Abbreviation": "HUL",
+        "TeamName": "Audi",
+        "GridPosition": 13,
+        "Predicted": 13.2,
+        "FantasyValue": 0.0,
+        "Price": 7.8,
+        "PickCategory": "Risk",
+        "DNFProb": 0.215,
+        "Confidence": "low",
+        "ConfidenceReason": "P13 in FP3. But teammate BOR was P10 and only 0.032s from the next car. Couldn't check: only one session so far."
+      },
+      {
+        "Abbreviation": "COL",
+        "TeamName": "Alpine",
+        "GridPosition": 14,
+        "Predicted": 14.2,
+        "FantasyValue": 0.0,
+        "Price": 7.6,
+        "PickCategory": "Risk",
+        "DNFProb": 0.185,
+        "Confidence": "low",
+        "ConfidenceReason": "P14 in FP3. 0.056s clear of the next car. But teammate GAS was P11 and moved around between sessions (P9 to P14)."
+      },
+      {
+        "Abbreviation": "CAM",
+        "TeamName": "Haas F1 Team",
+        "GridPosition": 15,
+        "Predicted": 15.0,
+        "FantasyValue": 0.0,
+        "Price": 6.0,
+        "PickCategory": "Risk",
+        "DNFProb": 0.238,
+        "Confidence": "medium",
+        "ConfidenceReason": "P15 in FP3. Teammate BEA P16 backs it up and 0.056s clear of the next car. But moved around between sessions (P15 to P18)."
+      },
+      {
+        "Abbreviation": "BEA",
+        "TeamName": "Haas F1 Team",
+        "GridPosition": 16,
+        "Predicted": 16.2,
+        "FantasyValue": -5.5,
+        "Price": 5.6,
+        "PickCategory": "Avoid",
+        "DNFProb": 0.327,
+        "Confidence": "low",
+        "ConfidenceReason": "P16 in FP3. Teammate CAM P15 backs it up. But moved around between sessions (P10 to P16) and only 0.038s from the next car."
+      },
+      {
+        "Abbreviation": "ALB",
+        "TeamName": "Williams",
+        "GridPosition": 17,
+        "Predicted": 17.2,
+        "FantasyValue": -5.5,
+        "Price": 3.8,
+        "PickCategory": "Avoid",
+        "DNFProb": 0.388,
+        "Confidence": "low",
+        "ConfidenceReason": "P17 in FP3. Teammate SAI P19 backs it up. But moved around between sessions (P16 to P19) and only 0.024s from the next car."
+      },
+      {
+        "Abbreviation": "ALO",
+        "TeamName": "Aston Martin",
+        "GridPosition": 18,
+        "Predicted": 18.2,
+        "FantasyValue": -5.5,
+        "Price": 5.4,
+        "PickCategory": "Avoid",
+        "DNFProb": 0.416,
+        "Confidence": "low",
+        "ConfidenceReason": "P18 in FP3. But teammate STR was P22, moved around between sessions (P13 to P18) and only 0.024s from the next car."
+      },
+      {
+        "Abbreviation": "SAI",
+        "TeamName": "Williams",
+        "GridPosition": 19,
+        "Predicted": 19.2,
+        "FantasyValue": -5.5,
+        "Price": 8.4,
+        "PickCategory": "Avoid",
+        "DNFProb": 0.288,
+        "Confidence": "high",
+        "ConfidenceReason": "P19 in FP3. Teammate ALB P17 backs it up, steady all weekend and 0.132s clear of the next car."
+      },
+      {
+        "Abbreviation": "PER",
+        "TeamName": "Cadillac",
+        "GridPosition": 20,
+        "Predicted": 20.2,
+        "FantasyValue": -5.5,
+        "Price": 3.0,
+        "PickCategory": "Avoid",
+        "DNFProb": 0.389,
+        "Confidence": "high",
+        "ConfidenceReason": "P20 in FP3. Teammate BOT P21 backs it up, steady all weekend and 0.149s clear of the next car."
+      },
+      {
+        "Abbreviation": "BOT",
+        "TeamName": "Cadillac",
+        "GridPosition": 21,
+        "Predicted": 21.2,
+        "FantasyValue": -5.5,
+        "Price": 3.0,
+        "PickCategory": "Avoid",
+        "DNFProb": 0.572,
+        "Confidence": "medium",
+        "ConfidenceReason": "P21 in FP3. Teammate PER P20 backs it up and 0.149s clear of the next car. But moved around between sessions (P15 to P21)."
+      },
+      {
+        "Abbreviation": "STR",
+        "TeamName": "Aston Martin",
+        "GridPosition": 22,
+        "Predicted": 22.0,
+        "FantasyValue": -5.5,
+        "Price": 3.0,
+        "PickCategory": "Avoid",
+        "DNFProb": 0.6,
+        "Confidence": "low",
+        "ConfidenceReason": "P22 in FP3. 1.044s clear of the next car. But teammate ALO was P18 and moved around between sessions (P18 to P22)."
+      }
+    ],
+    "constructors": [
+      {
+        "name": "Mercedes",
+        "price": 34.0,
+        "score": 58.1
+      },
+      {
+        "name": "Red Bull Racing",
+        "price": 33.3,
+        "score": 50.7
+      },
+      {
+        "name": "McLaren",
+        "price": 33.0,
+        "score": 47.8
+      },
+      {
+        "name": "Racing Bulls",
+        "price": 17.7,
+        "score": 27.7
+      },
+      {
+        "name": "Ferrari",
+        "price": 28.8,
+        "score": 23.1
+      },
+      {
+        "name": "Audi",
+        "price": 11.6,
+        "score": 7.1
+      },
+      {
+        "name": "Alpine",
+        "price": 18.2,
+        "score": 3.0
+      },
+      {
+        "name": "Haas F1 Team",
+        "price": 12.8,
+        "score": -4.5
+      },
+      {
+        "name": "Williams",
+        "price": 12.6,
+        "score": -12.0
+      },
+      {
+        "name": "Aston Martin",
+        "price": 4.5,
+        "score": -12.0
+      },
+      {
+        "name": "Cadillac",
+        "price": 3.0,
+        "score": -12.0
+      }
+    ]
+  },
+  "optimal_team": {
+    "drivers": [
+      {
+        "Abbreviation": "VER",
+        "TeamName": "Red Bull Racing",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "Price": 28.8,
+        "PickCategory": "Safe"
+      },
+      {
+        "Abbreviation": "LIN",
+        "TeamName": "Racing Bulls",
+        "GridPosition": 7,
+        "Predicted": 7.2,
+        "FantasyValue": 10.4,
+        "Price": 10.0,
+        "PickCategory": "Risk"
+      },
+      {
+        "Abbreviation": "LAW",
+        "TeamName": "Racing Bulls",
+        "GridPosition": 8,
+        "Predicted": 8.1,
+        "FantasyValue": 7.3,
+        "Price": 11.1,
+        "PickCategory": "Risk"
+      },
+      {
+        "Abbreviation": "BOR",
+        "TeamName": "Audi",
+        "GridPosition": 10,
+        "Predicted": 10.2,
+        "FantasyValue": 2.1,
+        "Price": 5.8,
+        "PickCategory": "Risk"
+      },
+      {
+        "Abbreviation": "CAM",
+        "TeamName": "Haas F1 Team",
+        "GridPosition": 15,
+        "Predicted": 15.0,
+        "FantasyValue": 0.0,
+        "Price": 6.0,
+        "PickCategory": "Risk"
+      }
+    ],
+    "constructors": [
+      {
+        "name": "Mercedes",
+        "price": 34.0,
+        "score": 58.1
+      },
+      {
+        "name": "Cadillac",
+        "price": 3.0,
+        "score": 0.0
+      }
+    ],
+    "total_cost": 98.7,
+    "budget_remaining": 1.3,
+    "total_score": 113.9,
+    "boost_pick": {
+      "Abbreviation": "VER",
+      "TeamName": "Red Bull Racing",
+      "GridPosition": 1,
+      "Predicted": 1.0,
+      "FantasyValue": 36.0,
+      "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x",
+      "alternatives": [
+        "LIN",
+        "LAW"
+      ]
+    }
+  },
+  "optimal_score": 113.9,
+  "limitless_team": {
+    "drivers": [
+      {
+        "Abbreviation": "VER",
+        "TeamName": "Red Bull Racing",
+        "GridPosition": 1,
+        "Predicted": 1.0,
+        "FantasyValue": 36.0,
+        "Price": 28.8,
+        "PickCategory": "Safe"
+      },
+      {
+        "Abbreviation": "ANT",
+        "TeamName": "Mercedes",
+        "GridPosition": 2,
+        "Predicted": 1.8,
+        "FantasyValue": 27.9,
+        "Price": 27.5,
+        "PickCategory": "Safe"
+      },
+      {
+        "Abbreviation": "NOR",
+        "TeamName": "McLaren",
+        "GridPosition": 3,
+        "Predicted": 3.0,
+        "FantasyValue": 23.8,
+        "Price": 25.9,
+        "PickCategory": "Safe"
+      },
+      {
+        "Abbreviation": "RUS",
+        "TeamName": "Mercedes",
+        "GridPosition": 4,
+        "Predicted": 4.0,
+        "FantasyValue": 19.7,
+        "Price": 27.3,
+        "PickCategory": "Value"
+      },
+      {
+        "Abbreviation": "LEC",
+        "TeamName": "Ferrari",
+        "GridPosition": 5,
+        "Predicted": 5.0,
+        "FantasyValue": 16.6,
+        "Price": 24.7,
+        "PickCategory": "Value"
+      }
+    ],
+    "constructors": [
+      {
+        "name": "Mercedes",
+        "price": 34.0,
+        "score": 58.1
+      },
+      {
+        "name": "Red Bull Racing",
+        "price": 33.3,
+        "score": 50.7
+      }
+    ],
+    "total_cost": 201.5,
+    "budget_remaining": 797.5,
+    "total_score": 232.8,
+    "boost_pick": {
+      "Abbreviation": "VER",
+      "TeamName": "Red Bull Racing",
+      "GridPosition": 1,
+      "Predicted": 1.0,
+      "FantasyValue": 36.0,
+      "reason": "Starting P1 (Q3), predicted P1: front row, qualifying points already banked, safest 2x",
+      "alternatives": [
+        "ANT",
+        "NOR"
+      ]
+    }
+  },
+  "limitless_score": 232.8,
+  "ownership": {
+    "drivers": {
+      "GAS": {
+        "selected_pct": 20.0,
+        "captain_pct": 1.0
+      },
+      "COL": {
+        "selected_pct": 19.0,
+        "captain_pct": 1.0
+      },
+      "ALO": {
+        "selected_pct": 10.0,
+        "captain_pct": 0.0
+      },
+      "STR": {
+        "selected_pct": 4.0,
+        "captain_pct": 0.0
+      },
+      "HUL": {
+        "selected_pct": 35.0,
+        "captain_pct": 0.0
+      },
+      "BOR": {
+        "selected_pct": 32.0,
+        "captain_pct": 0.0
+      },
+      "BOT": {
+        "selected_pct": 19.0,
+        "captain_pct": 0.0
+      },
+      "PER": {
+        "selected_pct": 21.0,
+        "captain_pct": 0.0
+      },
+      "HAM": {
+        "selected_pct": 18.0,
+        "captain_pct": 9.0
+      },
+      "LEC": {
+        "selected_pct": 27.0,
+        "captain_pct": 15.0
+      },
+      "OCO": {
+        "selected_pct": 12.0,
+        "captain_pct": 0.0
+      },
+      "HIR": {
+        "selected_pct": 0.0,
+        "captain_pct": 0.0
+      },
+      "CAM": {
+        "selected_pct": 0.0,
+        "captain_pct": 0.0
+      },
+      "BEA": {
+        "selected_pct": 51.0,
+        "captain_pct": 2.0
+      },
+      "NOR": {
+        "selected_pct": 9.0,
+        "captain_pct": 6.0
+      },
+      "PIA": {
+        "selected_pct": 9.0,
+        "captain_pct": 5.0
+      },
+      "ANT": {
+        "selected_pct": 37.0,
+        "captain_pct": 25.0
+      },
+      "RUS": {
+        "selected_pct": 20.0,
+        "captain_pct": 15.0
+      },
+      "LAW": {
+        "selected_pct": 29.0,
+        "captain_pct": 1.0
+      },
+      "LIN": {
+        "selected_pct": 43.0,
+        "captain_pct": 1.0
+      },
+      "TSU": {
+        "selected_pct": 0.0,
+        "captain_pct": 0.0
+      },
+      "VER": {
+        "selected_pct": 20.0,
+        "captain_pct": 15.0
+      },
+      "HAD": {
+        "selected_pct": 28.0,
+        "captain_pct": 3.0
+      },
+      "SAI": {
+        "selected_pct": 22.0,
+        "captain_pct": 1.0
+      },
+      "ALB": {
+        "selected_pct": 10.0,
+        "captain_pct": 0.0
+      }
+    },
+    "constructors": {
+      "Mercedes": {
+        "selected_pct": 35.0,
+        "captain_pct": 0.0
+      },
+      "Red Bull Racing": {
+        "selected_pct": 8.0,
+        "captain_pct": 0.0
+      },
+      "McLaren": {
+        "selected_pct": 10.0,
+        "captain_pct": 0.0
+      },
+      "Ferrari": {
+        "selected_pct": 41.0,
+        "captain_pct": 0.0
+      },
+      "Alpine": {
+        "selected_pct": 7.0,
+        "captain_pct": 0.0
+      },
+      "Racing Bulls": {
+        "selected_pct": 33.0,
+        "captain_pct": 0.0
+      },
+      "Haas F1 Team": {
+        "selected_pct": 24.0,
+        "captain_pct": 0.0
+      },
+      "Williams": {
+        "selected_pct": 9.0,
+        "captain_pct": 0.0
+      },
+      "Audi": {
+        "selected_pct": 21.0,
+        "captain_pct": 0.0
+      },
+      "Aston Martin": {
+        "selected_pct": 3.0,
+        "captain_pct": 0.0
+      },
+      "Cadillac": {
+        "selected_pct": 9.0,
+        "captain_pct": 0.0
+      }
+    }
+  },
+  "ownership_fetched_at": "2026-11-07T16:03:11.647165+00:00"
+}
