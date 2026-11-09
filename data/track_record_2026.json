@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-02",
+ "updated": "2026-11-09",
  "rows": [
   {
    "round": 13,
@@ -90,42 +90,54 @@
    "race": "Mexico City Grand Prix",
    "cells": {
     "Locked": 71.0,
-    "FP3 order": 35.0,
-    "Most expensive": 102.5,
-    "Crowd": 118.0,
-    "Hindsight best": 257.0
+    "FP3 order": 60.0,
+    "Most expensive": 108.5,
+    "Crowd": 92.0,
+    "Hindsight best": 272.0
+   },
+   "why": {}
+  },
+  {
+   "round": 20,
+   "race": "S\u00e3o Paulo Grand Prix",
+   "cells": {
+    "Locked": 215.0,
+    "FP3 order": 190.0,
+    "Most expensive": 154.0,
+    "Crowd": 141.0,
+    "Hindsight best": 286.0
    },
    "why": {}
   }
  ],
  "summary": {
   "Locked": {
-   "avg": 160.3,
-   "races": 7
+   "avg": 167.1,
+   "races": 8
   },
   "FP3 order": {
-   "avg": 165.3,
-   "races": 7,
-   "beaten": 4,
-   "of": 7
+   "avg": 171.5,
+   "races": 8,
+   "beaten": 5,
+   "of": 8
   },
   "Most expensive": {
-   "avg": 130.1,
-   "races": 7,
-   "beaten": 4,
-   "of": 7
+   "avg": 133.8,
+   "races": 8,
+   "beaten": 5,
+   "of": 8
   },
   "Crowd": {
-   "avg": 118.0,
-   "races": 1,
-   "beaten": 0,
-   "of": 1
+   "avg": 116.5,
+   "races": 2,
+   "beaten": 1,
+   "of": 2
   },
   "Hindsight best": {
-   "avg": 295.3,
-   "races": 7,
+   "avg": 296.0,
+   "races": 8,
    "beaten": 0,
-   "of": 7
+   "of": 8
   }
  }
 }

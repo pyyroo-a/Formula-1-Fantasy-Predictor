@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-02",
+ "updated": "2026-11-09",
  "seasons": [
   2026
  ],
@@ -743,6 +743,47 @@
    }
   },
   {
+   "track": "S\u00e3o Paulo",
+   "name": "S\u00e3o Paulo Grand Prix",
+   "round": 20,
+   "sprint": false,
+   "chips": {
+    "3x": {
+     "median": 65.0,
+     "values": [
+      {
+       "season": 2026,
+       "value": 65.0,
+       "who": "VER P21 to P2"
+      }
+     ],
+     "seasons": 1
+    },
+    "Limitless": {
+     "median": 125.0,
+     "values": [
+      {
+       "season": 2026,
+       "value": 125.0,
+       "who": null
+      }
+     ],
+     "seasons": 1
+    },
+    "No Negative": {
+     "median": 15.1,
+     "values": [
+      {
+       "season": 2026,
+       "value": 15.1,
+       "who": null
+      }
+     ],
+     "seasons": 1
+    }
+   }
+  },
+  {
    "track": "Zandvoort",
    "name": "Dutch Grand Prix",
    "round": 12,
@@ -800,9 +841,9 @@
      "seasons": 1
     },
     {
-     "track": "Montr\u00e9al",
-     "name": "Canadian Grand Prix",
-     "median": 62.0,
+     "track": "S\u00e3o Paulo",
+     "name": "S\u00e3o Paulo Grand Prix",
+     "median": 65.0,
      "seasons": 1
     }
    ],
@@ -828,9 +869,9 @@
      "seasons": 1
     },
     {
-     "track": "Suzuka",
-     "name": "Japanese Grand Prix",
-     "median": 119.0,
+     "track": "S\u00e3o Paulo",
+     "name": "S\u00e3o Paulo Grand Prix",
+     "median": 125.0,
      "seasons": 1
     }
    ],
